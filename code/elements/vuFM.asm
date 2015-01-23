@@ -28,7 +28,17 @@ draw_vu:
 	ld	hl,AY_regVOLA
 [2]	ldi
 	ld	hl,SCC_regVOLA	
-[6]	ldi	
+	; copy and invert value
+	ld	b,6
+_dv_invert:
+	ld	c,(hl)
+	ld	a,15
+	sub	c
+	ld	(de),a
+	inc	de
+	inc	hl
+	djnz	_dv_invert
+;[6]	ldi	
 
 1:	call	_vu_line_calc
 	ld	hl,(80*5)+48

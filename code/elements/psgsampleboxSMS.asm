@@ -1844,7 +1844,7 @@ reset_cursor_psgsamplebox:
 		ld	a,1
 		ld	(cursor_type),a	
 		jr.	99f		
-
+0:
 99:	ld	a,8
 88:	ld	(cursor_y),a
 	ret

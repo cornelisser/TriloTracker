@@ -3,7 +3,7 @@
 ; --- copy_to_buffer
 ; 
 ; Copies the current selection to the buffer. 
-; If there is no selection then the current position is
+; If there is no selection then nothing is
 ; placed in the buffer.
 ; ==========================================================	
 copy_to_buffer:
@@ -14,33 +14,34 @@ copy_to_buffer:
 
 	ld	a,(selection_status)
 	and	a
-	jr.	nz,1f
-
-	;--- single char copy
-	inc	a
-	ld	(selection_status),a
-	
-	
-	ld	a,(cursor_x)
-	ld	(selection_x1),a
-	ld	(selection_x2),a
-	ld	a,(song_pattern_offset)
-	ld	b,a
-	ld	a,(cursor_y)
-	add	b
-	ld	(selection_y1),a
-	ld	(selection_y2),a
-	ld	a,(cursor_type)
-	dec	a
-	ld	(selection_type1),a
-	ld	(selection_type2),a
-	ld	a,(cursor_input)
-	ld	(selection_column1),a
-	ld	(selection_column2),a
-	
-	call	selection_show
-
-1:
+	ret	z
+;	jr.	nz,1f
+;
+;	;--- single char copy
+;	inc	a
+;	ld	(selection_status),a
+;	
+;	
+;	ld	a,(cursor_x)
+;	ld	(selection_x1),a
+;	ld	(selection_x2),a
+;	ld	a,(song_pattern_offset)
+;	ld	b,a
+;	ld	a,(cursor_y)
+;	add	b
+;	ld	(selection_y1),a
+;	ld	(selection_y2),a
+;	ld	a,(cursor_type)
+;	dec	a
+;	ld	(selection_type1),a
+;	ld	(selection_type2),a
+;	ld	a,(cursor_input)
+;	ld	(selection_column1),a
+;	ld	(selection_column2),a
+;	
+;	call	selection_show
+;
+;1:
 	ld	a,1
 	ld	(clipb_status),a
 	;---Set the source pattern

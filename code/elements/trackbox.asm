@@ -475,7 +475,7 @@ process_key_trackbox:
 		ld	a,(hl)
 		ld	(song_pattern),a	
 		call	reset_selection		
-		call	update_orderbox		;build_order_list
+		call	build_order_list
 		call	check_cursor_patternbox	
 		call	update_patterneditor
 		jr.	_process_key_trackbox_END		

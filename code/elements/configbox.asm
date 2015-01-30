@@ -247,7 +247,7 @@ update_configbox:
 	ld	de,0x0c01
 	call	erase_colorbox	
 	ld	d,4
-	
+debug:	
 	ld	a,(_CONFIG_VDP);(vsf)
 	cp	255
 	jr.	nz,88f

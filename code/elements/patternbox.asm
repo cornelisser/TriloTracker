@@ -261,7 +261,8 @@ process_key_patternbox_length:
 44:		ld	a,(song_order_len)
 		dec	a
 		jr.	z,process_key_patternbox_length_END
-88:		ld	(song_order_len),a
+88:		
+		ld	(song_order_len),a
 		;--- make sure restart is nog bigger than length
 		ld	bc,(song_order_loop)
 		cp	c
@@ -269,6 +270,7 @@ process_key_patternbox_length:
 		ld	(song_order_loop ),a
 
 77:
+		call	update_orderbox		
 		call	build_order_list
 		call	update_patterneditor
 		jr.	process_key_patternbox_length_END	

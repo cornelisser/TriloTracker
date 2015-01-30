@@ -60,6 +60,8 @@ song_order_pos_old		#1
 song_order_pos			#1
 song_order_offset		#1
 	
+song_order_update		#1		; flag for updating the diaply of the order	
+	
 ;-- track
 song_pattern		#1
 song_pattern_offset	#1		; offset to draw

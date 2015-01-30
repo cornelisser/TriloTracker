@@ -1173,6 +1173,8 @@ _pfd_IMPORTXM:
 	;--- go to the start of the song.
 	xor	a
 	ld	(song_order_pos),a
+	dec	a
+	ld	(song_order_update),a
 	call	reset_cursor_trackbox		
 	
 	;--- if loading was succesfull return to pattern editor
@@ -1210,6 +1212,8 @@ _pfd_IMPORTMBM:
 	;--- go to the start of the song.
 	xor	a
 	ld	(song_order_pos),a
+	dec	a
+	ld	(song_order_update),a
 	call	reset_cursor_trackbox	
 	
 	jr.	restore_patterneditor

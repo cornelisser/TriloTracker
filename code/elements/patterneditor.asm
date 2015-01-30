@@ -48,8 +48,11 @@ update_patterneditor:
 	call	update_trackbox
 	call	update_songbox
 	call	update_instrumentbox
+	
+	ld	a,255
+	ld	(song_order_update),a
 	call	update_orderbox
-
+	
 
 	ret
 	
@@ -375,6 +378,9 @@ _ppp_instruments:
 	; To start of pattern
 	xor	a
 	ld	(song_order_pos),a
+	inc	a
+	ld	(song_order_update),a
+
 	ld	hl,song_order
 	ld	a,(hl)
 	ld	(song_pattern),a	
@@ -422,7 +428,7 @@ _pkp_home_cont:
 	ld	(cursor_type),a
 	
 	call	reset_selection		
-	call	build_order_list
+	call	update_orderbox		;build_order_list
 	call	update_patterneditor
 	jr.	processkey_patterneditor_END
 

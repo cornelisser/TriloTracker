@@ -40,33 +40,31 @@ testslot:        push af           ; save test-slot on the stack
                  ld h,#80
                  call enaslt       ; switch slot-to-test in 8000-bfffh
 
-			;---- Check if page contains RAM   (RAM at 0xA000 == no SCC)
-			ld	hl,0xa000
-			ld 	a,(hl)
-			inc	(hl)
-			cp	(hl)
-			jr	z,_no_ram
-			ld	(hl),a		; restore RAM 
-			jp	nextslot		; check next (sub)slot
-
-_no_ram:
 	ld	a,(scc_type_check)		; 0 = scc, 1=scc+/scc-I
 	and	a
 	jr.	z,scc_test
 
 scci_test:
                  ld hl,#b000
+                 ld b,(hl)         ; save contents of address 9000h
                  ld (hl),#3f       ; activate SCC (if present)
                  ld h,#9c          ; address of SCC-register mirrors
-testregi:		ld a,(hl)         ; read byte from address 9cxxh
-                 inc a              ; increase it
-                 ld (hl),a         ; write inverted byte to 98xxh
+                 ld de,#b800       ; 9800h = address of SCC-registers
+testregi:         ld a,(de)
+                 ld c,a            ; save contents of address 98xxh
+                 ld a,(hl)         ; read byte from address 9cxxh
+                 cpl               ; and invert it
+                 ld (de),a         ; write inverted byte to 98xxh
                  cp (hl)           ; same value on 9cxxh ?
+                 ld a,c
+                 ld (de),a         ; restore value on 98xxh
                  jr nz,nextslot    ; unequal -> no SCC -> continue search
-			
-			dec	a
-			ld (hl),a
-
+                 inc hl
+                 inc de            ; next test-addresses
+                 bit 7,l           ; 128 adresses (registers) tested ?
+                 jr z,testregi      ; no -> repeat mirror-test
+                 ld a,b
+                 ld (#b000),a      ; restore value on 9000h
                  xor	a
                  ld	($bfff),a	; Set SCC+ in SCC mode
                  pop bc            ; retrieve slotcode (=SCC-slot) from stack
@@ -74,17 +72,25 @@ testregi:		ld a,(hl)         ; read byte from address 9cxxh
 
 scc_test:
                  ld hl,#9000
+                 ld b,(hl)         ; save contents of address 9000h
                  ld (hl),#3f       ; activate SCC (if present)
                  ld h,#9c          ; address of SCC-register mirrors
-testreg:         ld a,(hl)         ; read byte from address 9cxxh
-                 inc a              ; increase it
-                 ld (hl),a         ; write inverted byte to 98xxh
+                 ld de,#9800       ; 9800h = address of SCC-registers
+testreg:         ld a,(de)
+                 ld c,a            ; save contents of address 98xxh
+                 ld a,(hl)         ; read byte from address 9cxxh
+                 cpl               ; and invert it
+                 ld (de),a         ; write inverted byte to 98xxh
                  cp (hl)           ; same value on 9cxxh ?
+                 ld a,c
+                 ld (de),a         ; restore value on 98xxh
                  jr nz,nextslot    ; unequal -> no SCC -> continue search
-			
-			dec	a
-			ld (hl),a
-
+                 inc hl
+                 inc de            ; next test-addresses
+                 bit 7,l           ; 128 adresses (registers) tested ?
+                 jr z,testreg      ; no -> repeat mirror-test
+                 ld a,b
+                 ld (#9000),a      ; restore value on 9000h
                  pop bc            ; retrieve slotcode (=SCC-slot) from stack
                  jr done           ; SCC found, restore page 2-slot & return
 

@@ -1,6 +1,7 @@
 ; Trilo-Tracker v0.2
 define VERSION "v0.8.0 SMS PSG+FM  "
 define YEAR "2014"
+define CHIPSET_CODE $30
 
 DEFINE TTSMS 
 

@@ -1,7 +1,7 @@
 ; Trilo-Tracker v0.2
 define VERSION "v0.8.0 public beta "
 define YEAR "2014"
-
+define CHIPSET_CODE $00
 
 
 	defpage	0,0x0100, 0x3f00	; page 0 contains main code + far call routines

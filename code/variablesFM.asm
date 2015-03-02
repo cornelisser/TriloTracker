@@ -57,7 +57,8 @@ song_order_len			#1
 song_order				#SONG_SEQSIZE
 song_order_pos_old		#1
 song_order_pos			#1
-song_order_offset		#1
+song_order_offset			#1
+song_order_update			#1
 	
 ;-- track
 song_pattern		#1

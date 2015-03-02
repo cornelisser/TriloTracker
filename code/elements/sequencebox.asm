@@ -27,10 +27,7 @@ draw_orderbox:
 	dec	a
 	ld	(song_order_pos_old),a
 	
-	
-	call	build_order_list
-	
-	
+	call	update_orderbox		;build_order_list
 	
 	
 	ret
@@ -44,6 +41,14 @@ _LABEL_TRACKSEQBOX:
 ; 
 ;===========================================================
 update_orderbox:
+	;--- Only update if needed.
+	ld	a,(song_order_update)
+	ld	b,a
+	ld	a,(song_order_pos)
+	cp	b
+	ret	z
+	ld	(song_order_update),a
+
 ;	call	build_order_list
 	ld	hl,(80*2)+1
 	ld	de,_LABEL_ORDER
@@ -74,7 +79,11 @@ update_orderbox:
 	ld	b,7	
 	call	draw_label_fast	
 	
-	ret	
+	jp	build_order_list
+;	ret	
+	
+
+	
 ;===========================================================
 ; --- process_key_orderbox
 ;
@@ -225,9 +234,6 @@ process_key_orderbox:
 		
 		jr.	88f
 		
-		
-		jr.	88f				
-	
 	
 0:
 
@@ -291,8 +297,6 @@ process_key_orderbox:
 		jr.	88f
 
 88:
-		call	build_order_list
-		call	update_orderbox
 		ld	hl,song_order
 		ld	a,(song_order_pos)
 		add	a,l
@@ -302,11 +306,14 @@ process_key_orderbox:
 99:
 		ld 	a,(hl)
 		ld	(song_pattern),a
+		ld	a,255
+		ld	(song_order_update),a
 ;		xor	a
 ;		ld	(song_pattern_offset),a
 ;		ld	(song_pattern_line),a
 		call	update_patternbox
 		call	update_trackbox
+		call	update_orderbox
 		jr.	process_key_orderbox_END
 0:
 	cp	_KEY_UP
@@ -430,6 +437,8 @@ reset_cursor_orderbox:
 	ret		
 	
 	
+	
+	
 _LABEL_ORDER:
 	db	"xxx_xxx"
 	db	"xxx_xxx"
@@ -438,7 +447,10 @@ _LABEL_ORDER:
 	db	"xxx_xxx"
 	db	"xxx_xxx"
 	db	"xxx_xxx"
-	db	"               "
+_LABEL_ORDER_1:
+	db	0x80
+_LABEL_ORDER_2:
+	db	0xbe
 	
 ;===============================================
 ; 
@@ -557,4 +569,32 @@ _be_loop:
 99:
 ;	call	update_orderbox
 
-	ret		
+
+;	;---- order position
+;	ld	hl,80*2
+;	ld	de,80
+;	ld	a,(song_order_pos)
+;	ld	b,a			; store current pos
+;	; calculate step size dependant on the length/8
+;	ld	a,(song_order_len)
+;	rra	;/2
+;	rra	;/4
+;	rra	;/8
+;	and	00011111b		; delete any carry flag bits
+;	inc	a
+;	ld	c,a
+;_opi_loop:
+;	cp	b
+;	jp	nc,0f
+;	add	hl,de
+;	add	c
+;	jp	_opi_loop
+;	
+;0:
+;	ld	de,_LABEL_ORDER_2
+;	ld	b,1
+;	call	draw_label_fast
+	ret
+	
+	
+	

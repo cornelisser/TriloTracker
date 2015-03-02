@@ -807,6 +807,7 @@ _create_tmu_continue:
 	
 	;--- Write header
 	ld	a,5
+	or	CHIPSET_CODE
 	ld	(song_version),a
 	
 	ld	de,song_version

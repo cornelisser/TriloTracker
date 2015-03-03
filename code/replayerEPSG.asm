@@ -1416,8 +1416,8 @@ _CHIPcmdE_extended:
 	jp	z,_CHIPcmdE_delay
 	cp	$40	; set	vibrato
 	jp	z,_CHIPcmdE_vibrato
-;	cp	0x50	; note_detune
-;	jp	z,_CHIPcmdE_notedetune
+	cp	0xc0	; note_cut
+	jp	z,_CHIPcmdE_notecut
 
 	cp	0x80	; global transpose
 	jp	z,_CHIPcmdE_transpose
@@ -1435,7 +1435,14 @@ _CHIPcmdE_shortarp_retrig:
 	ld	(ix+TRACK_Command),0x10
 	ret
 
-	
+_CHIPcmdE_notecut:
+	set	3,(ix+TRACK_Flags)
+	ld	(ix+TRACK_Command),0x1C		; set	the command#
+	ld	a,d
+	and	0x0f
+	inc	a
+	ld	(ix+TRACK_Timer),a		; set	the timer to param y
+	ret	
 	
 _CHIPcmdE_delay:
 	bit	0,(ix+TRACK_Flags)		; is there a note	in this eventstep?
@@ -2336,8 +2343,13 @@ _pcAY_cmd1b:
 	res	3,(ix+TRACK_Flags)
 	jp	_pcAY_commandEND	
 _pcAY_cmd1c:
+	dec	(ix+TRACK_Timer)
+	jp	nz,_pcAY_commandEND
+	
+	; stop note
+	res	1,(ix+TRACK_Flags)	; set	note bit to	0
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jp	_pcAY_commandEND		
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+TRACK_Timer)

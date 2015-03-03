@@ -1777,6 +1777,9 @@ _CHIPcmdE_extended:
 	jr.	z,_CHIPcmdE_notesus
 	cp	0x80	; global transpose
 	jr.	z,_CHIPcmdE_transpose
+	cp	0xc0	; Note cut
+	jr.	z,_CHIPcmdE_notecut
+
 	ret
 
 
@@ -1791,6 +1794,16 @@ _CHIPcmdE_shortarp_retrig:
 	set	3,(ix+CHIP_Flags)		; command active		
 	ld	(ix+CHIP_Command),0x10
 	ret	
+
+_CHIPcmdE_notecut:
+	set	3,(ix+CHIP_Flags)
+	ld	(ix+CHIP_Command),0x1C		; set	the command#
+	ld	a,d
+	and	0x0f
+	inc	a
+	ld	(ix+CHIP_Timer),a		; set	the timer to param y
+	ret
+
 	
 _CHIPcmdE_delay:
 	bit	0,(ix+CHIP_Flags)		; is there a note	in this eventstep?
@@ -2872,8 +2885,13 @@ _pcAY_cmd1b:
 	res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
+	dec	(ix+CHIP_Timer)
+	jp	nz,_pcAY_commandEND
+	
+	; stop note
+	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	3,(ix+CHIP_Flags)
-	jr.	_pcAY_commandEND	
+	jp	_pcAY_commandEND		
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+CHIP_Timer)

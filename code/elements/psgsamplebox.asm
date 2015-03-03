@@ -1368,7 +1368,7 @@ process_key_psgsamplebox_waveform:
 	jr.	nz,0f
 	;--- sample nr up
 		ld	a,c
-		cp	16
+		cp	32
 		ret	nc
 		inc	a
 		ld	(hl),a

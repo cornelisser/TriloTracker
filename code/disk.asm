@@ -1729,6 +1729,7 @@ open_tmufile:
 	jr.	nz,catch_diskerror
 
 	ld	a,(song_version)
+	and	$0f
 	cp	4
 	jr.	nc,1f
 
@@ -1803,6 +1804,7 @@ _otmu_samplsub:				; calculate the number of bytes
 	ld	de,_WAVESSCC
 	;--- check how many scc waveforms we need to load.
 	ld	a,(song_version)
+	and	$0f
 	cp	3
 	jr.	c,99f
 	ld	hl,1024
@@ -1816,6 +1818,7 @@ _otmu_samplsub:				; calculate the number of bytes
 	; 1 = uncompressed (converter tool)
 	; 2 = compressed
 	ld	a,(song_version)
+	and	$0f
 	cp	1
 	jr.	nz,_open_tmufile_compressed
 
@@ -1924,6 +1927,7 @@ _open_tmufile_end:
 	call	set_hook
 
 	ld	a,(song_version)
+	and	$0f
 	cp	5
 	call	c,_translate_macros
 

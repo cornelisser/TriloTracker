@@ -3134,18 +3134,34 @@ _ptAY_loop:
 	outi
 	dec	c
 	inc	a
-	cp	13
+	cp	11
 	jr	nz,_ptAY_loop
 
-	ld	b,a
+	;--- envelope freq update?
+
 	ld	a,(hl)
 	and	a
+	jp	z,99f		; if bit 0 is not set no update
+
+	ld	b,11
+	out 	(c),b
+	inc	c
+	out	(c),a
+	dec	c
+	ld	(hl),0	
+99:	
+	ld	a,(AY_regEnvShape)
+	and	a
 	jp	z,_ptAY_noEnv
+	
+	ld	b,13
 	out	(c),b
 	inc	c
 	out 	(c),a
-	ld	(hl),0	;reset the envwrite
-	
+
+	xor	a
+	ld	(AY_regEnvShape),a	;reset the envwrite
+		
 	
 _ptAY_noEnv:
 	

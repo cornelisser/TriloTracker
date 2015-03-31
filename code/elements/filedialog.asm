@@ -800,7 +800,7 @@ _fd_drive_check:
 	jr.	update_filedailog_fileselection
 
 2:	;--- 2 = save file
-	ld	a,2
+debug:	ld	a,2
 	ld	(editsubmode),a
 	call	reset_cursor_filedialog
 	
@@ -811,10 +811,14 @@ _fd_drive_check:
 	call	message_filedialog
 	xor	a
 	ld	(window_shown),a
+	dec	a
+	ld	(suppress_filenotfound),a
 	call	get_dir
+	xor	a
+	ld	(suppress_filenotfound),a
 	ld	a,(window_shown)
-	and	a
-		call	nz,restore_filedialog
+;	and	a
+;		call	nz,restore_filedialog
 	ld	de,_FILMES_select_save
 	call	message_filedialog
 	
@@ -1329,7 +1333,8 @@ restore_filedialog:
 		jr.	update_filedialog		
 
 
-
+suppress_filenotfound:
+	db	0			; for suppressing file no found when saving a file and dir is retrieved.
 
 
 _FILMES_retrieve:	

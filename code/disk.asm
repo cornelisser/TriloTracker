@@ -236,10 +236,20 @@ get_dir:
 	ld	a,(disk_entries)
 	cp	1
 	jp	c,99f
-	
+0:	
 	call	set_hook
 	ret
 99:	;-- no files or directories found
+	ld	a,(suppress_filenotfound)
+	and	a
+	jp	nz,0b
+
+	ld	a,$D7
+	jp	99f
+	
+77:		
+	
+	
 	ld	a,$D7
 	call	window
 	ret

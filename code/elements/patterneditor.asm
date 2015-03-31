@@ -97,8 +97,14 @@ init_patterneditor:
 
 
 	; --- show the screen
+
 	call	draw_patterneditor
 	call	update_patterneditor
+	ld	a,255
+	ld	(song_order_update),a
+	call	build_order_list
+	call	update_orderbox
+
 	
 	ret
 

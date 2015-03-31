@@ -46,6 +46,7 @@ start_init:
 	ld	bc,0+(SWAP_CONFIG_END-SWAP_INIT_START)
 	call	swap_loadvram
 
+
 	
 	ld	a,0
 	ld	(cursor_y),a
@@ -58,6 +59,8 @@ start_init:
 	ld	(mainSCCvol),a
 	ld	(instrument_select_status),a	
 	ld	(waveform_select_status),a
+	
+
 
 	inc	a
 	ld	(DrumMixer),a	; FM drums on	
@@ -133,6 +136,9 @@ config:
 
 
 
+	
+	
+	
 	ret
 
 

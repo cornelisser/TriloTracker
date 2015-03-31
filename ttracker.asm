@@ -105,6 +105,7 @@ _LABEL_PATTERNHEADER:
 	db	136,162,163,168,185,188,189,186,187	; scc5
 	db	136,32,32,32,0
 	include	".\code\elements\trackbox.asm"
+	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
@@ -117,7 +118,7 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vu.asm"
 	include 	".\code\loadinstruments.asm"		
-
+	include 	".\code\editlog.asm"
 
 
 			
@@ -146,7 +147,7 @@ _LABEL_PATTERNHEADER:
 
 	include 	".\code\import\import.asm"	
 	include 	".\code\compression2.asm"
-	include 	".\code\editlog.asm"
+
 	include	".\code\vram_swapper.asm"
 	include ".\code\replayer2RAM.asm"	
 	include 	".\code\window.asm"
@@ -163,7 +164,7 @@ _LABEL_PATTERNHEADER:
 	; temporary start up code and data!!! Will be over written after init
 	
 	include ".\code\startup.asm"
-	include ".\code\elements\trackboxRAM.asm"
+	include ".\code\elements\keynotetable.asm"
 
 
 

@@ -163,7 +163,7 @@ _LABEL_PATTERNHEADER:
 	; temporary start up code and data!!! Will be over written after init
 	
 	include ".\code\startup.asm"
-	include ".\code\elements\trackboxRAM.asm"
+	include ".\code\elements\keynotetable.asm"
 
 
 

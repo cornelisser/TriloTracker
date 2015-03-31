@@ -153,7 +153,7 @@ _VOICES_data:
 	
 	include ".\code\startup.asm"
 	include ".\code\loadvoicenamesFM.asm"
-	include ".\code\elements\trackboxRAM.asm"
+	include ".\code\elements\keynotetable.asm"
 
 SWAP_INIT_START:
 	org	SWAP_RAMSTART

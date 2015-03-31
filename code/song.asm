@@ -90,6 +90,7 @@ clear_patterns:
 	inc	hl
 	djnz 	0b
 	
+
 	ld	b,65
 	ld	hl,_ns_TEMP
 	ld	de,song_name

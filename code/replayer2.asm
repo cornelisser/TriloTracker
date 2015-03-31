@@ -1406,23 +1406,33 @@ _CHIPcmdE_extended:
 	jp	z,_CHIPcmdE_vibrato
 	cp	0xc0	; note_cut
 	jp	z,_CHIPcmdE_notecut
-	cp	$50
-	jp	z,_CHIPcmdE_noiseAND
-	cp	$70
-	jp	z,_CHIPE_noiseOR
-	cp	$30
-	jp	z,_CHIPcmdE_psgmode
-	cp	$a0
-	jp	z,_CHIPcmdE_duty1
-	cp	$b0
-	jp	z,_CHIPcmdE_duty2
-	cp	$c0
-	jp	z,_CHIPcmdE_duty3
+	cp	0x50	; note_link
+	jr.	z,_CHIPcmdE_notelink
+;	cp	$50
+;	jp	z,_CHIPcmdE_noiseAND
+;	cp	$70
+;	jp	z,_CHIPE_noiseOR
+;	cp	$30
+;	jp	z,_CHIPcmdE_psgmode
+;	cp	$a0
+;	jp	z,_CHIPcmdE_duty1
+;	cp	$b0
+;	jp	z,_CHIPcmdE_duty2
+;	cp	$c0
+;	jp	z,_CHIPcmdE_duty3
 	
 	cp	0x80	; global transpose
 	jp	z,_CHIPcmdE_transpose
 	ret
 
+	
+_CHIPcmdE_notelink:
+	res	0,(ix+TRACK_Flags)
+;	set	4,(ix+CHIP_Flags)  ; was from FM
+	ret	
+	
+	
+	
 _CHIPE_noiseOR:
 	ld	a,d
 	ld	(AY_NoiseOR),a

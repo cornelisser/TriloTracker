@@ -1836,7 +1836,8 @@ _CHIPcmdE_finedown:
 	ret
 
 _CHIPcmdE_notelink:
-	set	4,(ix+CHIP_Flags)
+	set	4,(ix+CHIP_Flags)		; FM notelink bit
+	res	0,(ix+CHIP_Flags)
 	ret
 _CHIPcmdE_notesus:
 	ld	a,d

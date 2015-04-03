@@ -1228,7 +1228,7 @@ _CHIPcmdB_scc_commands:
 	cp	0x10	; duty cycle
 	jp	z,_CHIPcmdB_pwm
 	cp	0x20	; waveform cut
-	jp	z,_CHIPcmdB_cut2
+	jp	z,_CHIPcmdB_cut
 	cp	0x40	; waveform compress
 	jp	z,_CHIPcmdB_compress
 	cp	0xB0	; set	waveform

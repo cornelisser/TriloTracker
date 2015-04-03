@@ -573,6 +573,63 @@ _upsb_add:
 
 	ret
 
+
+;--- Move macro data 1 line up (insert row)
+; in: [A] is the line to move up
+;
+; need to preserve [A]
+_move_macrolineup:
+	push	af
+	;-- set hl to start macro data of current instrument
+	call	_get_instrument_start
+	dec	hl
+	dec 	hl
+	;-- jump to line ( input)
+	pop	bc
+	push	bc
+	inc	b
+	ld	de,4
+.loop:
+	add	hl,de
+	djnz	.loop
+
+	;--- copy the data to next line
+	ld	d,h	
+	ld	e,l
+	ld	a,4
+	add	a,e
+	ld	e,a
+	jr.	nc,.skip
+	inc	d
+.skip:
+	ldi
+	ldi
+	ldi
+	ldi
+	
+	;--- restore and return 	
+	pop	af
+	ret
+	
+	
+
+
+;--- Get instrument start
+; return in HL that start of the instrument data
+;
+_get_instrument_start:
+	ld	hl,instrument_macros
+	ld	a,(song_cur_instrument)
+	and	a
+	jr.	z,99f
+	ld	bc,INSTRUMENT_SIZE
+88:
+	add	hl,bc
+	dec	a
+	jr.	nz,88b
+99:
+	ret
+
 ;===========================================================
 ; --- process_key_psgsamplebox
 ;
@@ -585,7 +642,42 @@ process_key_psgsamplebox:
 	ld	a,(key)
 	and	a
 	ret	z
+
+
+	;--- INS key to insert macro line
+	cp	_INS
+	jr.	nz,0f
+	ld	a,(instrument_line)
+	cp	31			; check if we are at last line
+	jr.	nc,process_key_psgsamplebox_END
+	;--- increase len
 	
+	;--- get the location in RAM
+	call	_get_instrument_start	
+	;inc	hl
+	ld	a,(hl)
+	cp	32
+	jp	nc,99f
+	inc	a
+	ld	(hl),a
+	ld	(instrument_len),a
+99:
+	;--- move data 1 line down
+	ld	a,(instrument_line)
+	ld	ixh,a
+	ld	a,30		; start from end to current line
+.line_loop:
+	call	_move_macrolineup
+	and	a
+	jp	z,88f
+	dec	a
+	cp	ixh
+	jr.	nc,.line_loop
+88:	
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END	
+	
+		
 0:	
 	;--- key left
 	cp	_KEY_LEFT

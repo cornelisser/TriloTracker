@@ -1228,11 +1228,13 @@ _CHIPcmdB_scc_commands:
 	cp	0x10	; duty cycle
 	jp	z,_CHIPcmdB_pwm
 	cp	0x20	; waveform cut
-	jp	z,_CHIPcmdB_cut
+	jp	z,_CHIPcmdB_cut2
 	cp	0x40	; waveform compress
 	jp	z,_CHIPcmdB_compress
 	cp	0xB0	; set	waveform
 	jp	z,_CHIPcmdB_setwave
+	cp	0xC0	; set	waveform2
+	jp	z,_CHIPcmdB_setwave2
 	cp	0xe0
 ;	jp	z,_CHIPcmdB_morphset
 ;	cp	0xF0
@@ -1278,7 +1280,9 @@ _CHIPcmdB_pwm:
 _CHIPcmdB_cut:	
 	ld	(ix+TRACK_Command),0x22	; set	the command#
 	jp	1b
-		
+
+	
+	jp	1b		
 _CHIPcmdB_compress:	
 	ld	(ix+TRACK_Command),0x24	; set	the command#
 	ld	a,d
@@ -1289,10 +1293,18 @@ _CHIPcmdB_setwave:
 	;--- Set a new waveform
 	ld	a,d
 	and	0xf
-	ld	(ix+TRACK_Waveform),a
+4:	ld	(ix+TRACK_Waveform),a
 	set	6,(ix+TRACK_Flags)
 	res	4,(ix+TRACK_Flags)
 	ret	
+
+_CHIPcmdB_setwave2:
+	;--- Set a new waveform
+	ld	a,d
+	and	0xf
+	add	16
+	jp	4b
+
 	
 _CHIPcmdC:
 	; in:	[A] contains the paramvalue

@@ -5,6 +5,8 @@
 ; 
 ;===========================================================
 draw_configeditor:
+	ld	a,255
+	ld	(song_order_update),a
 	call	clear_screen
 	call	draw_orderbox
 	call	draw_songbox

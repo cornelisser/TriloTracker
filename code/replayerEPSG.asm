@@ -1203,7 +1203,7 @@ _CHIPcmdA_volSlide:
 	
 	;-- pos
 	rra		; only use high 4	bits
-;	rra
+	rra
 	rra
 	rra
 	and	$0f
@@ -1214,15 +1214,15 @@ _CHIPcmdA_neg:
 	;-- neg
 
 
-	sla	a
+;	sla	a
 	add	128
 	
 99:	ld	(ix+TRACK_cmd_A),a
+	ld	(ix+TRACK_Timer),1
 	
 _CHIPcmdA_retrig:
 	;--- Init values
 	set	3,(ix+TRACK_Flags)
-	ld	(ix+TRACK_Timer),1
 	ret
 
 

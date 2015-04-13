@@ -1435,7 +1435,7 @@ _CHIPcmdA_volSlide:
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	; slide the	volume up or down	1 step.
-	; The	x or y param  set	the delay*2	(x=up,y=down)
+	; The	x or y param  set	the delay	(x=up,y=down)
 	; With A00 the previous	value	is used.
 	
 	;--- test for retrigger	(do not update values)
@@ -1449,7 +1449,7 @@ _CHIPcmdA_volSlide:
 	
 	;-- pos
 	rra		; only use high 4	bits
-;	rra
+	rra
 	rra
 	rra
 	and	$0f
@@ -1460,15 +1460,15 @@ _CHIPcmdA_neg:
 	;-- neg
 
 
-	sla	a
+;	sla	a
 	add	128
 	
 99:	ld	(ix+CHIP_cmd_A),a
+	ld	(ix+CHIP_Timer),1
 	
 _CHIPcmdA_retrig:
 	;--- Init values
 	set	3,(ix+CHIP_Flags)
-	ld	(ix+CHIP_Timer),1
 	ret
 
 

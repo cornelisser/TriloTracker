@@ -8,8 +8,8 @@ SONG_PATINSONG	equ (8*1024)/SONG_PATSIZE; number of pats that fit after song dat
 SONG_SEQSIZE	equ 200;128			; size of the order list
 INSTRUMENT_LEN	equ 32		; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3		; size of 1 instrument macro
-MAX_WAVEFORM	equ	192+16+26		; max number of voice.
-
+MAX_WAVEFORM	equ	192-16		; max number of voice.
+MAX_DRUMS		equ	31			; max number of drum macros
 
 
 DOS			equ 5			; DOS function call entrance
@@ -120,7 +120,7 @@ cursor_stack:	#4*6	; room for 6 stacks?
 
 ; DONT PLACE DATA BEYOND THIS ALL fREE SPACE ISFOR cursor stack
 _VOICES:			#8*MAX_WAVEFORM
-_VOICENAMES:		#16*MAX_WAVEFORM
+_DRUM_MACROS:		#8*7*MAX_DRUMS
 
 _SONGDATA_END:	#0
 

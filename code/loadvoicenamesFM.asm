@@ -13,7 +13,7 @@ load_voicenames:
 	sub	b
 	ld	b,a
 	
-	;--- set extension .CFG
+	;--- set extension .DAT
 	sub	4
 	ld	hl,buffer+256
 	add	a,l

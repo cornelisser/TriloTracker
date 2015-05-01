@@ -1,6 +1,6 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.8.0 MSX-Music   "
-define YEAR "2014"
+define VERSION "v0.8.1 FM beta     "
+define YEAR "2015"
 define CHIPSET_CODE $10
 
 DEFINE TTFM 

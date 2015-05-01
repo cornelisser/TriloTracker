@@ -1040,10 +1040,12 @@ get_voicename:
 	add	hl,bc
 	call	set_vdpread
 	
+	di
 	ld	hl,_LABEL_VOICENAME+2
 	ld	bc,$1098
 	inir
 	
+	ei
 	ld	hl,_LABEL_VOICENAME
 	ret
 	

@@ -1,5 +1,4 @@
-;Hardware Voices
-1:	db "Unused          "
+1:	db "Unused          " ;Hardware Voices
 2:	db "Violin          "
 3:	db "Guitar          "
 4:	db "Piano           "
@@ -15,8 +14,7 @@
 14:	db "Synthesizer Bass"
 15:	db "Acoustic Bass   "
 16:	db "Electric Guitar "
-;Keys
-97:	db "Piano 1         "
+97:	db "Piano 1         " ;Keys
 98:	db "Piano 2         "
 100:	db "Piano 4         "
 104:	db "Electric Piano 1"
@@ -31,8 +29,7 @@
 146:	db "Harpsichord 2   "
 148:	db "Clavicode 1     "
 149:	db "Clavicode 2     "
-;Chromatic Percussion
-123:	db "Marimba 1       "
+123:	db "Marimba 1       ";Chromatic Percussion
 125:	db "Marimba 3       "
 126:	db "Marimba 4       "
 127:	db "Marimba 5       "
@@ -48,15 +45,13 @@
 141:	db "Chimes 1        "
 142:	db "Chimes 2        "
 143:	db "Santool         "
-;Organ
-150:	db "Organ           "
+150:	db "Organ           ";Organ
 153:	db "Pipe Organ 1    "
 154:	db "Pipe Organ 2    "
 156:	db "Electric Organ 1"
 163:	db "Accordion       "
 164:	db "Harmonica       "
-;Guitar
-79:	db "Spanish Guitar 1"
+79:	db "Spanish Guitar 1" ;Guitar
 80:	db "Spanish Guitar 2"
 84:	db "Blues Guitar    "
 88:	db "Funny Guitar    "
@@ -69,8 +64,7 @@
 89:	db "Slide Guitar 1  "
 90:	db "Slide Guitar 2  "
 91:	db "Slide Guitar 3  "
-;Bass
-17:	db "Bass 1          "
+17:	db "Bass 1          " ;Bass
 18:	db "Bass 2          "
 19:	db "Cool Bass 1     "
 20:	db "Cool Bass 2     "
@@ -86,8 +80,7 @@
 30:	db "Electric Bass 2 "
 31:	db "Electric Bass 3 "
 33:	db "Elastic Bass    "
-;Strings
-34:	db "Strings 1       "
+34:	db "Strings 1       " ;Strings
 35:	db "Strings 2       "
 36:	db "Strings 3       "
 37:	db "Jarre String    "
@@ -97,8 +90,7 @@
 43:	db "Violin          "
 44:	db "Synth Violin    "
 45:	db "Harp            "
-;Brass
-48:	db "Bell Brass      "
+48:	db "Bell Brass      " ;Brass
 49:	db "Brass 1         "
 50:	db "Brass 2         "
 51:	db "Brass 3         "
@@ -111,23 +103,20 @@
 58:	db "Trombone        "
 62:	db "Tuba 1          "
 63:	db "Tuba 2          "
-;Reed
-64:	db "Clarinet        "
+64:	db "Clarinet        " ;Reed
 65:	db "Horn            "
 66:	db "Oboe            "
 59:	db "Saxophone 1     "
 60:	db "Saxophone 2     "
 61:	db "Saxophone 3     "
-;Pipe
-67:	db "Flute 1         "
+67:	db "Flute 1         " ;Pipe
 68:	db "Flute 2         "
 69:	db "Flute 3         "
 70:	db "Flute 4         "
 71:	db "Flute 5         "
 72:	db "Synth Flute     "
 73:	db "Piccolo         "
-;Synth Lead
-108:	db "Synth 1         "
+108:	db "Synth 1         " ;Synth Lead
 109:	db "Synth 2         "
 110:	db "Synth 3         "
 111:	db "Synth 4         "
@@ -137,8 +126,7 @@
 115:	db "Wow Synth       "
 165:	db "MSX-PSG 1       "
 166:	db "MSX-PSG 2       "
-;Synth Pad
-117:	db "Synth Sweep 1   "
+117:	db "Synth Sweep 1   " ;Synth Pad
 118:	db "Synth Sweep 2   "
 119:	db "Heavy Synth     "
 121:	db "Smad Synth      "
@@ -149,15 +137,13 @@
 185:	db "Alien 1         "
 186:	db "Alien 2         "
 188:	db "SE-Star         "
-;Ethnic
-77:	db "Sitar           "
+77:	db "Sitar           " ;Ethnic
 78:	db "Banjo           "
 92:	db "Koto 1          "
 93:	db "Koto 2          "
 179:	db "Steel Drum 1    "
 46:	db "Mouth Harp      "
-;Percussive
-169:	db "Harm drum       "
+169:	db "Harm drum       " ;Percussive
 170:	db "Bass Drum 1     "
 171:	db "Bass Drum 2     "
 172:	db "Chop 1          "
@@ -173,8 +159,7 @@
 167:	db "Synth Perc. 1   "
 168:	db "Synth Perc. 2   "
 183:	db "Comic           "
-;Other
-94:	db "Space Piano     "
+94:	db "Space Piano     " ;Other
 96:	db "Acid Piano      "
 99:	db "Piano 3         "
 147:	db "Harpsichord 3   "
@@ -190,73 +175,25 @@
 187:	db "Invasion        "
 189:	db "Sonic 1         "
 190:	db "Sonic 2         "
-;Own Voices
-193:	db "Own Voice 01    "
-194:	db "Own Voice 02    "
-195:	db "Own Voice 03    "
-196:	db "Own Voice 04    "
-197:	db "Own Voice 05    "
-198:	db "Own Voice 06    "
-199:	db "Own Voice 07    "
-200:	db "Own Voice 08    "
-201:	db "Own Voice 09    "
-202:	db "Own Voice 10    "
-203:	db "Own Voice 11    "
-204:	db "Own Voice 12    "
-205:	db "Own Voice 13    "
-206:	db "Own Voice 14    "
-207:	db "Own Voice 15    "
-208:	db "Own Voice 16    "
+193:	db "Custom Voice 01 " ;Own Voices
+194:	db "Custom Voice 02 " 
+195:	db "Custom Voice 03 "
+196:	db "Custom Voice 04 "
+197:	db "Custom Voice 05 "
+198:	db "Custom Voice 06 "
+199:	db "Custom Voice 07 "
+200:	db "Custom Voice 08 "
+201:	db "Custom Voice 09 "
+202:	db "Custom Voice 10 "
+203:	db "Custom Voice 11 "
+204:	db "Custom Voice 12 "
+205:	db "Custom Voice 13 "
+206:	db "Custom Voice 14 "
+207:	db "Custom Voice 15 "
+208:	db "Custom Voice 16 "
 
 
-;WEG
-39:	db "Synth String 2  "
-41:	db "Plink String    "
-82:	db "Fuzz Guitar 2   "
-116:	db "Wave Synth      "
-120:	db "Base Synth      "
-133:	db "Xylophone 1     "
-144:	db "Celeste         "
-151:	db "SF Organ        "
-155:	db "Pipe Organ 3    "
-157:	db "Electric Organ 2"
-161:	db "New Wave 1      "
-162:	db "New Wave 2      "
-184:	db "Nice Sound      "
-191:	db "Lo Ho 1         "
-192:	db "Lo Ho 2         "
 
-	db "Micro Cabin 01  "
-	db "Micro Cabin 02  "
-	db "Micro Cabin 03  "
-	db "Micro Cabin 04  "
-	db "Micro Cabin 05  "
-	db "Micro Cabin 06  "
-	db "Micro Cabin 07  "
-	db "Micro Cabin 08  "
-	db "Micro Cabin 09  "
-	db "Micro Cabin 10  "
-	db "Micro Cabin 11  "
-	db "Micro Cabin 12  "
-	db "Micro Cabin 13  "
-	db "Micro Cabin 14  "
-	db "Micro Cabin 15  "
-	db "Micro Cabin 16  "
-	db "Micro Cabin 17  "
-	db "Micro Cabin 18  "
-	db "Micro Cabin 19  "
-	db "Micro Cabin 20  "
-	db "Micro Cabin 21  "
-	db "Micro Cabin 22  "
-	db "Micro Cabin 23  "
-	db "Micro Cabin 24  "
-	db "Micro Cabin 25  "
-	db "Micro Cabin 26  "	
-	db "Micro Cabin 27  "
-	db "Micro Cabin 28  "
-	db "Micro Cabin 29  "
-	db "Micro Cabin 30  "
-	db "Micro Cabin 31  "
-	db "Micro Cabin 32  "
+
 	
 	

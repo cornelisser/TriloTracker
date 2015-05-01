@@ -800,7 +800,7 @@ _fd_drive_check:
 	jr.	update_filedailog_fileselection
 
 2:	;--- 2 = save file
-debug:	ld	a,2
+	ld	a,2
 	ld	(editsubmode),a
 	call	reset_cursor_filedialog
 	

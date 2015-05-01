@@ -269,16 +269,17 @@ update_psgsamplebox:
 	
 	
 	;--- Calculate the position in RAM of current sample	
-	ld	hl,instrument_macros
-	ld	de,INSTRUMENT_SIZE
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,1f
-0:
-	add	hl,de
-	dec	a
-	jr.	nz,0b	
-1:	
+	call	_get_instrument_start
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	ld	a,(hl)
 	ld	(instrument_len),a
 	inc	hl
@@ -622,16 +623,8 @@ update_tonecum:
 	ld	de,0
 	;--- there is an offset. calculate what we don't show
 	;--- Calculate the position in RAM of current sample	
-	ld	hl,instrument_macros
-	ld	bc,INSTRUMENT_SIZE
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,1f
-0:
-	add	hl,bc
-	dec	a
-	jr.	nz,0b	
-1:	
+	call	_get_instrument_start
+	
 	ld	a,(hl)
 	dec	a
 	ld	ixh,a
@@ -701,6 +694,99 @@ _upsb_add:
 
 	ret
 
+;--- Move macro data 1 line down (delete row)
+; in: [A] is the line to move down/delete
+;
+; need to preserve [A]
+_move_macrolinedown:
+	push	af
+	;-- set hl to start macro data of current instrument
+	call	_get_instrument_start
+	dec	hl
+	dec 	hl
+	;-- jump to line ( input)
+	pop	bc
+	push	bc
+	inc	b
+	ld	de,4
+.loop:
+	add	hl,de
+	djnz	.loop
+
+	;--- copy the data to next line
+	ld	d,h	
+	ld	e,l
+	ld	a,4
+	add	a,l
+	ld	l,a
+	jr.	nc,.skip
+	inc	l
+.skip:
+	ldi
+	ldi
+	ldi
+	ldi
+	
+	;--- restore and return 	
+	pop	af
+	ret
+	
+;--- Move macro data 1 line up (insert row)
+; in: [A] is the line to move up
+;
+; need to preserve [A]
+_move_macrolineup:
+	push	af
+	;-- set hl to start macro data of current instrument
+	call	_get_instrument_start
+	dec	hl
+	dec 	hl
+	;-- jump to line ( input)
+	pop	bc
+	push	bc
+	inc	b
+	ld	de,4
+.loop:
+	add	hl,de
+	djnz	.loop
+
+	;--- copy the data to next line
+	ld	d,h	
+	ld	e,l
+	ld	a,4
+	add	a,e
+	ld	e,a
+	jr.	nc,.skip
+	inc	d
+.skip:
+	ldi
+	ldi
+	ldi
+	ldi
+	;--- restore and return 	
+	pop	af
+	ret
+	
+	
+
+
+;--- Get instrument start
+; return in HL that start of the instrument data
+;
+_get_instrument_start:
+	push	bc
+	ld	hl,instrument_macros
+	ld	a,(song_cur_instrument)
+	and	a
+	jr.	z,99f
+	ld	bc,INSTRUMENT_SIZE
+88:
+	add	hl,bc
+	dec	a
+	jr.	nz,88b
+99:
+	pop	bc
+	ret
 ;===========================================================
 ; --- process_key_psgsamplebox
 ;
@@ -714,7 +800,119 @@ process_key_psgsamplebox:
 	ld	a,(key)
 	and	a
 	ret	z
+
+
+	;--- INS key to insert macro line
+	cp	_INS
+	jr.	nz,0f
+	ld	a,(instrument_line)
+	cp	31			; check if we are at last line
+	jr.	nc,process_key_psgsamplebox_END
+	;--- increase len
 	
+	;--- get the location in RAM
+	call	_get_instrument_start	
+	;inc	hl
+	ld	a,(hl)
+	cp	32
+	jp	nc,99f
+	inc	a
+	ld	(hl),a
+	ld	(instrument_len),a
+99:
+	;--- move data 1 line down
+	ld	a,(instrument_line)
+	ld	ixh,a
+	ld	a,30		; start from end to current line
+.line_loop:
+	call	_move_macrolineup
+	and	a
+	jp	z,88f
+	dec	a
+	cp	ixh
+	jr.	nc,.line_loop
+88:	
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END	
+
+0:	
+	;--- DEL key to delete macro line
+	cp	_DEL
+	jr.	nz,0f
+	ld	a,(instrument_line)
+	inc	a
+	ld	b,a
+	ld	a,(instrument_len)
+	cp	b			; check if we are at last line
+	jr.	nz,1f
+	
+	cp	1	
+	jr.	z,process_key_psgsamplebox_END
+	
+	call	_get_instrument_start
+	ld	a,(hl)
+	dec	a
+	ld	(hl),a
+	dec	a
+	ld	(instrument_line),a
+	;-- restart move
+	inc	hl		
+	ld	b,a
+	ld	a,(hl)
+	and	a
+	jp	z,99f
+	cp	b
+	jp	c,99f
+	dec	(hl)
+99:	
+	;--- update screen
+	call	flush_cursor
+	ld	a,(cursor_y)
+	dec	a
+	ld	(cursor_y),a
+	
+	
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END	
+	
+	;--- decrease len
+1:	
+	;--- get the location in RAM
+	call	_get_instrument_start	
+	;inc	hl
+	ld	a,(hl)
+	cp	1
+	jp	z,99f
+	dec	a
+	ld	(hl),a
+	ld	(instrument_len),a
+
+99:	
+	;--- check for moving restart
+	ld	b,(hl)
+	inc	hl
+	ld	a,(hl)
+	cp	b
+	jp	c,99f
+	dec	b
+	ld	(hl),b
+99:
+	;--- move data 1 line down
+	ld	a,(instrument_line)
+;	ld	ixh,a
+;	ld	a,30		; start from end to current line
+.line_loopdel:
+	call	_move_macrolinedown
+	inc	a
+	cp	31
+	jp	z,88f
+	jr.	.line_loopdel
+88:	
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END	
+	
+				
+0:	
 	;--- key left
 	cp	_KEY_LEFT
 	jr.	nz,0f
@@ -883,16 +1081,7 @@ _psgsamright:
 	jr.	nz,0f
 88:
 	;--- get the location in RAM
-	ld	hl,instrument_macros
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,99f
-	ld	bc,INSTRUMENT_SIZE
-88:
-	add	hl,bc
-	dec	a
-	jr.	nz,88b
-99:
+	call	_get_instrument_start
 	inc	hl
 
 	ld	a,(instrument_line)
@@ -1518,16 +1707,7 @@ process_key_psgsamplebox_END:
 ;===========================================================
 get_psgsample_location:
 	;--- get the location in RAM
-	ld	hl,instrument_macros
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,99f
-	ld	bc,INSTRUMENT_SIZE
-88:
-	add	hl,bc
-	dec	a
-	jr.	nz,88b
-99:
+	call	_get_instrument_start
 	inc	hl
 	inc	hl
 	inc	hl	
@@ -1536,7 +1716,7 @@ get_psgsample_location:
 	ld	a,(instrument_line)
 	and	a
 	ret	z
-	ld	c,4		; b is 0
+	ld	bc,4		; b is 0
 88:
 	add	hl,bc
 	dec	a
@@ -1554,16 +1734,7 @@ get_psgsample_location:
 ;===========================================================
 process_key_psgsamplebox_waveform:
 	;--- get the location in RAM
-	ld	hl,instrument_macros
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,99f
-	ld	bc,INSTRUMENT_SIZE
-88:
-	add	hl,bc
-	dec	a
-	jr.	nz,88b
-99:	
+	call	_get_instrument_start	
 	inc	hl
 	inc	hl
 	
@@ -1675,16 +1846,7 @@ process_key_psgsamplebox_octave_END:
 ;===========================================================
 process_key_psgsamplebox_len:
 	;--- get the location in RAM
-	ld	hl,instrument_macros
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,99f
-	ld	bc,INSTRUMENT_SIZE
-88:
-	add	hl,bc
-	dec	a
-	jr.	nz,88b
-99:	
+	call	_get_instrument_start
 	
 	ld	a,(instrument_loop)
 	inc	a
@@ -1743,16 +1905,9 @@ process_key_psgsamplebox_len:
 ;===========================================================
 process_key_psgsamplebox_loop:
 	;--- get the location in RAM
-	ld	hl,instrument_macros
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,99f
-	ld	bc,INSTRUMENT_SIZE
-88:
-	add	hl,bc
-	dec	a
-	jr.	nz,88b
-99:	inc	hl
+	call	_get_instrument_start
+	
+	inc	hl
 
 	ld	a,(instrument_len)
 	ld	b,a

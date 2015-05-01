@@ -43,7 +43,7 @@ draw_voicemanager:
 	; draw all categories
 	ld	hl,(80*(VM_Y+4))+VM_X+2
 	ld	de,_LABEL_VCATEGORIES
-	ld	a,17
+	ld	a,16
 _dvm_cat_loop: 
 	push 	af
 	push 	hl
@@ -239,7 +239,7 @@ _LABEL_VCATEGORIES_OFFSET:
 	db	_VC14-_LABEL_VCATEGORIES
 	db	_VC15-_LABEL_VCATEGORIES
 	db	_VC16-_LABEL_VCATEGORIES
-	db	_VC17-_LABEL_VCATEGORIES
+;	db	_VC17-_LABEL_VCATEGORIES
 			
 _category_voiceoffset:
 	db	0		;- Cat 1 start at 0				
@@ -260,8 +260,8 @@ cat1_start	equ	16
 	db	161
 	db	177
 	db	193
-	db	208		; this can go if we drop the CRAP category
-last_voice	equ	208-1
+;	db	208		; this can go if we drop the CRAP category
+last_voice	equ	193-1
 
 			
 _LABEL_VCATEGORIES:
@@ -281,7 +281,7 @@ _VC13:	db	"Ethnic",0
 _VC14:	db	"Percussive",0
 _VC15:	db	"Other",0
 _VC16:	db	"Custom Voices",0
-_VC17:	db	"Crap!",0
+;_VC17:	db	"Crap!",0
 ;===========================================================
 ; --- init_voicemanager
 ;
@@ -373,7 +373,7 @@ processkey_voicemanager:
 	jr.	nz,0f
 		
 	ld	a,(editsubmode)
-	cp	16	;(max cat nr)
+	cp	15	;(max cat nr)
 	jr.	nc,processkey_voicemanager_END
 	
 	ld	hl,_category_voiceoffset

@@ -78,8 +78,8 @@ set_vdpread:
 	nop
 	out	(#99),a
 	ld	a,h
-	ei
 	out	(#99),a
+	ei
 	ret
 
 

@@ -446,14 +446,21 @@ load_config:
 	
 	;--- Read type
 	ld	de,_CONFIG_SLOT
-	ld	hl,15
+	ld	hl,16
 	call	read_file
 
 	call	close_file
 
-
-	
 _lcfg_error:
+	ld	a,(_CONFIG_PSGPORT)		; copy port value as this is not available in ISR
+	cp	$a0				; standard MSX
+	jp	z,99f
+	cp	$10				; SCC flash
+	jp	z,99f
+	ld	a,$a0				; change to default of no valid value
+	ld	(_CONFIG_PSGPORT),a
+99:	
+	ld	(psgport),a
 	ret	
 
 

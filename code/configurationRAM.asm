@@ -42,8 +42,8 @@ _CONFIG_INS:
 	db	0		; load inst set 'default.ins' on start up	
 _CONFIG_VU:	
 	db	1		; vu meter (1=on)
-
-	
+_CONFIG_PSGPORT:
+	db	0xa0		; port of the PSG	
 _ENV_PROGRAM:
 	db	"PROGRAM",0	
 _DEFAULT_CFG:

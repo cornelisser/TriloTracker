@@ -145,7 +145,7 @@ _AUDITION_LINE:
 		db	0,0,0,0
 		
 
-
+psgport:	db	0
 ;-- SCC registers
 oldregs:	ds	32*4+3*5+1,255	; a way to int the SCC
 newregs:

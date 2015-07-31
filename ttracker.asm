@@ -46,9 +46,10 @@ MAIN:
 	call enaslt	
 	
 	
+	call	init_hook
 	xor	a
 	call	swap_loadblock		
-	call	init_hook
+
 
 	xor	a
 	call	new_song

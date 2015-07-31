@@ -63,30 +63,32 @@ draw_configbox:
 	call	draw_label
 
 
-
-
 	ld	hl,(80*11)+2+40
-	ld	de,_LABEL_CONFIG_SCC_1
+	ld	de,_LABEL_CONFIG_PSG_PORT
 	call	draw_label
 
 	ld	hl,(80*12)+2+40
+	ld	de,_LABEL_CONFIG_SCC_1
+	call	draw_label
+
+	ld	hl,(80*13)+2+40
 	ld	de,_LABEL_CONFIG_VDP_FREQ
 	call	draw_label
-	ld	hl,(80*13)+2+40
+	ld	hl,(80*14)+2+40
 	ld	de,_LABEL_CONFIG_VDP_EQU
 	call	draw_label
 	
-	ld	hl,(80*15)+2+40
+	ld	hl,(80*16)+2+40
 	ld	de,_LABEL_CONFIG_AUDIT
 	call	draw_label
-	ld	hl,(80*16)+2+40
+	ld	hl,(80*17)+2+40
 	ld	de,_LABEL_CONFIG_DEBUG
 	call	draw_label
-	ld	hl,(80*19)+2+40
+	ld	hl,(80*20)+2+40
 	ld	de,_LABEL_CONFIG_INSDEFAULT
 	call	draw_label
 
-	ld	hl,(80*17)+2+40
+	ld	hl,(80*18)+2+40
 	ld	de,_LABEL_CONFIG_VU
 	call	draw_label
 ;	ld	hl,(80*20)+2+40
@@ -186,6 +188,12 @@ _;LABEL_CONFIG_PLUGIN_2:
 ;	db "Plug-in #2",0
 ;_LABEL_CONFIG_PLUGIN_3:
 ;	db "Plug-in #3",0
+
+_LABEL_CONFIG_PSG_PORT:	
+	db "PSG port",0
+
+
+
 _LABEL_CONFIG_SAVE:
 	db "Save configuration  [ENTER] to save.",0
 
@@ -205,11 +213,28 @@ _LABEL_CONFIG_SAVE:
 ; 
 ;===========================================================
 update_configbox:
+	;-------------------
+	; PSG port
+	;-------------------
+	ld	hl,(80*11)+2+20+40
+	ld	de,_LABEL_CONFIG_A010
+	call	draw_label	
+	ld	a,(_CONFIG_PSGPORT)
+	sub	$a0
+	and	a
+	jr.	z,99f
+	ld	a,7
+99:
+	add	0x3e
+	ld	h,a
+	ld	l,11
+	ld	de,0x0601
+	call	draw_colorbox	
 
 	;-----------------
 	;	SCC SLOT
 	;-----------------
-	ld	hl,(80*11)+2+20+40
+	ld	hl,(80*12)+2+20+40
 	ld	de,_LABEL_CONFIG_SCCSLOT
 	call	draw_label
 	
@@ -219,7 +244,7 @@ update_configbox:
 ;	ld	b,a
 	add	a
 	add	a
-	ld	hl,0x3f0b
+	ld	hl,0x3f0c
 	ld	de,0x0401
 	add	a,h
 	ld	h,a
@@ -230,7 +255,7 @@ update_configbox:
 	cp	255
 	jr.	nz,0f
 
-	ld	hl,0x470b
+	ld	hl,0x470c
 	ld	de,0x0401
 	call	draw_colorbox
 
@@ -239,11 +264,11 @@ update_configbox:
 	;-----------------
 	;    VDP FREQ
 	;-----------------
-	ld	hl,(80*12)+2+20+40
+	ld	hl,(80*13)+2+20+40
 	ld	de,_LABEL_CONFIG_VDP_FRQ
 	call	draw_label
 	
-	ld	hl,0x3f0c
+	ld	hl,0x3f0d
 	ld	de,0x0c01
 	call	erase_colorbox	
 	ld	d,4
@@ -252,7 +277,7 @@ update_configbox:
 	cp	255
 	jr.	nz,88f
 
-	ld	hl,0x470c
+	ld	hl,0x470d
 	ld	e,$01
 	call	draw_colorbox	
 	ld	d,1
@@ -263,7 +288,7 @@ update_configbox:
 	jr.	nz,99f	; PAL
 	ld	a,0
 99:
-	ld	hl,0x3f0c
+	ld	hl,0x3f0d
 	ld	e,0x01
 	add	a,h
 	ld	h,a
@@ -272,7 +297,7 @@ update_configbox:
 	;-------------------
 	; SPEED equalisation
 	;-------------------
-	ld	hl,(80*13)+2+20+40
+	ld	hl,(80*14)+2+20+40
 	ld	de,_LABEL_CONFIG_ONOFF
 	call	draw_label	
 	ld	a,(_CONFIG_EQU)
@@ -282,7 +307,7 @@ update_configbox:
 99:
 	add	0x3e
 	ld	h,a
-	ld	l,13
+	ld	l,14
 	ld	de,0x0601
 	call	draw_colorbox	
 
@@ -291,7 +316,7 @@ update_configbox:
 	;-------------------
 	; Note audition
 	;-------------------
-	ld	hl,(80*15)+2+20+40
+	ld	hl,(80*16)+2+20+40
 	ld	de,_LABEL_CONFIG_ONOFF
 	call	draw_label	
 	ld	a,(_CONFIG_AUDIT)
@@ -301,34 +326,17 @@ update_configbox:
 99:
 	add	0x3f
 	ld	h,a
-	ld	l,15
+	ld	l,16
 	ld	de,0x0601
 	call	draw_colorbox	
 
 	;-------------------
 	; Register debug
 	;-------------------
-	ld	hl,(80*16)+2+20+40
-	ld	de,_LABEL_CONFIG_ONOFF
-	call	draw_label	
-	ld	a,(_CONFIG_DEBUG)
-	cp	0
-	jr.	z,99f
-	ld	a,6
-99:
-	add	0x3f
-	ld	h,a
-	ld	l,16
-	ld	de,0x0601
-	call	draw_colorbox
-
-	;-------------------
-	; VU
-	;-------------------
 	ld	hl,(80*17)+2+20+40
 	ld	de,_LABEL_CONFIG_ONOFF
 	call	draw_label	
-	ld	a,(_CONFIG_VU)
+	ld	a,(_CONFIG_DEBUG)
 	cp	0
 	jr.	z,99f
 	ld	a,6
@@ -340,9 +348,26 @@ update_configbox:
 	call	draw_colorbox
 
 	;-------------------
+	; VU
+	;-------------------
+	ld	hl,(80*18)+2+20+40
+	ld	de,_LABEL_CONFIG_ONOFF
+	call	draw_label	
+	ld	a,(_CONFIG_VU)
+	cp	0
+	jr.	z,99f
+	ld	a,6
+99:
+	add	0x3f
+	ld	h,a
+	ld	l,18
+	ld	de,0x0601
+	call	draw_colorbox
+
+	;-------------------
 	; Default ins
 	;-------------------
-	ld	hl,(80*19)+2+20+40
+	ld	hl,(80*20)+2+20+40
 	ld	de,_LABEL_CONFIG_ONOFF
 	call	draw_label	
 	ld	a,(_CONFIG_INS)
@@ -352,7 +377,7 @@ update_configbox:
 99:
 	add	0x3f
 	ld	h,a
-	ld	l,19
+	ld	l,20
 	ld	de,0x0601
 	call	draw_colorbox
 
@@ -551,6 +576,8 @@ _LABEL_CONFIG_RGB:
 
 _LABEL_CONFIG_SCCSLOT:
 	db	"[ 01  02 AUTO]",0
+_LABEL_CONFIG_A010:
+	db	"[ $A0    $10 ]",0
 	
 _LABEL_CONFIG_KEYBOARD:
 	db	_ARROWLEFT,"Japanese     ",_ARROWRIGHT,0
@@ -623,18 +650,19 @@ _CONFIG_MENU_XY:
 	db	0x13
 	db	0x14
 	db	0x15
-	db	0x16			
-	db	0x0b
+	db	0x16	
+	db	0x0b	
 	db	0x0c
-	db	0x0d	
-	db	0x0f
+	db	0x0d
+	db	0x0e	
 	db	0x10
-	db	0x11			
-	db	0x13
+	db	0x11
+	db	0x12			
 	db	0x14
 	db	0x15
-	db	0x16			
-	db	0x19
+	db	0x16
+	db	0x17			
+	db	0x1a
 	; H = x pos
 	; L = y pos
 	; D = width
@@ -690,7 +718,7 @@ process_key_configbox:
 	
 	;--- Read type
 	ld	de,_CONFIG_SLOT
-	ld	hl,15
+	ld	hl,16
 	call	write_file
 
 	call	close_file
@@ -865,6 +893,7 @@ _CONFIG_MENU_JMP:
 	dw	_pk_config_END
 	dw	_pk_config_END
 	dw	_pk_config_END
+	dw	pk_config_psg
 	dw	_pk_config_END
 	dw	pk_config_vdp
 	dw	pk_config_equalisation
@@ -872,7 +901,6 @@ _CONFIG_MENU_JMP:
 	dw	pk_config_debug
 	dw	pk_config_vu
 	dw	pk_config_instruments
-	dw	_pk_config_END
 	dw	_pk_config_END
 	dw	_pk_config_END
 	dw	_pk_config_END
@@ -1072,6 +1100,33 @@ pk_config_theme:
 
 
 ;====================================
+; change vdp port
+;====================================
+pk_config_psg:
+	ld	a,(_CONFIG_PSGPORT)
+	cp	$a0
+	jp	z,1f
+	
+	ld	a,$a0
+	jp	2f
+1:	
+	ld	a,$10
+
+2:
+	ld	(_CONFIG_PSGPORT),a
+	ld	(psgport),a
+
+	ld	hl,0x3f0b
+	ld	de,0x0d01
+	call	erase_colorbox
+	
+	jr.	update_configbox	
+	
+	
+	
+	
+	
+;====================================
 ; change equalisation
 ;====================================
 pk_config_equalisation:
@@ -1089,7 +1144,7 @@ pk_config_equalisation:
 ;88:	ld	(vsf),a	
 	call	set_vsf
 	
-	ld	hl,0x3f0d
+	ld	hl,0x3f0e
 	ld	de,0x0d01
 	call	erase_colorbox
 	
@@ -1105,7 +1160,7 @@ pk_config_audition:
 	and	1
 	ld	(_CONFIG_AUDIT),a
 
-	ld	hl,0x3f0f
+	ld	hl,0x3f10
 	ld	de,0x0d01
 	call	erase_colorbox
 	
@@ -1120,7 +1175,7 @@ pk_config_debug:
 	and	1
 	ld	(_CONFIG_DEBUG),a
 
-	ld	hl,0x3f10
+	ld	hl,0x3f11
 	ld	de,0x0d01
 	call	erase_colorbox
 	
@@ -1137,7 +1192,7 @@ pk_config_vu:
 	and	1
 	ld	(_CONFIG_VU),a
 
-	ld	hl,0x3f11
+	ld	hl,0x3f12
 	ld	de,0x0d01
 	call	erase_colorbox
 	
@@ -1152,7 +1207,7 @@ pk_config_instruments:
 	and	1
 	ld	(_CONFIG_INS),a
 
-	ld	hl,0x3f13
+	ld	hl,0x3f14
 	ld	de,0x0d01
 	call	erase_colorbox
 	

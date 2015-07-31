@@ -2643,20 +2643,25 @@ replay_route:
 99:
 	;--- Push values to AY HW
 	ld	b,0
-	ld	c,0xa0
+	ld	a,(psgport)
+	ld	c,a
 	ld	hl,AY_registers
 _comp_loop:	
 	out	(c),b
 	ld	a,(hl)
 	add	1
-	out	(0xa1),a
+	inc	c
+	out	(c),a
 	inc	hl
 	ld	a,(hl)
 	adc	a,0
 	inc	b
+	dec	c
 	out	(c),b	
 	inc	hl
-	out	(0xa1),a	
+	inc	c
+	out	(c),a
+	dec	c
 	inc	b
 	ld	a,6
 	cp	b

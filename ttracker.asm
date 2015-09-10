@@ -114,7 +114,11 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsamplebox.asm"
 	include 	".\code\elements\sccwavebox.asm"
+IFDEF	NEW_SCCDETECT
+	include	".\code\sound\sccdetect_new.asm"
+ELSE
 	include 	".\code\sound\sccdetect.asm"
+ENDIF
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vu.asm"

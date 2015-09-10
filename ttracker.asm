@@ -3,6 +3,7 @@ define VERSION "v0.9.0 public beta "
 define YEAR "2015"
 define CHIPSET_CODE $00
 
+DEFINE NEW_SCCDETECT 
 
 	defpage	0,0x0100, 0x3f00	; page 0 contains main code + far call routines
 	defpage 	1,0x4000, 0x4000	; page 1 contains code (last 5kb should be empty)

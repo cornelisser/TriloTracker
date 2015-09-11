@@ -942,7 +942,7 @@ pk_config_keyjazz:
 	and	1
 	ld	(_CONFIG_KEYJAZZ),a
 	
-	ld	hl,0x170c
+	ld	hl,0x160d
 	ld	de,0x0d01
 	call	erase_colorbox
 	

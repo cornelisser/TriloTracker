@@ -1143,10 +1143,6 @@ _CHIPcmd9_macro_offset:
 	; previous value will be used.
 
 	;--- Init values
-	ld	(AY_NoiseAND),a
-	ret
-
-
 	and	a
 	jp	z,_CHIPcmd9_retrig
 	ld	(ix+TRACK_cmd_9),a

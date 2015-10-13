@@ -156,6 +156,7 @@ SCC_slot:		#1	;scc slot
 
 vsf:		#1	; vdp type for correct playback on 60hz
 cnt:		#1	; tic timer for correct playback on 60hz
+equalization_flag:	#1	; flag indicating if only instrument macro's need to be processed.
 
 MainMixer:				#1
 mainPSGvol:				#1

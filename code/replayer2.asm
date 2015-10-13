@@ -1658,6 +1658,10 @@ replay_process_chan_AY:
 	;=====
 	; COMMAND
 	;=====
+	ld	a,(equalization_flag)			; Check for speed equalization 
+	and	a						; if > 0 then do not process effects but do process instrument macro
+	jp	nz,_pcAY_noNoteTrigger
+	
 	bit	3,(ix+TRACK_Flags)
 	jp	z,_pcAY_noCommand
 	

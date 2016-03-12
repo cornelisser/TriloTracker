@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.9.0 public beta "
+define VERSION "v0.9.1 public beta "
 define YEAR "2015"
 define CHIPSET_CODE $00
 

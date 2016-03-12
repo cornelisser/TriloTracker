@@ -1,15 +1,15 @@
-MIN_SONG_SEGSIZE	equ 6			; minimal segment size of a song.
-MAX_SONG_SEGSIZE	equ 32		; maximun segment size of a song
-SONG_PATLNSIZE	equ (4*8);(5*8)+2		; size of a pattern line
-SONG_PATSIZE	equ ((SONG_PATLNSIZE)*64);+1	; patternsize in RAM
-SONG_PATINSEG	equ (16*1024)/SONG_PATSIZE; the number of patterns in a segment
-SONG_PATINSONG	equ (8*1024)/SONG_PATSIZE; number of pats that fit after song data
-;SONG_MAXPAT		equ (SONG_PATINSEG*(SONG_SEGSIZE-2))+SONG_PATINSONG; Max number of pattterns in memory
-SONG_SEQSIZE	equ 200;128			; size of the order list
-INSTRUMENT_LEN	equ 32		; max lines of data for macro
-INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3		; size of 1 instrument macro
-MAX_WAVEFORM	equ	192-16		; max number of voice.
-MAX_DRUMS		equ	31			; max number of drum macros
+MIN_SONG_SEGSIZE	equ 6					; minimal segment size of a song.
+MAX_SONG_SEGSIZE	equ 32				; maximun segment size of a song
+SONG_PATLNSIZE	equ (4*8);(5*8)+2			; size of a pattern line
+SONG_PATSIZE	equ ((SONG_PATLNSIZE)*64)	; patternsize in RAM
+SONG_PATINSEG	equ (16*1024)/SONG_PATSIZE	; the number of patterns in a segment
+SONG_PATINSONG	equ (10*1024)/SONG_PATSIZE	; number of pats that fit IN song data
+;SONG_MAXPAT	equ (SONG_PATINSEG*(SONG_SEGSIZE-2))+SONG_PATINSONG; Max number of pattterns in memory
+SONG_SEQSIZE	equ 200;128				; size of the order list
+INSTRUMENT_LEN	equ 32				; max lines of data for macro
+INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3	; size of 1 instrument macro
+MAX_WAVEFORM	equ 192-16				; max number of voice.
+MAX_DRUMS		equ 31				; max number of drum macros
 
 
 DOS			equ 5			; DOS function call entrance
@@ -157,6 +157,7 @@ SCC_slot:		#1	;scc slot
 
 vsf:		#1	; vdp type for correct playback on 60hz
 cnt:		#1	; tic timer for correct playback on 60hz
+equalization_flag:	#1	; flag indicating if only instruments need to be processed.
 
 ;org_stack:	#2	; used to recover from an error.
 

@@ -251,7 +251,7 @@ init_mapper:
 	add	a
 	add	a
 	add	a
-	sub	4	; (4 patterns lost for song data)
+	sub	SONG_PATINSONG	; (4 patterns lost for song data)
 	ld	(max_pattern),a
 
 	;--- Store mapper for song data

@@ -1143,10 +1143,6 @@ _CHIPcmd9_macro_offset:
 	; previous value will be used.
 
 	;--- Init values
-	ld	(AY_NoiseAND),a
-	ret
-
-
 	and	a
 	jp	z,_CHIPcmd9_retrig
 	ld	(ix+TRACK_cmd_9),a
@@ -1659,6 +1655,14 @@ replay_process_chan_AY:
 	
 ;	ld	a,(current_song)
 	call	set_songpage
+
+	;===== 
+	; Speed equalization check
+	;=====
+	ld	a,(equalization_flag)			; check for speed equalization
+	and	a
+	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+
 	;=====
 	; COMMAND
 	;=====

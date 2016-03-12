@@ -156,7 +156,8 @@ _AUDITION_LINE:
 		db	0,0,0,0
 		db	0,0,0,0
 		db	0,0,0,0
-
+psgport:	db	0
+		
 CHIP_FM_ToneTable:
 	db   	0,0
 	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h

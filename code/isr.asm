@@ -81,7 +81,15 @@ NTSC:
       dec     (hl)
       jr.      nz,PAL               ; skip one tic out of 6 when at 60hz
 
- 	ld      (hl),6               ; reset the tic counter
+	ld	a,6
+	ld	(hl),a			; reset the tich counter
+ 	ld    (equalization_flag),a	; reset the tic counter
+debug:
+	ld	a,(replay_mode)
+	and	a
+	call	NZ,replay_decodedata_NO	
+	xor	a
+	ld	(equalization_flag),a
       jr. 	8f                     ; skip sound processing
 
 PAL:                             ; execute the PSG and ayFX core	
@@ -100,6 +108,7 @@ PAL:                             ; execute the PSG and ayFX core
 ;	out	(0x99),a
 ;	ld	a,7+128
 ;	out	(0x99),a
+8:
 	call	replay_route
 
 ;	ld	a,0
@@ -108,7 +117,7 @@ PAL:                             ; execute the PSG and ayFX core
 ;	ld	a,7+128
 ;	out	(0x99),a
 
-8:
+
 
 
 	; --- mouse 

@@ -1954,6 +1954,14 @@ replay_process_chan_AY:
 	
 ;	ld	a,(current_song)
 	call	set_songpage
+
+	;===== 
+	; Speed equalization check
+	;=====
+	ld	a,(equalization_flag)			; check for speed equalization
+	and	a
+	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+	
 	;=====
 	; COMMAND
 	;=====
@@ -3200,7 +3208,8 @@ replay_route:
 IFDEF TTFM
 	;--- Push values to AY HW
 	ld	b,0
-	ld	c,0xa0
+	ld	a,(psgport)
+	ld	c,a
 	ld	hl,AY_registers
 _comp_loop:	
 	out	(c),b

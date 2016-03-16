@@ -43,7 +43,7 @@ start_init:
 	;-- REPLAYER and imports code
 	ld	de,SWAP_VRAMSTART
 	ld	hl,SWAP_INIT_START
-	ld	bc,0+(SWAP_CONFIG_END-SWAP_INIT_START)
+	ld	bc,0+(SWAP_FILE_END-SWAP_INIT_START)
 	call	swap_loadvram
 
 
@@ -374,8 +374,7 @@ _fontloop:
 	
 	ei
 	ret
-font_data:
-	incbin	"..\data\fontpat.bin"
+
 
 
 

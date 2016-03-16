@@ -106,6 +106,8 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\filedialog.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsampleboxFM.asm"
+	include	".\code\elements\drumeditor.asm"
+	include	".\code\elements\drumeditbox.asm"
 	include 	".\code\elements\sccwaveboxFM.asm"
 	include 	".\code\elements\voicemanager.asm"
 	include 	".\code\elements\keyjazzFM.asm"
@@ -136,6 +138,7 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\editlog.asm"
 	include	".\code\vram_swapper.asm"
 	include 	".\code\window.asm"
+
 	include 	".\code\replayerFMRAM.asm"	
 
 _VOICES_data:

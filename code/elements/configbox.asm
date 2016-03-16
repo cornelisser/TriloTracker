@@ -102,43 +102,41 @@ draw_configbox:
 	call	draw_label
 
 	;-- get location of TT.COM
-	ld	c,$6b
-	ld	hl,_ENV_PROGRAM
-	ld	de,buffer
-	ld	b,255
-	call	DOS		; < 255-[B] is length value string returned.
+;debug:	ld	c,$6b
+;	ld	hl,_ENV_PROGRAM
+;	ld	de,buffer
+;	ld	b,255
+;	call	DOS		; < 255-[B] is length value string returned.
+;
+;	;--- get full path+filename length
+;	ld	a,255
+;	sub	b
+;	ld	b,a
+;	
+;	;--- set extension .CFG
+;	sub	4
+;	ld	hl,buffer
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+	call	reset_hook
+	call	get_program_path
 
-	;--- get full path+filename length
-	ld	a,255
-	sub	b
-	ld	b,a
+	ld	hl,_DEFAULT_CFG
+	ld	bc,_DEFAULT_CFGLEN
+	ldir	
 	
-	;--- set extension .CFG
-	sub	4
-	ld	hl,buffer
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ld	(hl),"C"
-	inc	hl
-	ld	(hl),"F"
-	inc	hl
-	ld	(hl),"G"
-	inc	hl
-
 	;--- display config path+name
 	ld	hl,(80*25)+2
-	ld	de,buffer
+	ld	de,buffer+256
 ;	ld	b,40
-	call	draw_label_fast
+	call	draw_label;_fast
 
-
+	call	set_hook
 
 
 	call	update_config_selection
-
 	call	update_configeditor
 
 	ret
@@ -693,13 +691,15 @@ process_key_configbox:
 	jp	nz,0f
 	
 	;--- save data
+	call	reset_hook
 	call	get_program_path
+
 
 	ld	hl,_DEFAULT_CFG
 	ld	bc,9
 	ldir
 
-	call	reset_hook
+
 	
 	;--- open the file
 	ld	de,buffer+256 	; +2 to skip drive name

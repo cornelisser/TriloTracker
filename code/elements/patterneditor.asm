@@ -14,9 +14,9 @@ draw_patterneditor:
 	call	draw_instrumentbox
 
 
-	ld	hl,SCC_slot
-	ld	de,(0)+44
-	call	draw_decimal
+;	ld	hl,SCC_slot
+;	ld	de,(0)+44
+;	call	draw_decimal
 
 	; patterneditor
 
@@ -128,11 +128,19 @@ processkey_patterneditor:
 	jr.	nz,0f
 		jr.	init_psgsampleeditor
 		;jr.	processkey_patterneditor_END
+
+IFDEF TTSCC		
 0:	;--- F3
 	dec	a
-;	jr.	nz,0f
-;		jr.	init_configeditor
 	
+ELSE
+0:	;--- F3 Drum macro editor
+	dec	a
+	jr.	nz,0f
+		jr.	init_drumeditor
+
+ENDIF
+
 0:	;--- F4
 	dec	a
 	jr.	nz,0f

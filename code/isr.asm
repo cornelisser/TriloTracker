@@ -84,7 +84,7 @@ NTSC:
 	ld	a,6
 	ld	(hl),a			; reset the tich counter
  	ld    (equalization_flag),a	; reset the tic counter
-debug:
+
 	ld	a,(replay_mode)
 	and	a
 	call	NZ,replay_decodedata_NO	

@@ -9,8 +9,8 @@ SONG_SEQSIZE	equ 200;128				; size of the order list
 INSTRUMENT_LEN	equ 32				; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3	; size of 1 instrument macro
 MAX_WAVEFORM	equ 192-16				; max number of voice.
-MAX_DRUMS		equ 31				; max number of drum macros
-
+MAX_DRUMS		equ 16				; max number of drum macros
+DRUMMACRO_SIZE	equ 12*16				; size 1 drum macro.
 
 DOS			equ 5			; DOS function call entrance
 HOKVLD		equ 0xFB20		; External BIOS hook valid
@@ -118,9 +118,13 @@ cursor_stack:	#4*6	; room for 6 stacks?
 ;tmp_cursor_x:	#1
 ;tmp_editsubmode:	#1
 
+
+
+
+
 ; DONT PLACE DATA BEYOND THIS ALL fREE SPACE ISFOR cursor stack
 _VOICES:			#8*MAX_WAVEFORM
-_DRUM_MACROS:		#8*7*MAX_DRUMS
+drum_macros:		#DRUMMACRO_SIZE*MAX_DRUMS
 
 _SONGDATA_END:	#0
 
@@ -335,6 +339,10 @@ _LABEL_NOTES:	#_LABEL_NOTES_END - _LABEL_NOTES_START
 ; ----- Key to note mapping 
 _KEY_NOTE_TABLE:	#_KEY_NOTE_TABLE_END - _KEY_NOTE_TABLE_START
 
+;------ drum macro vars
+song_cur_drum:		#1
+drum_select_status:	#1
+
 
 
 ; general buffer
@@ -343,5 +351,6 @@ waveform_select_status:		#1
 instrument_buffer:		#(INSTRUMENT_SIZE)
 waveform_buffer:			#32
 pat_buffer:				#SONG_PATSIZE+2	 ; full uncompressed pattern	
+drum_buffer:
 buffer:				#2048+64
 THE_END:	#0

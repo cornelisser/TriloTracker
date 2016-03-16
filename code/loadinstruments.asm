@@ -4,7 +4,7 @@ _DEFAULT_INS:
 	
 load_instruments:
 	call	get_program_path
-
+	
 	ld	hl,_DEFAULT_INS
 	ld	bc,11
 	ldir
@@ -52,15 +52,7 @@ get_program_path:
 	;--- get full path+filename length
 	ld	a,255
 	sub	b
-IFDEF	TTFM
-	sub	9	; "TTFM.COM"
-ELSEIFDEF TTSMS
-	sub	10
-ELSEIFDEF TTPSG
-	sub	10	; "TTFM.COM"
-ELSE
-	sub	7	;"TT.COM"
-ENDIF
+	sub	_DEFAULT_CFGLEN
 	
 	;--- set name
 	ld	de,buffer+256

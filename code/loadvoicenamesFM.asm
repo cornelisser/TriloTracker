@@ -2,25 +2,13 @@ _VOICE_VRAM_START:	equ	$2c00
 
 load_voicenames:
 	;-- get location of TT.COM
-	ld	c,$6b
-	ld	hl,_ENV_PROGRAM
-	ld	de,buffer+256
-	ld	b,255
-	call	DOS		; < 255-[B] is length value string returned.
-
-	;--- get full path+filename length
-	ld	a,255
-	sub	b
-	ld	b,a
-	
+	call	get_program_path
+	add	_DEFAULT_CFGLEN	
+	dec	de
+	dec	de
+	dec	de
+	ex	hl,de
 	;--- set extension .DAT
-	sub	4
-	ld	hl,buffer+256
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
 	ld	(hl),"D"
 	inc	hl
 	ld	(hl),"A"

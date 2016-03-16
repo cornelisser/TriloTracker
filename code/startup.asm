@@ -425,7 +425,7 @@ load_config:
 	call	get_program_path
 
 	ld	hl,_DEFAULT_CFG
-	ld	bc,9
+	ld	bc,_DEFAULT_CFGLEN
 	ldir
 
 	call	reset_hook

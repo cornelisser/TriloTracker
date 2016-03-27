@@ -155,11 +155,8 @@ ENDIF
 		cp	1	
 		jr.	z,44f	;init_configeditor	
 	
-		ld	a,6
-		call	swap_loadblock
-	
-		jr.	init_filedialog
-		;jr.	processkey_patterneditor_END	
+		call	init_filedialog
+		jr.	processkey_patterneditor_END	
 44:
 		ld	a,3
 		call	swap_loadblock		

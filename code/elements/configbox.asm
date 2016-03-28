@@ -232,32 +232,50 @@ update_configbox:
 	;-----------------
 	;	SCC SLOT
 	;-----------------
-	ld	hl,(80*12)+2+20+40
-	ld	de,_LABEL_CONFIG_SCCSLOT
-	call	draw_label
-	
-	ld	a,(SCC_slot)
-	and	3
-	dec	a
-;	ld	b,a
-	add	a
-	add	a
-	ld	hl,0x3f0c
-	ld	de,0x0401
-	add	a,h
-	ld	h,a
-	call	draw_colorbox
-
-	;- auto?
 	ld	a,(_CONFIG_SLOT)
-	cp	255
-	jr.	nz,0f
-
-	ld	hl,0x470c
-	ld	de,0x0401
-	call	draw_colorbox
-
-
+	cp	255				; check if config is set to auto
+	jp	nz,99f
+	ld	de,_LABEL_CONFIG_SCCSLOT_AUTO
+	jp	88f
+99:
+	ld	de,_LABEL_CONFIG_SCCSLOT	
+88:	
+	;--- translate the SLOT# to text
+	;	ExxxSSPP
+	ld	a,(SCC_slot)
+	; first the slot
+	ld	h,d
+	ld	l,e
+	ld	bc,7
+	add	hl,bc			; set the pointer to the slot
+	
+	ld	b,a
+	and 	00000011b
+	add	48
+99:
+	ld	(hl),a
+	
+	; next subslot
+	inc	hl
+	inc	hl
+	ld	a,b
+	bit	7,a
+	jp	nz,_cfg_exp
+	ld	a,"X"
+	jp	99f
+_cfg_exp:
+	rra	
+	rra
+	and	3
+	add	48
+99:
+	ld	(hl),a	
+	
+	
+	;--- display the result.
+	ld	hl,(80*12)+2+20+40
+	call	draw_label	
+		
 0:
 	;-----------------
 	;    VDP FREQ
@@ -572,8 +590,10 @@ _ucb_rgb:
 _LABEL_CONFIG_RGB:
 	db	"    [RBG]",0	
 
+_LABEL_CONFIG_SCCSLOT_AUTO:
+	db	_ARROWLEFT," AUTO X-X  ",_ARROWRIGHT,0
 _LABEL_CONFIG_SCCSLOT:
-	db	"[ 01  02 AUTO]",0
+	db	_ARROWLEFT," SLOT X-X  ",_ARROWRIGHT,0	
 _LABEL_CONFIG_A010:
 	db	"[ $A0    $10 ]",0
 	
@@ -894,7 +914,7 @@ _CONFIG_MENU_JMP:
 	dw	_pk_config_END
 	dw	_pk_config_END
 	dw	pk_config_psg
-	dw	_pk_config_END
+	dw	pk_config_scc
 	dw	pk_config_vdp
 	dw	pk_config_equalisation
 	dw	pk_config_audition
@@ -1122,10 +1142,73 @@ pk_config_psg:
 	
 	jr.	update_configbox	
 	
+;====================================
+; change vdp port
+;====================================
+pk_config_scc:
+	; translate slot to prim and sub in BC
+	ld	a,(SCC_slot)
+	ld	b,a
+	rra
+	rra	
+	and	3
+	ld	c,a
+	ld	a,b
+	and	3
+	ld	b,a
+
+
+;	ld	b,a
+	ld	a,(key)
+	cp	_KEY_RIGHT
+	jp	nz,0f
 	
+	ld	a,c
+	inc	c
+	cp	3
+	jp	nz,pk_config_scc_END	
+	inc	b
+	jr.	pk_config_scc_END	
+
+
+0:	
+	cp	_KEY_LEFT
+	jp	nz,update_configbox
 	
+	ld	a,c
+	dec	c
+	and	a
+	jp	nz,pk_config_scc_END
+	dec	b
+pk_config_scc_END:	
+	ld	a,(SCC_slot_found)
+	and	00001111b
+	ld	d,a
 	
+	ld	d,a
+	ld	a,c
+	rla
+	rla
+	and	00001100b
+	ld	c,a
+	ld	a,b
+	and	3
+	or	c
 	
+	cp	d
+	jp	nz,99f		;-- check if we are NOT back at found slot
+	
+	or	0x80
+	ld	(SCC_slot),a	
+	ld	a,255
+	ld	(_CONFIG_SLOT),a
+	jr.	update_configbox		
+	
+99:	
+	or	0x80
+	ld	(SCC_slot),a
+	ld	(_CONFIG_SLOT),a
+	jr.	update_configbox		
 ;====================================
 ; change equalisation
 ;====================================

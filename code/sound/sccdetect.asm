@@ -127,6 +127,6 @@ done:            pop af            ; retrieve page 2-slot from stack
                  ei
         ;--- store the found slot. 
   	ld	a,b
-	ld	(SCC_slot),a               
+	ld	(SCC_slot_found),a               
                  
         ret		 

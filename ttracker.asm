@@ -58,7 +58,7 @@ MAIN:
 
 	call	cursorstack_init
 
-	ld	a,(SCC_slot)
+	ld	a,(SCC_slot_found)
 	inc	a
 	jp	nz,99f
 	ld	a,WIN_NOSCC
@@ -68,7 +68,7 @@ MAIN:
 	
 99:
 
-
+	
 	ld	a,WIN_STARTUP
 	call	window
 
@@ -84,6 +84,15 @@ MAIN:
 	ld	(editmode),a
 	call	init_patterneditor
 
+	;--- Set the SCC slot according to config
+	ld	a,(_CONFIG_SLOT)
+	cp	255				; check if config is set to auto
+	jp	nz,99f
+	ld	a,(SCC_slot_found)
+
+99:
+	ld	(SCC_slot),a	
+	
 	; --- main loop
 	;call	set_hook
 	

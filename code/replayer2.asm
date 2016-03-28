@@ -571,7 +571,7 @@ replay_init_cont:
 ;--- Very basic pre-scan. Old	one was WAY	too slow.
 replay_init_pre:
 	;di
-	
+	call	reset_hook		; prevent any replayer update while we are preparing
 	;--- Get the current values (to restore them after pre-scan
 ;	ld	a,(current_song)
 	call	set_songpage
@@ -667,6 +667,8 @@ _pe_chanloop:
 	pop	hl
 	ld	(replay_patpointer),hl
 
+	
+	call	set_hook		; re-enable the replayer in the ISR
 	ret
 	
 draw_PSGdebug:		

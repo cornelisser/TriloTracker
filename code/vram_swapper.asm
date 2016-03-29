@@ -24,6 +24,9 @@ swap_block_list:
 		;-- block 5
 		dw SWAP_VRAMSTART+(SWAP_REPLAY_END-SWAP_REPLAY)+(SWAP_MBM_IMP_END-SWAP_MBM_IMP)+(SWAP_XM_IMP_END-SWAP_XM_IMP)+(SWAP_CONFIG_END-SWAP_CONFIG)+(SWAP_TRACK_END-SWAP_TRACK)	; source
 		dw SWAP_INSFILE_END-SWAP_INSFILE		; size
+		;-- block 6
+		dw SWAP_VRAMSTART+(SWAP_REPLAY_END-SWAP_REPLAY)+(SWAP_MBM_IMP_END-SWAP_MBM_IMP)+(SWAP_XM_IMP_END-SWAP_XM_IMP)+(SWAP_CONFIG_END-SWAP_CONFIG)+(SWAP_TRACK_END-SWAP_TRACK)+(SWAP_INSFILE_END-SWAP_INSFILE)    ; source
+		dw SWAP_FILE_END-SWAP_FILE        ; size
 
 
 ;---------------------
@@ -58,7 +61,45 @@ _slv_loop:
 	
 	ei
 	ret
+ 
+;---------------------
+; swap_loadelementblock
+;
+; reads data from VRAM into RAM
+; [A] - block nr
+swap_loadelementblock:
+	;--- make sure no replayer is triggered
+	ld	hl,replay_mode
+	ld	(hl),0
+	ld	hl,swap_block_list
+	add	a
+	add	a			;*4
+	add	a,l			
+	ld	l,a
+	jr.	nc,99f
+	inc	h
+99:
+	;-- load VRAM source
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	inc 	hl
+	ex	de,hl
+	call	set_vdpread
+	
+	di
+	ex	de,hl
+	ld	b,(hl)
+	inc	hl
+	ld	d,(hl)
+	inc	d	
 
+	ld	c,0x98
+	ld	hl,SWAP_ELEMENTSTART
+	jr.	_srv_loop
+	
+	
+	
 ;---------------------
 ; swap_loadblock
 ;

@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.9.2 public beta "
+define VERSION "v0.10.0 public beta "
 define YEAR "2016"
 define CHIPSET_CODE $00
 
@@ -120,7 +120,7 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
-	include 	".\code\elements\filedialog.asm"
+	include 	".\code\elements\filedialogRAM.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsamplebox.asm"
 	include 	".\code\elements\sccwavebox.asm"
@@ -130,7 +130,7 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\vu.asm"
 	include 	".\code\loadinstruments.asm"		
 	include 	".\code\editlog.asm"
-
+SWAP_ELEMENTSTART:
 
 			
 	; --- PAGE 1
@@ -164,6 +164,10 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\window.asm"
 ;	include 	".\code\configuration.asm"
 
+font_data:
+	incbin  ".\data\fontpat.bin"
+	include ".\code\startup.asm"
+	include ".\code\elements\keynotetable.asm"
 
 	; --- PAGE 2
 	;
@@ -174,8 +178,6 @@ _LABEL_PATTERNHEADER:
 	page 2
 	; temporary start up code and data!!! Will be over written after init
 	
-	include ".\code\startup.asm"
-	include ".\code\elements\keynotetable.asm"
 
 
 
@@ -227,6 +229,18 @@ SWAP_INSFILE:
 
 	include	".\code\elements\fileinsdialog.asm"
 SWAP_INSFILE_END:
+	
+ 
+     ; Song file dialog swappable code block
+     ; --------------------------------------------------
+     org    SWAP_ELEMENTSTART
+SWAP_FILE:
+ 
+     include    ".\code\elements\filedialog.asm"
+SWAP_FILE_END:
+ 
+	
+	
 	
 	include ".\code\variables.asm"
 

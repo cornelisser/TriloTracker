@@ -226,6 +226,7 @@ update_psgsamplebox:
 	ld	(instrument_waveform),a
 	inc	hl
 	
+	;--- start at offset
 	ld	a,c
 	and	a
 	jr.	z,4f

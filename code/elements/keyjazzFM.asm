@@ -11,34 +11,28 @@ _KJ_DRM2:	db	0,0
 		db	0,0,0,0
 		db	0,0,0,0
 		
-_DRUM_AUDIT_MAPPING:
-		db 	1
-		db	2
-		db	4
-		db	5
-		db	9
+;_DRUM_AUDIT_MAPPING:
+;		db 	1
+;		db	2
+;		db	4
+;		db	5
+;		db	9
 			
 		
-_DRUM_AUDIT_FREQMAPPING:
-		db	$60
-		db	$70
-		db	$70
-		db	$80
-		db	$80
+;_DRUM_AUDIT_FREQMAPPING:
+;		db	$60
+;		db	$70
+;		db	$70
+;		db	$80
+;		db	$80
 					
 process_key_drumjazz:
-;	push	af
-;	ld	a,(current_song)
 	call	set_songpage
 	ld	a,(key_value)
 	ld	(replay_key),a
 	
-;	pop	af
-	;--- is it a number?
-	cp	1
-	jp	c,_process_key_drumjazz_END
-	cp	6
-	jp	nc,_process_key_drumjazz_END
+	and	a
+	jp	z,_process_key_drumjazz_END
 	
 	;--- erase notes
 	ld	hl,_KJ_SCC
@@ -46,46 +40,14 @@ process_key_drumjazz:
 	ld	hl,_KJ_PSG
 	ld	(hl),97
 
-
-
 	;--- store drum cmd
 	ld	hl,_KJ_DRM1
 	ld	(hl),$0C		; drum effect
 	inc	hl
-	ld	b,a
-;	dec	a
-	ld	de,_DRUM_AUDIT_MAPPING-1
-	add	a,e
-	ld	e,a
-	jp	nc,99f
-	inc	d
-99:
-	ld	a,(de)
-;	and	$0F
+	
+	ld	a,(song_cur_drum)
 	ld	(hl),a		; drum entry
 	
-	;--- store drum freq cmd
-	ld	hl,_KJ_DRM2
-	ld	(hl),$0C		; drum freq effect
-	inc	hl
-	ld	a,b
-
-	ld	de,_DRUM_AUDIT_FREQMAPPING-1
-	add	a,e
-	ld	e,a
-	jp	nc,99f
-	inc	d
-99:
-	ld	a,(de)
-
-	ld	b,a
-	
-	ld	a,(cursor_y)
-	sub	10
-	or	b
-	
-	ld	(hl),a
-
 	call	replay_init
 	ld	a,0x00
 	ld	b,3
@@ -119,10 +81,6 @@ process_key_drumjazz:
 	ld	(hl),0
 	inc	hl
 	ld	(hl),0	
-	ld	hl,_KJ_DRM2
-	ld	(hl),0
-	inc	hl
-	ld	(hl),0
 
 	ret
 

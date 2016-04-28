@@ -338,7 +338,26 @@ ENDIF
 ;	rlca	
 ;	ld	(SCC_regMIXER),a
 
+	;---- Process the drum macros
+	xor	a
+	ld	(FM_DRUM_Flags),a
 
+	ld	bc,FM_DRUM1_LEN
+	ld	de,FM_freqreg1	
+	ld	hl,(FM_DRUM1)
+	call	replay_process_drum
+	ld	(FM_DRUM1),hl
+	ld	bc,FM_DRUM2_LEN
+	ld	de,FM_freqreg2
+	ld	hl,(FM_DRUM2)
+	call	replay_process_drum
+	ld	(FM_DRUM2),hl
+	ld	bc,FM_DRUM3_LEN
+	ld	de,FM_freqreg3
+	ld	hl,(FM_DRUM3)
+	call	replay_process_drum	
+	ld	(FM_DRUM3),hl
+	
 
 	ret
 
@@ -468,7 +487,10 @@ ENDIF
 	ld	(FM_regVOLD),a
 	ld	(FM_regVOLE),a
 	ld	(FM_regVOLF),a
-
+	
+	ld	(FM_DRUM1_LEN),a
+	ld	(FM_DRUM2_LEN),a
+	ld	(FM_DRUM3_LEN),a
 	
 ;call scc_reg_update
 	
@@ -1518,204 +1540,46 @@ _CHIPcmdC_drum:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	cp	$10
-	jr.	nc,0f			;-- drum volume or freq
+	cp	32		;- only 32 drum macros allowed
+	ret	nc
 
-	ld	hl,_drumset
-	add	a,l
-	ld	l,a
-	jr.	nc,11f
-	inc	h
-11:
+	ld	hl,drum_macros+1	
+	and	a
+	jr.	z,99f
+
+;	ld	b,a
+
+	ld	de,DRUMMACRO_SIZE
+88:
+	add	hl,de
+	dec	a
+	jp	nz,88b
+99:
+	;--- drum type
 	ld	a,(hl)
-	ld	(FM_DRUM),a
-	res	3,(ix+CHIP_Flags)
-	
-	ret
-0:
-	;--- ONLY FOR DRUM KEYJAZZ!!!
-	cp	$F0
-	jp	c,0f
-	and	$0f
-	ld	d,a
-	ld	a,00010000b
-	jp	z,22f
-11:	
-	srl	a
-	dec	d
-	jp	nz,11b
-	
-22:
-	or	00100000b
-	ld	(FM_DRUM),a
-	res	3,(ix+CHIP_Flags)
-	ret 
-
-0:
-	cp	$60			;- $60 > freq settings
-	jr.	nc,_cmd_drumfreq
-	;--- Volume		(2=drum, 3=snare, 4=hihat, 5=cymbal, 6=tomtom)
-	cp	$20
-	jr.	c,_cmdD_volBD
-	cp	$30
-	jr.	c,_cmdD_volSD
-	cp	$40
-	jr.	c,_cmdD_volHH
-	cp	$50
-	jr.	c,_cmdD_volCY
-
-_cmdD_volTT:		;- TomTom
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	sla	a		; multiply by 16
-	sla	a
-	sla	a
-	sla	a	
-	ld	d,a
-	ld	a,(FM_volreg3)
-	and	$0f
-	or	d
-	ld	(FM_volreg3),a
-	ld	a,(FM_DRUM_Flags)
-	set	2,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-
-_cmdD_volCY:		;- Cymbal
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	ld	d,a
-	ld	a,(FM_volreg3)
-	and	$f0
-	or	d
-	ld	(FM_volreg3),a
-	ld	a,(FM_DRUM_Flags)
-	set	2,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-_cmdD_volHH:		;- HiHat
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	sla	a		; multiply by 16
-	sla	a
-	sla	a
-	sla	a	
-	ld	d,a
-	ld	a,(FM_volreg2)
-	and	$0f
-	or	d
-	ld	(FM_volreg2),a
-	ld	a,(FM_DRUM_Flags)
-	set	1,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-
-_cmdD_volSD:		;- Snare Drum
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	ld	d,a
-	ld	a,(FM_volreg2)
-	and	$f0
-	or	d
-	ld	(FM_volreg2),a
-	ld	a,(FM_DRUM_Flags)
-	set	1,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-_cmdD_volBD:		;- Base Drum
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-;	ld	d,a
-;	ld	a,(FM_volreg1)
-;	and	$f0
-;	or	d
-	ld	(FM_volreg1),a
-	ld	a,(FM_DRUM_Flags)
-	set	0,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-
-
-
-	;--- Frequency
-_cmd_drumfreq:
-	ex af,af'	;'
-	call	GET_P2
-	push af
-	call	set_songpage
-	ex	af,af'	;'
-	ld	hl,_FM_drumfreqtable
-	cp	$80
-	jr.	nc,2f
-	cp	$70
-	jr.	nc,1f
-0:	;drum freq
-	and	$0f
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
+	dec	hl
+	ld	e,a		;*3
+	add	a,a
+	add	a,e
+	ld	de,FM_DRUM1_LEN
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
 99:
-	ld	e,(hl)
+	;--- drum len
+	ld	a,(hl)
+	ld	(de),a
 	inc	hl
-	ld	d,(hl)
-	ld	(FM_freqreg1),de
-	ld	a,(FM_DRUM_Flags)
-	set	3,a
-	ld	(FM_DRUM_Flags),a
-333:	pop	af
-	call	PUT_P2
+	inc	hl
+	inc	de
+	ex	de,hl
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
 	ret
-1:	;snare hihat  freq
-	and	$0f
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ld	e,(hl)
-	inc	hl
-	ld	d,(hl)
-	ld	(FM_freqreg2),de
-	ld	a,(FM_DRUM_Flags)
-	set	4,a
-	ld	(FM_DRUM_Flags),a
-	jr.	333b
-2:	;cymbal tomtom freq
-	and	$0f
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ld	e,(hl)
-	inc	hl
-	ld	d,(hl)
-	ld	(FM_freqreg3),de
-	ld	a,(FM_DRUM_Flags)
-	set	5,a
-	ld	(FM_DRUM_Flags),a
-	jr.	333b
 	
-	
+
 
 
 
@@ -1935,7 +1799,99 @@ _CHIPcmdF_speed:
 
 	ret
 
+;===========================================================
+; ---replay_route
+; Output the data	to the CHIP	registers
+; 
+; in BC is the macro step counter
+; in HL is the macro pointer
+; in de is the FM freq register
+;===========================================================
+replay_process_drum:
+	;--- process step
+	ld	a,(bc)
+	and	a
+	jr	nz,0f
+	ld	a,(FM_DRUM_Flags)
+	srl	a
+	ld	(FM_DRUM_Flags),a
+	ret
+0:	
+	dec	a
+	ld	(bc),a
 
+	;--- set FRM FLAGs in C (and set to next drum channel)
+	ld	a,(FM_DRUM_Flags)
+	srl	a
+	ld	c,a
+	;--- apply drum mask
+	ld	b,(hl)
+	ld	a,(FM_DRUM)
+	or	b
+	ld	(FM_DRUM),a
+	inc	hl
+	
+	;--- apply tone value
+	ld	b,(hl)
+	inc	hl
+	ld	a,(hl)
+	inc	hl
+	or	b
+	jp	z,_rpd_no_tone
+	xor	b
+	set	5,c			; set tone update flag
+_rpd_no_tone:	
+	ld	(de),a
+	inc	de
+	ld	a,b
+	ld	(de),a
+	inc	de
+	
+	ld	a,(hl)
+	inc	hl
+	and	a
+	jp	z,_rpd_no_vol
+	set	2,c			; set the volume flag
+_rpd_no_vol:
+	ld	b,a
+	ld	a,c
+	ld	(FM_DRUM_Flags),a
+	
+	;--- low volume
+	ld	a,b
+	and	0x0f
+	jp	z,0f
+		ld	c,a
+
+		ld	a,0x0f	;- invert volume
+		sub	c
+		ld	c,a
+		
+		ld	a,(de)
+		and 0xf0
+		or	c
+		ld	(de),a
+0:	;--- high volume
+	ld	a,b
+	and	0xf0
+	jp	z,0f
+		ld	c,a
+		
+		ld	a,0xf0	;- invert volume
+		sub	c
+		ld	c,a
+		
+		ld	a,(de)
+		and 0x0f
+		or	c
+		ld	(de),a	
+
+0:	
+	ret
+	;end
+	
+	
+	
 ;===========================================================
 ; ---replay_route
 ; Output the data	to the CHIP	registers
@@ -3534,6 +3490,7 @@ _tt_route_fmtone:
 	sub	$f
 	djnz	_tt_route_fmtone
 
+debug:	
 ;--- FM DRUM VOL
 	ld	a,(FM_DRUM_Flags)
 	ld	d,a			; 4 cycles
@@ -3547,10 +3504,10 @@ _drmvolloop:
 	ld	a,c
 	out	(FM_WRITE),a
 	ld	a,(hl)		; 7 cycles
+	
 	out	(FM_DATA),a
-	nop
-	nop
-0:
+0:	inc	hl
+	inc	hl
 	inc	hl
 	inc	c
 	djnz	_drmvolloop	
@@ -3588,6 +3545,7 @@ _drmfreqloop:
 0:
 	inc	hl
 	inc	hl
+	inc	hl
 	inc	c
 	inc	e
 	djnz	_drmfreqloop	
@@ -3596,15 +3554,11 @@ _drmfreqloop:
 	ld	(FM_DRUM_Flags),a
 
 
-
 ;--- FM DRUMS
 	ld	a,(DrumMixer)
 	and	a
 	jp	nz,0f
-	ld	(FM_DRUM),a
 0:
-
-
 	ld	a,(FM_DRUM)
 	and	a
 	jr.	z,99f
@@ -3614,6 +3568,7 @@ _drmfreqloop:
 	out	(FM_WRITE),a
 	ld	a,0			; 7 cycles
 	ld	(FM_DRUM),a		; 13 cycles
+	ld	a,10000b
 ;	ld	hl,_drumset-1
 	out	(FM_DATA),a
 	
@@ -3636,10 +3591,8 @@ _drmfreqloop:
 	ld	a,0x0e
 	out	(FM_WRITE),a
 	ex	af,af'		; 4 cycles	'
+	or	100000b
 	out	(FM_DATA),a
-
-
-
 99:
 	
 

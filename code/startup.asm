@@ -92,6 +92,7 @@ start_init:
 	ld	c,_DEFAB
 	ld	de,disk_abort_handler
 	call	DOS	
+
 	
 ;	ld	hl,insert_disk_handler
 ;	ld	a,0xc3

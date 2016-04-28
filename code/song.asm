@@ -129,7 +129,7 @@ clear_patterns:
 	dec	c
 	jr.	nz,1b
 	djnz	0b
-
+	
 clear_waveforms:
 	ld	hl,_WAVESSCC
 	ld	de,_WAVESSCC+1
@@ -137,8 +137,27 @@ clear_waveforms:
 	ld	(hl),0
 	ldir
 	
+IFDEF TTFM
+clear_drummacros:
+	ld	b,MAX_DRUMS-1
+	ld	hl,drum_macros
+	
+_cdm_loop:
+	ld	(hl),1
+	ld	c,(4*16)+1
+	inc	hl
+_cdm_loop2:
+	ld	(hl),0
+	inc	hl
+	dec	c
+	jp nz,_cdm_loop2
+	djnz	_cdm_loop
 
+ELSE	
+	
+ENDIF
 	ret
+	
 	
 _ns_TEMP:
 	db	"TriloTracker ",VERSION

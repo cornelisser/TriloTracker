@@ -129,7 +129,7 @@ draw_label_end:
 	; Draw box 
 	; HL = position in PNT (relative)
 	; DE = pointer to the label text
-	; B = number of bytes to copy to vram
+	; BC = number of bytes to copy to vram
 ; ==========================================================
 draw_label_fast:
 	di

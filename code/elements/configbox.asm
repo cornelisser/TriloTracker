@@ -67,10 +67,13 @@ draw_configbox:
 	ld	de,_LABEL_CONFIG_PSG_PORT
 	call	draw_label
 
+IFDEF TTSCC
+	
 	ld	hl,(80*12)+2+40
 	ld	de,_LABEL_CONFIG_SCC_1
 	call	draw_label
-
+ENDIF
+	
 	ld	hl,(80*13)+2+40
 	ld	de,_LABEL_CONFIG_VDP_FREQ
 	call	draw_label
@@ -141,10 +144,11 @@ draw_configbox:
 
 	ret
 
-
+IFDEF TTSCC
 _LABEL_CONFIG_SCC_1:
 	db "SCC slot",0
-
+ENDIF
+	
 _LABEL_CONFIG_AUDIT:
 	db "Note audition",0	
 _LABEL_CONFIG_DEBUG:
@@ -229,6 +233,7 @@ update_configbox:
 	ld	de,0x0601
 	call	draw_colorbox	
 
+IFDEF TTSCC
 	;-----------------
 	;	SCC SLOT
 	;-----------------
@@ -277,6 +282,7 @@ _cfg_exp:
 	call	draw_label	
 		
 0:
+ENDIF
 	;-----------------
 	;    VDP FREQ
 	;-----------------
@@ -590,10 +596,13 @@ _ucb_rgb:
 _LABEL_CONFIG_RGB:
 	db	"    [RBG]",0	
 
+IFDEF TTSCC
 _LABEL_CONFIG_SCCSLOT_AUTO:
 	db	_ARROWLEFT," AUTO X-X  ",_ARROWRIGHT,0
 _LABEL_CONFIG_SCCSLOT:
-	db	_ARROWLEFT," SLOT X-X  ",_ARROWRIGHT,0	
+	db	_ARROWLEFT," SLOT X-X  ",_ARROWRIGHT,0
+ENDIF
+	
 _LABEL_CONFIG_A010:
 	db	"[ $A0    $10 ]",0
 	
@@ -914,7 +923,11 @@ _CONFIG_MENU_JMP:
 	dw	_pk_config_END
 	dw	_pk_config_END
 	dw	pk_config_psg
+IFDEF TTSCC
 	dw	pk_config_scc
+ELSE
+	dw	_pk_config_END
+ENDIF	
 	dw	pk_config_vdp
 	dw	pk_config_equalisation
 	dw	pk_config_audition
@@ -1141,9 +1154,10 @@ pk_config_psg:
 	call	erase_colorbox
 	
 	jr.	update_configbox	
-	
+
+IFDEF	TTSCC	
 ;====================================
-; change vdp port
+; change SCC slot
 ;====================================
 pk_config_scc:
 	; translate slot to prim and sub in BC
@@ -1208,7 +1222,9 @@ pk_config_scc_END:
 	or	0x80
 	ld	(SCC_slot),a
 	ld	(_CONFIG_SLOT),a
-	jr.	update_configbox		
+	jr.	update_configbox	
+ENDIF
+	
 ;====================================
 ; change equalisation
 ;====================================

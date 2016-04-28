@@ -8,9 +8,9 @@ SONG_PATINSONG	equ (10*1024)/SONG_PATSIZE	; number of pats that fit IN song data
 SONG_SEQSIZE	equ 200;128				; size of the order list
 INSTRUMENT_LEN	equ 32				; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3	; size of 1 instrument macro
-MAX_WAVEFORM	equ 192-16				; max number of voice.
+MAX_WAVEFORM	equ 192+1;-16			; max number of voice.
 MAX_DRUMS		equ 16				; max number of drum macros
-DRUMMACRO_SIZE	equ 12*16				; size 1 drum macro.
+DRUMMACRO_SIZE	equ (4*16)+2			; size 1 drum macro.
 
 DOS			equ 5			; DOS function call entrance
 HOKVLD		equ 0xFB20		; External BIOS hook valid
@@ -75,20 +75,25 @@ song_speed			#1
 ;Instrument/Macro:	
 song_active_instrument	#1	; -> 	instrument in instrument selection
 					;	and is added to the note
+song_cur_drum		#0
 song_cur_instrument	#1
 song_instrument_offset	#1
 song_empty_string		#16
 song_instrument_list	#16*31
 instrument_offset		#1	; for use in menu.
+drum_macro_offset		#0
 instrument_macro_offset	#1	; for use in macro		
+drum_len			#0
 instrument_len		#1	
 instrument_waveform	#1
+drum_type			#0
 instrument_loop		#1
 instrument_macros		#(INSTRUMENT_SIZE)*32
 ;psg_sample_line:	
-instrument_line:		#1
+drum_line			#0
+instrument_line		#1
 
-waveform_datasize:	#1	;# of waveforms (16,32,48 or 64 waveforms)
+waveform_datasize	#1	;# of waveforms (16,32,48 or 64 waveforms)
 
 ; 2nd part contains MOAM waveforms
 
@@ -119,15 +124,11 @@ cursor_stack:	#4*6	; room for 6 stacks?
 ;tmp_editsubmode:	#1
 
 
-
-
-
-; DONT PLACE DATA BEYOND THIS ALL fREE SPACE ISFOR cursor stack
-_VOICES:			#8*MAX_WAVEFORM
-drum_macros:		#DRUMMACRO_SIZE*MAX_DRUMS
-
+_VOICES			#8*MAX_WAVEFORM
+drum_macros			#DRUMMACRO_SIZE*MAX_DRUMS
+song_drum_list		#MAX_DRUMS*16	
 _SONGDATA_END:	#0
-
+; DONT PLACE DATA BEYOND THIS ALL fREE SPACE ISFOR cursor stack
 
 
 
@@ -339,13 +340,14 @@ _LABEL_NOTES:	#_LABEL_NOTES_END - _LABEL_NOTES_START
 ; ----- Key to note mapping 
 _KEY_NOTE_TABLE:	#_KEY_NOTE_TABLE_END - _KEY_NOTE_TABLE_START
 
-;------ drum macro vars
-song_cur_drum:		#1
-drum_select_status:	#1
+
+
+
 
 
 
 ; general buffer
+drum_select_status
 instrument_select_status:	#1
 waveform_select_status:		#1
 instrument_buffer:		#(INSTRUMENT_SIZE)

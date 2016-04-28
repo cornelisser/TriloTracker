@@ -6,8 +6,8 @@ define CHIPSET_CODE $00
 DEFINE TTSCC
  
 	defpage	0,0x0100, 0x3f00	; page 0 contains main code + far call routines
-	defpage 	1,0x4000, 0x4000	; page 1 contains code (last 5kb should be empty)
-	defpage	2,0x8000, 0x4000	; NPC/titlescreen/gameinit code/swap code blocks
+	defpage 	1,0x4000, 0x8000	; page 1 contains code (last 5kb should be empty)
+;	defpage	2,0x8000, 0x4000	; NPC/titlescreen/gameinit code/swap code blocks
 
 
 
@@ -131,6 +131,10 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\loadinstruments.asm"		
 	include 	".\code\editlog.asm"
 SWAP_ELEMENTSTART:
+font_data:
+	incbin  ".\data\fontpat.bin"
+	include ".\code\startup.asm"
+	include ".\code\elements\keynotetable.asm"
 
 			
 	; --- PAGE 1
@@ -164,10 +168,6 @@ SWAP_ELEMENTSTART:
 	include 	".\code\window.asm"
 ;	include 	".\code\configuration.asm"
 
-font_data:
-	incbin  ".\data\fontpat.bin"
-	include ".\code\startup.asm"
-	include ".\code\elements\keynotetable.asm"
 
 	; --- PAGE 2
 	;
@@ -175,7 +175,7 @@ font_data:
 	;
 	;
 	; --------------------------------------------------	
-	page 2
+;	page 2
 	; temporary start up code and data!!! Will be over written after init
 	
 

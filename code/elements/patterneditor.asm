@@ -126,6 +126,10 @@ processkey_patterneditor:
 		jr.	processkey_patterneditor_END
 0:	dec	a		;--- F2 = Instrument editor
 	jr.	nz,0f
+IFDEF TTFM
+		ld	a,7
+		call	swap_loadelementblock
+ENDIF
 		jr.	init_psgsampleeditor
 		;jr.	processkey_patterneditor_END
 
@@ -137,6 +141,8 @@ ELSE
 0:	;--- F3 Drum macro editor
 	dec	a
 	jr.	nz,0f
+		ld	a,8
+		call	swap_loadelementblock
 		jr.	init_drumeditor
 
 ENDIF

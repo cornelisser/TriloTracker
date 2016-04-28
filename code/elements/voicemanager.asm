@@ -1,10 +1,7 @@
 VM_X	equ	14
 VM_Y	equ	4
 
-vm_selection:	
-	db	0		; cursor offset
-vm_voice:
-	db	0		; current voice
+
 
 ;===========================================================
 ; --- draw_voicemanager
@@ -217,10 +214,7 @@ _uvm_clear_loop:
 
 	ret
 	
-_VNUM:
-	db	"000."	
-_LABEL_VEMPTY:
-	db	"                     ",0
+
 	
 _LABEL_VCATEGORIES_OFFSET:
 	db	_VC1-_LABEL_VCATEGORIES

@@ -11,13 +11,10 @@ draw_drumeditor:
 	call	clear_screen
 	call	draw_orderbox
 	call	draw_songbox
-;	call	draw_psgsamplebox
-;	call	draw_instrumentbox
-	
-
-	
-	
+	call	draw_drumeditbox
+	call	draw_instrumentbox
 	ret
+
 		
 ;===========================================================
 ; --- update_psggsampleeditor
@@ -29,7 +26,7 @@ update_drumeditor:
 
 	call	update_orderbox
 	call	update_songbox
-;	call	update_psgsamplebox
+	call	update_drumeditbox
 	call	update_instrumentbox
 	ret
 
@@ -95,8 +92,8 @@ init_drumeditor:
 processkey_drumeditor:
 	;--- check for filedialog
 	ld	a,(key)
-	cp	5
-	jr.	nz,0f
+;	cp	5
+;	jr.	nz,0f
 	;--- start filedialog
 ;	ld	a,5
 ;	call	swap_loadblock
@@ -153,35 +150,35 @@ processkey_drumeditor:
 		jr.	nz,88b
 99:	
 		inc	hl
-		inc	hl
 
-;		ld	a,d
-;		;--- LEFT
-;		cp	_KEY_LEFT
-;		jr.	nz,0f
-;		;--- sample nr down
-;			ld	a,(hl)
-;			and	a
-;			ret	z
-;			dec	a
-;			ld	(instrument_waveform),a
-;			ld	(hl),a
-;			call	update_sccwave
-;			jr.	update_psgsamplebox		
-;
-;0:
-;		;--- Right
-;		cp	_KEY_RIGHT
-;		jr.	nz,0f
-;		;--- sample nr up
-;			ld	a,(hl)
-;			cp	MAX_WAVEFORM-1
-;			ret	nc
-;			inc	a
-;			ld	(hl),a
-;			ld	(instrument_waveform),a
-;			call	update_sccwave
-;			jr.	update_psgsamplebox
+		ld	a,d
+		;--- LEFT
+		cp	_KEY_LEFT
+		jr.	nz,0f
+		;--- type down
+			ld	a,(hl)
+			and	a
+			jr.	nz,44f
+			ld	a,3
+44:			dec	a
+			ld	(drum_type),a
+			ld	(hl),a
+			jr.	update_drumeditbox		
+
+0:
+		;--- Right
+		cp	_KEY_RIGHT
+		jr.	nz,0f
+		;--- type up
+			ld	a,(hl)
+			cp	2
+			jr.	c,44f
+			ld	a,-1
+44:	
+			inc	a
+			ld	(hl),a
+			ld	(drum_type),a
+			jr.	update_drumeditbox
 ;
 ;0:
 ;	;--- CTRL_T- keyjazz chip type
@@ -255,33 +252,33 @@ processkey_drumeditor:
 			
 		call	reset_cursor_drumeditbox
 		jr.	processkey_drumeditor_END		
-;0:
-;	;--- CTRL_R - Sample restart
-;	cp	_CTRL_R
-;	jr.	nz,0f
-;		ld	a,(editsubmode)
-;		and	a
-;		jr.	nz,79f
-;		call	save_cursor
-;79:
-;		ld	a,3
-;		ld	(editsubmode),a
-;		call	reset_cursor_psgsamplebox
-;		jr.	processkey_psgsampleeditor_END		
-;
 0:
-	;--- CTRL_O - Octave
-	cp	_CTRL_O
+	;--- CTRL_T - type
+	cp	_CTRL_T
 	jr.	nz,0f
 		ld	a,(editsubmode)
 		and	a
 		jr.	nz,79f
 		call	save_cursor
 79:
-		ld	a,4
+		ld	a,3
 		ld	(editsubmode),a
 		call	reset_cursor_drumeditbox
-		jr.	processkey_drumeditor_END	
+		jr.	processkey_drumeditor_END		
+
+0:
+;	;--- CTRL_O - Octave
+;	cp	_CTRL_O
+;	jr.	nz,0f
+;		ld	a,(editsubmode)
+;		and	a
+;		jr.	nz,79f
+;		call	save_cursor
+;79:
+;		ld	a,4
+;		ld	(editsubmode),a
+;		call	reset_cursor_drumeditbox
+;		jr.	processkey_drumeditor_END	
 ;0:
 ;	;--- CTRL_F - Wave form edit
 ;	cp	_CTRL_F
@@ -360,62 +357,61 @@ processkey_drumeditor:
 
 		jr.	processkey_drumeditor_END	
 0:	
-	;--- CTRL + I - Instruments
-	cp	_CTRL_I
-	jr.	nz,0f
-_xxx_instruments:	
-		ld	a,(editsubmode)
-		and	a
-		jr.	nz,79f
-		call	save_cursor
-79:
-		ld	a,11
-		ld	(editsubmode),a
-		call	reset_cursor_instrumentbox
-		jr.	processkey_drumeditor_END
-
+;	;--- CTRL + I - Instruments
+;	cp	_CTRL_I
+;	jr.	nz,0f
+;_xxx_instruments:	
+;		ld	a,(editsubmode)
+;		and	a
+;		jr.	nz,79f
+;		call	save_cursor
+;79:
+;		ld	a,11
+;		ld	(editsubmode),a
+;		call	reset_cursor_instrumentbox
+;		jr.	processkey_drumeditor_END
+;
 0:
 		
 	
 processkey_drumeditor_normal:	
-	;--- set octave using numpad
-	ld	a,(key_value)
-	 
-	cp	0x4b
-	jr.	c,0f
-	cp	0x55
-	jr.	nc,0f
-		
-	;--- set octave
-	sub	0x4b
-	ld	(song_octave),a
-	xor	a
-	ld	(key),a
-	call	update_drumeditor
-
-	jr.	processkey_drumeditor_END
-
-0:
+;	;--- set octave using numpad
+;	ld	a,(key_value)
+;	 
+;	cp	0x4b
+;	jr.	c,0f
+;	cp	0x55
+;	jr.	nc,0f
+;		
+;	;--- set octave
+;	sub	0x4b
+;	ld	(song_octave),a
+;	xor	a
+;	ld	(key),a
+;	call	update_drumeditor
+;
+;	jr.	processkey_drumeditor_END
+;
+;0:
 	;--- insturment editor?
 	ld	a,(editsubmode)
-	cp	11
-	;--- Instruments
-	jr.	z,process_key_instrumentbox	
+;	cp	11
+;	;--- Instruments
+;	jr.	z,process_key_instrumentbox	
 
 
 	ld	a,(key)
-	;--- Instrument select
-	cp	_KEY_TAB
-	jr.	nz,1f
-	ld	a,(editmode)
-	cp	11
-	ld	a,(key)
-	jr.	nz,_xxx_instruments
-
-1:	
-	
-	
-	
+;	;--- Instrument select
+;	cp	_KEY_TAB
+;	jr.	nz,1f
+;	ld	a,(editmode)
+;	cp	11
+;	ld	a,(key)
+;	jr.	nz,_xxx_instruments
+;
+;1:	
+;	
+;
 	; - ESCAPE
 	cp	_ESC
 	jr.	nz,0f
@@ -451,11 +447,11 @@ processkey_drumeditor_normal:
 	jr.	z,process_key_drumeditbox_len		
 
 	dec	a
-;	jr.	z,process_key_psgsamplebox_loop
+	jr.	z,process_key_drumeditbox_type
 	
 	dec	a
-	jr.	z,process_key_drumeditbox_octave			
-
+;	jr.	z,process_key_drumeditbox_octave			
+;
 	dec	a
 ;	jr.	z,process_key_sccwavebox_edit
 

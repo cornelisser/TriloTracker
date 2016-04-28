@@ -3,11 +3,12 @@ _VOICE_VRAM_START:	equ	$2c00
 load_voicenames:
 	;-- get location of TT.COM
 	call	get_program_path
-	add	_DEFAULT_CFGLEN	
-	dec	de
-	dec	de
-	dec	de
-	ex	hl,de
+	inc	de
+	inc	de
+	inc	de
+	inc	de
+	inc	de
+	ex	de,hl
 	;--- set extension .DAT
 	ld	(hl),"D"
 	inc	hl

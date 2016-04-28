@@ -1540,7 +1540,7 @@ _CHIPcmdC_drum:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	cp	32		;- only 32 drum macros allowed
+	cp	MAX_DRUMS		;- only 32 drum macros allowed
 	ret	nc
 
 	ld	hl,drum_macros+1	

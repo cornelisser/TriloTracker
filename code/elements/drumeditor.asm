@@ -113,7 +113,7 @@ processkey_drumeditor:
 		jr.	nz,0f
 		; pattern# down
 		ld	a,(song_cur_drum)
-		cp	1
+		cp	0
 		ret	z	; no update
 		dec	a
 		ld	(song_cur_drum),a
@@ -129,7 +129,7 @@ processkey_drumeditor:
 		; pattern# up
 		ld	a,(song_cur_drum)
 		inc	a
-		cp	32
+		cp	MAX_DRUMS
 		ret	nc	; no update
 		ld	(song_cur_drum),a
 				
@@ -375,6 +375,7 @@ processkey_drumeditor:
 		
 	
 processkey_drumeditor_normal:	
+
 ;	;--- set octave using numpad
 ;	ld	a,(key_value)
 ;	 
@@ -435,6 +436,20 @@ processkey_drumeditor_normal:
 	ld	(keyjazz),a
 	jr.	set_textcolor		
 1:
+
+	ld	a,(keyjazz)
+	and	a
+	ld	a,(key)
+	jp	z,0f
+
+
+	jr.	process_key_drumjazz
+0:
+
+
+
+
+
 	
 	ld	a,(editsubmode)
 	and	a	

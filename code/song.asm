@@ -139,7 +139,7 @@ clear_waveforms:
 	
 IFDEF TTFM
 clear_drummacros:
-	ld	b,MAX_DRUMS-1
+	ld	b,MAX_DRUMS
 	ld	hl,drum_macros
 	
 _cdm_loop:
@@ -153,6 +153,12 @@ _cdm_loop2:
 	jp nz,_cdm_loop2
 	djnz	_cdm_loop
 
+	ld	de,song_drum_list+1
+	ld	hl,song_drum_list
+	ld	(hl),0
+	ld	bc,(MAX_DRUMS*16)-1	
+	ldir
+	
 ELSE	
 	
 ENDIF

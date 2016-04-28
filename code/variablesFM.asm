@@ -9,7 +9,7 @@ SONG_SEQSIZE	equ 200;128				; size of the order list
 INSTRUMENT_LEN	equ 32				; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3	; size of 1 instrument macro
 MAX_WAVEFORM	equ 192+1;-16			; max number of voice.
-MAX_DRUMS		equ 16				; max number of drum macros
+MAX_DRUMS		equ 32				; max number of drum macros
 DRUMMACRO_SIZE	equ (4*16)+2			; size 1 drum macro.
 
 DOS			equ 5			; DOS function call entrance

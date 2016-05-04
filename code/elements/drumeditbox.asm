@@ -285,33 +285,45 @@ _udm_lineloop:
 	
 	
 	;--- Tone and octave
-;	ld	c,(hl)			; store byte2 in b
-;	inc	hl
-;	ld	b,(hl)			; store byte3 in c
+	ld	b,(hl)			; store byte2 in b
+	inc	hl
+	ld	a,(hl)			; store byte3 in c
+	or	b
+	jp	nz,0f
+
+	;--- draw empty value
+	ld	a,"."
+	ld	(de),a
+	inc	de
+	inc	de
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	jp	1f
 	
+
+0:	
 	;octave
-	ld	a,(hl)
+	ld	a,b
 	srl	a
-	and	a
-	call	z,draw_empty
-	call	nz,draw_hex
+	call	draw_hex
 
 	inc	de
 	
 	;tone
-	ld	a,(hl)
-	inc	hl
+	ld	a,b
+;	inc	hl
 	and	1
-	call	z,draw_empty
-	call	nz,draw_hex
+	call	draw_hex
 	ld	a,(hl)
 	inc	hl
 	and	a
-	call	z,draw_empty
-	call	z,draw_empty
-	call	nz,draw_hex2	
+	call	draw_hex2	
 
-	
+1:	
 	inc	de
 	;--- Volume
 	ld	a,(hl)		; - volume 2 (low bits)

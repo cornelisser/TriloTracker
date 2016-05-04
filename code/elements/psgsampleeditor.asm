@@ -320,6 +320,7 @@ ENDIF
 		cp	5
 		jr.	nz,_pkps_instr
 
+IFDEF TTSCC		
 		;--- copy a waveform
 		ld	a,1
 		ld	(waveform_select_status),a	
@@ -340,7 +341,7 @@ ENDIF
 		ld	bc,32
 		ldir
 		jr.	processkey_psgsampleeditor_END	
-
+ENDIF
 
 
 _pkps_instr:		;-- we are copying an instrument
@@ -374,6 +375,7 @@ _pkps_instr:		;-- we are copying an instrument
 		cp	5
 		jr.	nz,_pkpse_instr
 
+IFDEF TTSCC		
 		;--- paste a waveform
 		ld	a,(waveform_select_status)
 		and	a	
@@ -398,7 +400,8 @@ _pkps_instr:		;-- we are copying an instrument
 		call	update_psgsamplebox
 
 		jr.	processkey_psgsampleeditor_END	
-
+ENDIF
+		
 _pkpse_instr:		
 		;-- we are copying an instrument
 		ld	a,(instrument_select_status)	
@@ -526,8 +529,11 @@ processkey_psgsampleeditor_normal:
 	jr.	z,process_key_psgsamplebox_octave			
 
 	dec	a
+IFDEF	TTSCC	
 	jr.	z,process_key_sccwavebox_edit
-
+ELSE
+	jr.	z,process_key_voicebox_edit
+ENDIF
 	dec	a
 	jr.	z,process_key_psgsamplebox_description
 	

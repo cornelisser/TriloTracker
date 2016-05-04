@@ -1,21 +1,25 @@
 FM_WRITE:	equ	0x7c	; port to set fm reg nr.
 FM_DATA:	equ	0x7d	; port to set fm data for reg
 
-
-
-
 ;================================
 ; The new replayer.
 ;
 ;
 ;
 ;================================
-
-
-
 SCC_VOLUME_TABLE 
 	incbin "..\data\voltable_FM.bin"
 
+DRM_DEFAULT_values:
+	db	11100111b		; 0,1,2 = volume, 5,6,7 = freq
+	dw	0x0520		; Base drum
+	db	0x01			; vol
+	dw	0x0550		; Snare + HiHat
+	db	0x11			; vol
+	dw	0x01c0		; Cymbal + TomTom
+	db	0x11			; vol
+	
+	
 ;Konami values found in	nemesis 2 replayer.
 ;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
 C_PER		equ	$6a*32	
@@ -1543,18 +1547,26 @@ _CHIPcmdC_drum:
 	cp	MAX_DRUMS		;- only 32 drum macros allowed
 	ret	nc
 
-	ld	hl,drum_macros+1	
 	and	a
-	jr.	z,99f
+	jr.	nz,0f
+	;--- DRUM reset
+	push	bc
+	ld	de,FM_DRUM_Flags
+	ld	hl,DRM_DEFAULT_values
+	ld	bc,10
+	ldir
+	pop	bc
+	ret
 
-;	ld	b,a
-
+0:	
+	;--- location in RAM
+	ld	hl,drum_macros+1	
 	ld	de,DRUMMACRO_SIZE
 88:
 	add	hl,de
 	dec	a
 	jp	nz,88b
-99:
+
 	;--- drum type
 	ld	a,(hl)
 	dec	hl
@@ -3490,7 +3502,7 @@ _tt_route_fmtone:
 	sub	$f
 	djnz	_tt_route_fmtone
 
-debug:	
+
 ;--- FM DRUM VOL
 	ld	a,(FM_DRUM_Flags)
 	ld	d,a			; 4 cycles

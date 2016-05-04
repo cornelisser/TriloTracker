@@ -52,16 +52,6 @@ draw_psgsamplebox:
 	;box around waveform data
 ;	ld	hl,(80*17)+32
 ;	ld	de,(15*256) + 9
-	;drum freq preset
-	ld	hl,(80*9)+63
-	ld	de,(17*256) + 17
-	call	draw_box	
-	ld	hl,(80*9)+64
-	ld	de,_LABEL_DRUMFREQ
-	call	draw_label
-
-
-
 	
 
 	ld	hl,(80*6)+1+8
@@ -164,11 +154,6 @@ draw_psgsamplebox:
 	ld	de,0x1401	
 	call	erase_colorbox
 	
-	;drumfreq
-	ld	hl,0x430a
-	ld	de,0x0810	
-	call	erase_colorbox
-
 
 	ret
 	
@@ -177,9 +162,7 @@ _LABEL_SAMPLEBOX:
 _LABEL_SAMPPLEMACRO:
 	db	"Macro:",0
 _LABEL_SAMPPLEFORM:
-	db	"fm Voice:",0
-_LABEL_DRUMFREQ:
-	db	"drum Freqs:",0
+	db	"Fm voice:",0
 _LABEL_SAMPLETEXT:
 	db	"Ins: Len: Rst: Wav: Description:     Oct: Tst:",0
 _LABEL_SAMPLETEXT2:	
@@ -605,10 +588,6 @@ _vol_update:
 
 	
 	call	update_tonecum
-	call	update_sccwave
-	call	update_drumfreq
-
-
 	ret
 
 
@@ -2151,18 +2130,15 @@ reset_cursor_psgsamplebox:
 0:	
 	dec	a
 	jr.	nz,0f
-	;--- Drum freq editor
-
-		ld	a,64+4
-		ld	(cursor_x),a
-		xor	a
-		ld	(_scc_waveform_col),a
-;		call	get_waveform_val	
-		ld	a,3
+	;--- Wave form editor
+		ld	a,1
 		ld	(cursor_type),a
-		ld	a,10
-		jr.	88f	
-0:
+;		dec	a
+		ld	a,(_scc_waveform_col)
+		jp	_set_voice_cursor
+
+
+
 	dec	a
 	jr.	nz,0f
 	;--- Instrument description 

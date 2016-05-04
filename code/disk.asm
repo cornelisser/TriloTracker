@@ -904,13 +904,14 @@ _stmu_samplsub:				; calculate the number of bytes
 	pop	bc
 	djnz	_stmu_samploop
 	
-			
+IFDEF	TTSCC			
 	;--- Write the SCC waveform data;
 	ld	de,_WAVESSCC
 	ld	hl,1024
 	call	write_file
 	call	nz,catch_diskerror
-
+ENDIF
+	
 	xor	a
 _save_tmufile_patloop:	
 	;--- compress the pattern
@@ -1084,7 +1085,9 @@ _create_in_continue:
 	ex	de,hl
 	call	write_file
 	;catch error here
-	
+
+
+IFDEF TTSCC	
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
@@ -1103,6 +1106,7 @@ _create_in_continue:
 	ex	de,hl
 	call	write_file	
 	;catch error here
+ENDIF
 	
 	call	close_file
 	;catch error here
@@ -1211,7 +1215,8 @@ _create_ins_continue:
 	ex	de,hl
 	call	write_file
 	call	nz,catch_diskerror
-		
+
+IFDEF	TTSCC	
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
@@ -1219,6 +1224,7 @@ _create_ins_continue:
 	ex	de,hl
 	call	write_file	 
 	call	nz,catch_diskerror
+ENDIF
 	
 	call	close_file
 	call	nz,catch_diskerror
@@ -1540,7 +1546,8 @@ _create_wa_continue:
 	ld	hl,3
 	call	write_file
 	call	nz,catch_diskerror
-		
+
+IFDEF	TTSCC	
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
@@ -1559,6 +1566,8 @@ _create_wa_continue:
 	ex	de,hl
 	call	write_file	
 	call	nz,catch_diskerror
+ENDIF 
+
 	
 	call	close_file
 	call	nz,catch_diskerror
@@ -1649,6 +1658,7 @@ _create_was_continue:
 	call	write_file
 	call	nz,catch_diskerror
 
+IFDEF TTSCC	
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
@@ -1656,10 +1666,10 @@ _create_was_continue:
 	ex	de,hl
 	call	write_file	 
 	call	nz,catch_diskerror
+ENDIF
 	
 	call	close_file
 ;	call	nz,catch_diskerror
-
 	call	set_hook
 	ret
 
@@ -1809,7 +1819,8 @@ _otmu_samplsub:				; calculate the number of bytes
 	ex	de,hl	
 	pop	bc
 	djnz	_otmu_samploop
-		
+
+IFDEF	TTSCC	
 	;--- Read the SCC waveform data;
 	ld	de,_WAVESSCC
 	;--- check how many scc waveforms we need to load.
@@ -1823,6 +1834,7 @@ _otmu_samplsub:				; calculate the number of bytes
 	ld	hl,512
 88:	call	read_file
 	jr.	nz,catch_diskerror
+ENDIF	
 
 	;--- Test which way the patterns are stored
 	; 1 = uncompressed (converter tool)
@@ -2052,7 +2064,8 @@ open_infile:
 	ex	de,hl
 	call	read_file
 	call	nz,catch_diskerror
-	
+
+IFDEF	TTSCC	
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
@@ -2070,7 +2083,7 @@ open_infile:
 	ex	de,hl
 	call	read_file	
 	call	nz,catch_diskerror
-
+ENDIF
 
 	; restore the correct waveform
 	ld	hl,instrument_macros
@@ -2141,13 +2154,14 @@ open_insfile_direct:		;- used for loading default set
 	call	read_file
 	call	nz,catch_diskerror
 
-	
+IFDEF	TTSCC	
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	de,_WAVESSCC
 	ld	hl,32*32
 	call	read_file	
 	call	nz,catch_diskerror
+ENDIF
 	
 	call	close_file
 	
@@ -2182,7 +2196,7 @@ open_wafile:
 	call	read_file
 	call	nz,catch_diskerror
 			
-	
+IFDEF	TTSCC	
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
@@ -2201,7 +2215,9 @@ open_wafile:
 	ex	de,hl
 	call	read_file	
 	call	nz,catch_diskerror
-
+ENDIF
+	
+	
 	call	close_file
 	
 	call	set_hook
@@ -2235,7 +2251,8 @@ open_wasfile:
 	ld	hl,3
 	call	read_file
 	call	nz,catch_diskerror
-			
+
+IFDEF	TTSCC	
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
@@ -2243,6 +2260,7 @@ open_wasfile:
 	ex	de,hl
 	call	read_file	
 	call	nz,catch_diskerror
+ENDIF
 
 	call	close_file
 	

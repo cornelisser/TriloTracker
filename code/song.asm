@@ -129,13 +129,15 @@ clear_patterns:
 	dec	c
 	jr.	nz,1b
 	djnz	0b
-	
+
+IFDEF TTSCC	
 clear_waveforms:
 	ld	hl,_WAVESSCC
 	ld	de,_WAVESSCC+1
 	ld	bc,32*32 -1
 	ld	(hl),0
 	ldir
+ENDIF
 	
 IFDEF TTFM
 clear_drummacros:

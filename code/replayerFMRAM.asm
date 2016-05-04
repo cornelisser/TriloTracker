@@ -244,8 +244,8 @@ replay_init:
 	
 	jp	replay_init_cont				
 	
-_WAVESSCC			
-_FM_drumfreqtable:	ds	32	; the drum frequency values
-_FM_drumfreqedit:		ds	32 	; the values use din the drumfreq editor		
+;_WAVESSCC			
+;_FM_drumfreqtable:	ds	32	; the drum frequency values
+;_FM_drumfreqedit:		ds	32 	; the values use din the drumfreq editor		
 
-_rest_WAVESCC:	;	ds	32*30	
+;_rest_WAVESCC:	;	ds	32*30	

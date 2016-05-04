@@ -113,7 +113,7 @@ processkey_drumeditor:
 		jr.	nz,0f
 		; pattern# down
 		ld	a,(song_cur_drum)
-		cp	0
+		cp	1
 		ret	z	; no update
 		dec	a
 		ld	(song_cur_drum),a
@@ -445,11 +445,6 @@ processkey_drumeditor_normal:
 
 	jr.	process_key_drumjazz
 0:
-
-
-
-
-
 	
 	ld	a,(editsubmode)
 	and	a	

@@ -1559,6 +1559,8 @@ _CHIPcmdC_drum:
 	ret
 
 0:	
+	;--- Set the song page
+	call	set_songpage_safe
 	;--- location in RAM
 	ld	hl,drum_macros+1	
 	ld	de,DRUMMACRO_SIZE
@@ -1589,6 +1591,8 @@ _CHIPcmdC_drum:
 	ld	(hl),e
 	inc	hl
 	ld	(hl),d
+	
+	call	set_patternpage_safe
 	ret
 	
 

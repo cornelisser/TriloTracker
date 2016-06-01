@@ -128,6 +128,7 @@ config:
 	;---- configuration loading
 	call	init_config
 	call	load_config
+	call	set_vsf
 
 	
 

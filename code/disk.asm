@@ -816,7 +816,7 @@ _create_tmu_continue:
 
 	
 	;--- Write header
-	ld	a,5
+	ld	a,6
 	or	CHIPSET_CODE
 	ld	(song_version),a
 	
@@ -910,6 +910,59 @@ IFDEF	TTSCC
 	ld	hl,1024
 	call	write_file
 	call	nz,catch_diskerror
+ELSE
+
+_save_tmufile_customvoices:	
+	ld	de,_VOICES+((192-16)*8)
+	ld	hl,8*16
+	call	write_file
+	jr.	nz,catch_diskerror	
+_save_tmufile_drumnames:
+	;--- write drum names.
+	ld	de,song_drum_list
+	ld	hl,31*16
+	call	write_file
+	call	nz,catch_diskerror
+
+	;--- Write the drum data
+	ld	de,drum_macros+((4*16)+2)	; sample 0 is always empty.	
+	ld	b,31				; 32 samples to write.	
+_stmu_drumloop:
+	push	bc
+	push	de
+	ld	hl,2
+	call	write_file
+	call	nz,catch_diskerror
+	
+	dec	de
+	dec	de
+	ld	a,(de)			; get the sample length	
+	inc	de
+	inc	de
+	ld	b,a
+	xor	a
+
+
+_stmu_drumsub:				; calculate the number of bytes
+	add	a,4				; 4 bytes per line
+	djnz	_stmu_drumsub
+		
+	ld	h,0
+	ld	l,a
+	call	write_file
+	call	nz,catch_diskerror
+	
+	pop	hl
+	ld	de,(16*4)+2
+	add	hl,de
+	ex	de,hl	
+	pop	bc
+	djnz	_stmu_drumloop
+
+
+
+
+	
 ENDIF
 	
 	xor	a
@@ -1675,11 +1728,6 @@ ENDIF
 
 
 
-
-
-
-
-
 ;===========================================================
 ; --- open_tmufile
 ;
@@ -1834,8 +1882,82 @@ IFDEF	TTSCC
 	ld	hl,512
 88:	call	read_file
 	jr.	nz,catch_diskerror
+ELSE
+	ld	a,(song_version)
+	and	$0f
+	cp	6
+	jp	nc,_open_tmufile_customvoices
+	
+	;--- Read AND IGNORE the SCC waveform data;
+	ld	de,buffer
+	;--- check how many scc waveforms we need to load.
+	ld	a,(song_version)
+	and	$0f
+	cp	3
+	jr.	c,99f
+	ld	hl,1024
+	jr.	88f
+99:	
+	ld	hl,512
+88:	call	read_file
+	jr.	nz,catch_diskerror	
+	jr.	_otmu_patterns
+	
+_open_tmufile_customvoices:
+	ld	de,_VOICES+((192-16)*8)
+	ld	hl,8*16
+	call	read_file
+	jr.	nz,catch_diskerror
+
+_open_tmufile_drumnames:	
+ 	;--- load drum names.
+	ld	de,song_drum_list
+	ld	hl,31*16
+	
+	call	read_file	
+	jr.	nz,catch_diskerror
+
+_open_tmufile_drummacros:	
+	;--- Read the sample data
+	ld	de,drum_macros+((4*16)+2)	; sample 0 is always empty.	
+	ld	b,31			; 32 samples to read.	
+_otmu_drumloop:
+	push	bc
+	push	de
+	ld	hl,2
+	call	read_file
+	jr.	nz,catch_diskerror			
+	
+	dec	de
+	dec	de
+	ld	a,(de)			; get the sample length	
+	inc	de
+	inc	de
+	ld	b,a
+	xor	a
+
+_otmu_drumsub:				; calculate the number of bytes
+	add	a,4			; 4 bytes per line
+	djnz	_otmu_drumsub
+
+	ld	h,0
+	ld	l,a
+	call	read_file
+	jr.	nz,catch_diskerror	
+	
+	pop	hl
+	ld	de,(16*4)+2
+	add	hl,de
+	ex	de,hl	
+	pop	bc
+	djnz	_otmu_drumloop
+
+
 ENDIF	
 
+
+
+_otmu_patterns:
 	;--- Test which way the patterns are stored
 	; 1 = uncompressed (converter tool)
 	; 2 = compressed

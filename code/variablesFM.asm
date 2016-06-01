@@ -37,7 +37,7 @@ _ASSIGN		equ 0x6a		; get/set LOGICAL DRIVE ASSIGNMENT
 _DEFER		equ 0x64		; set the error handler.
 _DEFAB		equ 0x63		; set the abort handler.
 _FLUSH		equ 0x5f		; flush buffers
-PATTERN_WIN	equ 0			; pattern edit window
+PATTERN_WIN		equ 0			; pattern edit window
 
 _PNT		equ	0x2000		; pnt
 _CNT		equ	0x2a00		; cnt

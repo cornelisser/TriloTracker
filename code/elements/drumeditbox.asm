@@ -106,7 +106,7 @@ draw_drumeditbox:
 	ld	(de),a
 	
 	ld	hl,(80*10)+40-1	
-	ld	a,0
+	ld	a,1
 	
 0:	
 	ld	de,_LABEL_DRUMTEXT2SUB
@@ -119,7 +119,7 @@ draw_drumeditbox:
 	pop	hl
 	pop	af
 	inc	a
-	cp	16
+	cp	17
 	jp	nz,99f
 	;--- next column
 	ld	hl,(80*9)+40+20-1	
@@ -302,6 +302,7 @@ _udm_lineloop:
 	inc	de
 	ld	(de),a
 	inc	de
+	inc	hl
 	jp	1f
 	
 
@@ -413,7 +414,7 @@ update_drumnames:
 
 	ld	de,song_drum_list
 	ld	hl,(80*10)+40+2
-	ld	a,32
+	ld	a,31
 	
 _udn_loop:	
 	ld	b,16
@@ -423,7 +424,7 @@ _udn_loop:
 	ex	de,hl
 	pop	af
 	pop	hl
-	cp	17	; check if we are at macro 16
+	cp	16	; check if we are at macro 16
 	jp	nz,99f
 	;--- next column
 	ld	hl,(80*10)+40+22-80

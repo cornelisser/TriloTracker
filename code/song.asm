@@ -160,11 +160,32 @@ _cdm_loop2:
 	ld	(hl),0
 	ld	bc,(MAX_DRUMS*16)-1	
 	ldir
-	
-ELSE	
-	
-ENDIF
+
+	;--- Set default drums
+	ld 	hl,drum_macros+2+((16*4)+2)
+	ld	de,_cdm_DRUMDEFAULT
+	ld	b,15
+_cdm_loop3:
+	ld	a,(de)		;- set the default drum  bits
+	ld	(hl),a
+	inc	de
+	ld	a,(16*4)+2
+	add	a,l
+	ld	l,a
+	jp	nc,88f
+	inc	h
+88:	
+	djnz	_cdm_loop3
 	ret
+	
+
+_cdm_DRUMDEFAULT:
+	db	16, 8,24,1,2,18,10,26,4,20,17,9,25,22,3	
+
+ELSE	
+	ret
+ENDIF
+
 	
 	
 _ns_TEMP:

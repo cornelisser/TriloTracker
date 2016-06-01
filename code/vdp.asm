@@ -8,6 +8,9 @@
 
 ;--- sets the speed equalisation
 set_vsf:
+	xor	a
+	ld	(equalization_flag),a
+
 	ld	a,(_CONFIG_EQU)
 	and	a
 	jr.	nz,_sv_off

@@ -91,7 +91,7 @@ init_drumeditor:
 ;===========================================================	
 processkey_drumeditor:
 	;--- check for filedialog
-	ld	a,(key)
+;	ld	a,(key)
 ;	cp	5
 ;	jr.	nz,0f
 	;--- start filedialog
@@ -394,14 +394,16 @@ processkey_drumeditor_normal:
 ;	jr.	processkey_drumeditor_END
 ;
 ;0:
-	;--- insturment editor?
-	ld	a,(editsubmode)
+;	;--- insturment editor?
+;	ld	a,(editsubmode)
 ;	cp	11
 ;	;--- Instruments
 ;	jr.	z,process_key_instrumentbox	
 
 
 	ld	a,(key)
+	and	a
+	ret	z
 ;	;--- Instrument select
 ;	cp	_KEY_TAB
 ;	jr.	nz,1f
@@ -428,22 +430,22 @@ processkey_drumeditor_normal:
 	cp	_SPACE
 	jr.	nz,1f
 	;--- only if we are editing
-	ld	a,(editsubmode)
-	and	a
-	jr.	nz,1f
+;	ld	a,(editsubmode)
+;	and	a
+;	jr.	nz,1f
 	ld	a,(keyjazz)
 	xor 	1
 	ld	(keyjazz),a
 	jr.	set_textcolor		
 1:
-
+	ld	a,(editsubmode)
+	and	a
+	jr.	z,0f
 	ld	a,(keyjazz)
 	and	a
 	ld	a,(key)
-	jp	z,0f
-
-
-	jr.	process_key_drumjazz
+	jr.	nz,process_key_drumjazz
+	
 0:
 	
 	ld	a,(editsubmode)

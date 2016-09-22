@@ -1486,7 +1486,7 @@ _pk_psg_noise
 	cp	'0'	; bigger than 0 
 	jr.	c,99f	
 IFDEF TTSMS
-	cp	'8'+1	; smaller than 1?
+	cp	'8'+1	; smaller than 8?
 ELSE 
 	cp	'1'+1	; smaller than 1?
 ENDIF

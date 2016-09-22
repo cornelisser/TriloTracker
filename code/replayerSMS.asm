@@ -1,22 +1,25 @@
 FM_WRITE:	equ	0x7c	; port to set fm reg nr.
 FM_DATA:	equ	0x7d	; port to set fm data for reg
 
-
-
-
 ;================================
 ; The new replayer.
 ;
 ;
 ;
 ;================================
+SCC_VOLUME_TABLE 
+	incbin "..\data\voltable_FM.bin"
 
-
-
-;SCC_VOLUME_TABLE 
-;	incbin "..\data\voltable_SCC.bin"
-
-
+DRM_DEFAULT_values:
+	db	11100111b		; 0,1,2 = volume, 5,6,7 = freq
+	dw	0x0520		; Base drum
+	db	0x01			; vol
+	dw	0x0550		; Snare + HiHat
+	db	0x11			; vol
+	dw	0x01c0		; Cymbal + TomTom
+	db	0x11			; vol
+	
+	
 ;Konami values found in	nemesis 2 replayer.
 ;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
 C_PER		equ	$6a*32	
@@ -248,6 +251,11 @@ replay_decodedata_NO:
 	ld	(SCC_regMIXER),a
 	ld	a,(mainPSGvol)
 	ld	(replay_mainvol),a
+IFDEF TTSMS
+	ld	(SN_regVOLN),a
+	ld	(AY_regVOLA),a
+	ld	(AY_regVOLB),a
+ENDIF	
 
 	ld	ix,CHIP_Chan1
 	ld	hl,AY_regToneA
@@ -278,6 +286,9 @@ replay_decodedata_NO:
 	ld	a,(mainSCCvol)
 	ld	(replay_mainvol),a
 
+
+	xor	a
+	ld	(SCC_regMIXER),a
 
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl
@@ -327,8 +338,30 @@ replay_decodedata_NO:
 	ld	hl,SCC_regToneF	
 	call	replay_process_chan_AY
 
+;	ld	a,(SCC_regMIXER)
+;	rlca	
+;	ld	(SCC_regMIXER),a
 
+	;---- Process the drum macros
+	xor	a
+	ld	(FM_DRUM_Flags),a
 
+	ld	bc,FM_DRUM1_LEN
+	ld	de,FM_freqreg1	
+	ld	hl,(FM_DRUM1)
+	call	replay_process_drum
+	ld	(FM_DRUM1),hl
+	ld	bc,FM_DRUM2_LEN
+	ld	de,FM_freqreg2
+	ld	hl,(FM_DRUM2)
+	call	replay_process_drum
+	ld	(FM_DRUM2),hl
+	ld	bc,FM_DRUM3_LEN
+	ld	de,FM_freqreg3
+	ld	hl,(FM_DRUM3)
+	call	replay_process_drum	
+	ld	(FM_DRUM3),hl
+	
 
 	ret
 
@@ -429,18 +462,20 @@ replay_init_cont:
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a	
 	ld	(AY_regVOLC),a
-	
+IFDEF	TTSMS
+	ld	(SN_regVOLN),a
+ENDIF	
 ;	;--- Init the SCC	(waveforms too)
 ;	ld	h,0x80
 ;	call enaslt
 	
-;	ld	a,255
-;	ld	(CHIP_Chan3+CHIP_Waveform),a
-;	ld	(CHIP_Chan4+CHIP_Waveform),a
-;	ld	(CHIP_Chan5+CHIP_Waveform),a
-;	ld	(CHIP_Chan6+CHIP_Waveform),a	
-;	ld	(CHIP_Chan7+CHIP_Waveform),a	
-;	ld	(CHIP_Chan8+CHIP_Waveform),a
+	ld	a,1
+	ld	(CHIP_Chan3+CHIP_Voice),a
+	ld	(CHIP_Chan4+CHIP_Voice),a
+	ld	(CHIP_Chan5+CHIP_Voice),a
+	ld	(CHIP_Chan6+CHIP_Voice),a	
+	ld	(CHIP_Chan7+CHIP_Voice),a	
+	ld	(CHIP_Chan8+CHIP_Voice),a
 	ld	a,128
 	ld	(CHIP_Chan3+CHIP_Flags),a
 	ld	(CHIP_Chan4+CHIP_Flags),a
@@ -456,7 +491,10 @@ replay_init_cont:
 	ld	(FM_regVOLD),a
 	ld	(FM_regVOLE),a
 	ld	(FM_regVOLF),a
-
+	
+	ld	(FM_DRUM1_LEN),a
+	ld	(FM_DRUM2_LEN),a
+	ld	(FM_DRUM3_LEN),a
 	
 ;call scc_reg_update
 	
@@ -940,7 +978,7 @@ draw_PSGdebug:
 	
 	;inc	hl
 	ld	a,(hl)
-	and	0x0f
+;	and	0x0f
 	call	draw_hex2	; noise	
 	inc	de
 
@@ -964,12 +1002,12 @@ draw_PSGdebug:
 	inc	de
 	ld	a,(hl)
 	call	draw_fakehex	; vol	c
-;	inc	hl
+	inc	hl
 ;	inc	de	
 	
 	ld	hl,0
 	ld	de,_TEMPAY
-	ld	b,28;31
+	ld	b,29;31
 	call	draw_label_fast
 	
 ;	call	debug_instruments	
@@ -1045,40 +1083,10 @@ _dc_noNote:
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	cp	(ix+CHIP_Waveform)
+	cp	(ix+CHIP_Voice)
 	jr.	z,_dc_noNewWaveform
 	
-	;--- this is a new waveform
-	cp	16
-	jr.	c,_dd_standardvoice
-	
-	ld	hl,_VOICES	
-	sub	16
-	jr.	z,99f
-	ld	de,8
-55:
-	add	hl,de
-	dec	a
-	jr.	nz,55b
-99:	
-	;--- copy data to FM custom voice register
-	ld	d,8
-	ld	a,$0
-_tt_voice_fmloop:
-	out	(FM_WRITE),a
-	inc	a
-	ex	af,af'		;	'
-	ld	a,(hl)		; the low byte
-	out	(FM_DATA),a
-	inc	hl
-	ex	af,af'		;'
-	dec	d
-	jr.	nz,_tt_voice_fmloop
-
-	xor	a	
-
-_dd_standardvoice:	
-	ld	(ix+CHIP_Waveform),a
+	ld	(ix+CHIP_Voice),a
 	set	6,(ix+CHIP_Flags)
 	
 _dc_noNewWaveform:	
@@ -1143,7 +1151,9 @@ _dc_noVolume:
 ;===================
 _dc_restNote:	
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
-	res	4,(ix+CHIP_Flags)	; release key
+;	res	4,(ix+CHIP_Flags)	; release key
+	res	5,(ix+CHIP_Flags)	; sustain
+	xor	a
 	ld	a,(replay_previous_note)
 	ld	(ix+CHIP_Note),a
 	jr.	_dc_noNote
@@ -1380,17 +1390,17 @@ _CHIPcmd7:
 	; This command set the envelope frequency using a
 	; multiplier value (00-ff)
 _CHIPcmd8_env_mul:
-	ld	d,a
-	xor	a
-	srl	d
-	rra	
-	srl	d
-	rra		
-	srl	d
-	rra	
+;	ld	d,a
+;	xor	a
+;	srl	d
+;	rra	
+;	srl	d
+;	rra		
+;	srl	d
+;	rra	
 	ld	(AY_regEnvL),a
-	ld	a,d
-	ld	(AY_regEnvH),a
+;	ld	a,d
+;	ld	(AY_regEnvH),a
 	ret	
 
 	  
@@ -1534,204 +1544,58 @@ _CHIPcmdC_drum:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	cp	$10
-	jr.	nc,0f			;-- drum volume or freq
+	cp	MAX_DRUMS		;- only 32 drum macros allowed
+	ret	nc
 
-	ld	hl,_drumset
-	add	a,l
-	ld	l,a
-	jr.	nc,11f
-	inc	h
-11:
+	and	a
+	jr.	nz,0f
+	;--- DRUM reset
+	push	bc
+	ld	de,FM_DRUM_Flags
+	ld	hl,DRM_DEFAULT_values
+	ld	bc,10
+	ldir
+	pop	bc
+	ret
+
+0:	
+	;--- Set the song page
+	call	set_songpage_safe
+	;--- location in RAM
+	ld	hl,drum_macros+1	
+	ld	de,DRUMMACRO_SIZE
+88:
+	add	hl,de
+	dec	a
+	jp	nz,88b
+
+	;--- drum type
 	ld	a,(hl)
-	ld	(FM_DRUM),a
-	res	3,(ix+CHIP_Flags)
-	
-	ret
-0:
-	;--- ONLY FOR DRUM KEYJAZZ!!!
-	cp	$F0
-	jp	c,0f
-	and	$0f
-	ld	d,a
-	ld	a,00010000b
-	jp	z,22f
-11:	
-	srl	a
-	dec	d
-	jp	nz,11b
-	
-22:
-	or	00100000b
-	ld	(FM_DRUM),a
-	res	3,(ix+CHIP_Flags)
-	ret 
-
-0:
-	cp	$60			;- $60 > freq settings
-	jr.	nc,_cmd_drumfreq
-	;--- Volume		(2=drum, 3=snare, 4=hihat, 5=cymbal, 6=tomtom)
-	cp	$20
-	jr.	c,_cmdD_volBD
-	cp	$30
-	jr.	c,_cmdD_volSD
-	cp	$40
-	jr.	c,_cmdD_volHH
-	cp	$50
-	jr.	c,_cmdD_volCY
-
-_cmdD_volTT:		;- TomTom
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	sla	a		; multiply by 16
-	sla	a
-	sla	a
-	sla	a	
-	ld	d,a
-	ld	a,(FM_volreg3)
-	and	$0f
-	or	d
-	ld	(FM_volreg3),a
-	ld	a,(FM_DRUM_Flags)
-	set	2,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-
-_cmdD_volCY:		;- Cymbal
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	ld	d,a
-	ld	a,(FM_volreg3)
-	and	$f0
-	or	d
-	ld	(FM_volreg3),a
-	ld	a,(FM_DRUM_Flags)
-	set	2,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-_cmdD_volHH:		;- HiHat
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	sla	a		; multiply by 16
-	sla	a
-	sla	a
-	sla	a	
-	ld	d,a
-	ld	a,(FM_volreg2)
-	and	$0f
-	or	d
-	ld	(FM_volreg2),a
-	ld	a,(FM_DRUM_Flags)
-	set	1,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-
-_cmdD_volSD:		;- Snare Drum
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-	ld	d,a
-	ld	a,(FM_volreg2)
-	and	$f0
-	or	d
-	ld	(FM_volreg2),a
-	ld	a,(FM_DRUM_Flags)
-	set	1,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-_cmdD_volBD:		;- Base Drum
-	and	$0f		; get volume
-	ld	d,a
-	ld	a,$0f
-	sub	d		; volumes are inverted for FM
-;	ld	d,a
-;	ld	a,(FM_volreg1)
-;	and	$f0
-;	or	d
-	ld	(FM_volreg1),a
-	ld	a,(FM_DRUM_Flags)
-	set	0,a
-	ld	(FM_DRUM_Flags),a
-	ret
-
-
-
-
-	;--- Frequency
-_cmd_drumfreq:
-	ex af,af'	;'
-	call	GET_P2
-	push af
-	call	set_songpage
-	ex	af,af'	;'
-	ld	hl,_FM_drumfreqtable
-	cp	$80
-	jr.	nc,2f
-	cp	$70
-	jr.	nc,1f
-0:	;drum freq
-	and	$0f
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
+	dec	hl
+	ld	e,a		;*3
+	add	a,a
+	add	a,e
+	ld	de,FM_DRUM1_LEN
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
 99:
-	ld	e,(hl)
+	;--- drum len
+	ld	a,(hl)
+	ld	(de),a
 	inc	hl
-	ld	d,(hl)
-	ld	(FM_freqreg1),de
-	ld	a,(FM_DRUM_Flags)
-	set	3,a
-	ld	(FM_DRUM_Flags),a
-333:	pop	af
-	call	PUT_P2
+	inc	hl
+	inc	de
+	ex	de,hl
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+	
+	call	set_patternpage_safe
 	ret
-1:	;snare hihat  freq
-	and	$0f
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ld	d,(hl)
-	inc	hl
-	ld	e,(hl)
-	ld	(FM_freqreg2),de
-	ld	a,(FM_DRUM_Flags)
-	set	4,a
-	ld	(FM_DRUM_Flags),a
-	jr.	333b
-2:	;cymbal tomtom freq
-	and	$0f
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ld	d,(hl)
-	inc	hl
-	ld	e,(hl)
-	ld	(FM_freqreg3),de
-	ld	a,(FM_DRUM_Flags)
-	set	5,a
-	ld	(FM_DRUM_Flags),a
-	jr.	333b
 	
-	
+
 
 
 
@@ -1777,7 +1641,7 @@ _CHIPcmdE_extended:
 	jr.	z,_CHIPcmdE_notesus
 	cp	0x80	; global transpose
 	jr.	z,_CHIPcmdE_transpose
-	cp	0xc0	; Note cut
+	cp	0xc0	; note cut
 	jr.	z,_CHIPcmdE_notecut
 
 	ret
@@ -1803,7 +1667,6 @@ _CHIPcmdE_notecut:
 	inc	a
 	ld	(ix+CHIP_Timer),a		; set	the timer to param y
 	ret
-
 	
 _CHIPcmdE_delay:
 	bit	0,(ix+CHIP_Flags)		; is there a note	in this eventstep?
@@ -1853,7 +1716,7 @@ _CHIPcmdE_finedown:
 	ret
 
 _CHIPcmdE_notelink:
-	set	4,(ix+CHIP_Flags)
+	set	4,(ix+CHIP_Flags)		; FM notelink bit
 	res	0,(ix+CHIP_Flags)
 	ret
 _CHIPcmdE_notesus:
@@ -1952,7 +1815,99 @@ _CHIPcmdF_speed:
 
 	ret
 
+;===========================================================
+; ---replay_route
+; Output the data	to the CHIP	registers
+; 
+; in BC is the macro step counter
+; in HL is the macro pointer
+; in de is the FM freq register
+;===========================================================
+replay_process_drum:
+	;--- process step
+	ld	a,(bc)
+	and	a
+	jr	nz,0f
+	ld	a,(FM_DRUM_Flags)
+	srl	a
+	ld	(FM_DRUM_Flags),a
+	ret
+0:	
+	dec	a
+	ld	(bc),a
 
+	;--- set FRM FLAGs in C (and set to next drum channel)
+	ld	a,(FM_DRUM_Flags)
+	srl	a
+	ld	c,a
+	;--- apply drum mask
+	ld	b,(hl)
+	ld	a,(FM_DRUM)
+	or	b
+	ld	(FM_DRUM),a
+	inc	hl
+	
+	;--- apply tone value
+	ld	b,(hl)
+	inc	hl
+	ld	a,(hl)
+	inc	hl
+	or	b
+	jp	z,_rpd_no_tone
+	xor	b
+	set	5,c			; set tone update flag
+_rpd_no_tone:	
+	ld	(de),a
+	inc	de
+	ld	a,b
+	ld	(de),a
+	inc	de
+	
+	ld	a,(hl)
+	inc	hl
+	and	a
+	jp	z,_rpd_no_vol
+	set	2,c			; set the volume flag
+_rpd_no_vol:
+	ld	b,a
+	ld	a,c
+	ld	(FM_DRUM_Flags),a
+	
+	;--- low volume
+	ld	a,b
+	and	0x0f
+	jp	z,0f
+		ld	c,a
+
+		ld	a,0x0f	;- invert volume
+		sub	c
+		ld	c,a
+		
+		ld	a,(de)
+		and 0xf0
+		or	c
+		ld	(de),a
+0:	;--- high volume
+	ld	a,b
+	and	0xf0
+	jp	z,0f
+		ld	c,a
+		
+		ld	a,0xf0	;- invert volume
+		sub	c
+		ld	c,a
+		
+		ld	a,(de)
+		and 0x0f
+		or	c
+		ld	(de),a	
+
+0:	
+	ret
+	;end
+	
+	
+	
 ;===========================================================
 ; ---replay_route
 ; Output the data	to the CHIP	registers
@@ -1965,11 +1920,20 @@ replay_process_chan_AY:
 	
 	;-- set the	mixer	right
 	ld	hl,SCC_regMIXER
-	srl	(hl)
+	rrc	(hl)
+	;srl	(hl)
 	
 	
 ;	ld	a,(current_song)
 	call	set_songpage
+
+	;===== 
+	; Speed equalization check
+	;=====
+	ld	a,(equalization_flag)			; check for speed equalization
+	and	a
+	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+	
 	;=====
 	; COMMAND
 	;=====
@@ -2050,8 +2014,8 @@ _pcAY_noNoteTrigger:
 
 	
 	;-- skip macro if not PSG
-	bit 	7,(ix+CHIP_Flags)
-	jr.	nz,_pcAY_FMinstr
+;	bit 	7,(ix+CHIP_Flags)
+;	jr.	nz,_pcAY_FMinstr
 
 
 
@@ -2085,6 +2049,18 @@ _pcAY_noMacroEnd:
 	ld	(ix+CHIP_MacroStep),a
 	pop	bc		
 	pop	hl		; tone deviation
+
+;--- Voice link check here as now ew still have all macro row values
+	bit 	7,h
+	jp	z,_noVoicelink	
+
+	res	7,h			; reset bit
+	set	6,(ix+CHIP_Flags)	; set voice update flag
+	ld	a,c
+	ld	(ix+CHIP_Voice),c	; set new voice to be loaded
+	res	7,c			; reset noise bit
+
+_noVoicelink:
 	
 ;--- Is tone active this step?
 	bit	7,b		; do we have tone?
@@ -2123,9 +2099,15 @@ _pcAY_Tminus:
 ;;	ex	de,hl
 88:	
 ;_pcAY_tbase:	
+
 	;--- Store new deviation
 	ld	(ix+CHIP_ToneAdd),l
 	ld	(ix+CHIP_ToneAdd+1),h
+
+	;-- skip macro if not PSG
+	bit 	7,(ix+CHIP_Flags)
+	jr.	nz,pcAY_FMinstr
+	
 	ex	de,hl				; store macro deviation	in [DE]
 
 	ex	af,af'			;' get note	offset
@@ -2141,8 +2123,6 @@ _pcAY_Tminus:
 	ld	e,(ix+CHIP_cmd_detune)
 	ld	d,(ix+CHIP_cmd_detune+1)
 	add	hl,de
-
-
 
 	ld	e,(ix+CHIP_cmd_ToneAdd)
 	ld	d,(ix+CHIP_cmd_ToneAdd+1)
@@ -2172,6 +2152,8 @@ _pcAY_noCMDToneAdd:
 ;	bit	7,(ix+CHIP_Flags)
 ;	jr.	nz,_pcAY_noNoise
 
+
+IFDEF TTFM
 	;--- Set the mixer for noise
 	ld	a,(SCC_regMIXER)
 	or	128
@@ -2200,7 +2182,19 @@ _pcAY_noCMDToneAdd:
 88:	
 	ld	(ix+CHIP_Noise),a
 	ld	(AY_regNOISE),a
-	
+ELSE
+	ld	a,c
+	and	0x07
+	ld	(SN_regVOLN),a
+	ld	a,c
+	rrca
+	rrca	
+	rrca
+	rrca
+	and	0x07
+	ld	(AY_regNOISE),a
+
+ENDIF
 	
 
 _pcAY_noNoise:
@@ -2238,7 +2232,20 @@ _pcAY_noNoise:
 	xor	a
 4:
 	ld	(ix+CHIP_VolumeAdd),a
+	ld	c,a
 	
+IFDEF TTSMS
+	ld	a,(SCC_regMIXER)
+	and	16
+
+	jp	nz,7f
+	xor	a
+	ld	(SCC_regVOLF),a	
+	ret
+	
+7:
+	ld	a,c
+ENDIF
 	;---- envelope check
 	; is done here to be able to continue
 	; macro volume values.
@@ -2318,7 +2325,9 @@ _pcAY_noNoteActive:
 	
 	ret
 	
-_pcAY_FMinstr:	
+pcAY_FMinstr:	
+	ex	de,hl				; store macro deviation	in [DE]
+
 	ex	af,af'			;' get note	offset
 	ld	sp,(replay_Tonetable)	;CHIP_ToneTable-2	; -2 as note 0 is	no note
 	ld	l,a
@@ -2326,10 +2335,8 @@ _pcAY_FMinstr:
 	add	hl,sp
 	ld	sp,hl
 	pop	hl				; in HL note value
-;	add	hl,de				; add	deviation
+	add	hl,de				; add	deviation
 	ld	sp,(_SP_Storage)
-
-
 
 	; set	the detune.
 	ld	e,(ix+CHIP_cmd_detune)
@@ -2403,21 +2410,86 @@ wrap_lowcheck:
 	pop	hl
 _wrap_skip:
 
-
-;4e76   29->35
-;2a -> 1e
-;
-
-
-;	ex	(sp),hl		; replace the last pushed value on stack
+	; replace the last pushed value on stack
 	pop	de
 	ex	de,hl
 	ld	(hl),e
 	inc	hl
 	ld	(hl),d
+
+;	;---- change voice
+;	bit	7,c
+;	jr.	nz,_pcFM_noVoice
+;	
+;	ld	a,c
+;	and	31
+;	jp	z,_pcFM_noVoice
+;	cp	(ix+CHIP_Voice)	; get	the current	deviation	
+;	jp	z,_pcFM_noVoice
+;
+;	;/// Set here the new voice	
+;	ld	(ix+CHIP_Voice),a
+;	set	6,(ix+CHIP_Flags)
+
+_pcFM_noVoice:
+	;volume
+	ld	a,(ix+CHIP_VolumeAdd)
+	bit	5,b
+	jr.	nz,0f
+	;-- base volume
+	ld	a,b
+	and	0x0f
+	jr.	4f
+0:
+	;relative volume
+	ld	c,a		; store current volume add
+	ld	a,b		
+	and	0x0f		; get	low 3	bits for volume deviation
 	
+	bit	4,b		; bit	6 set	= subtract?
+	ld	b,a		; set	deviation in b
+	ld	a,c		; set	current volume add back	in c
+	jr.	nz,1f
+	;--- add 
+	add	b
+	cp	16
+	jr.	c,4f
+	ld	a,15
+	jr.	4f
+1:
+	;--- sub 
+	sub	b
+	cp	16
+	jr.	c,4f
+	xor	a
+4:
+	ld	(ix+CHIP_VolumeAdd),a
+	or	(ix+CHIP_Volume)
+	ld	c,a
+	ld	a,(IX+CHIP_cmd_VolumeAdd)	
+	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
+	jr.	c,_sub_FMVadd
+_add_FMVadd:
+	add	a,c
+	jr.	nc,_FMVadd
+	ld	a,c
+	or	0xf0
+	jr.	_FMVadd
+_sub_FMVadd:
+	ld	b,a
+	xor	a
+	sub	b
+	ld	b,a
+	ld	a,c
+	sub	a,b
+	jr.	nc,_FMVadd
+	ld	a,c
+	and	0x0f	
+	;-- next is _Vadd
+_FMVadd:
+
 	;--- Volume
-	ld	a,15	; debug max vol
+;	ld	a,15	; debug max vol
 	or	(ix+CHIP_Volume)
 	ld	c,a
 	;--- apply main volume balance
@@ -2430,7 +2502,7 @@ _wrap_skip:
 99:	
 	ld	l,a
 	ld	h,0
-	ld	de,AY_VOLUME_TABLE
+	ld	de,SCC_VOLUME_TABLE
 	add	hl,de
 	ld	a,(hl)	
 	ld	(SCC_regVOLF),a
@@ -2892,7 +2964,7 @@ _pcAY_cmd1c:
 	; stop note
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	3,(ix+CHIP_Flags)
-	jp	_pcAY_commandEND		
+	jp	_pcAY_commandEND	
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+CHIP_Timer)
@@ -3105,9 +3177,11 @@ replay_route:
 	ld	(AY_regVOLC),a
 0:
 99:
+IFDEF TTFM
 	;--- Push values to AY HW
 	ld	b,0
-	ld	c,0xa0
+	ld	a,(psgport)
+	ld	c,a
 	ld	hl,AY_registers
 _comp_loop:	
 	out	(c),b
@@ -3162,68 +3236,193 @@ _ptAY_loop:
 
 	xor	a
 	ld	(AY_regEnvShape),a	;reset the envwrite
-		
+	
 	
 _ptAY_noEnv:
+
+
+ELSE
+route_SN:
+	ld	c,$f0
+
+;	; vol chan a
+;	ld	a,(AY_regVOLA)
+;	inc	a
+;	neg
+;	and	$0f
+;	or	10010000b
+;	out	($f0),a	
+	
+	; vol chan b
+	ld	a,(AY_regVOLA)
+	inc	a
+	neg
+	and	$0f
+	or	10110000b
+	out	($f0),a	
+	
+	; vol chan c
+	ld	a,(AY_regVOLB)
+	inc	a
+	neg
+	and	$0f
+	or	11010000b
+	out	($f0),a		
+		
+	; vol noise
+	ld	a,(SN_regVOLN)
+	inc	a
+	neg
+	and	$0f
+	or	11110000b
+	out	(c),a	
+
+	; noise chan 
+	ld	hl,SN_regNOISEold
+	ld	a,(AY_regNOISE)
+	cp	(hl)
+	jp	z,0f
+	ld	(hl),a
+	or	11100000b
+	out	($f0),a
+0:
+;	; tone chan a
+;	ld	bc,(AY_regToneA)
+;	ld	a,c
+;	and	$0f
+;	or	10000000b
+;	out	($f0),a	
+;	rl	c
+;	rl	b
+;	rl	c
+;	rl	b
+;	rl	c
+;	rl	b
+;	rl	c
+;	rl	b
+;	ld	a,00111111b
+;	and	b
+;	out	($f0),a		
+	
+	
+	; tone chan b
+	ld	bc,(AY_regToneA)
+	ld	a,c
+	and	$0f
+	or	10100000b
+	out	($f0),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($f0),a	
+	
+	; tone chan c
+	ld	bc,(AY_regToneB)
+	ld	a,c
+	and	$0f
+	or	11000000b
+	out	($f0),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($f0),a	
+
+
+
+
+ENDIF
+	
+	
 	
 ;--------------
 ; F M P A C 
 ;--------------
+	ld	b,6
+	ld	ix,CHIP_Chan3
+_ptAY_voice_loop:	
+	bit	6,(IX+CHIP_Flags)
+	jp	z,0f
+	res	6,(ix+CHIP_Flags)
+	ld	a,(ix+CHIP_Voice)
+;	and	a
+;	jp	nz,99f
+;	inc	a
+99:
+	cp	16
+	call	nc,load_softwarevoice
+	ld	(ix+CHIP_Waveform),a
+0:
+	ld	de,CHIP_REC_SIZE
+	add	ix,de
+	djnz	_ptAY_voice_loop
+
+
+
 	;--- Apply the mixer.
 	ld	hl,SCC_regMIXER
-	;--- do not	apply	mmainmixer when in  mode 2
-;	ld	a,(keyjazz)
-;	and	a
-;	jr.	nz,99f
-	ld	a,(replay_mode)
-	cp	2
-	jr.	z,99f
+;	;--- do not	apply	mmainmixer when in  mode 2
+;;	ld	a,(keyjazz)
+;;	and	a
+;;	jr.	nz,99f
+;	ld	a,(replay_mode)
+;	cp	2
+;	jr.	z,99f
+;fmmixer:
 	ld	a,(MainMixer)
 	and	(hl)	; set	to 0 to silence
 	ld	(hl),a
-99:
-
-	ld	a,(MainMixer)
-	push	af
+;99:
+;
 	;--- write volume register
 	ld	de,FM_regVOLA
-	ld	hl,CHIP_Chan3+CHIP_Voice
+	ld	hl,CHIP_Chan3+CHIP_Waveform
 	ld	b,6		; 5 tracks
 	ld	a,$30
 ;	ex	af,af'	;'
 _tt_route_fmvol:
-	ex	af,af'	;'
+	ex	af,af'	; '
 	ld	a,(hl)
-	push	hl
-	ld	hl,MainMixer
-	bit	7,(hl)
-	jr.	nz,33f
-	ld	a,0xf0
-33:
-	rrc	(hl)
-	pop	hl
 	rla
 	rla
 	rla
 	rla
 	and	$f0
-	jr.	nz,88f
-;	ld	a,16*7
-88:
 	ld	c,a
 	
-	
 	ld	a,(de)	
-	xor	255
+	push	hl
+	ld	hl,SCC_regMIXER
+
+	bit	7,(hl)
+	jr	nz,33f
+	ld	a,$0f			; silentio
+33:
+	rrc	(hl)
+	pop	hl	
+	
 	and	0x0f
-;	or	(hl)
 	or	c
 	ex	af,af'		;'
 	out	(FM_WRITE),a
-	inc	a
-	ex	af,af'		;	'
+	inc	a			; 4 cycles
+	ex	af,af'		; 4 cycles	 '
+	inc	de			; 6 cycles
 	out	(FM_DATA),a
-	inc	de
+
 	ld	a,CHIP_REC_SIZE
 	add	a,l
 	ld	l,a
@@ -3235,8 +3434,8 @@ _tt_route_fmvol:
 
 	djnz	_tt_route_fmvol
 
-	pop	af
-	ld	(MainMixer),a
+;	pop	af
+;	ld	(MainMixer),a
 
 
 
@@ -3250,20 +3449,49 @@ _tt_route_fmvol:
 _tt_route_fmtone:
 
 	out	(FM_WRITE),a
-	ex	af,af'		;	'
-	ld	a,(hl)		; the low byte
+	ex	af,af'		; 4 cycles 	'
+	ld	a,(hl)		; 13 cycles  	the low byte
 	out	(FM_DATA),a
 	inc	hl
 	ld	a,(de)		; the flags (bit 4 has key)
 	ld	c,a
 	and	48			; preserve key and sustain
 
-	or	(hl)			; add the tone high byte
-	inc	hl
+	;--- check for new note (keyon is off '0')
+	bit	4,a
+	jp	nz,99f		; skip if no keyoff
+
+	or	(hl)
 	ex	af,af'		;'
 	add	a,$10
 	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles '
+	out 	(FM_DATA),a
+
+	or	16			; set keyon on '1'
+	ld	(de),a		; store keyon
 	ex	af,af'		;'
+	jp 	88f	
+			
+	
+
+
+99:
+	or	(hl)			; add the tone high byte
+
+	ex	af,af'		;'
+	add	a,$10
+	
+	;--- delay to get 84 cycles at least
+;	push ix
+;	pop ix
+;	nop
+	
+	
+	
+88:	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles '
+	inc	hl			; 6 cycles 
 	out 	(FM_DATA),a
 	ld	a,16
 	or	c
@@ -3278,12 +3506,12 @@ _tt_route_fmtone:
 	sub	$f
 	djnz	_tt_route_fmtone
 
-;--- FM DRUM VOL
 
+;--- FM DRUM VOL
 	ld	a,(FM_DRUM_Flags)
-	ld	d,a
-	ld	c,$36
-	ld	b,3
+	ld	d,a			; 4 cycles
+	ld	c,$36			; 7 cycles
+	ld	b,3			; 7 cycles
 	ld	hl,FM_volreg1
 _drmvolloop:
 	srl	d
@@ -3291,9 +3519,11 @@ _drmvolloop:
 	;-- load the new values
 	ld	a,c
 	out	(FM_WRITE),a
-	ld	a,(hl)
+	ld	a,(hl)		; 7 cycles
+	
 	out	(FM_DATA),a
-0:
+0:	inc	hl
+	inc	hl
 	inc	hl
 	inc	c
 	djnz	_drmvolloop	
@@ -3310,15 +3540,26 @@ _drmfreqloop:
 	;-- load the new values
 	ld	a,c
 	out	(FM_WRITE),a
-	ld	a,(hl)
+	ld	a,(hl)		; 7 cycles
 	out	(FM_DATA),a
 	ld	a,e
+	inc	hl			; 6 cycles
+	
+	;--- delay to have at least 84 cycles
+	push	ix
+	pop	ix
+	push 	ix
+	pop 	ix
+	
+		
 	out	(FM_WRITE),a
-	inc	hl
-	ld	a,(hl)
-	dec	hl
+	ld	a,(hl)		; 7 cycles
+
 	out	(FM_DATA),a
+	dec	hl			; 6 cycles
+	nop
 0:
+	inc	hl
 	inc	hl
 	inc	hl
 	inc	c
@@ -3329,8 +3570,11 @@ _drmfreqloop:
 	ld	(FM_DRUM_Flags),a
 
 
-
 ;--- FM DRUMS
+	ld	a,(DrumMixer)
+	and	a
+	jp	nz,0f
+0:
 	ld	a,(FM_DRUM)
 	and	a
 	jr.	z,99f
@@ -3338,10 +3582,19 @@ _drmfreqloop:
 	ex	af,af'		;'
 	ld	a,0x0e
 	out	(FM_WRITE),a
-	ld	a,0
-	ld	(FM_DRUM),a
+	ld	a,0			; 7 cycles
+	ld	(FM_DRUM),a		; 13 cycles
+	ld	a,10000b
 ;	ld	hl,_drumset-1
 	out	(FM_DATA),a
+	
+	;--- delay to have at least 84 cycles
+	push	ix
+	pop	ix
+	push 	ix
+	pop 	ix	
+	
+	
 ;	ex	af,af'		;'
 ;	add	a,l
 ;	ld	l,a
@@ -3353,15 +3606,51 @@ _drmfreqloop:
 ;	ex	af,af'	;'
 	ld	a,0x0e
 	out	(FM_WRITE),a
-	ex	af,af'	;'
+	ex	af,af'		; 4 cycles	'
+	or	100000b
 	out	(FM_DATA),a
-
-
-
 99:
 	
 
 	ret
+
+
+load_softwarevoice:
+	ld	hl,_VOICES	
+	sub	16
+	jr.	z,99f
+	ld	de,8
+55:
+	add	hl,de
+	dec	a
+	jr.	nz,55b
+99:	
+	;--- copy data to FM custom voice register
+	ld	d,8
+	ld	a,$0
+_tt_voice_fmloop:
+	out	(FM_WRITE),a
+	inc	a			; 4 cycles
+	ex	af,af'		; 4 cycles	'
+	ld	a,(hl)		; 7 cycles    the low byte
+	out	(FM_DATA),a
+	
+	;--- delay
+	push 	ix
+	pop	ix
+	nop
+	nop
+		
+	
+	inc	hl
+	ex	af,af'		;'
+	dec	d
+	jr.	nz,_tt_voice_fmloop
+
+	xor	a
+
+	ret
+
 
 
 _drumset:

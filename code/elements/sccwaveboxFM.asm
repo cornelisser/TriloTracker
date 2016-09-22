@@ -546,7 +546,7 @@ process_key_voicebox_edit:
 	jr.	nz,process_key_keyjazz	
 	ld	a,b
 	
-debug:	
+	
 	;--- handle input
 	ld	a,(_scc_waveform_col)
 	add	a

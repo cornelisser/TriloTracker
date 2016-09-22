@@ -1,6 +1,6 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.8.0 SMS PSG+FM  "
-define YEAR "2014"
+define VERSION "v0.10.0 SMS PSG+FM "
+define YEAR "2016"
 define CHIPSET_CODE $30
 
 DEFINE TTSMS 
@@ -9,8 +9,8 @@ enaslt:          equ #0024
 
 
 	defpage	0,0x0100, 0x3f00	; page 0 contains main code + far call routines
-	defpage 	1,0x4000, 0x4000	; page 1 contains code (last 5kb should be empty)
-	defpage	2,0x8000, 0x4000	; NPC/titlescreen/gameinit code/swap code blocks
+	defpage 	1,0x4000, 0x8000	; page 1 contains code (last 5kb should be empty)
+;	defpage	2,0x8000, 0x4000	; NPC/titlescreen/gameinit code/swap code blocks
 
 
 	; --- PAGE 0
@@ -103,17 +103,19 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
-	include 	".\code\elements\filedialog.asm"
+	include 	".\code\elements\filedialogRAM.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsampleboxFM.asm"
 	include 	".\code\elements\sccwaveboxFM.asm"
-	include 	".\code\elements\voicemanager.asm"
+	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazzFM.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
-	include 	".\code\loadinstruments.asm"	
+	include 	".\code\loadinstruments.asm"
 
-			
+	
+	
+SWAP_ELEMENTSTART:		
 	; --- PAGE 1
 	;
 	; Main code (can be swapped)
@@ -138,9 +140,8 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\window.asm"
 	include 	".\code\replayerFMRAM.asm"	
 
-_VOICES_data:
-	include ".\code\Voices_Light.asm"
 
+	
 	
 	; --- PAGE 2
 	;
@@ -148,12 +149,22 @@ _VOICES_data:
 	;
 	;
 	; --------------------------------------------------	
-	page 2
+;	page 2
 	; temporary start up code and data!!! Will be over written after init
-	
+
+font_data:
+	incbin  ".\data\fontpat.bin"
 	include ".\code\startup.asm"
 	include ".\code\loadvoicenamesFM.asm"
 	include ".\code\elements\keynotetable.asm"
+
+_VOICES_data:
+	include ".\code\Voices_Light.asm"			
+
+	
+;	include ".\code\startup.asm"
+;	include ".\code\loadvoicenamesFM.asm"
+;	include ".\code\elements\keynotetable.asm"
 
 SWAP_INIT_START:
 	org	SWAP_RAMSTART
@@ -210,11 +221,33 @@ SWAP_INSFILE:
 	include	".\code\elements\fileinsdialog.asm"
 SWAP_INSFILE_END:
 
+     ; Song file dialog swappable code block
+     ; --------------------------------------------------
+     org    SWAP_ELEMENTSTART
+SWAP_FILE:
+ 
+     include    ".\code\elements\filedialog.asm"
+SWAP_FILE_END:
+ 
+     ; Voice manager swappable code block
+     ; --------------------------------------------------
+     org    SWAP_ELEMENTSTART
+SWAP_VOICEMAN:
+     include    ".\code\elements\voicemanager.asm"
+SWAP_VOICEMAN_END:
+
+     ; Voice manager swappable code block
+     ; --------------------------------------------------
+     org    SWAP_ELEMENTSTART
+SWAP_DRUM:
+	include	".\code\elements\drumeditor.asm"
+	include	".\code\elements\drumeditbox.asm"	
+SWAP_DRUM_END:
+
 
 
 		
 	include ".\code\variablesFM.asm"	
-
 
 	
 

@@ -89,6 +89,7 @@ AY_regToneB 	dw	0	; Tone B freq low
 AY_regToneC 	dw	0	; Tone C freq low
 					; Tone C freq high
 AY_regNOISE 	db	0	; Noise freq (5bit)
+AY_regNOISEVOL
 AY_regMIXER 	db	0x38	;x3f	; Mixer control (1 = off, 0 = on)
 AY_regVOLA 		db	0	; Chan A volume
 AY_regVOLB 		db	0	; Chan B volume
@@ -156,6 +157,7 @@ _AUDITION_LINE:
 		db	0,0,0,0
 		db	0,0,0,0
 		db	0,0,0,0
+psgport:	db	0
 
 CHIP_FM_ToneTable:
 	db   	0,0

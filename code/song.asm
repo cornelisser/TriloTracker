@@ -139,7 +139,9 @@ clear_waveforms:
 	ldir
 ENDIF
 	
-IFDEF TTFM
+IFDEF TTSCC
+	ret
+ELSE
 clear_drummacros:
 	ld	b,MAX_DRUMS
 	ld	hl,drum_macros
@@ -182,8 +184,6 @@ _cdm_loop3:
 _cdm_DRUMDEFAULT:
 	db	16, 8,24,1,2,18,10,26,4,20,17,9,25,22,3	
 
-ELSE	
-	ret
 ENDIF
 
 	

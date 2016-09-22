@@ -227,6 +227,7 @@ processkey_drumeditor:
 ;		jr.	nz,79f
 ;		call	save_cursor
 ;79:
+
 ;IFDEF TTFM
 ;		jr.	init_voicemanager
 ;ELSEIFDEF TTSMS

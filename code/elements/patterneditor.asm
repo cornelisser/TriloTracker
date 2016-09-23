@@ -141,7 +141,7 @@ ELSE
 0:	;--- F3 Drum macro editor
 	dec	a
 	jr.	nz,0f
-debug:		ld	a,8
+		ld	a,8
 		call	swap_loadelementblock
 		jr.	init_drumeditor
 

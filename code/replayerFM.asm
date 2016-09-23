@@ -214,12 +214,33 @@ replay_decodedata:
 	call	replay_decode_chan
 	ld	ix,CHIP_Chan2
 	call	replay_decode_chan
+
+
+	;--- check if next is PSG  or FM
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	nz,_rdd_3psg
+	
+	ld	hl,CHIP_FM_ToneTable
+	ld	(replay_Tonetable),hl
+
+	
+_rdd_3psg:	
+
+	ld	ix,CHIP_Chan3
+	call	replay_decode_chan
+	
+	;--- check if previous was PSG  or FM
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,_rdd_2psg
 	
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl
 	
-	ld	ix,CHIP_Chan3
-	call	replay_decode_chan
+	
+_rdd_2psg:		
+
 	ld	ix,CHIP_Chan4
 	call	replay_decode_chan
 	ld	ix,CHIP_Chan5
@@ -255,6 +276,7 @@ IFDEF TTSMS
 	ld	(SN_regVOLN),a
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a
+	ld	(AY_regVOLC),a
 ENDIF	
 
 	ld	ix,CHIP_Chan1
@@ -269,18 +291,28 @@ ENDIF
 	ld	a,(SCC_regVOLF)
 	ld	(AY_regVOLB),a
 
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,99f
 
-;	ld	hl,SCC_regMIXER
-;	srl	(hl)
-;	srl	(hl)
+	;--- 3rd PSG 
+	ld	ix,CHIP_Chan3
+	ld	hl,AY_regToneC	
+	call	replay_process_chan_AY
+	ld	a,(SCC_regVOLF)
+	ld	(AY_regVOLC),a	
+	ld	a,(SCC_regMIXER)
+	srl	a
+	srl	a
+	jp	88f
 	
-	
+99:
 	ld	a,(SCC_regMIXER)
 	srl	a
 	srl	a
 	srl	a
 ;	srl	a
-
+88:
 	xor	0x3f
 	ld	(AY_regMIXER),a
 	ld	a,(mainSCCvol)
@@ -333,7 +365,16 @@ ENDIF
 	ld	(SCC_regVOLE),a	
 
 ;	inc	iyh
-		
+
+;	ld	a,(replay_chan_setup)
+;	and	a
+;	jp	z,99f
+;	;-- set the	mixer	right
+;	ld	hl,SCC_regMIXER
+;	rrc	(hl)
+;	jp	88f
+	
+;99:		
 	ld	ix,CHIP_Chan8
 	ld	hl,SCC_regToneF	
 	call	replay_process_chan_AY
@@ -341,7 +382,7 @@ ENDIF
 ;	ld	a,(SCC_regMIXER)
 ;	rlca	
 ;	ld	(SCC_regMIXER),a
-
+88:
 	;---- Process the drum macros
 	xor	a
 	ld	(FM_DRUM_Flags),a
@@ -483,6 +524,14 @@ ENDIF
 	ld	(CHIP_Chan6+CHIP_Flags),a	
 	ld	(CHIP_Chan7+CHIP_Flags),a	
 	ld	(CHIP_Chan8+CHIP_Flags),a	
+	
+	;--- Check if there are 3 psg chans.
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,99f
+	xor 	a
+	ld	(CHIP_Chan3+CHIP_Flags),a	
+99:
 		
 	xor	a
 	ld	(FM_regVOLA),a
@@ -3192,18 +3241,22 @@ _comp_loop:
 	out	(c),b
 	ld	a,(hl)
 	add	1
-	out	(0xa1),a
+	inc	c
+	out	(c),a
 	inc	hl
 	ld	a,(hl)
 	adc	a,0
 	inc	b
+	dec	c
 	out	(c),b	
 	inc	hl
-	out	(0xa1),a	
+	inc	c
+	out	(c),a
+	dec	c
 	inc	b
 	ld	a,6
 	cp	b
-	jr.	nz,_comp_loop
+	jp	nz,_comp_loop
 	
 	ld	a,b	
 	
@@ -3249,31 +3302,52 @@ _ptAY_noEnv:
 ELSE
 route_SN:
 	ld	c,$f0
-
-;	; vol chan a
-;	ld	a,(AY_regVOLA)
-;	inc	a
-;	neg
-;	and	$0f
-;	or	10010000b
-;	out	($f0),a	
-	
-	; vol chan b
+	ld	b,10010000b
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,99f
+	ld	b,10110000b
+99:	
+	; vol chan 1
 	ld	a,(AY_regVOLA)
 	inc	a
 	neg
 	and	$0f
-	or	10110000b
-	out	($f0),a	
+	or	b
+	out	(c),a	
 	
-	; vol chan c
+	;--- next reg
+	ld	a,00100000b
+	add	a,b
+	ld	b,a
+	
+	; vol chan 2
 	ld	a,(AY_regVOLB)
 	inc	a
 	neg
 	and	$0f
-	or	11010000b
-	out	($f0),a		
+	or	b
+	out	(c),a		
 		
+	;-- check if we need 3rd psg
+	ld	a,10110000b
+	cp	b
+	jp	z,99f
+	
+	;--- next reg
+	ld	a,00100000b
+	add	a,b
+	ld	b,a
+	
+	; vol chan 3
+	ld	a,(AY_regVOLC)
+	inc	a
+	neg
+	and	$0f
+	or	b  
+	out	(c),a			
+
+99:	
 	; vol noise
 	ld	a,(SN_regVOLN)
 	inc	a

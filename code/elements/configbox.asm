@@ -72,6 +72,10 @@ IFDEF TTSCC
 	ld	hl,(80*12)+2+40
 	ld	de,_LABEL_CONFIG_SCC_1
 	call	draw_label
+ELSE
+	ld	hl,(80*12)+2+40
+	ld	de,_LABEL_CHAN_SETUP
+	call	draw_label	
 ENDIF
 	
 	ld	hl,(80*13)+2+40
@@ -147,6 +151,9 @@ ENDIF
 IFDEF TTSCC
 _LABEL_CONFIG_SCC_1:
 	db "SCC slot",0
+ELSE
+_LABEL_CHAN_SETUP:
+	db "Channel setup",0
 ENDIF
 	
 _LABEL_CONFIG_AUDIT:
@@ -282,6 +289,26 @@ _cfg_exp:
 	call	draw_label	
 		
 0:
+ELSE
+	;-------------------
+	; CHannel setup
+	;-------------------
+	ld	hl,(80*12)+2+20+40
+	ld	de,_LABEL_CONFIG_CHAN_SETUP
+	call	draw_label	
+	ld	a,(replay_chan_setup)
+	cp	0
+	jr.	z,99f
+	ld	a,7
+99:
+	add	0x3e
+	ld	h,a
+	ld	l,12
+	ld	de,0x0601
+	call	draw_colorbox
+
+
+
 ENDIF
 	;-----------------
 	;    VDP FREQ
@@ -601,6 +628,9 @@ _LABEL_CONFIG_SCCSLOT_AUTO:
 	db	_ARROWLEFT," AUTO X-X  ",_ARROWRIGHT,0
 _LABEL_CONFIG_SCCSLOT:
 	db	_ARROWLEFT," SLOT X-X  ",_ARROWRIGHT,0
+ELSE
+_LABEL_CONFIG_CHAN_SETUP:
+	db	"[ 2-6    3-5 ]",0
 ENDIF
 	
 _LABEL_CONFIG_A010:
@@ -926,7 +956,7 @@ _CONFIG_MENU_JMP:
 IFDEF TTSCC
 	dw	pk_config_scc
 ELSE
-	dw	_pk_config_END
+	dw	pk_config_chan_setup
 ENDIF	
 	dw	pk_config_vdp
 	dw	pk_config_equalisation
@@ -1223,6 +1253,19 @@ pk_config_scc_END:
 	ld	(SCC_slot),a
 	ld	(_CONFIG_SLOT),a
 	jr.	update_configbox	
+ELSE
+pk_config_chan_setup:
+	ld	a,(replay_chan_setup)
+	inc	a
+	and	1
+	ld	(replay_chan_setup),a
+
+	ld	hl,0x3f0c
+	ld	de,0x0d01
+	call	erase_colorbox
+	
+	jr.	update_configbox
+	
 ENDIF
 	
 ;====================================

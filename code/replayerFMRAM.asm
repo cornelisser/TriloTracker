@@ -14,6 +14,8 @@ replay_speed_timer 		db 0 			; counter for speed
 replay_mode 			db 0			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
+replay_chan_setup			db 0			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
+
 
 replay_patpointer 		dw 0			; pointer to the data
 replay_patpage 			db 0 			; the current page
@@ -98,7 +100,7 @@ AY_regEnvL 		db	0	; Volume Env Freq low (8bit)
 SN_regNOISEold	
 AY_regEnvH 		db	0	; Volume Env Freq high (4bit)
 AY_regEnvShape 	db	0	; Volume Env Shape (4bit)
-AY_VOLUME_TABLE 
+AY_VOLUME_TABLE   
 	incbin "..\data\voltable.bin"	
 
 

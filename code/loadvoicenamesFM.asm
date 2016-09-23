@@ -5,10 +5,22 @@ load_voicenames:
 	call	get_program_path
 	inc	de
 	inc	de
+IFDEF TTFM	
 	inc	de
 	inc	de
 	inc	de
+ENDIF
+
 	ex	de,hl
+IFDEF TTSMS
+	;--- set  FM.	
+	ld	(hl),"F"
+	inc	hl
+	ld	(hl),"M"
+	inc	hl
+	ld	(hl),"."
+	inc	hl	
+ENDIF	
 	;--- set extension .DAT
 	ld	(hl),"D"
 	inc	hl

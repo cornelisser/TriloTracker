@@ -665,8 +665,18 @@ _LABEL_DISABLED:
 ; Show the enables channels in the header
 ;===========================================================
 draw_pattern_header:
-	ld	hl,(80*9)+0
+IFDEF	TTSCC
+ELSE
+	ld	a,(replay_chan_setup)
+	and 	a
+	jp	z,99f
+	ld	de,_LABEL_PATTERNHEADER2	
+	jp	88f
+99:
+ENDIF
 	ld	de,_LABEL_PATTERNHEADER
+88:
+	ld	hl,(80*9)+0
 	call	draw_label	
 
 	ld	a,(MainMixer)

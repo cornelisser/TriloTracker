@@ -2,7 +2,7 @@
 _KEYJAZZ_LINE:
 		db	0,0,0,0
 _KJ_PSG:	db	0,0,0,0
-		db	0,0,0,0
+_KJ_PSG2:	db	0,0,0,0
 _KJ_SCC:	db	0,0
 _KJ_DRM1:	db	0,0
 		db	0,0
@@ -166,9 +166,16 @@ process_key_keyjazz:
 ;
 ;8:	
 	ld	hl,_KJ_SCC
-	ld	(hl),97		
+	ld	(hl),97	
+
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,99f
+	ld	hl,_KJ_PSG2
+	jp	88f
+99:
 	ld	hl,_KJ_PSG
-	ld	(hl),97
+88:	ld	(hl),97
 
 	ld	a,(keyjazz_chip)
 	and	1

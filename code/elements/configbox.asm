@@ -1263,7 +1263,13 @@ pk_config_chan_setup:
 	ld	hl,0x3f0c
 	ld	de,0x0d01
 	call	erase_colorbox
-	
+
+	ld	hl,_KJ_PSG
+	ld	b,8
+22:
+	ld	(hl),0
+	djnz	22b
+
 	jr.	update_configbox
 	
 ENDIF

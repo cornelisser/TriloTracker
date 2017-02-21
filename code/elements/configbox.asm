@@ -1259,6 +1259,7 @@ pk_config_chan_setup:
 	inc	a
 	and	1
 	ld	(replay_chan_setup),a
+	ld	(_CONFIG_SLOT),a
 
 	ld	hl,0x3f0c
 	ld	de,0x0d01

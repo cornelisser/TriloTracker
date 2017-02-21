@@ -69,9 +69,9 @@ draw_drumeditbox:
 	ld	hl,0x1e08
 	ld	de,0x1001	
 	call	erase_colorbox
-;	ld	hl,0x2f08
-;	ld	de,0x0401	
-;	call	erase_colorbox
+	ld	hl,0x2f08
+	ld	de,0x0401	
+	call	erase_colorbox
 ;	ld	hl,0x3408
 ;	ld	de,0x0401	
 ;	call	erase_colorbox
@@ -87,7 +87,7 @@ draw_drumeditbox:
 
 	; macro data
 	ld	hl,0x040a
-	ld	de,0x0f10	
+	ld	de,0x1110	
 	call	erase_colorbox	
 
 	; macro names (left)
@@ -141,18 +141,18 @@ _LABEL_DRUMMACRO:
 ;_LABEL_SAMPLEBARS:
 ;	db	"vol",0
 _LABEL_DRUMTEXT:
-	db	"Drm: Len: Type:     Description:",0
+	db	"Drm: Len: Type:     Description:     Oct:",0
 _LABEL_DRUMTEXT2:	
 	db	_ARROWLEFT," x",_ARROWRIGHT,32
 	db	_ARROWLEFT,"xx",_ARROWRIGHT,32
-	db	_ARROWLEFT,"xxxxxXx",_ARROWRIGHT,0
+	db	_ARROWLEFT,"xxxxxXx",_ARROWRIGHT," "
 _LABEL_DRUMTEXT2SUB:
-	db	"                  ",0
+	db	"                 ",_ARROWLEFT,"xx",_ARROWRIGHT,0
 ;LABEL_keyjazz:
 ;db	"  ",_ARROWRIGHT,0	
 
 _DRUM_SAMPLESTRING:
-	db	"   _____ _ ___ _ _"
+	db	"   _____ --- ___ _ _"
 ;	db	"           [000]        X****"
 _udm_pntpos:	dw	0
 ;===========================================================
@@ -215,7 +215,7 @@ _udm_lineloop:
 		inc	c				; increase line number
 		push	bc				; store line+len	
 		ld	a," "
-		ld	b,23+6-11
+		ld	b,23+6-11+2
 10:		ld	(de),a
 		inc	de
 		djnz	10b
@@ -285,46 +285,61 @@ _udm_lineloop:
 	
 	
 	;--- Tone and octave
-	ld	b,(hl)			; store byte2 in b
+	ld	a,(hl)			; store byte2 in b
 	inc	hl
-	ld	a,(hl)			; store byte3 in c
-	or	b
+;	ld	a,(hl)			; store byte3 in c
+	and	a
 	jp	nz,0f
 
-	;--- draw empty value
-	ld	a,"."
-	ld	(de),a
-	inc	de
-	inc	de
+	;--- draw empty note value
+	ld	a,"-"
 	ld	(de),a
 	inc	de
 	ld	(de),a
 	inc	de
 	ld	(de),a
 	inc	de
-	inc	hl
+	inc	de
 	jp	1f
 	
 
 0:	
-	;octave
-	ld	a,b
-	srl	a
-	call	draw_hex
+	; NOTE
+	push	hl
+	;--- get pointer to the note labels.
+	ld	hl,_LABEL_NOTES
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
 
+	;--- copy note label to [DE]
+	ldi
+	ldi
+	ldi
 	inc	de
-	
-	;tone
-	ld	a,b
-;	inc	hl
-	and	1
-	call	draw_hex
-	ld	a,(hl)
-	inc	hl
-	and	a
-	call	draw_hex2	
+	pop	hl
 
+	
+	
 1:	
+	ld	b,(hl)
+	inc	hl
+	;deviation
+	bit 	7,b
+	jp	z,88f
+	ld	a,"+"
+	jp	99f
+88:	ld	a,"-"
+99:
+	ld	(de),a
+	inc	de
+	ld	a,b
+	and	0111111b
+	call	draw_hex2
+
+	
 	inc	de
 	;--- Volume
 	ld	a,(hl)		; - volume 2 (low bits)
@@ -352,7 +367,7 @@ _udm_lineloop:
 	
 
 	ld	de,_DRUM_SAMPLESTRING	; draw the string
-	ld	b,23+6-11
+	ld	b,23+6-11+2
 	call	draw_label_fast	
 	
 	pop	hl
@@ -374,6 +389,12 @@ _udm_lineloop:
 	ld	de,_LABEL_DRUMTEXT2+11
 	ld	a,(drum_type)
 	call	draw_drumtype
+	
+	ld	de,_LABEL_DRUMTEXT2SUB+18
+	ld	a,(song_octave)
+	call	draw_decimal
+	
+	
 		
 	;--- set the instrument name
 	ld	a,(song_cur_drum)
@@ -394,7 +415,7 @@ _udm_lineloop:
 
 	ld	hl,(80*8)+2+8+1
 	ld	de,_LABEL_DRUMTEXT2+1
-	ld	b,25+6+4
+	ld	b,25+6+4+20
 	call	draw_label_fast
 
 	
@@ -682,8 +703,8 @@ _COLTAB_DRUMSAMPLE:
 	db	2,1	; 2 = tomtom
 	db	3,1	; 3 = cymbal
 	db	4,2	; 4 = highhat
-	db	5,2	; 5 = octave
-	db	6,1	; 6 = freq high
+	db	5,5	; 5 = note
+;	db	6,1	; 6 = freq high
 	db	7,1	; 7 = freq mid
 	db	8,2	; 8 = freq low
 	db	9,2	; 9 = vol low
@@ -764,13 +785,53 @@ _db_update:
 
 	
 	
-_drum_octave:	
-	ld	a,b
-	cp	"0"
-	jr	c,0f
-	cp	"8"
-	jp	nc,0f
-	sub	48
+_drum_octave:
+	;---- now get the note		
+	ld	a,(key_value)
+	;get the note octave addittion
+	ld	b,0		
+	cp	88   ; SHIFT?
+	jr.	c,99f
+	inc	b
+	sub	88
+99:	
+	;- Note under this keys?
+	cp	48			
+	jr.	nc,0f
+	
+	;--- Get the note value of the key pressed
+	ld	hl,_KEY_NOTE_TABLE
+	add	a,l
+	ld	l,a
+	jr.	nc,99f
+	inc	h
+99:
+	;--- Get the octave
+	ld	a,(song_octave)
+	add	b
+	ld	b,a
+	
+	ld	a,(hl)
+;	inc	a
+	;--- Only process values != 255
+	cp	255
+	jr.	z,0f
+	
+	;--- Add the octave
+	; but not for these;
+	cp	97
+	jr.	nc,77f
+	and	a
+	jr.	z,77f
+	sub	12
+88:
+	add	12
+	djnz	88b
+	;--- Check if we are not outside the 8th ocatave
+	cp	97
+	jr.	nc,0f
+	
+77:	
 	ld	d,a
 	call	get_drumsample_location
 	inc	hl
@@ -1004,7 +1065,7 @@ get_drumsample_location:
 ;===========================================================
 ; --- process_key_psgsamplebox_octave
 ;
-;
+;  
 ;===========================================================
 process_key_drumeditbox_octave:
 	ld	a,(song_octave)

@@ -293,9 +293,12 @@ ENDIF
 
 	ld	a,(replay_chan_setup)
 	and	a
-	jp	z,99f
+	jp	z,_rdd_2psg_6fm
 
-	;--- 3rd PSG 
+_rdd_3psg_5fm:
+	; =======================================
+	;--- Play chan 3 over PSG
+	; =======================================
 	ld	ix,CHIP_Chan3
 	ld	hl,AY_regToneC	
 	call	replay_process_chan_AY
@@ -304,36 +307,51 @@ ENDIF
 	ld	a,(SCC_regMIXER)
 	srl	a
 	srl	a
-	jp	88f
-	
-99:
-	ld	a,(SCC_regMIXER)
 	srl	a
-	srl	a
-	srl	a
-;	srl	a
-88:
+	srl	a	
 	xor	0x3f
-	ld	(AY_regMIXER),a
+	ld	(AY_regMIXER),a		; save the mixer
 	ld	a,(mainSCCvol)
-	ld	(replay_mainvol),a
+	ld	(replay_mainvol),a		; setup volume for FM
 
+	xor	a			; reset the mixer
+	ld	(SCC_regMIXER),a
 
-	xor	a
+	ld	hl,CHIP_FM_ToneTable
+	ld	(replay_Tonetable),hl	
+	
+	jp	_rdd_cont
+
+	
+_rdd_2psg_6fm:	
+	; =======================================
+	;--- Play chan 3 over FM
+	; =======================================
+	ld	a,(SCC_regMIXER)		; correct the mixer
+	srl	a
+	srl	a
+	srl	a		
+
+	xor	0x3f
+	ld	(AY_regMIXER),a		; save the mixer
+	ld	a,(mainSCCvol)
+	ld	(replay_mainvol),a		; setup volume for FM
+
+	xor	a			; reset the mixer
 	ld	(SCC_regMIXER),a
 
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl
-
-;	ld	iyh,0			;iyh stores	the SCC chan#
-;	
+	
 	ld	ix,CHIP_Chan3
 	ld	hl,SCC_regToneA	
 	call	replay_process_chan_AY
 	ld	a,(SCC_regVOLF)
 	ld	(FM_regVOLA),a
 
-					; used for waveform updates
+	
+	
+_rdd_cont:					; used for waveform updates
 	ld	ix,CHIP_Chan4
 	ld	hl,SCC_regToneB	
 	call	replay_process_chan_AY
@@ -1537,55 +1555,17 @@ _CHIPcmdB_scc_commands:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; 
-;	ld	d,a	
-;	and	0xf0	; get	the extended comand
-;			; reset
-;	jr.	z,_CHIPcmdB_reset	
-;	cp	0x10	; duty cycle
-;	jr.	z,_CHIPcmdB_pwm
-;	cp	0x20	; waveform cut
-;	jr.	z,_CHIPcmdB_cut
-;	cp	0x40	; waveform compress
-;	jr.	z,_CHIPcmdB_compress
-;	cp	0xB0	; set	waveform
-;	jr.	z,_CHIPcmdB_setwave
-;	ret
-;
-;
-;
-;_CHIPcmdB_reset:
-;	;--- retrigger the original waveform
-;	set	6,(ix+CHIP_Flags)
-;	ret
-;	
-;	
-;_CHIPcmdB_pwm:	
-;	ld	(ix+CHIP_Command),0x21	; set	the command#
-;
-;1:	ld	a,d
-;	and	0x0f
-;
-;2:	ld	(ix+CHIP_cmd_B),a
-;	set	3,(ix+CHIP_Flags)
-;	ret
-;
-;_CHIPcmdB_cut:	
-;	ld	(ix+CHIP_Command),0x22	; set	the command#
-;	jr.	1b
-;		
-;_CHIPcmdB_compress:	
-;	ld	(ix+CHIP_Command),0x24	; set	the command#
-;	ld	a,d
-;	and	0x07
-;	jr.	2b	
-;	
-;_CHIPcmdB_setwave:
-;	;--- Set a new waveform
-;	ld	a,d
-;	and	0xf
-;	ld	(ix+CHIP_Waveform),a
-;	set	6,(ix+CHIP_Flags)
+	and	1
+	ld	(replay_chan_setup),a
+	jp	z,0f
+	
+	; set PSG
+	res	7,(ix+CHIP_Flags)
+	jp	99f
+	
+	; set FM
+0:	set	7,(ix+CHIP_Flags)
+99:
 	ret	
 	
 _CHIPcmdC_drum:
@@ -3205,7 +3185,7 @@ _pcAY_cmd24:
 replay_route:
 
 ;---------------
-; P S	G 
+; P S G 
 ;---------------
 	ld	a,(replay_mode)
 	cp	2
@@ -3652,8 +3632,8 @@ _drmfreqloop:
 ;--- FM DRUMS
 	ld	a,(DrumMixer)
 	and	a
-	jp	nz,0f
-0:
+	jp	z,99f		; skip drums if disabled
+
 	ld	a,(FM_DRUM)
 	and	a
 	jr.	z,99f
@@ -3689,8 +3669,6 @@ _drmfreqloop:
 	or	100000b
 	out	(FM_DATA),a
 99:
-	
-
 	ret
 
 

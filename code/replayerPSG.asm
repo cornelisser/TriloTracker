@@ -311,6 +311,12 @@ replay_decodedata_NO:
 	ld	a,(SCC_regVOLE)
 	ld	(SCC_regVOLC),a	
 
+	ld	a,(SCC_regMIXER)
+	srl	a
+	srl	a
+	xor	0x3f
+	ld	(PSG2_regMIXER),a	
+		
 	inc	iyh
 		
 	ld	ix,TRACK_Chan7
@@ -2599,6 +2605,11 @@ _pcAY_cmd25:
 
 
 
+_route_AY:
+
+
+
+
 	
 ;===========================================================
 ; ---replay_route
@@ -2712,6 +2723,101 @@ _ptAY_loop:
 	
 	
 _ptAY_noEnv:
+
+	ret
+
+;; 2ND PSG
+
+	;--- Apply the mixer.
+	ld	a,(MainMixer)
+	ld	b,a
+	xor	a
+	bit	5,b
+	jp	nz,0f
+	;-- chan 1 off
+	ld	(SCC_regVOLA),a
+0:	
+	bit	6,b
+	jp	nz,0f
+	;-- chan 2 off
+	ld	(SCC_regVOLB),a
+0:
+	bit	7,b
+	jp	nz,0f
+	;-- chan 3 off
+	ld	(SCC_regVOLC),a
+0:
+99:
+	;--- Push values to AY HW
+	ld	b,0
+	ld	a,(psgport2)
+	ld	c,$10
+	ld	hl,PSG2_registers
+_comp_loop2:	
+	out	(c),b
+	ld	a,(hl)
+	add	1
+	inc	c
+	out	(c),a
+	inc	hl
+	ld	a,(hl)
+	adc	a,0
+	inc	b
+	dec	c
+	out	(c),b	
+	inc	hl
+	inc	c
+	out	(c),a
+	dec	c
+	inc	b
+	ld	a,6
+	cp	b
+	jp	nz,_comp_loop2
+	
+	ld	a,b	
+	
+	
+_pPSG_loop:
+	out	(c),a
+	inc	c
+	outi
+	dec	c
+	inc	a
+	cp	11
+	jr	nz,_pPSG_loop
+
+	;--- envelope freq update?
+
+	ld	a,(hl)
+	and	a
+	jp	z,99f		; if bit 0 is not set no update
+
+	ld	b,11
+	out 	(c),b
+	inc	c
+	out	(c),a
+	dec	c
+	ld	(hl),0	
+99:	
+	ld	a,(PSG_regEnvShape)
+	and	a
+	jp	z,_ptPSG_noEnv
+	
+	ld	b,13
+	out	(c),b
+	inc	c
+	out 	(c),a
+
+	xor	a
+	ld	(PSG_regEnvShape),a	;reset the envwrite
+	
+	
+_ptPSG_noEnv:
+
+	ret
+
+
+
 
 	
 	
@@ -2913,7 +3019,7 @@ _ptAY_noEnv:
 		
 	
 scc_route:
-	
+	ret
 ;--------------
 ; S C	C 
 ;--------------

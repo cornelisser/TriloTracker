@@ -228,10 +228,18 @@ replay_decodedata:
 	call	replay_decode_chan
 	ld	ix,TRACK_Chan6
 	call	replay_decode_chan
-	ld	ix,TRACK_Chan7
-	call	replay_decode_chan
-	ld	ix,TRACK_Chan8
-	call	replay_decode_chan
+;	ld	ix,TRACK_Chan7
+;	call	replay_decode_chan
+;	ld	ix,TRACK_Chan8
+;	call	replay_decode_chan
+
+	;-- skip channels
+	ld	a,8
+	add	a,c
+	ld	c,a
+	jp	nc,99f
+	inc	b
+99:
 
 	;--- store the pointer
 	ld	(replay_patpointer),bc
@@ -248,9 +256,9 @@ replay_decodedata_NO:
 	; do what is needed when there is no new data
 
 	;---- morph routine here
-	ld	a,(replay_morph_active)
-	and	a
-	call	nz,replay_process_morph
+;	ld	a,(replay_morph_active)
+;	and	a
+;	call	nz,replay_process_morph
 
 
 
@@ -263,21 +271,33 @@ replay_decodedata_NO:
 	ld	ix,TRACK_Chan1
 	ld	hl,AY_regToneA
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
+	ld	a,(SCC_regVOLC)
 	ld	(AY_regVOLA),a	
-
+	ld	a,(SCC_regDutyC)
+	ld	(AY_regDutyA),a
+	ld	a,(SCC_regEnvC)
+	ld	(AY_regEnvA),a	
+	
+	
 	ld	ix,TRACK_Chan2
 	ld	hl,AY_regToneB	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
+	ld	a,(SCC_regVOLC)
 	ld	(AY_regVOLB),a
-	
+	ld	a,(SCC_regDutyC)
+	ld	(AY_regDutyB),a
+	ld	a,(SCC_regEnvC)
+	ld	(AY_regEnvB),a	
+		
 	ld	ix,TRACK_Chan3
 	ld	hl,AY_regToneC	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
+	ld	a,(SCC_regVOLC)
 	ld	(AY_regVOLC),a
-
+	ld	a,(SCC_regDutyC)
+	ld	(AY_regDutyC),a
+	ld	a,(SCC_regEnvC)
+	ld	(AY_regEnvC),a	
 
 	ld	a,(SCC_regMIXER)
 	srl	a
@@ -287,45 +307,61 @@ replay_decodedata_NO:
 	ld	a,(mainSCCvol)
 	ld	(replay_mainvol),a
 	
-	ld	iyh,0			;iyh stores	the SCC chan#
+;	ld	iyh,0			;iyh stores	the SCC chan#
 					; used for waveform updates
 	ld	ix,TRACK_Chan4
 	ld	hl,SCC_regToneA	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
+	ld	a,(SCC_regVOLC)
 	ld	(SCC_regVOLA),a	
-
-	inc	iyh
+	ld	a,(SCC_regDutyC)
+	ld	(SCC_regDutyA),a
+	ld	a,(SCC_regEnvC)
+	ld	(SCC_regEnvA),a
+;	inc	iyh
 	
 	ld	ix,TRACK_Chan5
 	ld	hl,SCC_regToneB
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
+	ld	a,(SCC_regVOLC)
 	ld	(SCC_regVOLB),a
-
-	inc	iyh
+	ld	a,(SCC_regDutyC)
+	ld	(SCC_regDutyB),a
+	ld	a,(SCC_regEnvC)
+	ld	(SCC_regEnvC),a
+;	inc	iyh
 		
 	ld	ix,TRACK_Chan6
 	ld	hl,SCC_regToneC	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
-	ld	(SCC_regVOLC),a	
 
-	inc	iyh
-		
-	ld	ix,TRACK_Chan7
-	ld	hl,SCC_regToneD	
-	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLE)
-	ld	(SCC_regVOLD),a	
+	ld	a,(SCC_regMIXER)
+	srl	a
+	srl	a
+	xor	0x3f
+	ld	(SCC_regMIXER),a
+	
+	ret
+
+
+;	ld	a,(SCC_regVOLE)
+;	ld	(SCC_regVOLC),a	
 
 ;	inc	iyh
 		
-	ld	ix,TRACK_Chan8
-	ld	hl,SCC_regToneE	
-	call	replay_process_chan_AY
+;	ld	ix,TRACK_Chan7
+;	ld	hl,SCC_regToneD	
+;	call	replay_process_chan_AY
+;	ld	a,(SCC_regVOLE)
+;	ld	(SCC_regVOLD),a	
 
-	ret
+;	inc	iyh
+		
+;	ld	ix,TRACK_Chan8
+;	ld	hl,SCC_regToneE	
+;	call	replay_process_chan_AY
+;
+;	ret
 ;
 ;	;---- Morphing routine
 ;	ld	a,(replay_morph_active)
@@ -482,33 +518,16 @@ replay_init_cont:
 	;--- Silence the chips
 	ld	a,0x3f
 	ld	(AY_regMIXER),a
-	xor	a
+	;xor	a
 	ld	(SCC_regMIXER),a
+	xor	a
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a	
 	ld	(AY_regVOLC),a
-		
-	;--- Init the SCC	(waveforms too)
-	ld	a,(SCC_slot)
-	ld	h,0x80
-	call enaslt
-	
-	ld	a,255
-	ld	(TRACK_Chan4+TRACK_Waveform),a
-	ld	(TRACK_Chan5+TRACK_Waveform),a
-	ld	(TRACK_Chan6+TRACK_Waveform),a	
-	ld	(TRACK_Chan7+TRACK_Waveform),a	
-	ld	a,128
-	ld	(TRACK_Chan4+TRACK_Flags),a
-	ld	(TRACK_Chan5+TRACK_Flags),a
-	ld	(TRACK_Chan6+TRACK_Flags),a	
-	ld	(TRACK_Chan7+TRACK_Flags),a	
-	
-	call scc_reg_update
-	
-	ld	a,(mapper_slot)				; Recuperamos el slot
-	ld	h,0x80
-	call enaslt
+	ld	(SCC_regVOLA),a
+	ld	(SCC_regVOLB),a	
+	ld	(SCC_regVOLC),a		
+
 	
 	call	replay_route
 	ei
@@ -571,7 +590,7 @@ replay_init_cont:
 ;--- Very basic pre-scan. Old	one was WAY	too slow.
 replay_init_pre:
 	;di
-	call	reset_hook		; prevent any replayer update while we are preparing
+	
 	;--- Get the current values (to restore them after pre-scan
 ;	ld	a,(current_song)
 	call	set_songpage
@@ -667,8 +686,6 @@ _pe_chanloop:
 	pop	hl
 	ld	(replay_patpointer),hl
 
-	
-	call	set_hook		; re-enable the replayer in the ISR
 	ret
 	
 draw_PSGdebug:		
@@ -716,7 +733,7 @@ draw_PSGdebug:
 	
 	;inc	hl
 	ld	a,(hl)
-;	and	0x0f
+	and	0x0f
 	call	draw_hex2	; noise	
 	inc	de
 
@@ -1102,7 +1119,7 @@ _CHIPcmd7:
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	;  
-	ld	(AY_NoiseOR),a
+	
 	ret
 	
 	
@@ -1114,20 +1131,17 @@ _CHIPcmd7:
 	; This command set the envelope frequency using a
 	; multiplier value (00-ff)
 _CHIPcmd8_env_mul:
-;	ld	d,a
-;	xor	a
-;	srl	d
-;	rra	
-;	srl	d
-;	rra		
-;	srl	d
-;	rra	
-;	srl	d
-;	rra	
-;	or	1	; set envelope update flag
+	ld	d,a
+	xor	a
+	srl	d
+	rra	
+	srl	d
+	rra		
+	srl	d
+	rra	
 	ld	(AY_regEnvL),a
-;	ld	a,d
-;	ld	(AY_regEnvH),a
+	ld	a,d
+	ld	(AY_regEnvH),a
 	ret	
 
 
@@ -1175,7 +1189,7 @@ _CHIPcmdA_volSlide:
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	; slide the	volume up or down	1 step.
-	; The	x or y param  set	the delay	(x=up,y=down)
+	; The	x or y param  set	the delay*2	(x=up,y=down)
 	; With A00 the previous	value	is used.
 	
 	;--- test for retrigger	(do not update values)
@@ -1231,8 +1245,6 @@ _CHIPcmdB_scc_commands:
 	jp	z,_CHIPcmdB_compress
 	cp	0xB0	; set	waveform
 	jp	z,_CHIPcmdB_setwave
-	cp	0xC0	; set	waveform2
-	jp	z,_CHIPcmdB_setwave2
 	cp	0xe0
 ;	jp	z,_CHIPcmdB_morphset
 ;	cp	0xF0
@@ -1278,9 +1290,7 @@ _CHIPcmdB_pwm:
 _CHIPcmdB_cut:	
 	ld	(ix+TRACK_Command),0x22	; set	the command#
 	jp	1b
-
-	
-	jp	1b		
+		
 _CHIPcmdB_compress:	
 	ld	(ix+TRACK_Command),0x24	; set	the command#
 	ld	a,d
@@ -1291,18 +1301,10 @@ _CHIPcmdB_setwave:
 	;--- Set a new waveform
 	ld	a,d
 	and	0xf
-4:	ld	(ix+TRACK_Waveform),a
+	ld	(ix+TRACK_Waveform),a
 	set	6,(ix+TRACK_Flags)
 	res	4,(ix+TRACK_Flags)
 	ret	
-
-_CHIPcmdB_setwave2:
-	;--- Set a new waveform
-	ld	a,d
-	and	0xf
-	add	16
-	jp	4b
-
 	
 _CHIPcmdC:
 	; in:	[A] contains the paramvalue
@@ -1416,70 +1418,10 @@ _CHIPcmdE_extended:
 	jp	z,_CHIPcmdE_vibrato
 	cp	0xc0	; note_cut
 	jp	z,_CHIPcmdE_notecut
-	cp	0x50	; note_link
-	jr.	z,_CHIPcmdE_notelink
-;	cp	$50
-;	jp	z,_CHIPcmdE_noiseAND
-;	cp	$70
-;	jp	z,_CHIPE_noiseOR
-;	cp	$30
-;	jp	z,_CHIPcmdE_psgmode
-;	cp	$a0
-;	jp	z,_CHIPcmdE_duty1
-;	cp	$b0
-;	jp	z,_CHIPcmdE_duty2
-;	cp	$c0
-;	jp	z,_CHIPcmdE_duty3
-	
+
 	cp	0x80	; global transpose
 	jp	z,_CHIPcmdE_transpose
 	ret
-
-	
-_CHIPcmdE_notelink:
-	res	0,(ix+TRACK_Flags)
-;	set	4,(ix+CHIP_Flags)  ; was from FM
-	ret	
-	
-	
-	
-_CHIPE_noiseOR:
-	ld	a,d
-	ld	(AY_NoiseOR),a
-	ret
-_CHIPcmdE_noiseAND:
-	ld	a,d
-	ld	(AY_NoiseAND),a
-	ret
-
-_CHIPE_noiseAND:
-
-
-_CHIPcmdE_psgmode:
-	ld	a,d
-	and	1
-	ld	(psgmode),a
-	ret
-
-_CHIPcmdE_duty1:
-	ld	a,d
-	and	15
-	ld	(AY_duty1),a
-	ret
-_CHIPcmdE_duty2:
-	ld	a,d
-	and	15
-	ld	(AY_duty2),a
-	ret
-_CHIPcmdE_duty3:
-	ld	a,d
-	and	15
-	ld	(AY_duty3),a
-	ret
-
-
-
-
 
 _CHIPcmdE_shortarp:
 	ld	a,d			;- Get the parameter
@@ -1500,8 +1442,7 @@ _CHIPcmdE_notecut:
 	and	0x0f
 	inc	a
 	ld	(ix+TRACK_Timer),a		; set	the timer to param y
-	ret
-	
+	ret	
 	
 _CHIPcmdE_delay:
 	bit	0,(ix+TRACK_Flags)		; is there a note	in this eventstep?
@@ -1657,14 +1598,6 @@ replay_process_chan_AY:
 	
 ;	ld	a,(current_song)
 	call	set_songpage
-
-	;===== 
-	; Speed equalization check
-	;=====
-	ld	a,(equalization_flag)			; check for speed equalization
-	and	a
-	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
-
 	;=====
 	; COMMAND
 	;=====
@@ -1939,7 +1872,7 @@ _pcAY_noNoise:
 	bit	2,(IX+TRACK_Flags)
 	jp	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
-	ld	(SCC_regVOLE),a
+	ld	(SCC_regVOLC),a
 	ret	
 	
 _noEnv:
@@ -1986,7 +1919,7 @@ _Vadd:
 88:
 	add	hl,de
 	ld	a,(hl)	
-	ld	(SCC_regVOLE),a
+	ld	(SCC_regVOLC),a
 	
 	ret
 	
@@ -1994,7 +1927,7 @@ _Vadd:
 _pcAY_noNoteActive:
 	pop	hl
 	xor	a
-	ld	(SCC_regVOLE),a
+	ld	(SCC_regVOLC),a
 	
 	ret
 	
@@ -2416,7 +2349,7 @@ _pcAY_cmd1c:
 	; stop note
 	res	1,(ix+TRACK_Flags)	; set	note bit to	0
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jp	_pcAY_commandEND		
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+TRACK_Timer)
@@ -2611,22 +2544,10 @@ replay_route:
 ;---------------
 ; P S	G 
 ;---------------
-
 	ld	a,(replay_mode)
 	cp	2
 	jp	z,99f
 
-;	ld	a,(psgmode)
-;	and	a
-;	jp	nz,e_psg
-
-;msx_psg:
-;	; set PSG
-;	ld	a,$d
-;	out	($a0),a
-;	ld	a,1
-;	out	($a1),a
-;
 	;--- Apply the mixer.
 	ld	a,(MainMixer)
 	ld	b,a
@@ -2649,25 +2570,20 @@ replay_route:
 99:
 	;--- Push values to AY HW
 	ld	b,0
-	ld	a,(psgport)
-	ld	c,a
+	ld	c,0xa0
 	ld	hl,AY_registers
 _comp_loop:	
 	out	(c),b
 	ld	a,(hl)
-	add	1
-	inc	c
-	out	(c),a
+;	add	1
+	out	(0xa1),a
 	inc	hl
 	ld	a,(hl)
-	adc	a,0
+;	adc	a,0
 	inc	b
-	dec	c
 	out	(c),b	
 	inc	hl
-	inc	c
-	out	(c),a
-	dec	c
+	out	(0xa1),a	
 	inc	b
 	ld	a,6
 	cp	b
@@ -2712,360 +2628,99 @@ _ptAY_loop:
 	
 	
 _ptAY_noEnv:
-
 	
-	
-;e_psg:
-;	; set PSG BANK A
-;	ld	a,$d
-;	out	($a0),a
-;	ld	a,10100000b
-;	out	($a1),a
-;
-;	;--- Apply the mixer.
-;	ld	a,(MainMixer)
-;	ld	b,a
-;	xor	a
-;	bit	5,b
-;	jp	nz,0f
-;	;-- chan 1 off
-;	ld	(AY_regVOLA),a
-;0:	
-;	bit	6,b
-;	jp	nz,0f
-;	;-- chan 2 off
-;	ld	(AY_regVOLB),a
-;0:
-;	bit	7,b
-;	jp	nz,0f
-;	;-- chan 3 off
-;	ld	(AY_regVOLC),a
-;0:
-;99:
-;	ld	bc,(AY_regToneA)
-;	ld	a,0
-;	out	($a0),a
-;	ld	a,c
-;	out	($a1),a
-;	ld	a,1
-;	out	($a0),a
-;	ld	a,b
-;	out	($a1),a
-;	ld	bc,(AY_regToneB)
-;	ld	a,2
-;	out	($a0),a
-;	ld	a,c
-;	out	($a1),a
-;	ld	a,3
-;	out	($a0),a
-;	ld	a,b
-;	out	($a1),a
-;	ld	bc,(AY_regToneC)
-;	ld	a,4
-;	out	($a0),a
-;	ld	a,c
-;	out	($a1),a
-;	ld	a,5
-;	out	($a0),a
-;	ld	a,b
-;	out	($a1),a
-;	
-;	ld	a,6
-;	out	($a0),a
-;	ld	a,(AY_regNOISE)
-;	out	($a1),a
-;	ld	a,7
-;	out	($a0),a
-;	ld	a,(AY_regMIXER)
-;	out	($a1),a
-;
-;	ld	a,8
-;	out	($a0),a
-;	ld	a,(AY_regVOLA)
-;	rla	
-;	out	($a1),a
-;	ld	a,9
-;	out	($a0),a
-;	ld	a,(AY_regVOLB)
-;	rla	
-;	out	($a1),a	
-;	ld	a,$a
-;	out	($a0),a
-;	ld	a,(AY_regVOLC)
-;	rla	
-;	out	($a1),a	
-;
-;
-;	;BANK B
-;	ld	a,$d
-;	out	($a0),a
-;	ld	a,10110000b
-;	out	($a1),a
-;	
-;	
-;	ld	a,(AY_duty1)
-;	ld	d,a
-;	and	a
-;	jp	z,99f
-;	ld	a,6
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_duty1)
-;	ld	d,a
-;	and	a
-;	jp	z,99f
-;	ld	a,6
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_duty2)
-;	ld	d,a
-;	and	a
-;	jp	z,99f
-;
-;	ld	a,7
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_duty3)
-;	ld	d,a
-;	and	a
-;	jp	z,99f
-;	
-;	ld	a,8
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_NoiseOR)
-;	ld	d,a
-;	and	a
-;	jp	z,99f
-;	
-;	ld	a,$a
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;	xor	a
-;	ld	(AY_NoiseOR),a
-;99:
-;	ld	a,(AY_NoiseAND)
-;	ld	d,a
-;	and	a
-;	jp	z,99f
-;	
-;	ld	a,$9
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;	xor	a
-;	ld	(AY_NoiseAND),a
-;99:
+_route_SN:
+	ld	c,$f0
 
-
-
-;	;--- Push values to AY HW
-;	ld	b,0
-;	ld	c,0xa0
-;	ld	hl,AY_registers
-;_comp_loop:	
-;	out	(c),b
-;	ld	a,(hl)
-;	add	1
-;	out	(0xa1),a
-;	inc	hl
-;	ld	a,(hl)
-;	adc	a,0
-;	inc	b
-;	out	(c),b	
-;	inc	hl
-;	out	(0xa1),a	
-;	inc	b
-;	ld	a,6
-;	cp	b
-;	jp	nz,_comp_loop
-;	
-;	ld	a,b	
-;	
-;	
-;_ptAY_loop:
-;	out	(c),a
-;	inc	c
-;	outi
-;	dec	c
+;	; vol chan a
+;	ld	a,(SCC_regVOLA)
 ;	inc	a
-;	cp	13
-;	jr	nz,_ptAY_loop
-;
-;	ld	b,a
-;	ld	a,(hl)
-;	and	a
-;	jp	z,_ptAY_noEnv
-;	out	(c),b
-;	inc	c
-;	out 	(c),a
-;	ld	(hl),0	;reset the envwrite
+;	neg
+;	and	$0f
+;	or	10010000b
+;	out	($f0),a	
 	
+	; vol chan b
+	ld	a,(SCC_regVOLA)
+	inc	a
+	neg
+	and	$0f
+	or	10110000b
+	out	($f0),a	
+	
+	; vol chan c
+	ld	a,(SCC_regVOLB)
+	inc	a
+	neg
+	and	$0f
+	or	11010000b
+	out	($f0),a		
 		
-	
-scc_route:
-	
-;--------------
-; S C	C 
-;--------------
-	;--- Apply the mixer.
-	ld	hl,SCC_regMIXER
-	;--- do not	apply	mmainmixer when in  mode 2
-;	ld	a,(keyjazz)
-;	and	a
-;	jp	nz,99f
-	ld	a,(replay_mode)
-	cp	2
-	jp	z,99f
-	ld	a,(MainMixer)
-	and	(hl)	; set	to 0 to silence
-	ld	(hl),a
-99:
-	;--- Set the waveforms
-	ld	hl,TRACK_Chan4+TRACK_Flags
-	bit	6,(hl)
-	jp	z,0f
-	;--- set wave form
-	res	6,(hl)
-	ld	a,(TRACK_Chan4+TRACK_Waveform)
-	ld	de,_0x9800
-	call	_write_SCC_wave
-0:
-	ld	hl,TRACK_Chan5+TRACK_Flags
-	bit	6,(hl)
-	jp	z,0f
-	;--- set wave form
-	res	6,(hl)
-	ld	a,(TRACK_Chan5+TRACK_Waveform)
-	ld	de,_0x9820
-	call	_write_SCC_wave
-0:
-	ld	hl,TRACK_Chan6+TRACK_Flags
-	bit	6,(hl)
-	jp	z,0f
-	;--- set wave form
-	res	6,(hl)
-	ld	a,(TRACK_Chan6+TRACK_Waveform)
-	ld	de,_0x9840
-	call	_write_SCC_wave
-0:
-	ld	hl,TRACK_Chan7+TRACK_Flags
-	bit	6,(hl)
-	jp	z,0f
-	;--- set wave form
-	res	6,(hl)
-	ld	a,(TRACK_Chan7+TRACK_Waveform)
-	ld	de,_0x9860
-	call	_write_SCC_wave
-0:
+	; vol noise
+;	ld	a,SCC_regVOLA
+;	and	&0f
+;	or	11110000b
+;	out	(c),a	
 
-	ld	a,(SCC_slot)			; Recuperamos el slot
-	ld	h,0x80
-	call enaslt
- 
-	ld	bc,16
-	ld	de,_0x9880
-	ld	hl,SCC_registers
-	ldir
-
-	call scc_reg_update
-
-
-	ld	a,(mapper_slot)				; Recuperamos el slot
-	ld	h,0x80
-	call enaslt
-
-
-
-	ret	
-
-
-
-
-			
-scc_reg_update:
-
-	ld  a,03Fh				; enable SCC
-	ld  (0x9000),a
-
-	;--- deformation register
-	ld hl,oldregs
-	ld de,newregs
-	ld bc,0x9800
-	ld a,32*4+3*5+1
-loop:
-
-	ex af,af'	;'
-	ld a,(de)
-	cp (hl)
-	jr z,1f
-	ld (hl),a	     ; update old	registers in ram
-	ld (bc),a	     ; update scc	registers
-1:	    
-	inc hl
-	inc de
-	inc bc
-	ex af,af'		;'
-	dec a
-	jr nz, loop
-	ret
-
+;	; tone chan a
+;	ld	bc,(SCC_regToneA)
+;	ld	a,c
+;	and	$0f
+;	or	10000000b
+;	out	($f0),a	
+;	rl	c
+;	rl	b
+;	rl	c
+;	rl	b
+;	rl	c
+;	rl	b
+;	rl	c
+;	rl	b
+;	ld	a,00111111b
+;	and	b
+;	out	($f0),a		
 	
 	
-;==================
-; _write_SCC_wave
-;
-; Writes waveform	data.	[DE] contains location for data
-; [A]	contains waveform	number + flags for special actions
-; Data is not written to SCC but into RAM	shadow registers.
-;==================
-_write_SCC_wave:
-	bit	4,(hl)
-	jp	nz,_write_SCC_special
-	add	a,a
-	add	a,a
-	add	a,a	
-
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,_WAVESSCC
-	add	  hl,bc
-	ld	  bc,32
-	ldir
-
-	ret
-
-
-_write_SCC_special:
-	ld	hl,replay_morph_buffer+1
-	ld	b,32
-_wss_l:
-	ld	a,(hl)
-	ld	(de),a
-	inc	hl
-	inc	hl
-	inc	de
-	djnz	_wss_l
-	 
+	; tone chan b
+	ld	bc,(SCC_regToneA)
+	ld	a,c
+	and	$0f
+	or	10100000b
+	out	($f0),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($f0),a	
+	
+	; tone chan c
+	ld	bc,(SCC_regToneB)
+	ld	a,c
+	and	$0f
+	or	11000000b
+	out	($f0),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($f0),a	
 	
 	ret
-;	bit	7,a
-;	jp	nz,_write_SCC_PW_wave
-;	bit	6,a
-;	jp	nz,_write_SCC_cut
-;	ret
+	
+	
+	
 
 
 	

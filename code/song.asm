@@ -73,7 +73,7 @@ clear_patterns:
 	
 	
 	; custom defaults
-	ld	a,2
+	ld	a,4
 	ld	(song_octave),a
 	ld	a,(_CONFIG_STEP)
 	ld	(song_step),a

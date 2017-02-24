@@ -287,7 +287,6 @@ _udm_lineloop:
 	;--- Tone and octave
 	ld	a,(hl)			; store byte2 in b
 	inc	hl
-;	ld	a,(hl)			; store byte3 in c
 	and	a
 	jp	nz,0f
 
@@ -313,6 +312,7 @@ _udm_lineloop:
 	add	hl,bc
 	add	hl,bc
 	add	hl,bc
+
 
 	;--- copy note label to [DE]
 	ldi
@@ -415,7 +415,7 @@ _udm_lineloop:
 
 	ld	hl,(80*8)+2+8+1
 	ld	de,_LABEL_DRUMTEXT2+1
-	ld	b,25+6+4+20
+	ld	b,25+6+4+4
 	call	draw_label_fast
 
 	
@@ -680,9 +680,9 @@ process_key_drumeditbox:
 	jp	c,_drum_bits
 	sub	5
 	and	a
-	jr.	z,_drum_octave
+	jr.	z,_drum_note
 	dec	a
-	jr.	z,_drum_fhigh
+;	jr.	z,_drum_fhigh
 	dec	a
 	jr.	z,_drum_fmed
 	dec	a
@@ -785,7 +785,7 @@ _db_update:
 
 	
 	
-_drum_octave:
+_drum_note:
 	;---- now get the note		
 	ld	a,(key_value)
 	;get the note octave addittion
@@ -798,6 +798,8 @@ _drum_octave:
 	;- Note under this keys?
 	cp	48			
 	jr.	nc,0f
+	cp	$16	; -R-
+	jp	z,0f
 	
 	;--- Get the note value of the key pressed
 	ld	hl,_KEY_NOTE_TABLE
@@ -836,11 +838,11 @@ _drum_octave:
 	call	get_drumsample_location
 	inc	hl
 
-	sla	d
-	ld	a,(hl)
-	and	0x01
-	or	d
-	ld	(hl),a
+;	sla	d
+;	ld	a,(hl)
+;	and	0x01
+;	or	d
+	ld	(hl),d
 	call	update_drumeditbox		
 	ld	a,_KEY_RIGHT
 	ld	(key),a
@@ -849,58 +851,44 @@ _drum_octave:
 	ret	
 
 
-_drum_fhigh:	
-	ld	a,b
-	cp	"0"
-	jr	c,0f
-	cp	"2"
-	jp	nc,0f
-	sub	48
-	ld	d,a
-	call	get_drumsample_location
-	inc	hl
-	ld	a,(hl)
-	and	0x0e
-	or	d
-	ld	(hl),a
-	call	update_drumeditbox		
-	ld	a,_KEY_RIGHT
-	ld	(key),a
-	jp	process_key_drumeditbox
-0:
-	ret		
+;_drum_fhigh:	
+;	ld	a,b
+;	cp	"0"
+;	jr	c,0f
+;	cp	"2"
+;	jp	nc,0f
+;	sub	48
+;	ld	d,a
+;	call	get_drumsample_location
+;	inc	hl
+;	ld	a,(hl)
+;	and	0x0e
+;	or	d
+;	ld	(hl),a
+;	call	update_drumeditbox		
+;	ld	a,_KEY_RIGHT
+;	ld	(key),a
+;	jp	process_key_drumeditbox
+;0:
+;	ret		
 
-_drum_fmed:	
+_drum_fmed:	; deviation high (0x-7x)
 	ld	a,b
 	; is it a number?
 	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
-	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	jr.	c,0f
-	cp	'F'+1
+	jr.	c,0f	
+	cp	'7'+1	; smaller than 9?
 	jr.	nc,0f
-	sub	'A'-10
-;	ld	d,a
-22:	
+	sub 	'0'
+
+99:	
 [4]	add	a
 	ld	d,a	
 	call	get_drumsample_location
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	and	0x0f
+	and	0x8f
 	or	d
 	ld	(hl),a
 	call	update_drumeditbox		
@@ -908,9 +896,10 @@ _drum_fmed:
 	ld	(key),a
 	jp	process_key_drumeditbox		
 0:
-	ret		
+	jp	_dm_posneg
+;	ret		
 
-_drum_flow:	
+_drum_flow:	;deviation low (x0-xf)	
 	ld	a,b
 	; is it a number?
 	cp	'0'	; bigger than 0 
@@ -947,6 +936,28 @@ _drum_flow:
 	ld	(key),a
 	jp	process_key_drumeditbox
 0:
+
+_dm_posneg:
+	cp	"+"
+	jp	nz,99f
+	ld	d,$80
+	jp	1f
+	
+99:
+	cp	"-"
+	jp	nz,99f
+	ld	d,0
+	
+1:
+	call	get_drumsample_location
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	0x7f
+	or	d
+	ld	(hl),a
+	call	update_drumeditbox		
+99:	
 	ret		
 
 _drum_vlow:	

@@ -2138,7 +2138,7 @@ reset_cursor_psgsamplebox:
 		jp	_set_voice_cursor
 
 
-
+0:
 	dec	a
 	jr.	nz,0f
 	;--- Instrument description 

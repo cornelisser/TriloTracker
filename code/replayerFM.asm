@@ -307,8 +307,8 @@ _rdd_3psg_5fm:
 	ld	a,(SCC_regMIXER)
 	srl	a
 	srl	a
-	srl	a
-	srl	a	
+	;srl	a
+	;srl	a	
 	xor	0x3f
 	ld	(AY_regMIXER),a		; save the mixer
 	ld	a,(mainSCCvol)

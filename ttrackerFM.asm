@@ -1,6 +1,6 @@
 ; Trilo-Tracker v0.2
 define VERSION "v0.10.0 FM beta    "
-define YEAR "2016"
+define YEAR "2019"
 define CHIPSET_CODE $10
 
 DEFINE TTFM 

@@ -143,12 +143,13 @@ IFDEF TTSCC
 	ret
 ELSE
 clear_drummacros:
+	; Clear Drum macro values
 	ld	b,MAX_DRUMS
 	ld	hl,drum_macros
 	
 _cdm_loop:
-	ld	(hl),1
-	ld	c,(4*16)+1
+	ld	(hl),1			; Default size
+	ld	c,(7*16)			; DRUM macro size.
 	inc	hl
 _cdm_loop2:
 	ld	(hl),0
@@ -157,21 +158,23 @@ _cdm_loop2:
 	jp nz,_cdm_loop2
 	djnz	_cdm_loop
 
+	; Clear Drum macro names.
 	ld	de,song_drum_list+1
 	ld	hl,song_drum_list
 	ld	(hl),0
 	ld	bc,(MAX_DRUMS*16)-1	
 	ldir
 
+
 	;--- Set default drums
-	ld 	hl,drum_macros+2+((16*4)+2)
+	ld 	hl,drum_macros+1+(1+(16*7))	; first macro is empty macro.
 	ld	de,_cdm_DRUMDEFAULT
 	ld	b,15
 _cdm_loop3:
 	ld	a,(de)		;- set the default drum  bits
 	ld	(hl),a
 	inc	de
-	ld	a,(16*4)+2
+	ld	a,(16*7)+1
 	add	a,l
 	ld	l,a
 	jp	nc,88f

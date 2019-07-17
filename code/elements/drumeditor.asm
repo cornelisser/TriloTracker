@@ -136,109 +136,7 @@ processkey_drumeditor:
 		call	reset_cursor_drumeditbox
 		call	update_drumeditor
 		jr.	processkey_drumeditor_END	
-0:
-		;--- get the location in RAM
-		ld	d,a	; store key
-		ld	hl,drum_macros
-		ld	a,(song_cur_drum)
-		and	a
-		jr.	z,99f
-		ld	bc,DRUMMACRO_SIZE
-88:
-		add	hl,bc
-		dec	a
-		jr.	nz,88b
-99:	
-		inc	hl
 
-		ld	a,d
-		;--- LEFT
-		cp	_KEY_LEFT
-		jr.	nz,0f
-		;--- type down
-			ld	a,(hl)
-			and	a
-			jr.	nz,44f
-			ld	a,3
-44:			dec	a
-			ld	(drum_type),a
-			ld	(hl),a
-			jr.	update_drumeditbox		
-
-0:
-		;--- Right
-		cp	_KEY_RIGHT
-		jr.	nz,0f
-		;--- type up
-			ld	a,(hl)
-			cp	2
-			jr.	c,44f
-			ld	a,-1
-44:	
-			inc	a
-			ld	(hl),a
-			ld	(drum_type),a
-			jr.	update_drumeditbox
-;
-;0:
-;	;--- CTRL_T- keyjazz chip type
-;	cp	_CTRL_T
-;	jr.	nz,0f
-;		ld	a,(keyjazz_chip)
-;		add	1
-;		and	$03
-;		jr.	nz,33f
-;		inc	a	
-;33:
-;		ld	(keyjazz_chip),a
-;		ld	hl,_LABEL_keyjazz
-;		dec	a
-;		jr.	nz,44f
-;		;-- psg
-;		ld	(hl),160
-;		inc	hl
-;		ld	(hl),161
-;		jr.	99f
-;44:
-;		dec	a
-;		jr.	nz,44f	
-;		;-- scc
-;		ld	(hl),162
-;		inc	hl
-;		ld	(hl),163	
-;		jr.	99f
-;		
-;44:
-;		;-- psg+scc
-;		ld	(hl),158
-;		inc	hl
-;		ld	(hl),159
-;		jr.	99f
-;
-;99:
-;		jr.	update_psgsamplebox		
-;
-;0:
-;	;--- CTRL_W- waveform number
-;	cp	_CTRL_W
-;	jr.	nz,0f
-;		ld	a,(editsubmode)
-;		and	a
-;		jr.	nz,79f
-;		call	save_cursor
-;79:
-
-;IFDEF TTFM
-;		jr.	init_voicemanager
-;ELSEIFDEF TTSMS
-;		jr.	init_voicemanager
-;ELSE
-;		ld	a,1
-;		ld	(editsubmode),a
-;		call	reset_cursor_psgsamplebox
-;ENDIF
-;		jr.	processkey_psgsampleeditor_END			
-;
 0:
 	;--- CTRL_L - sample length
 	cp	_CTRL_L
@@ -357,44 +255,30 @@ processkey_drumeditor:
 		call	update_drumeditbox
 
 		jr.	processkey_drumeditor_END	
-0:	
-;	;--- CTRL + I - Instruments
-;	cp	_CTRL_I
-;	jr.	nz,0f
-;_xxx_instruments:	
-;		ld	a,(editsubmode)
-;		and	a
-;		jr.	nz,79f
-;		call	save_cursor
-;79:
-;		ld	a,11
-;		ld	(editsubmode),a
-;		call	reset_cursor_instrumentbox
-;		jr.	processkey_drumeditor_END
-;
-0:
+	
+
 		
 	
 processkey_drumeditor_normal:	
 
-;	;--- set octave using numpad
-;	ld	a,(key_value)
-;	 
-;	cp	0x4b
-;	jr.	c,0f
-;	cp	0x55
-;	jr.	nc,0f
-;		
-;	;--- set octave
-;	sub	0x4b
-;	ld	(song_octave),a
-;	xor	a
-;	ld	(key),a
-;	call	update_drumeditor
-;
-;	jr.	processkey_drumeditor_END
-;
-;0:
+	;--- set octave using numpad
+	ld	a,(key_value)
+	 
+	cp	0x4b
+	jr.	c,0f
+	cp	0x55
+	jr.	nc,0f
+		
+	;--- set octave
+	sub	0x4b
+	ld	(song_octave),a
+	xor	a
+	ld	(key),a
+	call	update_drumeditor
+
+	jr.	processkey_drumeditor_END
+
+0:
 ;	;--- insturment editor?
 ;	ld	a,(editsubmode)
 ;	cp	11
@@ -431,9 +315,9 @@ processkey_drumeditor_normal:
 	cp	_SPACE
 	jr.	nz,1f
 	;--- only if we are editing
-;	ld	a,(editsubmode)
-;	and	a
-;	jr.	nz,1f
+	ld	a,(editsubmode)
+	and	a
+	jr.	nz,1f
 	ld	a,(keyjazz)
 	xor 	1
 	ld	(keyjazz),a

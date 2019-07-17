@@ -58,7 +58,11 @@ _LABEL_SONGNAME:
 _LABEL_SONGBY:
 	db	"By  :"
 _LABEL_BALANCE:
+IFDEF TTSCC
 	db	 "Mix: ",160,161,"----+----+--------+----+----",162,163
+ELSE
+	db	 "Mix: ",160,161,"----+----+--------+----+----",170,171
+ENDIF
 _LABEL_VU:
 	db	"vu",129,129,129,129,129,129
 

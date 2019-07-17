@@ -9,8 +9,8 @@ SONG_SEQSIZE	equ 200;128				; size of the order list
 INSTRUMENT_LEN	equ 32				; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3	; size of 1 instrument macro
 MAX_WAVEFORM	equ 192+1;-16			; max number of voice.
-MAX_DRUMS		equ 32				; max number of drum macros
-DRUMMACRO_SIZE	equ (4*16)+2			; size 1 drum macro.
+MAX_DRUMS		equ 20				; max number of drum macros
+DRUMMACRO_SIZE	equ (7*16)+1			; size 1 drum macro.
 
 DOS			equ 5			; DOS function call entrance
 HOKVLD		equ 0xFB20		; External BIOS hook valid
@@ -86,7 +86,7 @@ instrument_macro_offset	#1	; for use in macro
 drum_len			#0
 instrument_len		#1	
 instrument_waveform	#1
-drum_type			#0
+
 instrument_loop		#1
 instrument_macros		#(INSTRUMENT_SIZE)*32
 ;psg_sample_line:	
@@ -124,9 +124,9 @@ cursor_stack:	#4*6	; room for 6 stacks?
 ;tmp_editsubmode:	#1
 
 
-_VOICES			#8*MAX_WAVEFORM
-drum_macros			#DRUMMACRO_SIZE*MAX_DRUMS
-song_drum_list		#MAX_DRUMS*16	
+_VOICES:		#8*MAX_WAVEFORM
+drum_macros:	#DRUMMACRO_SIZE*MAX_DRUMS
+song_drum_list:	#MAX_DRUMS*16	
 _SONGDATA_END:	#0
 ; DONT PLACE DATA BEYOND THIS ALL fREE SPACE ISFOR cursor stack
 

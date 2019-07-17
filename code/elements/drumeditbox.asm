@@ -87,17 +87,17 @@ draw_drumeditbox:
 
 	; macro data
 	ld	hl,0x040a
-	ld	de,0x1110	
+	ld	de,0x1D10	
 	call	erase_colorbox	
 
 	; macro names (left)
 	ld	hl,0x2a0a
-	ld	de,0x1010	
+	ld	de,0x100f	
 	call	erase_colorbox	
 
 	; macro names (right)
 	ld	hl,0x3e0a
-	ld	de,0x1010	
+	ld	de,0x1004	
 	call	erase_colorbox		
 
 	;--- draw name numbers
@@ -119,7 +119,7 @@ draw_drumeditbox:
 	pop	hl
 	pop	af
 	inc	a
-	cp	17
+	cp	16
 	jp	nz,99f
 	;--- next column
 	ld	hl,(80*9)+40+20-1	
@@ -127,7 +127,7 @@ draw_drumeditbox:
 	;--- next row
 	ld	bc,80
 	add	hl,bc
-	cp	32
+	cp	MAX_DRUMS
 	jp	nz,0b
 		
 	ret
@@ -135,7 +135,7 @@ draw_drumeditbox:
 _LABEL_DRUMBOX:
 	db	"Drummacro edit:",0
 _LABEL_DRUMMACRO:
-	db	"Macro:",0
+	db	"Macro:         B     H S     T C",0
 ;_LABEL_SAMPPLEFORM:
 ;	db	"waveForm:",0
 ;_LABEL_SAMPLEBARS:
@@ -152,11 +152,12 @@ _LABEL_DRUMTEXT2SUB:
 ;db	"  ",_ARROWRIGHT,0	
 
 _DRUM_SAMPLESTRING:
-	db	"   _____ --- ___ _ _"
+	db	"   _____|--- . .|--- . .|--- . ."
+;	db	"   _____ --- ___ _ _"
 ;	db	"           [000]        X****"
 _udm_pntpos:	dw	0
 ;===========================================================
-; --- update_psgsamplebox
+; --- update_drumeditbox
 ; Display the values
 ; 
 ;===========================================================
@@ -186,9 +187,9 @@ update_drumeditbox:
 	ld	a,(hl)
 	ld	(drum_len),a
 	inc	hl
-	ld	a,(hl)
-	ld	(drum_type),a
-	inc	hl	
+;	ld	a,(hl)
+;	ld	(drum_type),a
+;	inc	hl	
 	
 	;--- start at offset
 	ld	a,c
@@ -215,7 +216,7 @@ _udm_lineloop:
 		inc	c				; increase line number
 		push	bc				; store line+len	
 		ld	a," "
-		ld	b,23+6-11+2
+		ld	b,32
 10:		ld	(de),a
 		inc	de
 		djnz	10b
@@ -279,84 +280,13 @@ _udm_lineloop:
 99:	
 	ld	(hl),"."
 88:
-	inc	hl
 	ex	de,hl
 	inc	de
 	
-	
-	;--- Tone and octave
-	ld	a,(hl)			; store byte2 in b
-	inc	hl
-	and	a
-	jp	nz,0f
+	call	_dml_update_pair
+	call	_dml_update_pair
+	call	_dml_update_pair	
 
-	;--- draw empty note value
-	ld	a,"-"
-	ld	(de),a
-	inc	de
-	ld	(de),a
-	inc	de
-	ld	(de),a
-	inc	de
-	inc	de
-	jp	1f
-	
-
-0:	
-	; NOTE
-	push	hl
-	;--- get pointer to the note labels.
-	ld	hl,_LABEL_NOTES
-	ld	b,0
-	ld	c,a
-	add	hl,bc
-	add	hl,bc
-	add	hl,bc
-
-
-	;--- copy note label to [DE]
-	ldi
-	ldi
-	ldi
-	inc	de
-	pop	hl
-
-	
-	
-1:	
-	ld	b,(hl)
-	inc	hl
-	;deviation
-	bit 	7,b
-	jp	z,88f
-	ld	a,"+"
-	jp	99f
-88:	ld	a,"-"
-99:
-	ld	(de),a
-	inc	de
-	ld	a,b
-	and	0111111b
-	call	draw_hex2
-
-	
-	inc	de
-	;--- Volume
-	ld	a,(hl)		; - volume 2 (low bits)
-	and	0x0f
-	call	z,draw_empty
-	call	nz,draw_hex
-	inc	de
-	ld	a,(hl)		; - volume 1 (high bits)
-	srl	a
-	srl	a
-	srl	a
-	srl	a
-	and	a
-	call	z,draw_empty
-	call	nz,draw_hex
-	inc	hl
-	
 	
 55:	; end of line making,,,,,
 	push	hl			; store data pointer
@@ -367,7 +297,7 @@ _udm_lineloop:
 	
 
 	ld	de,_DRUM_SAMPLESTRING	; draw the string
-	ld	b,23+6-11+2
+	ld	b,32;23+6-11+2
 	call	draw_label_fast	
 	
 	pop	hl
@@ -386,9 +316,9 @@ _udm_lineloop:
 	ld	a,(drum_len)
 	call	draw_decimal
 	
-	ld	de,_LABEL_DRUMTEXT2+11
-	ld	a,(drum_type)
-	call	draw_drumtype
+;	ld	de,_LABEL_DRUMTEXT2+11
+;	ld	a,(drum_type)
+;	call	draw_drumtype
 	
 	ld	de,_LABEL_DRUMTEXT2SUB+18
 	ld	a,(song_octave)
@@ -426,6 +356,104 @@ _udm_lineloop:
 	ret
 
 
+
+_dml_update_pair:
+	ld	a,_VERTICAL_SMALL
+	ld	(de),a
+	inc	de
+	
+	;--- Tone
+	ld	a,(hl)
+	inc	hl
+	and	a
+	jp	z,_dml_empty
+	bit 	7,a
+	jp	z,_dml_note
+	cp	192
+	jp	c,_dml_up
+_dml_down:
+	ld	(hl),'-'
+	inc	hl
+	and	00111111b
+	call	draw_hex2			; draw hex line number	
+	jp 1f
+	
+	
+_dml_up:
+	ld	(hl),'+'
+	inc	hl
+	and	00111111b
+	call	draw_hex2			; draw hex line number	
+	jp	1f
+
+	
+_dml_empty:
+	;--- draw empty note value
+	ld	a,"-"
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	inc	de
+	jp	1f
+	
+
+_dml_note:
+	; NOTE
+	push	hl
+	;--- get pointer to the note labels.
+	ld	hl,_LABEL_NOTES
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+
+	;--- copy note label to [DE]
+	ldi
+	ldi
+	ldi
+	inc	de
+	pop	hl
+
+
+	
+1:	
+	; Volumes
+	; Volume high
+	ld	b,(hl)
+	inc	hl
+	
+	ld	a,0xf0
+	and	b
+	jp	nz,2f
+	ld	a,'.'
+	ld	(de),a
+	inc	de
+	jp	0f
+2:
+	sra	a
+	sra	a
+	sra 	a
+	sra	a
+	call	draw_hex			; draw hex line number		
+0:	
+	inc	de
+	; volume low
+	ld	a,0x0f
+	and	b
+	jp	nz,2f
+	ld	a,'.'
+	ld	(de),a
+	inc	de
+	jp	0f
+2:	
+	call	draw_hex			; draw hex line number		
+0:	
+	ret
+
 ;===========================================================
 ; --- update_drumnames
 ; Display the drum macro names.
@@ -435,7 +463,7 @@ update_drumnames:
 
 	ld	de,song_drum_list
 	ld	hl,(80*10)+40+2
-	ld	a,31
+	ld	a,MAX_DRUMS
 	
 _udn_loop:	
 	ld	b,16
@@ -445,7 +473,7 @@ _udn_loop:
 	ex	de,hl
 	pop	af
 	pop	hl
-	cp	16	; check if we are at macro 16
+	cp	MAX_DRUMS-14	; check if we are at macro 16
 	jp	nz,99f
 	;--- next column
 	ld	hl,(80*10)+40+22-80
@@ -477,29 +505,8 @@ _get_drum_start:
 	
 	
 	
-draw_drumtype:
-	push	bc
-	push	hl
-	ld	hl,DRUM_TYPE_LABEL
-	and	3
-	add	a
-	add	a
-	add	a
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	ld	bc,7
-	ldir
-	inc	de
-	pop	hl
-	pop	bc
-	ret
-	
-	
-DRUM_TYPE_LABEL:
-		db	"Bas|... ","Snr|Hht ","Cym|Tom "
+
+
 		
 		
 draw_empty:
@@ -561,7 +568,7 @@ process_key_drumeditbox:
 	cp	_KEY_RIGHT
 	jr.	nz,0f
 	; column right
-;_psgsamright:
+
 	ld	hl,_COLTAB_DRUMSAMPLE
 	ld	a,(cursor_column)
 	add	a
@@ -703,15 +710,35 @@ _COLTAB_DRUMSAMPLE:
 	db	2,1	; 2 = tomtom
 	db	3,1	; 3 = cymbal
 	db	4,2	; 4 = highhat
-	db	5,5	; 5 = note
-;	db	6,1	; 6 = freq high
-	db	7,1	; 7 = freq mid
-	db	8,2	; 8 = freq low
-	db	9,2	; 9 = vol low
-	db	10,255	; 10 = vol high
-;	db	11,2	; 11= noise deviation add type
-;	db	13,255;1	; 12= volume
-;	db	12,255	; 13= volume add type
+	; bd registers
+	db	5,1	; 5 = note/deviation
+	db	6,1	; 6 = note/deviationhigh
+	db	7,4	; 7 = note/deviationlow
+	db	9,2	; 9 = volume low
+	; hh/sn registers
+	db	5,1	; 5 = note/deviation
+	db	6,1	; 6 = note/deviationhigh
+	db	7,2	; 7 = note/deviationlow
+	db	8,2	; 8 = volume high
+	db	9,2	; 9 = volume low
+	; tom/cy registers
+	db	5,1	; 5 = note/deviation
+	db	6,1	; 6 = note/deviationhigh
+	db	7,2	; 7 = note/deviationlow
+	db	8,2	; 8 = volume high
+	db	9,255	; 9 = volume low	
+	
+	
+	
+;	db	5,5	; 5 = note
+;;	db	6,1	; 6 = freq high
+;	db	7,1	; 7 = freq mid
+;	db	8,2	; 8 = freq low
+;	db	9,2	; 9 = vol low
+;	db	10,255	; 10 = vol high
+;;	db	11,2	; 11= noise deviation add type
+;;	db	13,255;1	; 12= volume
+;;	db	12,255	; 13= volume add type
 
 ;--------------------
 ; Process the ryhtm bits.
@@ -938,13 +965,13 @@ _drum_flow:	;deviation low (x0-xf)
 0:
 
 _dm_posneg:
-	cp	"+"
+	cp	"-"
 	jp	nz,99f
 	ld	d,$80
 	jp	1f
 	
 99:
-	cp	"-"
+	cp	"+"
 	jp	nz,99f
 	ld	d,0
 	
@@ -1404,16 +1431,16 @@ reset_cursor_drumeditbox:
 	dec	a
 	jr.	nz,0f
 	;--- Drum type
-		ld	a,3+5+6+7+3
-		ld	(cursor_x),a	
-		ld	a,1
-		ld	(cursor_type),a	
 		jr.	99f	
 0:	
 	dec	a
 	jr.	nz,0f
 	;--- OCtave 
-		jr.	99f	
+		ld	a,3+5+6+7+9+18
+		ld	(cursor_x),a
+		ld	a,2
+		ld	(cursor_type),a	
+		jr.	99f
 0:	
 	dec	a
 	jr.	nz,0f

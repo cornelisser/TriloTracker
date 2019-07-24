@@ -12,27 +12,27 @@ SCC_VOLUME_TABLE
 
 DRM_DEFAULT_values:
 	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
-	dw	0x0520		; Base drum
+	dw	0x0520			; Base drum
 	db	0x01			; vol
-	dw	0x0550		; Snare + HiHat
+	dw	0x0550			; Snare + HiHat
 	db	0x11			; vol
-	dw	0x01c0		; Cymbal + TomTom
+	dw	0x01c0			; Cymbal + TomTom
 	db	0x11			; vol
 	
 	
 ;Konami values found in	nemesis 2 replayer.
 ;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
 C_PER		equ	$6a*32	
-C1_PER	equ	$64*32
+C1_PER		equ	$64*32
 D_PER		equ	$5e*32
-D1_PER	equ	$59*32
+D1_PER		equ	$59*32
 E_PER		equ	$54*32
 F_PER		equ	$4f*32
-F1_PER	equ	$4a*32
+F1_PER		equ	$4a*32
 G_PER		equ	$46*32
-G1_PER	equ	$42*32
+G1_PER		equ	$42*32
 A_PER		equ	$3f*32
-A1_PER	equ	$3b*32
+A1_PER		equ	$3b*32
 B_PER		equ	$38*32
 
 CHIP_ToneTable:	
@@ -1854,7 +1854,7 @@ replay_process_drum:
 	ld	a,(bc)
 	and	a
 	jr	z,0f			; jump if no data
-	set 	5,a			; key on for percussion
+	set 5,a			; key on for percussion
 	ld	(FM_DRUM),a		; store the percusion bits
 	set	0,d
 
@@ -1867,9 +1867,50 @@ replay_process_drum:
 	and	a
 	jp	z,0f			; jump if no data
 	bit	7,a
-	jp	z,0f			; no tone update
-	
-	
+	jp	nz,1f			; tone deviation
+
+	; Note
+	ld	hl,(replay_Tonetable)
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	ld	(FM_freqreg1),a
+	inc	hl
+	ld	a,(hl)
+	ld	(FM_freqreg1+1),a	
+	jr.	0f				; continue
+1:
+	; Tone deviation
+	bit	6,a
+	jp	z,2f 			; positive
+	;negative
+	and	00111111b
+	neg
+	ld	hl,(FM_freqreg1)
+	dec	h
+	add	a,l
+	ld	l,a
+	adc a,h
+	sub	l
+	ld	h,a
+99:
+	jr.	3f
+2:	
+	;positive
+	ld	hl,(FM_freqreg1)
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+3:
+	ld 	(FM_freqreg1),hl
+
+
 0:
 	sla	d
 	inc	bc
@@ -1903,9 +1944,51 @@ replay_process_drum:
 	ld	a,(bc)
 	and	a
 	jp	z,0f			; jump if no data
-	
-	
-	
+	bit	7,a
+	jp	nz,1f			; tone deviation
+
+	; Note
+	ld	hl,(replay_Tonetable)
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	ld	(FM_freqreg2),a
+	inc	hl
+	ld	a,(hl)
+	ld	(FM_freqreg2+1),a	
+	jr.	0f				; continue
+1:
+	; Tone deviation
+	bit	6,a
+	jp	z,2f 			; positive
+	;negative
+	and	00111111b
+	neg
+	ld	hl,(FM_freqreg1)
+	dec	h
+	add	a,l
+	ld	l,a
+	adc a,h
+	sub	l
+	ld	h,a
+99:
+	jr.	3f
+2:	
+	;positive
+	ld	hl,(FM_freqreg2)
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+3:
+	ld 	(FM_freqreg2),hl
+
+
 0:
 	sla	d
 	inc	bc
@@ -1969,10 +2052,53 @@ replay_process_drum:
 	ld	a,(bc)
 	and	a
 	jp	z,0f			; jump if no data
-	
-	
-	
+	bit	7,a
+	jp	nz,1f			; tone deviation
+
+	; Note
+	ld	hl,(replay_Tonetable)
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	ld	(FM_freqreg3),a
+	inc	hl
+	ld	a,(hl)
+	ld	(FM_freqreg3+1),a	
+	jr.	0f				; continue
+1:
+	; Tone deviation
+	bit	6,a
+	jp	z,2f 			; positive
+	;negative
+	and	00111111b
+	neg
+	ld	hl,(FM_freqreg1)
+	dec	h
+	add	a,l
+	ld	l,a
+	adc a,h
+	sub	l
+	ld	h,a
+99:
+	jr.	3f
+2:	
+	;positive
+	ld	hl,(FM_freqreg3)
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+3:
+	ld 	(FM_freqreg3),hl
+
+
 0:
+
 	sla	d
 	inc	bc
 	; volume Cy Tom

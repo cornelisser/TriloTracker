@@ -59,9 +59,9 @@ draw_drumeditbox:
 	ld	hl,0x0f08
 	ld	de,0x0401	
 	call	erase_colorbox		
-	ld	hl,0x1408
-	ld	de,0x0801	
-	call	erase_colorbox
+;	ld	hl,0x1408
+;	ld	de,0x0801	
+;	call	erase_colorbox
 ;	ld	hl,0x1908
 ;	ld	de,0x0401	
 ;	call	erase_colorbox
@@ -136,25 +136,18 @@ _LABEL_DRUMBOX:
 	db	"Drummacro edit:",0
 _LABEL_DRUMMACRO:
 	db	"Macro:         B     H S     T C",0
-;_LABEL_SAMPPLEFORM:
-;	db	"waveForm:",0
-;_LABEL_SAMPLEBARS:
-;	db	"vol",0
+
 _LABEL_DRUMTEXT:
-	db	"Drm: Len: Type:     Description:     Oct:",0
+	db	"Drm: Len:           Description:     Oct:",0
 _LABEL_DRUMTEXT2:	
 	db	_ARROWLEFT," x",_ARROWRIGHT,32
-	db	_ARROWLEFT,"xx",_ARROWRIGHT,32
-	db	_ARROWLEFT,"xxxxxXx",_ARROWRIGHT," "
+	db	_ARROWLEFT,"xx",_ARROWRIGHT,0
 _LABEL_DRUMTEXT2SUB:
 	db	"                 ",_ARROWLEFT,"xx",_ARROWRIGHT,0
-;LABEL_keyjazz:
-;db	"  ",_ARROWRIGHT,0	
+
 
 _DRUM_SAMPLESTRING:
 	db	"   _____|--- . .|--- . .|--- . ."
-;	db	"   _____ --- ___ _ _"
-;	db	"           [000]        X****"
 _udm_pntpos:	dw	0
 ;===========================================================
 ; --- update_drumeditbox
@@ -273,7 +266,7 @@ _udm_lineloop:
 	ld	(hl),"."
 88:
 	inc	hl	
-	bit	0,b				;- HighHat
+	bit	0,b				;- HiHat
 	jp	z,99f
 	ld	(hl),"H"
 	jp	88f
@@ -288,7 +281,7 @@ _udm_lineloop:
 	call	_dml_update_pair	
 
 	
-55:	; end of line making,,,,,
+55:	; end of line making.
 	push	hl			; store data pointer
 	ld	hl,(_udm_pntpos)	; get pnt pointer
 	ld	de,80
@@ -316,10 +309,7 @@ _udm_lineloop:
 	ld	a,(drum_len)
 	call	draw_decimal
 	
-;	ld	de,_LABEL_DRUMTEXT2+11
-;	ld	a,(drum_type)
-;	call	draw_drumtype
-	
+
 	ld	de,_LABEL_DRUMTEXT2SUB+18
 	ld	a,(song_octave)
 	call	draw_decimal
@@ -342,16 +332,17 @@ _udm_lineloop:
 	ld	de,_LABEL_DRUMTEXT2SUB
 	ldir
 
-
+	; draw nr + len
 	ld	hl,(80*8)+2+8+1
 	ld	de,_LABEL_DRUMTEXT2+1
-	ld	b,25+6+4+4
+	ld	b,8
 	call	draw_label_fast
-
 	
-;	call	update_tonecum
-;	call	update_sccwave
-
+	;draw desscription + octave
+	ld	hl,(80*8)+2+8+20
+	ld	de,_LABEL_DRUMTEXT2SUB
+	ld	b,21
+	call	draw_label_fast
 	call	update_drumnames
 	ret
 
@@ -372,18 +363,22 @@ _dml_update_pair:
 	cp	192
 	jp	c,_dml_up
 _dml_down:
-	ld	(hl),'-'
-	inc	hl
-	and	00111111b
-	call	draw_hex2			; draw hex line number	
-	jp 1f
+	ld	b,a
+	ld	a,'-'
+	jr.	88f
 	
 	
 _dml_up:
-	ld	(hl),'+'
-	inc	hl
+	ld	b,a
+	ld	a,'+'
+88:	
+	ld	(de),a
+	inc	de
+	
+	ld	a,b
 	and	00111111b
 	call	draw_hex2			; draw hex line number	
+	inc	de
 	jp	1f
 
 	
@@ -568,41 +563,8 @@ process_key_drumeditbox:
 	cp	_KEY_RIGHT
 	jr.	nz,0f
 	; column right
+	call	next_drum_column
 
-	ld	hl,_COLTAB_DRUMSAMPLE
-	ld	a,(cursor_column)
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h	
-99:
-	; check if we are at the end?
-	inc	hl
-	ld	a,(hl)
-	cp	255
-	jr.	z,44f
-	
-	; get the displacement)
-	ld	b,a
-	call	flush_cursor
-	ld	a,(cursor_x)
-	add	b
-	ld	(cursor_x),a
-	
-	;set the new input type and cursor.
-	inc	hl
-	ld	a,(hl)
-	ld	(cursor_input),a
-	and	a
-	ld	a,1
-	jr.	nz,99f
-	ld	a,3	
-99:	
-	ld	(cursor_type),a
-	ld	hl,cursor_column
-	inc	(hl)
-44:	
 	call	update_drumeditbox
 	jr.	process_key_drumeditbox_END			
 0:		
@@ -687,18 +649,15 @@ process_key_drumeditbox:
 	jp	c,_drum_bits
 	sub	5
 	and	a
-	jr.	z,_drum_note
+	jr.	z,_drum_note_deviation
 	dec	a
-;	jr.	z,_drum_fhigh
+	jr.	z,_drum_note_deviationhigh
 	dec	a
-	jr.	z,_drum_fmed
-	dec	a
-	jr.	z,_drum_flow
-	dec	a
-	jr.	z,_drum_vlow
+	jr.	z,_drum_note_deviationlow
 	dec	a
 	jr.	z,_drum_vhigh
-	
+	dec	a
+	jr.	z,_drum_vlow
 	
 process_key_drumeditbox_END:
 	ret
@@ -810,6 +769,194 @@ _db_update:
 0:
 	ret
 
+_drum_note_deviation:	
+	ld	a,b
+	cp	_DEL
+	jp	nz,1f
+	call	get_drumsample_track_location
+	ld	(hl),0
+	jr.	update_drumeditbox
+1:	
+	cp	'+'
+	jr.	nz,0f
+	; + found
+	call 	get_drumsample_track_location
+;	inc	hl	; skip percusion bits
+	ld	a,(hl)
+	and	00111111b
+	or	10000000b
+	ld	(hl),a
+	call	next_drum_column
+	jr.	update_drumeditbox
+	
+0:	cp	'-'
+	jr.	nz,_drum_note
+	; - found
+	call	get_drumsample_track_location
+;	inc	hl	; skip percusion bits
+	ld	a,(hl)
+	or	11000000b
+	ld	(hl),a
+	call	next_drum_column
+	jr.	update_drumeditbox
+	
+
+_drum_note_deviationhigh:
+	ld	a,b
+	cp	_DEL
+	jp	nz,1f
+	call	get_drumsample_track_location
+	ld	(hl),0
+	jr.	update_drumeditbox
+1:	
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,update_drumeditbox	
+	cp	'4'+1	; smaller than 4?
+	jr.	nc,update_drumeditbox
+	sub 	'0'
+[4]	add	a
+	ld	d,a	
+	call	get_drumsample_track_location
+	ld	a,(hl)
+	and	11001111b
+	or	d
+	ld	(hl),a
+	call	next_drum_column
+	jr.	update_drumeditbox	
+	
+	
+_drum_note_deviationlow:	
+	;deviation low (x0-xf)	
+	ld	a,b
+	cp	_DEL
+	jp	nz,1f
+	call	get_drumsample_track_location
+	ld	(hl),0
+	jr.	update_drumeditbox
+1:	
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,update_drumeditbox
+	sub	'A'-10
+
+22:
+	ld	d,a	
+	call	get_drumsample_track_location
+	ld	a,(hl)
+	and	11110000b
+	or	d
+	ld	(hl),a
+	call	next_drum_column
+	jr.	update_drumeditbox
+
+
+_drum_vhigh:
+	;deviation low (x0-xf)	
+	ld	a,b
+	cp	_DEL
+	jp	nz,1f
+	call	get_drumsample_track_location
+	dec	hl
+	ld	a,(hl)
+	and	00001111b
+	ld	(hl),a
+	jr.	update_drumeditbox
+1:	
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,update_drumeditbox
+	sub	'A'-10
+
+22:
+[4]	add	a
+	ld	d,a	
+	call	get_drumsample_track_location
+	dec	hl
+	ld	a,(hl)
+	and	00001111b
+	or	d
+	ld	(hl),a
+	call	next_drum_column
+	jr.	update_drumeditbox
+
+_drum_vlow:	
+	;deviation low (x0-xf)	
+	ld	a,b
+	cp	_DEL
+	jp	nz,1f
+	call	get_drumsample_track_location
+	dec	hl
+	ld	a,(hl)
+	and	11110000b
+	ld	(hl),a
+	jr.	update_drumeditbox
+1:
+
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,update_drumeditbox
+	sub	'A'-10
+
+22:
+	ld	d,a	
+	call	get_drumsample_track_location
+	dec	hl
+	ld	a,(hl)
+	and	11110000b
+	or	d
+	ld	(hl),a
+	call	next_drum_column
+	jr.	update_drumeditbox
+	
 	
 	
 _drum_note:
@@ -862,34 +1009,140 @@ _drum_note:
 	
 77:	
 	ld	d,a
-	call	get_drumsample_location
-	inc	hl
+	call	get_drumsample_track_location
+;	inc	hl
 
 ;	sla	d
 ;	ld	a,(hl)
 ;	and	0x01
 ;	or	d
 	ld	(hl),d
-	call	update_drumeditbox		
-	ld	a,_KEY_RIGHT
-	ld	(key),a
-	jp	process_key_drumeditbox
+	call	_drum_jp_to_vol			; set cursor at (first) volume entry
+	jr.	update_drumeditbox		
+
 0:
 	ret	
 
 
-;_drum_fhigh:	
+;_drum_fmed:	; deviation high (0x-7x)
 ;	ld	a,b
-;	cp	"0"
-;	jr	c,0f
-;	cp	"2"
-;	jp	nc,0f
-;	sub	48
-;	ld	d,a
+;	; is it a number?
+;	cp	'0'	; bigger than 0 
+;	jr.	c,0f	
+;	cp	'7'+1	; smaller than 9?
+;	jr.	nc,0f
+;	sub 	'0'
+;
+;99:	
+;[4]	add	a
+;	ld	d,a	
 ;	call	get_drumsample_location
 ;	inc	hl
+;	inc	hl
 ;	ld	a,(hl)
-;	and	0x0e
+;	and	0x8f
+;	or	d
+;	ld	(hl),a
+;	call	update_drumeditbox		
+;	ld	a,_KEY_RIGHT
+;	ld	(key),a
+;	jp	process_key_drumeditbox		
+;0:
+;	jp	_dm_posneg
+;;	ret		
+
+;_drum_flow:	;deviation low (x0-xf)	
+;	ld	a,b
+;	; is it a number?
+;	cp	'0'	; bigger than 0 
+;	jr.	c,99f	
+;	cp	'9'+1	; smaller than 9?
+;	jr.	nc,99f
+;	sub 	'0'
+;	jr.	22f
+;99:	
+;	cp	'a'
+;	jr.	c,99f
+;	cp	'f'+1
+;	jr.	nc,99f
+;	sub	'a'-10
+;	jr.	22f
+;99:	
+;	cp	'A'
+;	jr.	c,0f
+;	cp	'F'+1
+;	jr.	nc,0f
+;	sub	'A'-10
+;;	ld	d,a
+;22:	
+;	ld	d,a	
+;	call	get_drumsample_location
+;	inc	hl
+;	inc	hl
+;	ld	a,(hl)
+;	and	0xf0
+;	or	d
+;	ld	(hl),a
+;	call	update_drumeditbox		
+;	ld	a,_KEY_RIGHT
+;	ld	(key),a
+;	jp	process_key_drumeditbox
+;0:
+;
+;_dm_posneg:
+;	cp	"-"
+;	jp	nz,99f
+;	ld	d,$80
+;	jp	1f
+;	
+;99:
+;	cp	"+"
+;	jp	nz,99f
+;	ld	d,0
+;	
+;1:
+;	call	get_drumsample_location
+;	inc	hl
+;	inc	hl
+;	ld	a,(hl)
+;	and	0x7f
+;	or	d
+;	ld	(hl),a
+;	call	update_drumeditbox		
+;99:	
+;	ret		
+
+;_drum_vlow:	
+;	ld	a,b
+;	; is it a number?
+;	cp	'0'	; bigger than 0 
+;	jr.	c,99f	
+;	cp	'9'+1	; smaller than 9?
+;	jr.	nc,99f
+;	sub 	'0'
+;	jr.	22f
+;99:	
+;	cp	'a'
+;	jr.	c,99f
+;	cp	'f'+1
+;	jr.	nc,99f
+;	sub	'a'-10
+;	jr.	22f
+;99:	
+;	cp	'A'
+;	jr.	c,0f
+;	cp	'F'+1
+;	jr.	nc,0f
+;	sub	'A'-10
+;;	ld	d,a
+;22:	
+;	ld	d,a	
+;	call	get_drumsample_location
+;	inc	hl
+;	inc	hl
+;	inc	hl
+;	ld	a,(hl)
+;	and	0xf0
 ;	or	d
 ;	ld	(hl),a
 ;	call	update_drumeditbox		
@@ -899,177 +1152,119 @@ _drum_note:
 ;0:
 ;	ret		
 
-_drum_fmed:	; deviation high (0x-7x)
-	ld	a,b
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,0f	
-	cp	'7'+1	; smaller than 9?
-	jr.	nc,0f
-	sub 	'0'
-
-99:	
-[4]	add	a
-	ld	d,a	
-	call	get_drumsample_location
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	0x8f
-	or	d
-	ld	(hl),a
-	call	update_drumeditbox		
-	ld	a,_KEY_RIGHT
-	ld	(key),a
-	jp	process_key_drumeditbox		
-0:
-	jp	_dm_posneg
+;_drum_vhigh:	
+;	ld	a,b
+;	; is it a number?
+;	cp	'0'	; bigger than 0 
+;	jr.	c,99f	
+;	cp	'9'+1	; smaller than 9?
+;	jr.	nc,99f
+;	sub 	'0'
+;	jr.	22f
+;99:	
+;	cp	'a'
+;	jr.	c,99f
+;	cp	'f'+1
+;	jr.	nc,99f
+;	sub	'a'-10
+;	jr.	22f
+;99:	
+;	cp	'A'
+;	jr.	c,0f
+;	cp	'F'+1
+;	jr.	nc,0f
+;	sub	'A'-10
+;;	ld	d,a
+;22:	
+;	add	a
+;	add	a
+;	add	a
+;	add	a
+;	
+;	ld	d,a	
+;	call	get_drumsample_location
+;	inc	hl
+;	inc	hl
+;	inc	hl
+;	ld	a,(hl)
+;	and	0x0f
+;	or	d
+;	ld	(hl),a
+;	jr.	update_drumeditbox		
+;0:
 ;	ret		
+;
 
-_drum_flow:	;deviation low (x0-xf)	
-	ld	a,b
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
+;=============================
+; Set the cursor at the next drum column 
+; 
+;=============================
+next_drum_column:
+	ld	hl,_COLTAB_DRUMSAMPLE
+	ld	a,(cursor_column)
+	add	a
+	add	a,l
+	ld	l,a
 	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	jr.	c,0f
-	cp	'F'+1
-	jr.	nc,0f
-	sub	'A'-10
-;	ld	d,a
-22:	
-	ld	d,a	
-	call	get_drumsample_location
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	0xf0
-	or	d
-	ld	(hl),a
-	call	update_drumeditbox		
-	ld	a,_KEY_RIGHT
-	ld	(key),a
-	jp	process_key_drumeditbox
-0:
-
-_dm_posneg:
-	cp	"-"
-	jp	nz,99f
-	ld	d,$80
-	jp	1f
-	
+	inc	h	
 99:
-	cp	"+"
-	jp	nz,99f
-	ld	d,0
+	; check if we are at the end?
+	inc	hl
+	ld	a,(hl)
+	cp	255
+	jr.	z,44f
 	
-1:
-	call	get_drumsample_location
-	inc	hl
+	; get the displacement)
+	ld	b,a
+	call	flush_cursor
+	ld	a,(cursor_x)
+	add	b
+	ld	(cursor_x),a
+	
+	;set the new input type and cursor.
 	inc	hl
 	ld	a,(hl)
-	and	0x7f
-	or	d
-	ld	(hl),a
-	call	update_drumeditbox		
+	ld	(cursor_input),a
+	and	a
+	ld	a,1
+	jr.	nz,99f
+	ld	a,3	
 99:	
-	ret		
+	ld	(cursor_type),a
+	ld	hl,cursor_column
+	inc	(hl)
+44:		
+	ret
+	
 
-_drum_vlow:	
-	ld	a,b
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
-	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	jr.	c,0f
-	cp	'F'+1
-	jr.	nc,0f
-	sub	'A'-10
-;	ld	d,a
-22:	
-	ld	d,a	
+_drum_jp_to_vol:
+	call	next_drum_column
+	ld	a,(cursor_input)
+	cp	8				; 8 or 9 is volume
+	jr.	c,_drum_jp_to_vol
+	ret
+	
+	
+	
+;===========================================================
+; --- get_drumsample_track_location:
+;
+; returns in hl the start ofthe current track in the sample line.
+; Changes: A, HL and BC
+;===========================================================
+get_drumsample_track_location:	
 	call	get_drumsample_location
 	inc	hl
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	0xf0
-	or	d
-	ld	(hl),a
-	call	update_drumeditbox		
-	ld	a,_KEY_RIGHT
-	ld	(key),a
-	jp	process_key_drumeditbox
+	ld	a,(cursor_column)		; track 1 col=5, 2 col=9, 3 col=14
+	sra	a				; track 1 col=2, 2 col=4, 3 col=7
+	and	11111110b			; track 1 col=2, 2 col=4, 3 col=6
+	sub	2				; track 1 col=0, 2 col=2, 3 col=4
+	add	a,l
+	ld	l,a
+	jp	nc,0f
+	inc	h
 0:
-	ret		
-
-_drum_vhigh:	
-	ld	a,b
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
-	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	jr.	c,0f
-	cp	'F'+1
-	jr.	nc,0f
-	sub	'A'-10
-;	ld	d,a
-22:	
-	add	a
-	add	a
-	add	a
-	add	a
-	
-	ld	d,a	
-	call	get_drumsample_location
-	inc	hl
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	0x0f
-	or	d
-	ld	(hl),a
-	jr.	update_drumeditbox		
-0:
-	ret		
-
-	
+	ret
 ;===========================================================
 ; --- get_drumsample_location:
 ;
@@ -1080,15 +1275,15 @@ get_drumsample_location:
 	;--- get the location in RAM
 	call	_get_drum_start
 	
-	inc	hl
-	inc	hl
+	inc	hl	; length
+;	inc	hl
 	
 	
 	;--- add the current line to the start of the sample
 	ld	a,(drum_line)
 	and	a
 	ret	z
-	ld	bc,4		; b is 0
+	ld	bc,7		; b is 0
 88:
 	add	hl,bc
 	dec	a
@@ -1209,48 +1404,48 @@ process_key_drumeditbox_len:
 ;
 ;
 ;===========================================================
-process_key_drumeditbox_type:
-	;get drum macro location in RAM
-	call	_get_drum_start
-	inc	hl
-	
-	ld	a,(key)
-	cp	_ENTER
-	jr.	z,44f
-	cp	_ESC
-	jr.	nz,0f
-44:		
-	call	restore_cursor
-	jr.	update_drumeditbox
-0:		
-	cp	_KEY_DOWN
-	jr.	z,44f
-	cp	_KEY_LEFT
-	jr.	nz,0f
-	;--- len down
-44:		ld	a,(hl)
-		cp	0
-		jr.	nz,33f
-		ld	a,3
-33:		dec	a
-		ld	(hl),a
-		jr.	update_drumeditbox		
-
-0:		
-	cp	_KEY_UP
-	jr.	z,44f
-	cp	_KEY_RIGHT
-	jr.	nz,0f
-	;--- sample nr up
-44:		ld	a,(hl)
-		cp	2
-		jr.	c,33f
-		ld	a,-1
-33:		inc	a
-		ld	(hl),a
-		jr.	update_drumeditbox
-
-0:	ret
+;process_key_drumeditbox_type:
+;	;get drum macro location in RAM
+;	call	_get_drum_start
+;	inc	hl
+;	
+;	ld	a,(key)
+;	cp	_ENTER
+;	jr.	z,44f
+;	cp	_ESC
+;	jr.	nz,0f
+;44:		
+;	call	restore_cursor
+;	jr.	update_drumeditbox
+;0:		
+;	cp	_KEY_DOWN
+;	jr.	z,44f
+;	cp	_KEY_LEFT
+;	jr.	nz,0f
+;	;--- len down
+;44:		ld	a,(hl)
+;		cp	0
+;		jr.	nz,33f
+;		ld	a,3
+;33:		dec	a
+;		ld	(hl),a
+;		jr.	update_drumeditbox		
+;
+;0:		
+;	cp	_KEY_UP
+;	jr.	z,44f
+;	cp	_KEY_RIGHT
+;	jr.	nz,0f
+;	;--- sample nr up
+;44:		ld	a,(hl)
+;		cp	2
+;		jr.	c,33f
+;		ld	a,-1
+;33:		inc	a
+;		ld	(hl),a
+;		jr.	update_drumeditbox
+;
+;0:	ret
 
 
 

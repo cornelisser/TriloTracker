@@ -344,7 +344,7 @@ processkey_drumeditor_normal:
 	jr.	z,process_key_drumeditbox_len		
 
 	dec	a
-	jr.	z,process_key_drumeditbox_type
+;	jr.	z,process_key_drumeditbox_type
 	
 	dec	a
 	jr.	z,process_key_drumeditbox_octave			

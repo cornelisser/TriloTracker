@@ -137,8 +137,8 @@ SCC_regVOLE  	db	0	; Chan E volume
 FM_regVOLF
 SCC_regVOLF  	db	0	; Chan E volume
 
-FM_DRUM		db	0
-FM_DRUM_Flags	db	0	; 0,1,2 = volume, 5,6,7 = freq
+FM_DRUM		db	0	; Percussion bits
+FM_DRUM_Flags	db	0	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
 FM_freqreg1		dw	0	; Base drum
 FM_volreg1		db	0	; Drum (low)
 FM_freqreg2		dw	0	; Snare + HiHat
@@ -146,12 +146,15 @@ FM_volreg2		db	0	; Snare(low) Hihat(High)
 FM_freqreg3		dw	0	; Cymbal + TomTom
 FM_volreg3		db	0	; Cymbal(low) TomTom (High)
 
-FM_DRUM1_LEN	db	0
-FM_DRUM1		dw	0	; pointer to BDrum macro
-FM_DRUM2_LEN	db	0
-FM_DRUM2		dw	0 	; pointer to SN+HHat macro
-FM_DRUM3_LEN	db	0
-FM_DRUM3		dw	0	; pointer to CYm_Tom macro
+FM_DRUM_LEN		db	0	; Length of drum macro
+FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
+
+;FM_DRUM1_LEN	db	0
+;FM_DRUM1		dw	0	; pointer to BDrum macro
+;FM_DRUM2_LEN	db	0
+;FM_DRUM2		dw	0 	; pointer to SN+HHat macro
+;FM_DRUM3_LEN	db	0
+;FM_DRUM3		dw	0	; pointer to CYm_Tom macro
 
 
 SCC_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)

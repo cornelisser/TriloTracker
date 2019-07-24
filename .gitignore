@@ -217,3 +217,5 @@ pip-log.txt
 .mr.developer.cfg
 code/elements/OLDsccwaveboxFM.asm
 old code/fmdrumeditor.asm
+
+\.vscode/settings\.json

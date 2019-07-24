@@ -11,7 +11,7 @@ SCC_VOLUME_TABLE
 	incbin "..\data\voltable_FM.bin"
 
 DRM_DEFAULT_values:
-	db	11100111b		; 0,1,2 = volume, 5,6,7 = freq
+	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
 	dw	0x0520		; Base drum
 	db	0x01			; vol
 	dw	0x0550		; Snare + HiHat
@@ -402,24 +402,25 @@ _rdd_cont:					; used for waveform updates
 ;	ld	(SCC_regMIXER),a
 88:
 	;---- Process the drum macros
-	xor	a
-	ld	(FM_DRUM_Flags),a
-
-	ld	bc,FM_DRUM1_LEN
-	ld	de,FM_freqreg1	
-	ld	hl,(FM_DRUM1)
+;	xor	a
+;	ld	(FM_DRUM_Flags),a
+;	ld	(FM_DRUM),a
 	call	replay_process_drum
-	ld	(FM_DRUM1),hl
-	ld	bc,FM_DRUM2_LEN
-	ld	de,FM_freqreg2
-	ld	hl,(FM_DRUM2)
-	call	replay_process_drum
-	ld	(FM_DRUM2),hl
-	ld	bc,FM_DRUM3_LEN
-	ld	de,FM_freqreg3
-	ld	hl,(FM_DRUM3)
-	call	replay_process_drum	
-	ld	(FM_DRUM3),hl
+;	ld	bc,FM_DRUM1_LEN
+;	ld	de,FM_freqreg1	
+;	ld	hl,(FM_DRUM1)
+;	call	replay_process_drum
+;	ld	(FM_DRUM1),hl
+;	ld	bc,FM_DRUM2_LEN
+;	ld	de,FM_freqreg2
+;	ld	hl,(FM_DRUM2)
+;	call	replay_process_drum
+;	ld	(FM_DRUM2),hl
+;	ld	bc,FM_DRUM3_LEN
+;	ld	de,FM_freqreg3
+;	ld	hl,(FM_DRUM3)
+;	call	replay_process_drum	
+;	ld	(FM_DRUM3),hl
 	
 
 	ret
@@ -559,9 +560,9 @@ ENDIF
 	ld	(FM_regVOLE),a
 	ld	(FM_regVOLF),a
 	
-	ld	(FM_DRUM1_LEN),a
-	ld	(FM_DRUM2_LEN),a
-	ld	(FM_DRUM3_LEN),a
+	ld	(FM_DRUM_LEN),a
+;	ld	(FM_DRUM2_LEN),a
+;	ld	(FM_DRUM3_LEN),a
 	
 ;call scc_reg_update
 	
@@ -635,7 +636,7 @@ ENDIF
 	ld	(FM_volreg2),a
 	ld	a,0x24
 	ld	(FM_volreg3),a
-	ld	a,00000111b
+	ld	a,11111111b
 	ld	(FM_DRUM_Flags),a	
 ;	ld	b,3
 ;	ld	c,0x36
@@ -1573,7 +1574,7 @@ _CHIPcmdC_drum:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	cp	MAX_DRUMS		;- only 32 drum macros allowed
+	cp	MAX_DRUMS		;- only 20 drum macros allowed
 	ret	nc
 
 	and	a
@@ -1591,31 +1592,21 @@ _CHIPcmdC_drum:
 	;--- Set the song page
 	call	set_songpage_safe
 	;--- location in RAM
-	ld	hl,drum_macros+1	
+	ld	hl,drum_macros	
 	ld	de,DRUMMACRO_SIZE
 88:
 	add	hl,de
 	dec	a
 	jp	nz,88b
 
-	;--- drum type
-	ld	a,(hl)
-	dec	hl
-	ld	e,a		;*3
-	add	a,a
-	add	a,e
-	ld	de,FM_DRUM1_LEN
-	add	a,e
-	ld	e,a
-	jp	nc,99f
-	inc	d
-99:
 	;--- drum len
+	ld	de,FM_DRUM_LEN
 	ld	a,(hl)
 	ld	(de),a
+	
+	;--- store pointer to macro data
+	inc	de			; now points to the macro pointer in ram
 	inc	hl
-	inc	hl
-	inc	de
 	ex	de,hl
 	ld	(hl),e
 	inc	hl
@@ -1845,95 +1836,281 @@ _CHIPcmdF_speed:
 	ret
 
 ;===========================================================
-; ---replay_route
-; Output the data	to the CHIP	registers
+; ---replay_process_drum
+; Process the current drum macro
 ; 
-; in BC is the macro step counter
-; in HL is the macro pointer
-; in de is the FM freq register
 ;===========================================================
 replay_process_drum:
+	ld	a,(FM_DRUM_LEN)
+	and	a
+	ret	z		; do nothing if end of macro is reached
+	dec	a
+	ld	(FM_DRUM_LEN),a
+
+	ld	bc,(FM_DRUM_MACRO)
+	ld	d,0
 	;--- process step
+	; drum bits
 	ld	a,(bc)
 	and	a
-	jr	nz,0f
-	ld	a,(FM_DRUM_Flags)
-	srl	a
-	ld	(FM_DRUM_Flags),a
-	ret
-0:	
-	dec	a
-	ld	(bc),a
+	jr	z,0f			; jump if no data
+	set 	5,a			; key on for percussion
+	ld	(FM_DRUM),a		; store the percusion bits
+	set	0,d
 
-	;--- set FRM FLAGs in C (and set to next drum channel)
-	ld	a,(FM_DRUM_Flags)
-	srl	a
-	ld	c,a
-	;--- apply drum mask
-	ld	b,(hl)
-	ld	a,(FM_DRUM)
-	or	b
-	ld	(FM_DRUM),a
-	inc	hl
-	
-	;--- apply tone value
-	ld	b,(hl)
-	inc	hl
-	ld	a,(hl)
-	inc	hl
-	or	b
-	jp	z,_rpd_no_tone
-	xor	b
-	set	5,c			; set tone update flag
-_rpd_no_tone:	
-	ld	(de),a
-	inc	de
-	ld	a,b
-	ld	(de),a
-	inc	de
-	
-	ld	a,(hl)
-	inc	hl
+
+0:	
+	sla	d
+	inc	bc
+	; tone Basedrum
+	ld	a,(bc)
 	and	a
-	jp	z,_rpd_no_vol
-	set	2,c			; set the volume flag
-_rpd_no_vol:
-	ld	b,a
-	ld	a,c
-	ld	(FM_DRUM_Flags),a
+	jp	z,0f			; jump if no data
+	bit	7,a
+	jp	z,0f			; no tone update
 	
-	;--- low volume
-	ld	a,b
-	and	0x0f
-	jp	z,0f
-		ld	c,a
+	
+0:
+	sla	d
+	inc	bc
+	; volume Basedrum
+	ld	a,(bc)
+	and	a
+	jp	z,0f			; jump if no data
+	set	0,d
+	
 
-		ld	a,0x0f	;- invert volume
-		sub	c
-		ld	c,a
-		
-		ld	a,(de)
-		and 0xf0
-		or	c
-		ld	(de),a
-0:	;--- high volume
-	ld	a,b
+	;--- apply main volume balance
+	ld	hl,replay_mainvol
+	CP	(HL)
+	jr.	C,88F
+	sub	(hl)
+	jr.	99f
+88:	xor	a
+99:	
+	ld	l,a
+	ld	a,0x0f
+	sub	l
+	ld	(FM_volreg1),a
+
+	
+	
+	
+0:
+	sla	d
+	inc	bc
+	; tone Snare Hhat
+	ld	a,(bc)
+	and	a
+	jp	z,0f			; jump if no data
+	
+	
+	
+0:
+	sla	d
+	inc	bc
+	; volume snare Hhat
+	ld	a,(bc)
+	and	a
+	jp	z,0f			; jump if no data
+	set	0,d
+
+	;high vol
 	and	0xf0
-	jp	z,0f
-		ld	c,a
-		
-		ld	a,0xf0	;- invert volume
-		sub	c
-		ld	c,a
-		
-		ld	a,(de)
-		and 0x0f
-		or	c
-		ld	(de),a	
+	jp	z,1f			; no high update
+	
+[4]	srl	a			; move high to low
+	;--- apply main volume balance
+	ld	hl,replay_mainvol
+	CP	(HL)
+	jr.	C,88F
+	sub	(hl)
+	jr.	99f
 
-0:	
+88:	xor	a
+99:	
+	ld	l,a
+	ld	a,(FM_volreg2)
+	and	0x0f
+	ld	h,a
+	ld	a,0x0f
+	sub	l
+[4]	sla	a
+	or	h
+	ld	(FM_volreg2),a
+
+1:	;- low vol	
+	ld	a,(bc)
+	and	0x0f
+	jp	z,0f			; no low update
+
+	;--- apply main volume balance
+	ld	hl,replay_mainvol
+	CP	(HL)
+	jr.	C,88F
+	sub	(hl)
+	jr.	99f
+
+88:	xor	a
+99:	
+	ld	l,a
+	ld	a,(FM_volreg2)
+	and	0xf0
+	ld	h,a
+	ld	a,0x0f
+	sub	l
+	or	h
+	ld	(FM_volreg2),a
+	
+0:
+	sla	d
+	inc	bc
+	; tone Cy Tom
+	ld	a,(bc)
+	and	a
+	jp	z,0f			; jump if no data
+	
+	
+	
+0:
+	sla	d
+	inc	bc
+	; volume Cy Tom
+	ld	a,(bc)
+	and	a
+	jp	z,0f			; jump if no data
+	set	0,d
+	;high vol
+	and	0xf0
+	jp	z,1f			; no high update
+	
+[4]	srl	a			; move high to low
+	;--- apply main volume balance
+	ld	hl,replay_mainvol
+	CP	(HL)
+	jr.	C,88F
+	sub	(hl)
+	jr.	99f
+
+88:	xor	a
+99:	
+	ld	l,a
+	ld	a,(FM_volreg3)
+	and	0x0f
+	ld	h,a
+	ld	a,0x0f
+	sub	l
+[4]	sla	a
+	or	h
+	ld	(FM_volreg3),a	
+
+
+1:	;- low vol	
+	ld	a,(bc)
+	and	0x0f
+	jp	z,0f			; no low update
+
+	;--- apply main volume balance
+	ld	hl,replay_mainvol
+	CP	(HL)
+	jr.	C,88F
+	sub	(hl)
+	jr.	99f
+
+88:	xor	a
+99:	
+	ld	l,a
+	ld	a,(FM_volreg3)
+	and	0xf0
+	ld	h,a
+	ld	a,0x0f
+	sub	l
+	or	h
+	ld	(FM_volreg3),a
+	
+0:
+	sla	d
+	inc	bc
+	ld	hl,FM_DRUM_MACRO
+	ld	(hl),c
+	inc	hl
+	ld	(hl),b
+	
+
+	ld	a,d
+	ld	(FM_DRUM_Flags),a
 	ret
-	;end
+
+
+;	;--- set FRM FLAGs in C (and set to next drum channel)
+;	ld	a,(FM_DRUM_Flags)
+;	srl	a
+;	ld	c,a
+;	;--- apply drum mask
+;	ld	b,(hl)
+;	ld	a,(FM_DRUM)
+;	or	b
+;	ld	(FM_DRUM),a
+;	inc	hl
+;	
+;	;--- apply tone value
+;	ld	b,(hl)
+;	inc	hl
+;	ld	a,(hl)
+;	inc	hl
+;	or	b
+;	jp	z,_rpd_no_tone
+;	xor	b
+;	set	5,c			; set tone update flag
+;_rpd_no_tone:	
+;	ld	(de),a
+;	inc	de
+;	ld	a,b
+;	ld	(de),a
+;	inc	de
+;	
+;	ld	a,(hl)
+;	inc	hl
+;	and	a
+;	jp	z,_rpd_no_vol
+;	set	2,c			; set the volume flag
+;_rpd_no_vol:
+;	ld	b,a
+;	ld	a,c
+;	ld	(FM_DRUM_Flags),a
+;	
+;	;--- low volume
+;	ld	a,b
+;	and	0x0f
+;	jp	z,0f
+;		ld	c,a
+;
+;		ld	a,0x0f	;- invert volume
+;		sub	c
+;		ld	c,a
+;		
+;		ld	a,(de)
+;		and 0xf0
+;		or	c
+;		ld	(de),a
+;0:	;--- high volume
+;	ld	a,b
+;	and	0xf0
+;	jp	z,0f
+;		ld	c,a
+;		
+;		ld	a,0xf0	;- invert volume
+;		sub	c
+;		ld	c,a
+;		
+;		ld	a,(de)
+;		and 0x0f
+;		or	c
+;		ld	(de),a	
+;
+;0:	
+;	ret
+;	;end
 	
 	
 	
@@ -3566,110 +3743,199 @@ _tt_route_fmtone:
 	djnz	_tt_route_fmtone
 
 
-;--- FM DRUM VOL
-	ld	a,(FM_DRUM_Flags)
-	ld	d,a			; 4 cycles
-	ld	c,$36			; 7 cycles
-	ld	b,3			; 7 cycles
-	ld	hl,FM_volreg1
-_drmvolloop:
-	srl	d
-	jr.	nc,0f
-	;-- load the new values
-	ld	a,c
-	out	(FM_WRITE),a
-	ld	a,(hl)		; 7 cycles
-	
-	out	(FM_DATA),a
-0:	inc	hl
-	inc	hl
-	inc	hl
-	inc	c
-	djnz	_drmvolloop	
 
-
-;--- FM DRUM FREQ
-	ld	c,$16
-	ld	e,$26
-	ld	b,3
-	ld	hl,FM_freqreg1
-_drmfreqloop:
-	srl	d
-	jr.	nc,0f
-	;-- load the new values
-	ld	a,c
-	out	(FM_WRITE),a
-	ld	a,(hl)		; 7 cycles
-	out	(FM_DATA),a
-	ld	a,e
-	inc	hl			; 6 cycles
-	
-	;--- delay to have at least 84 cycles
-	push	ix
-	pop	ix
-	push 	ix
-	pop 	ix
-	
-		
-	out	(FM_WRITE),a
-	ld	a,(hl)		; 7 cycles
-
-	out	(FM_DATA),a
-	dec	hl			; 6 cycles
-	nop
-0:
-	inc	hl
-	inc	hl
-	inc	hl
-	inc	c
-	inc	e
-	djnz	_drmfreqloop	
-
-	xor	a
-	ld	(FM_DRUM_Flags),a
-
-
-;--- FM DRUMS
+_debug:
+	;-----------------
+	; Update drum registers
+	;-----------------
 	ld	a,(DrumMixer)
 	and	a
-	jp	z,99f		; skip drums if disabled
+	ret	z	; skip drums if disabled
 
-	ld	a,(FM_DRUM)
-	and	a
-	jr.	z,99f
-	; enable new drum
-	ex	af,af'		;'
-	ld	a,0x0e
-	out	(FM_WRITE),a
-	ld	a,0			; 7 cycles
-	ld	(FM_DRUM),a		; 13 cycles
-	ld	a,10000b
-;	ld	hl,_drumset-1
-	out	(FM_DATA),a
-	
-	;--- delay to have at least 84 cycles
-	push	ix
-	pop	ix
-	push 	ix
-	pop 	ix	
-	
-	
-;	ex	af,af'		;'
-;	add	a,l
-;	ld	l,a
-;	jr.	nc,11f
-;	inc	h
-;11:
-;	ld	a,(hl)
 
-;	ex	af,af'	;'
-	ld	a,0x0e
+
+
+
+	ld	a,(FM_DRUM_Flags)
+	ld	d,a		
+
+	;-- Percusion bits
+	rl	d
+	jp	nc,0f
+	
+	
+	; quick fix write key off for percussion
+;	ld	c,0x0e
+;	;-- load the new values
+;	ld	a,c
+;	out	(FM_WRITE),a
+
+	
+	
+	
+	
+	
+	
+	ld	c,0x0e
+	;-- load the new values
+	ld	a,c
 	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles	'
-	or	100000b
+	
+	ld	a,(FM_DRUM)		; 7 cycles
+	and	011111b		; erase bit 5 to enable retrigger drum
+	out	(FM_DATA),a		
+	
+	
+	ld	a,(FM_DRUM)		; 7 cycles
+	or	100000b		; write bit 5 to enable drum
 	out	(FM_DATA),a
-99:
+		
+0:
+	;--- Tone and vol registers
+	ld	c,0x16
+	ld	b,3
+	ld	hl,FM_freqreg1
+_rfmd_loop:
+	rl	d
+;	jp	nc,0f
+	ld	a,c
+	;-- write tone
+	out	(FM_WRITE),a
+	ld	a,(hl)
+	inc	hl
+	out 	(FM_DATA),a
+	ld	a,0x10
+	add	c
+	out	(FM_WRITE),a
+	ld	a,(hl)
+	inc	hl
+	out 	(FM_DATA),a
+0:
+	rl	d
+;	jp	nc,0f
+	ld	a,0x20
+	add	c
+	;-- write volumes
+	out	(FM_WRITE),a
+	ld	a,(hl)
+	inc	hl
+	out 	(FM_DATA),a
+0:
+	;loop 3 times
+	inc	c
+	djnz	_rfmd_loop
+	
+	xor	a
+	ld	(FM_DRUM_Flags),a
+	
 	ret
+
+
+;;--- FM DRUM VOL
+;	ld	a,(FM_DRUM_Flags)
+;	ld	d,a			; 4 cycles
+;	
+;	ld	c,$36			; 7 cycles
+;	ld	b,3			; 7 cycles
+;	ld	hl,FM_volreg1
+;_drmvolloop:
+;	srl	d
+;	jr.	nc,0f
+;	;-- load the new values
+;	ld	a,c
+;	out	(FM_WRITE),a
+;	ld	a,(hl)		; 7 cycles
+;	
+;	out	(FM_DATA),a
+;0:	inc	hl
+;	inc	hl
+;	inc	hl
+;	inc	c
+;	djnz	_drmvolloop	
+;
+;
+;;--- FM DRUM FREQ
+;	ld	c,$16
+;	ld	e,$26
+;	ld	b,3
+;	ld	hl,FM_freqreg1
+;_drmfreqloop:
+;	srl	d
+;	jr.	nc,0f
+;	;-- load the new values
+;	ld	a,c
+;	out	(FM_WRITE),a
+;	ld	a,(hl)		; 7 cycles
+;	out	(FM_DATA),a
+;	ld	a,e
+;	inc	hl			; 6 cycles
+;	
+;	;--- delay to have at least 84 cycles
+;	push	ix
+;	pop	ix
+;	push 	ix
+;	pop 	ix
+;	
+;		
+;	out	(FM_WRITE),a
+;	ld	a,(hl)		; 7 cycles
+;
+;	out	(FM_DATA),a
+;	dec	hl			; 6 cycles
+;	nop
+;0:
+;	inc	hl
+;	inc	hl
+;	inc	hl
+;	inc	c
+;	inc	e
+;	djnz	_drmfreqloop	
+;
+;	xor	a
+;	ld	(FM_DRUM_Flags),a
+;
+;
+;;--- FM DRUMS
+;	ld	a,(DrumMixer)
+;	and	a
+;	jp	z,99f		; skip drums if disabled
+;
+;	ld	a,(FM_DRUM)
+;	and	a
+;	jr.	z,99f
+;	; enable new drum
+;	ex	af,af'		;'
+;	ld	a,0x0e
+;	out	(FM_WRITE),a
+;	ld	a,0			; 7 cycles
+;	ld	(FM_DRUM),a		; 13 cycles
+;	ld	a,10000b
+;;	ld	hl,_drumset-1
+;	out	(FM_DATA),a
+;	
+;	;--- delay to have at least 84 cycles
+;	push	ix
+;	pop	ix
+;	push 	ix
+;	pop 	ix	
+;	
+;	
+;;	ex	af,af'		;'
+;;	add	a,l
+;;	ld	l,a
+;;	jr.	nc,11f
+;;	inc	h
+;;11:
+;;	ld	a,(hl)
+;
+;;	ex	af,af'	;'
+;	ld	a,0x0e
+;	out	(FM_WRITE),a
+;	ex	af,af'		; 4 cycles	'
+;	or	100000b
+;	out	(FM_DATA),a
+;99:
+;	ret
 
 
 load_softwarevoice:

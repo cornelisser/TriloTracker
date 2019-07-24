@@ -128,6 +128,20 @@ _LABEL_PATTERNHEADER:
 	
 	
 SWAP_ELEMENTSTART:
+	; temporary start up code and data!!! Will be over written after init
+
+font_data:
+	incbin  ".\data\fontpat.bin"
+	include ".\code\startup.asm"
+	include ".\code\loadvoicenamesFM.asm"
+	include ".\code\elements\keynotetable.asm"
+
+
+
+
+
+
+
 	; --- PAGE 1
 	;
 	; Main code (can be swapped)
@@ -162,17 +176,9 @@ SWAP_ELEMENTSTART:
 	;
 	; --------------------------------------------------	
 ;	page 2
-	; temporary start up code and data!!! Will be over written after init
-
-font_data:
-	incbin  ".\data\fontpat.bin"
-	include ".\code\startup.asm"
-	include ".\code\loadvoicenamesFM.asm"
-	include ".\code\elements\keynotetable.asm"
-
+		
 _VOICES_data:
-	include ".\code\Voices_Light.asm"			
-
+	include ".\code\Voices_Light.asm"	
 	
 ;	include ".\code\startup.asm"
 ;	include ".\code\loadvoicenamesFM.asm"

@@ -272,6 +272,9 @@ _dir_loop:
 	and	a
 	jr.	nz,_dir_noentry	; mothing found
 	
+	;CHECK FOR '.' (Current dir) entry.
+	
+	
 	pop	bc
 
 	;--- increase file count
@@ -297,18 +300,30 @@ _dir_store_name:
 		ld	a,(disk_dir_stat)
 		and	a	; if stat = 0 then only dirs
 		jr.	z,99f	
+		
 		;- don't store the dir
 		dec	b
 		push	bc
 		jr.	4f
-99:		;-store the dir	
+99:		
+		; do not list '.' dirs
+debug:	ld	a,(disk_fib+1)
+		cp	'.'
+		jp	nz,33f
+		ld	a,(disk_fib+2)
+		and 	a
+		jp	nz,33f
+		jr.  	77f
+		
+		
+33:		;-store the dir	
 		ld	a,">"
 		jr.	10f
 0:	; --- check if we may store the filenames
 		ld	a,(disk_dir_stat)
 		and	a	; if stat = 0 then only dirs
 		jr.	nz,99f	
-		;- don't store the dir
+77:		;- don't store the dir
 		dec	b
 		push	bc
 		jr.	4f
@@ -328,6 +343,7 @@ _dir_store_name:
 	ex	de,hl
 	ldir
 
+_dir_next:
 	;--- get next entry
 4:	ld	c,_FNEXT
 	call	DOS

@@ -1,10 +1,8 @@
-_EOF:         equ     0xC7
-
 ERROR_FILE		equ	0xc8	;File allocation error
 ERROR_FILEX		equ	0xcb	;File already exists
 ERROR_DIRX		equ	0xcc	;Directory name exists
 ERROR_SYSX		equ	0xcb	;System
-
+_EOF:         equ     0xC7
 
 
 ; disk vars
@@ -816,7 +814,7 @@ _create_tmu_continue:
 
 	
 	;--- Write header
-	ld	a,6
+	ld	a,8				; Increased to 8 for new FM drum macro version 
 	or	CHIPSET_CODE
 	ld	(song_version),a
 	
@@ -916,35 +914,35 @@ _save_tmufile_customvoices:
 	ld	de,_VOICES+((192-16)*8)
 	ld	hl,8*16
 	call	write_file
-	jr.	nz,catch_diskerror	
+	jr.	nz,catch_diskerror
+
+		
 _save_tmufile_drumnames:
-	;--- write drum names.
+	;--- write drum names.	
 	ld	de,song_drum_list
-	ld	hl,31*16
+	ld	hl,MAX_DRUMS*16
 	call	write_file
 	call	nz,catch_diskerror
 
 	;--- Write the drum data
-	ld	de,drum_macros+((4*16)+2)	; sample 0 is always empty.	
-	ld	b,31				; 32 samples to write.	
+	ld	de,drum_macros+(DRUMMACRO_SIZE)	; sample 0 is always empty.	
+	ld	b,MAX_DRUMS	-1				; 20-1 samples to write.	
 _stmu_drumloop:
 	push	bc
 	push	de
-	ld	hl,2
+	ld  	hl,1
 	call	write_file
 	call	nz,catch_diskerror
 	
 	dec	de
-	dec	de
-	ld	a,(de)			; get the sample length	
-	inc	de
+	ld	a,(de)				; get the sample length	
 	inc	de
 	ld	b,a
 	xor	a
 
 
-_stmu_drumsub:				; calculate the number of bytes
-	add	a,4				; 4 bytes per line
+_stmu_drumsub:					; calculate the number of bytes
+	add	a,7					; 7 bytes per line
 	djnz	_stmu_drumsub
 		
 	ld	h,0
@@ -953,16 +951,11 @@ _stmu_drumsub:				; calculate the number of bytes
 	call	nz,catch_diskerror
 	
 	pop	hl
-	ld	de,(16*4)+2
+	ld	de,DRUMMACRO_SIZE
 	add	hl,de
 	ex	de,hl	
 	pop	bc
 	djnz	_stmu_drumloop
-
-
-
-
-	
 ENDIF
 	
 	xor	a
@@ -1909,18 +1902,31 @@ _open_tmufile_customvoices:
 	call	read_file
 	jr.	nz,catch_diskerror
 
+	ld	a,(song_version)
+	and 	0x0f
+	cp 	8
+	jp	nc,_open_tmufile_drumnames_NEW
+
+; Old Drummacro version.
+; Brute conversions to new format  
 _open_tmufile_drumnames:	
- 	;--- load drum names.
+ 	;--- load <MAX_DRUM> drum names.
 	ld	de,song_drum_list
-	ld	hl,31*16
-	
+	ld	hl,MAX_DRUMS*16
 	call	read_file	
 	jr.	nz,catch_diskerror
+	
+ 	;--- Skip remaining drum names.
+	ld	de,drum_buffer
+	ld	hl,(31-MAX_DRUMS)*16
+	call	read_file	
+	jr.	nz,catch_diskerror	
+	
 
 _open_tmufile_drummacros:	
 	;--- Read the sample data
-	ld	de,drum_macros+((4*16)+2)	; sample 0 is always empty.	
-	ld	b,31			; 32 samples to read.	
+	ld	de,drum_macros+(DRUMMACRO_SIZE)	; sample 0 is always empty.	
+	ld	b,MAX_DRUMS-1				; 20-1 samples to read.	
 _otmu_drumloop:
 	push	bc
 	push	de
@@ -1931,13 +1937,12 @@ _otmu_drumloop:
 	dec	de
 	dec	de
 	ld	a,(de)			; get the sample length	
-	inc	de
-	inc	de
+	inc	de				; skip to the type (not needed anymore)
 	ld	b,a
 	xor	a
 
 _otmu_drumsub:				; calculate the number of bytes
-	add	a,4			; 4 bytes per line
+	add	a,4				; 4 bytes per line
 	djnz	_otmu_drumsub
 
 	ld	h,0
@@ -1946,13 +1951,92 @@ _otmu_drumsub:				; calculate the number of bytes
 	jr.	nz,catch_diskerror	
 	
 	pop	hl
-	ld	de,(16*4)+2
+	ld	de,DRUMMACRO_SIZE
 	add	hl,de
 	ex	de,hl	
 	pop	bc
 	djnz	_otmu_drumloop
 
+; Skip all remaining drum macro's		
+	ld	b,31-(MAX_DRUMS-1)	; 31-19 samples to read.
+	ld	de,drum_buffer		; write to temp buffer
+_otmu_drumloop_SKIP:
+	push	bc
+	push	de
+	ld	hl,2
+	call	read_file
+	jr.	nz,catch_diskerror			
+	
+	dec	de
+	dec	de
+	ld	a,(de)			; get the sample length	
+	inc	de				; skip to the type (not needed anymore)
+	ld	b,a
+	xor	a
 
+_otmu_drumsub_SKIP:				; calculate the number of bytes
+	add	a,4				; 4 bytes per line
+	djnz	_otmu_drumsub_SKIP
+
+	ld	h,0
+	ld	l,a
+	call	read_file
+	jr.	nz,catch_diskerror	
+	
+	pop	hl
+	ld	de,drum_buffer
+	ex	de,hl	
+	pop	bc
+	djnz	_otmu_drumloop_SKIP
+		
+	
+	
+	
+	jr.	_otmu_drum_END
+	
+; NEW Drum macro format loading.
+_open_tmufile_drumnames_NEW:	
+ 	;--- load drum names.
+	ld	de,song_drum_list
+	ld	hl,MAX_DRUMS*16
+	
+	call	read_file	
+	jr.	nz,catch_diskerror
+
+_open_tmufile_drummacros_NEW:	
+	;--- Read the sample data
+	ld	de,drum_macros+(DRUMMACRO_SIZE)	; sample 0 is always empty.	
+	ld	b,MAX_DRUMS-1				; 20-1 samples to read.	
+_otmu_drumloop_NEW:
+	push	bc
+	push	de
+	ld	hl,1
+	call	read_file
+	jr.	nz,catch_diskerror			
+	
+	dec	de
+	ld	a,(de)				; get the sample length	
+	inc	de
+	ld	b,a
+	xor	a
+
+_otmu_drumsub_NEW:				; calculate the number of bytes
+	add	a,7					; 7 bytes per line
+	djnz	_otmu_drumsub_NEW
+
+	ld	h,0
+	ld	l,a
+	call	read_file
+	jr.	nz,catch_diskerror	
+	
+	pop	hl
+	ld	de,DRUMMACRO_SIZE
+	add	hl,de
+	ex	de,hl	
+	pop	bc
+	djnz	_otmu_drumloop_NEW
+	
+_otmu_drum_END:
 ENDIF	
 
 

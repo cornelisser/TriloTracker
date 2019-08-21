@@ -101,6 +101,7 @@ waveform_datasize	#1	;# of waveforms (16,32,48 or 64 waveforms)
 ; --- edit modes
 editmode:		#1	; 0=pattern,1=psg samp,2= ornaments, 3=scc samples, 4=scc waves, 5=file load, 6=file save
 editsubmode:	#1	; specific areas in the edit modes.
+_pkv_mod_total_COL	#1
 
 ;--- cursor
 cursor_type:	#1	; large or small cursor

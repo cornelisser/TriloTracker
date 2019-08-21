@@ -725,28 +725,7 @@ _pkv_car_wav:
 	jp	update_sccwave
 	
 _pkv_mod_mlev:
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
-	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	ret	c
-	cp	'F'+1
-	ret	nc
-	sub	'A'-10
-22:
+	call	_pkv_input_4bitvalue
 	ld	d,a
 
 	ld	a,(instrument_waveform)	
@@ -758,28 +737,7 @@ _pkv_mod_mlev:
 	jp	update_sccwave	
 	
 _pkv_car_mlev:
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
-	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	ret	c
-	cp	'F'+1
-	ret	nc
-	sub	'A'-10
-22:
+	call	_pkv_input_4bitvalue
 	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -804,9 +762,9 @@ _pkv_mod_klev:
 	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
+	inc	hl
+	inc	hl
 	ld	a,(hl)
-	inc	hl
-	inc	hl
 	and	00111111b
 	or	d
 	ld	(hl),a
@@ -826,28 +784,281 @@ _pkv_car_klev:
 	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
 	ld	a,(hl)
-	inc	hl
-	inc	hl
-	inc	hl
 	and	00111111b
 	or	d
 	ld	(hl),a
 	jp	update_sccwave
 	
-_pkv_mod_total;
+	
+
+_pkv_mod_total:
+	ld	a,(_pkv_mod_total_COL)
+	and	a
+	jp	nz,_pkv_mod_total2
+_pkv_mod_total1:	
+
+	ld	a,(key)
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	ret	c	
+	cp	'3'+1	; smaller than 3?
+	ret	nc
+	sub 	'0'
+	
+	rrc	a
+	rrc	a
+	rrc	a
+	rrc	a
+	
+	ld	d,a
+	ld	a,(instrument_waveform)
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	11001111b
+	or	d
+	ld	(hl),a
+		
+	ld	a,1
+	ld	(_pkv_mod_total_COL),a
+	jp	update_sccwave	
+
+	
+	
+_pkv_mod_total2:	
+	call	_pkv_input_4bitvalue
+	ld	d,a
+	ld	a,(instrument_waveform)
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	11110000b
+	or	d
+	ld	(hl),a
+		
+	xor 	a
+	ld	(_pkv_mod_total_COL),a
+	jp	update_sccwave	
+	
+
+
 _pkv_mod_feed:
+	ld	a,(key)
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	ret	c	
+	cp	'7'+1	; smaller than 7?
+	ret	nc
+	sub 	'0'
+
+	ld	d,a
+	ld	a,(instrument_waveform)
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	11000000b
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_mod_attack:
+	call	_pkv_input_4bitvalue
+	rrc	a
+	rrc	a
+	rrc	a
+	rrc	a
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	ld	a,(hl)
+	and	$0f
+	or	d
+	ld	(hl),a
+	jp	update_sccwave	
+
+
+
 _pkv_car_attack:
+	call	_pkv_input_4bitvalue
+	rrc	a
+	rrc	a
+	rrc	a
+	rrc	a
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	ld	a,(hl)
+	and	$0f
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_mod_decay:
+	call	_pkv_input_4bitvalue
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	ld	a,(hl)
+	and	$f0
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_car_decay:
+	call	_pkv_input_4bitvalue
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	ld	a,(hl)
+	and	$f0
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_mod_sustain:
+	call	_pkv_input_4bitvalue
+	rrc	a
+	rrc	a
+	rrc	a
+	rrc	a
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	$0f
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_car_sustain:
+	call	_pkv_input_4bitvalue
+	rrc	a
+	rrc	a
+	rrc	a
+	rrc	a
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	$0f
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_mod_release:
+	call	_pkv_input_4bitvalue
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	$f0
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_car_release:
+	call	_pkv_input_4bitvalue
+	ld	d,a
+
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	$f0
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
 _pkv_none:
 	ret
 
+; sub routine to get a 0-f hex value
+_pkv_input_4bitvalue:
+	ld	a,(key)
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	ret	c
+	cp	'F'+1
+	jp	44f
+	sub	'A'-10
+22:
+	ret
+
+44:	; Retur trick to stop processing in calling code
+	pop	af
+	ret
 
 
 get_voice_location:
@@ -892,6 +1103,10 @@ _svc_car:
 	ld	a,13
 	add	b
 	ld	(cursor_y),a
+	
+	xor 	a			; just a hack to set cusro to first digit on Total level value
+	ld	(_pkv_mod_total_COL),a	
+	
 	ret
 	
 	

@@ -120,7 +120,7 @@ draw_drumeditbox:
 	pop	af
 	inc	a
 	cp	16
-	jp	nz,99f
+	jr.	nz,99f
 	;--- next column
 	ld	hl,(80*9)+40+20-1	
 99:
@@ -128,7 +128,7 @@ draw_drumeditbox:
 	ld	bc,80
 	add	hl,bc
 	cp	MAX_DRUMS
-	jp	nz,0b
+	jr.	nz,0b
 		
 	ret
 	
@@ -235,41 +235,41 @@ _udm_lineloop:
 	;--- Draw percussion bits.
 	ex	de,hl
 	bit	4,b				;- Basedrum bit
-	jp	z,99f
+	jr.	z,99f
 	ld	(hl),"B"
-	jp	88f
+	jr.	88f
 99:	
 	ld	(hl),"."
 88:
 	inc	hl
 	bit	3,b				;- Snare bit
-	jp	z,99f
+	jr.	z,99f
 	ld	(hl),"S"
-	jp	88f
+	jr.	88f
 99:	
 	ld	(hl),"."
 88:
 	inc	hl	
 	bit	2,b				;- TomTom
-	jp	z,99f
+	jr.	z,99f
 	ld	(hl),"T"
-	jp	88f
+	jr.	88f
 99:	
 	ld	(hl),"."
 88:
 	inc	hl	
 	bit	1,b				;- Cymbal
-	jp	z,99f
+	jr.	z,99f
 	ld	(hl),"C"
-	jp	88f
+	jr.	88f
 99:	
 	ld	(hl),"."
 88:
 	inc	hl	
 	bit	0,b				;- HiHat
-	jp	z,99f
+	jr.	z,99f
 	ld	(hl),"H"
-	jp	88f
+	jr.	88f
 99:	
 	ld	(hl),"."
 88:
@@ -357,11 +357,11 @@ _dml_update_pair:
 	ld	a,(hl)
 	inc	hl
 	and	a
-	jp	z,_dml_empty
+	jr.	z,_dml_empty
 	bit 	7,a
-	jp	z,_dml_note
+	jr.	z,_dml_note
 	cp	192
-	jp	c,_dml_up
+	jr.	c,_dml_up
 _dml_down:
 	ld	b,a
 	ld	a,'-'
@@ -379,7 +379,7 @@ _dml_up:
 	and	00111111b
 	call	draw_hex2			; draw hex line number	
 	inc	de
-	jp	1f
+	jr.	1f
 
 	
 _dml_empty:
@@ -392,7 +392,7 @@ _dml_empty:
 	ld	(de),a
 	inc	de
 	inc	de
-	jp	1f
+	jr.	1f
 	
 
 _dml_note:
@@ -423,11 +423,11 @@ _dml_note:
 	
 	ld	a,0xf0
 	and	b
-	jp	nz,2f
+	jr.	nz,2f
 	ld	a,'.'
 	ld	(de),a
 	inc	de
-	jp	0f
+	jr.	0f
 2:
 	sra	a
 	sra	a
@@ -439,11 +439,11 @@ _dml_note:
 	; volume low
 	ld	a,0x0f
 	and	b
-	jp	nz,2f
+	jr.	nz,2f
 	ld	a,'.'
 	ld	(de),a
 	inc	de
-	jp	0f
+	jr.	0f
 2:	
 	call	draw_hex			; draw hex line number		
 0:	
@@ -469,14 +469,14 @@ _udn_loop:
 	pop	af
 	pop	hl
 	cp	MAX_DRUMS-14	; check if we are at macro 16
-	jp	nz,99f
+	jr.	nz,99f
 	;--- next column
 	ld	hl,(80*10)+40+22-80
 99:	;--- next line
 	ld	bc,80
 	add	hl,bc
 	dec	a
-	jp	nz,_udn_loop
+	jr.	nz,_udn_loop
 	
 	ret
 	
@@ -646,7 +646,7 @@ process_key_drumeditbox:
 	ld	b,a
 	ld	a,(cursor_input)
 	cp	5
-	jp	c,_drum_bits
+	jr.	c,_drum_bits
 	sub	5
 	and	a
 	jr.	z,_drum_note_deviation
@@ -723,41 +723,41 @@ _drum_bits:
 
 0:	
 	cp	"b"
-	jp	z,99f
+	jr.	z,99f
 	cp	"B"
-	jp	nz,0f
+	jr.	nz,0f
 	;--- basedrum
 99:	ld	d,10000b
-	jp	_db_update
+	jr.	_db_update
 0:
 	cp	"s"
-	jp	z,99f
+	jr.	z,99f
 	cp	"S"
-	jp	nz,0f
+	jr.	nz,0f
 	;--- snare
 99:	ld	d,1000b
-	jp	_db_update
+	jr.	_db_update
 0:
 	cp	"t"
-	jp	z,99f
+	jr.	z,99f
 	cp	"T"
-	jp	nz,0f
+	jr.	nz,0f
 	;--- tomtom
 99:	ld	d,100b
-	jp	_db_update
+	jr.	_db_update
 0:
 	cp	"c"
-	jp	z,99f
+	jr.	z,99f
 	cp	"C"
-	jp	nz,0f
+	jr.	nz,0f
 	;--- cymbal
 99:	ld	d,10b
-	jp	_db_update
+	jr.	_db_update
 0:
 	cp	"H"
-	jp	z,99f
+	jr.	z,99f
 	cp	"h"
-	jp	nz,0f
+	jr.	nz,0f
 	;--- hihat
 99:	ld	d,1b
 _db_update:
@@ -772,7 +772,7 @@ _db_update:
 _drum_note_deviation:	
 	ld	a,b
 	cp	_DEL
-	jp	nz,1f
+	jr.	nz,1f
 	call	get_drumsample_track_location
 	ld	(hl),0
 	jr.	update_drumeditbox
@@ -804,7 +804,7 @@ _drum_note_deviation:
 _drum_note_deviationhigh:
 	ld	a,b
 	cp	_DEL
-	jp	nz,1f
+	jr.	nz,1f
 	call	get_drumsample_track_location
 	ld	(hl),0
 	jr.	update_drumeditbox
@@ -830,7 +830,7 @@ _drum_note_deviationlow:
 	;deviation low (x0-xf)	
 	ld	a,b
 	cp	_DEL
-	jp	nz,1f
+	jr.	nz,1f
 	call	get_drumsample_track_location
 	ld	(hl),0
 	jr.	update_drumeditbox
@@ -871,7 +871,7 @@ _drum_vhigh:
 	;deviation low (x0-xf)	
 	ld	a,b
 	cp	_DEL
-	jp	nz,1f
+	jr.	nz,1f
 	call	get_drumsample_track_location
 	dec	hl
 	ld	a,(hl)
@@ -916,7 +916,7 @@ _drum_vlow:
 	;deviation low (x0-xf)	
 	ld	a,b
 	cp	_DEL
-	jp	nz,1f
+	jr.	nz,1f
 	call	get_drumsample_track_location
 	dec	hl
 	ld	a,(hl)
@@ -973,7 +973,7 @@ _drum_note:
 	cp	48			
 	jr.	nc,0f
 	cp	$16	; -R-
-	jp	z,0f
+	jr.	z,0f
 	
 	;--- Get the note value of the key pressed
 	ld	hl,_KEY_NOTE_TABLE
@@ -1017,7 +1017,7 @@ _drum_note:
 ;	and	0x01
 ;	or	d
 	ld	(hl),d
-	call	_drum_jp_to_vol			; set cursor at (first) volume entry
+	call	_drum_jr._to_vol			; set cursor at (first) volume entry
 	jr.	update_drumeditbox		
 
 0:
@@ -1046,9 +1046,9 @@ _drum_note:
 ;	call	update_drumeditbox		
 ;	ld	a,_KEY_RIGHT
 ;	ld	(key),a
-;	jp	process_key_drumeditbox		
+;	jr.	process_key_drumeditbox		
 ;0:
-;	jp	_dm_posneg
+;	jr.	_dm_posneg
 ;;	ret		
 
 ;_drum_flow:	;deviation low (x0-xf)	
@@ -1086,18 +1086,18 @@ _drum_note:
 ;	call	update_drumeditbox		
 ;	ld	a,_KEY_RIGHT
 ;	ld	(key),a
-;	jp	process_key_drumeditbox
+;	jr.	process_key_drumeditbox
 ;0:
 ;
 ;_dm_posneg:
 ;	cp	"-"
-;	jp	nz,99f
+;	jr.	nz,99f
 ;	ld	d,$80
-;	jp	1f
+;	jr.	1f
 ;	
 ;99:
 ;	cp	"+"
-;	jp	nz,99f
+;	jr.	nz,99f
 ;	ld	d,0
 ;	
 ;1:
@@ -1148,7 +1148,7 @@ _drum_note:
 ;	call	update_drumeditbox		
 ;	ld	a,_KEY_RIGHT
 ;	ld	(key),a
-;	jp	process_key_drumeditbox
+;	jr.	process_key_drumeditbox
 ;0:
 ;	ret		
 
@@ -1237,11 +1237,11 @@ next_drum_column:
 	ret
 	
 
-_drum_jp_to_vol:
+_drum_jr._to_vol:
 	call	next_drum_column
 	ld	a,(cursor_input)
 	cp	8				; 8 or 9 is volume
-	jr.	c,_drum_jp_to_vol
+	jr.	c,_drum_jr._to_vol
 	ret
 	
 	
@@ -1261,7 +1261,7 @@ get_drumsample_track_location:
 	sub	2				; track 1 col=0, 2 col=2, 3 col=4
 	add	a,l
 	ld	l,a
-	jp	nc,0f
+	jr.	nc,0f
 	inc	h
 0:
 	ret

@@ -90,7 +90,7 @@ draw_psgsamplebox:
 	ld	bc,80
 	add	hl,bc
 	dec	ixh
-	jp	nz,66b
+	jr.	nz,66b
 	
 				
 	; instrument edit box
@@ -407,7 +407,7 @@ _ups_lineloop:
 
 	ld	a,(_PSG_SAMPLESTRING+5)
 	cp	_NOISE_ON_SIGN+5
-	jp	nz,_noise_dev
+	jr.	nz,_noise_dev
 
 	;// voice link active
 	ld	a,"v"
@@ -415,7 +415,7 @@ _ups_lineloop:
 	inc	de
 	ld	a,b	
 	call	draw_hex2
-	jp	_vol_update
+	jr.	_vol_update
 
 
 _noise_dev:
@@ -456,19 +456,19 @@ IFDEF TTFM
 ELSE
 	and	0x30
 	cp	0x10
-	jp	c,_sign_low
-	jp	z,_sign_med
+	jr.	c,_sign_low
+	jr.	z,_sign_med
 	cp	0x30
-	jp	c,_sign_high
+	jr.	c,_sign_high
 	;sign tone
 	ld	a,"T"
-	jp	0f
+	jr.	0f
 _sign_low:
 	ld	a,"H"
-	jp	0f
+	jr.	0f
 _sign_med:
 	ld	a,"M"
-	jp	0f
+	jr.	0f
 _sign_high:
 	ld	a,"L"
 0:	
@@ -794,7 +794,7 @@ process_key_psgsamplebox:
 	;inc	hl
 	ld	a,(hl)
 	cp	32
-	jp	nc,99f
+	jr.	nc,99f
 	inc	a
 	ld	(hl),a
 	ld	(instrument_len),a
@@ -806,7 +806,7 @@ process_key_psgsamplebox:
 .line_loop:
 	call	_move_macrolineup
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	dec	a
 	cp	ixh
 	jr.	nc,.line_loop
@@ -839,9 +839,9 @@ process_key_psgsamplebox:
 	ld	b,a
 	ld	a,(hl)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	cp	b
-	jp	c,99f
+	jr.	c,99f
 	dec	(hl)
 99:	
 	;--- update screen
@@ -861,7 +861,7 @@ process_key_psgsamplebox:
 	;inc	hl
 	ld	a,(hl)
 	cp	1
-	jp	z,99f
+	jr.	z,99f
 	dec	a
 	ld	(hl),a
 	ld	(instrument_len),a
@@ -872,7 +872,7 @@ process_key_psgsamplebox:
 	inc	hl
 	ld	a,(hl)
 	cp	b
-	jp	c,99f
+	jr.	c,99f
 	dec	b
 	ld	(hl),b
 99:
@@ -884,7 +884,7 @@ process_key_psgsamplebox:
 	call	_move_macrolinedown
 	inc	a
 	cp	31
-	jp	z,88f
+	jr.	z,88f
 	jr.	.line_loopdel
 88:	
 	call	update_psgsamplebox
@@ -1440,7 +1440,7 @@ _pkp_noise:
 	ld	a,(hl)
 	and	0x80
 	ld	a,d
-	jp	z,_pk_psg_noise
+	jr.	z,_pk_psg_noise
 _pk_psg_voice:
 	; is it a number?
 	cp	'0'	; bigger than 0 
@@ -1492,7 +1492,7 @@ ELSE
 ENDIF
 	jr.	c,1f
 IFDEF TTSMS
-	jp	0f
+	jr.	0f
 ENDIF
 	cp	'9'+1	; number but out of range?
 	jr.	nc,0f
@@ -2135,7 +2135,7 @@ reset_cursor_psgsamplebox:
 		ld	(cursor_type),a
 ;		dec	a
 		ld	a,(_scc_waveform_col)
-		jp	_set_voice_cursor
+		jr.	_set_voice_cursor
 
 
 0:

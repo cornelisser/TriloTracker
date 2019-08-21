@@ -118,11 +118,10 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\filedialogRAM.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsampleboxFM.asm"
-	include 	".\code\elements\sccwaveboxFM.asm"
+
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazzFM.asm"
 	include	".\code\elements\instrumentbox.asm"
-	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	
 
 	
@@ -165,7 +164,7 @@ font_data:
 	include	".\code\vram_swapper.asm"
 	include 	".\code\window.asm"
 	include 	".\code\replayerFMRAM.asm"	
-
+	include	".\code\elements\vuFM.asm"
 
 
 	
@@ -252,15 +251,21 @@ SWAP_FILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_VOICEMAN:
      include    ".\code\elements\voicemanager.asm"
+     include 	".\code\elements\sccwaveboxFM.asm"	
 SWAP_VOICEMAN_END:
 
-     ; Voice manager swappable code block
+     ; Drum macro editor swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
 SWAP_DRUM:
 	include	".\code\elements\drumeditor.asm"
 	include	".\code\elements\drumeditbox.asm"	
 SWAP_DRUM_END:
+
+     ; Drum macro editor swappable code block
+     ; --------------------------------------------------
+     org    SWAP_ELEMENTSTART
+
 
 
 

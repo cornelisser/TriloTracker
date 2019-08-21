@@ -1,6 +1,6 @@
 ; Trilo-Tracker v0.2
 define VERSION "v0.10.0 SMS PSG+FM "
-define YEAR "2016"
+define YEAR "2019"
 define CHIPSET_CODE $30
 
 DEFINE TTSMS 
@@ -116,7 +116,7 @@ _LABEL_PATTERNHEADER2:
 	include 	".\code\elements\filedialogRAM.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsampleboxFM.asm"
-	include 	".\code\elements\sccwaveboxFM.asm"
+;	include 	".\code\elements\sccwaveboxFM.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazzFM.asm"
 	include	".\code\elements\instrumentbox.asm"
@@ -126,6 +126,20 @@ _LABEL_PATTERNHEADER2:
 	
 	
 SWAP_ELEMENTSTART:		
+	; temporary start up code and data!!! Will be over written after init
+
+font_data:
+	incbin  ".\data\fontpat.bin"
+	include ".\code\startup.asm"
+	include ".\code\loadvoicenamesFM.asm"
+	include ".\code\elements\keynotetable.asm"
+
+
+
+
+
+
+
 	; --- PAGE 1
 	;
 	; Main code (can be swapped)
@@ -160,18 +174,10 @@ SWAP_ELEMENTSTART:
 	;
 	; --------------------------------------------------	
 ;	page 2
-	; temporary start up code and data!!! Will be over written after init
-
-font_data:
-	incbin  ".\data\fontpat.bin"
-	include ".\code\startup.asm"
-	include ".\code\loadvoicenamesFM.asm"
-	include ".\code\elements\keynotetable.asm"
 
 _VOICES_data:
 	include ".\code\Voices_Light.asm"			
 
-	
 ;	include ".\code\startup.asm"
 ;	include ".\code\loadvoicenamesFM.asm"
 ;	include ".\code\elements\keynotetable.asm"
@@ -244,6 +250,7 @@ SWAP_FILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_VOICEMAN:
      include    ".\code\elements\voicemanager.asm"
+     include 	".\code\elements\sccwaveboxFM.asm"
 SWAP_VOICEMAN_END:
 
      ; Voice manager swappable code block
@@ -254,11 +261,6 @@ SWAP_DRUM:
 	include	".\code\elements\drumeditbox.asm"	
 SWAP_DRUM_END:
 
-
-
 		
 	include ".\code\variablesFM.asm"	
-
-	
-
 

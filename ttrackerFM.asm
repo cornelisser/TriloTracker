@@ -122,6 +122,7 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazzFM.asm"
 	include	".\code\elements\instrumentbox.asm"
+	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	
 
 	
@@ -164,7 +165,7 @@ font_data:
 	include	".\code\vram_swapper.asm"
 	include 	".\code\window.asm"
 	include 	".\code\replayerFMRAM.asm"	
-	include	".\code\elements\vuFM.asm"
+
 
 
 	
@@ -262,17 +263,6 @@ SWAP_DRUM:
 	include	".\code\elements\drumeditbox.asm"	
 SWAP_DRUM_END:
 
-     ; Drum macro editor swappable code block
-     ; --------------------------------------------------
-     org    SWAP_ELEMENTSTART
-
-
-
-
-		
-	include ".\code\variablesFM.asm"	
-
-
 	
-
+	include ".\code\variablesFM.asm"	
 

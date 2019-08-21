@@ -126,7 +126,8 @@ processkey_patterneditor:
 		jr.	processkey_patterneditor_END
 0:	dec	a		;--- F2 = Instrument editor
 	jr.	nz,0f
-IFDEF TTFM
+IFDEF TTSCC
+ELSE
 		ld	a,7
 		call	swap_loadelementblock
 ENDIF

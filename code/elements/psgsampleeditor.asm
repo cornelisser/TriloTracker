@@ -31,6 +31,7 @@ update_psgsampleeditor:
 	call	update_songbox
 	call	update_psgsamplebox
 	call	update_instrumentbox
+	call	update_sccwave
 	ret
 
 

@@ -232,25 +232,19 @@ get_dir:
 	
 	;--- after retieval we can be sure about found dir/files
 	ld	a,(disk_entries)
-	cp	1
-	jp	c,99f
+;	cp	1
+;	jp	c,99f
 0:	
 	call	set_hook
 	ret
-99:	;-- no files or directories found
-	ld	a,(suppress_filenotfound)
-	and	a
-	jp	nz,0b
-
-	ld	a,$D7
-	jp	99f
-	
-77:		
-	
-	
-	ld	a,$D7
-	call	window
-	ret
+;99:	;-- no files or directories found
+;	ld	a,(suppress_filenotfound)
+;	and	a
+;	jp	nz,0b
+;	
+;	ld	a,$D7
+;	jr.	window
+;	;ret
 	
 
 
@@ -307,7 +301,7 @@ _dir_store_name:
 		jr.	4f
 99:		
 		; do not list '.' dirs
-debug:	ld	a,(disk_fib+1)
+		ld	a,(disk_fib+1)
 		cp	'.'
 		jp	nz,33f
 		ld	a,(disk_fib+2)

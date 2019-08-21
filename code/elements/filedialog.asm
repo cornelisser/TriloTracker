@@ -694,7 +694,7 @@ _fd_drive_check:
 	call	get_dir
 	ld	a,(window_shown)
 	and	a
-		call	nz,restore_filedialog
+	call	nz,restore_filedialog
 	ld	de,_FILMES_select_open
 	call	message_filedialog
 	

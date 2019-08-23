@@ -287,8 +287,8 @@ processkey_drumeditor_normal:
 
 
 	ld	a,(key)
-	and	a
-	ret	z
+;	and	a
+;	ret	z
 ;	;--- Instrument select
 ;	cp	_KEY_TAB
 ;	jr.	nz,1f
@@ -323,16 +323,15 @@ processkey_drumeditor_normal:
 	ld	(keyjazz),a
 	jr.	set_textcolor		
 1:
-	ld	a,(editsubmode)
-	and	a
-	jr.	z,0f
+;	ld	a,(editsubmode)
+;	and	a
+;	jr.	z,0f
 	ld	a,(keyjazz)
 	and	a
-	ld	a,(key)
+;	ld	a,(key)
 	jr.	nz,process_key_drumjazz
 	
-0:
-	
+0:	
 	ld	a,(editsubmode)
 	and	a	
 	jr.	z,process_key_drumeditbox

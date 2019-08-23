@@ -55,9 +55,9 @@ process_key_drumjazz:
 33:	ld	(hl),a
 	inc	hl
 	djnz	33b
-	ld	a,00000111b
-	ld	(FM_DRUM_Flags),a		
-	call	replay_route
+;	ld	a,00000111b
+;	ld	(FM_DRUM_Flags),a		
+;	call	replay_route
 
 ;	ld	a,(current_song)
 	call	set_songpage	

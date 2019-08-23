@@ -561,6 +561,7 @@ ENDIF
 	ld	(FM_regVOLF),a
 	
 	ld	(FM_DRUM_LEN),a
+	ld	(FM_DRUM),a
 ;	ld	(FM_DRUM2_LEN),a
 ;	ld	(FM_DRUM3_LEN),a
 	
@@ -593,103 +594,19 @@ ENDIF
 	call	GET_P2
 	ld	(replay_patpage),a	
 
-
-;	ld	a,(current_song)
-;	call	set_songpage
-;
-
-	;----- DEBUG DEFAULT fm DRUM INIT
-	ld	hl,_drum_init_data
-	ld	b,3
-	ld	c,0x16
-
-11:
-	ld	a,c
-	out	(FM_WRITE),a
-	inc	c
-	ld	a,(hl)
-	out	(FM_DATA),a
-	inc	hl
-	djnz	11b
-
-	ld	b,3
-	ld	c,0x26
-
-11:
-	ld	a,c
-	out	(FM_WRITE),a
-	inc	c
-	ld	a,(hl)
-	out	(FM_DATA),a
-	inc	hl
-	djnz	11b
-
-
-
-;	db	0x00	; volumes
-;	db	0x42
-;	db	0x24
-
-	ld	a,0x00
-	ld	(FM_volreg1),a
-	ld	a,0x42
-	ld	(FM_volreg2),a
-	ld	a,0x24
-	ld	(FM_volreg3),a
-	ld	a,11111111b
-	ld	(FM_DRUM_Flags),a	
-;	ld	b,3
-;	ld	c,0x36
-;
-;11:
-;	ld	a,c
-;	out	(FM_WRITE),a
-;	inc	c
-;	ld	a,(hl)
-;	out	(FM_DATA),a
-;	inc	hl
-;	djnz	11b
-
+	;--- DRUM reset
+	push	bc
+	ld	de,FM_DRUM_Flags
+	ld	hl,DRM_DEFAULT_values
+	ld	bc,10
+	ldir
+	pop	bc
 
 	
 	; end	is here
 	ret
 
 
-_drum_init_data:
-	db	0x20	; freq low
-	db	0x50
-	db	0xC0
-	db	0x05	; freq high + octave
-	db	0x05
-	db	0x01
-;	db	0x00	; volumes
-;	db	0x42
-;	db	0x24
-
-;_PRE_pat:	db	0
-;_PRE_order:	db	0
-;_PRE_line:	db	0
-
-;_PRE_dummy_pat:
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...	
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...	
-;	db	$00,$01,$fD,$00	; ---1FD00
-	
-;_PREPROCESS_LENGTH	equ	1
 
 
 ;--- Very basic pre-scan. Old	one was WAY	too slow.
@@ -3870,7 +3787,6 @@ _tt_route_fmtone:
 
 
 
-_debug:
 	;-----------------
 	; Update drum registers
 	;-----------------
@@ -3923,7 +3839,7 @@ _debug:
 	ld	hl,FM_freqreg1
 _rfmd_loop:
 	rl	d
-;	jp	nc,0f
+	jp	nc,0f
 	ld	a,c
 	;-- write tone
 	out	(FM_WRITE),a

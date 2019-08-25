@@ -34,7 +34,13 @@ MAIN:
 	
 	call	start_init		; this calls function that is overwritten after call
 					; the space can be used by the songs 
+debug:
+	;-- Find and enable if any MMM is inserted. 
+	ld	b,16
+	ld	h,0x40
+	call mmm_srch	; This routine will find and activate SN if found
 
+	
 	
 	; new that we have the memory reserved. Switch to slot of song data
 	ld	a,(mapper_slot)			; get mapper slot
@@ -122,12 +128,12 @@ _LABEL_PATTERNHEADER2:
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"
-
+	include 	".\code\cursor.asm"
 	
 	
 SWAP_ELEMENTSTART:		
 	; temporary start up code and data!!! Will be over written after init
-
+	include	".\code\sound\mmmdetect.asm"
 font_data:
 	incbin  ".\data\fontpat.bin"
 	include ".\code\startup.asm"
@@ -147,7 +153,7 @@ font_data:
 	;
 	; --------------------------------------------------
 	page 1
-	include 	".\code\cursor.asm"
+
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
 	include 	".\code\clipboard.asm"

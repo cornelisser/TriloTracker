@@ -3501,7 +3501,7 @@ _ptAY_noEnv:
 
 ELSE
 route_SN:
-	ld	c,$f0
+	ld	c,$3f
 	ld	b,10010000b
 	ld	a,(replay_chan_setup)
 	and	a
@@ -3589,7 +3589,7 @@ route_SN:
 	ld	a,c
 	and	$0f
 	or	10100000b
-	out	($f0),a	
+	out	($3f),a	
 	rl	c
 	rl	b
 	rl	c
@@ -3600,14 +3600,14 @@ route_SN:
 	rl	b
 	ld	a,00111111b
 	and	b
-	out	($f0),a	
+	out	($3f),a	
 	
 	; tone chan c
 	ld	bc,(AY_regToneB)
 	ld	a,c
 	and	$0f
 	or	11000000b
-	out	($f0),a	
+	out	($3f),a	
 	rl	c
 	rl	b
 	rl	c
@@ -3618,7 +3618,7 @@ route_SN:
 	rl	b
 	ld	a,00111111b
 	and	b
-	out	($f0),a	
+	out	($3f),a	
 
 
 

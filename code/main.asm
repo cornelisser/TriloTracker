@@ -287,7 +287,7 @@ _playback_mix:
 	cp	"0"
 	jr.	nz,0f
 	ld	a,(DrumMixer)
-	xor	1
+	xor	100000b
 	ld	(DrumMixer),a
 	jr.	_playback_loop
 0:	

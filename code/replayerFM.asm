@@ -23,17 +23,34 @@ DRM_DEFAULT_values:
 ;Konami values found in	nemesis 2 replayer.
 ;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
 C_PER		equ	$6a*32	
-C1_PER		equ	$64*32
+C1_PER	equ	$64*32
 D_PER		equ	$5e*32
-D1_PER		equ	$59*32
+D1_PER	equ	$59*32
 E_PER		equ	$54*32
 F_PER		equ	$4f*32
-F1_PER		equ	$4a*32
+F1_PER	equ	$4a*32
 G_PER		equ	$46*32
-G1_PER		equ	$42*32
+G1_PER	equ	$42*32
 A_PER		equ	$3f*32
-A1_PER		equ	$3b*32
+A1_PER	equ	$3b*32
 B_PER		equ	$38*32
+
+; newly calculated
+;C_PER		equ	$d5c	
+;C1_PER	equ	$c9c
+;D_PER		equ	$be7
+;D1_PER	equ	$b3c
+;E_PER		equ	$a9a
+;F_PER		equ	$a02
+;F1_PER	equ	$972
+;G_PER		equ	$8ea
+;G1_PER	equ	$86a
+;A_PER		equ	$7f1
+;A1_PER	equ	$77f
+;B_PER		equ	$713
+
+
+
 
 CHIP_ToneTable:	
 	dw	0	;	Dummy value (note 0)
@@ -1771,7 +1788,7 @@ replay_process_drum:
 	ld	a,(bc)
 	and	a
 	jr	z,0f			; jump if no data
-	set 5,a			; key on for percussion
+;	set 5,a			; key on for percussion
 	ld	(FM_DRUM),a		; store the percusion bits
 	set	0,d
 
@@ -1799,7 +1816,7 @@ replay_process_drum:
 	inc	hl
 	ld	a,(hl)
 	ld	(FM_freqreg1+1),a	
-	jr.	0f				; continue
+	jr.	4f				; continue
 1:
 	; Tone deviation
 	bit	6,a
@@ -1827,6 +1844,7 @@ replay_process_drum:
 3:
 	ld 	(FM_freqreg1),hl
 
+4:	set	0,d
 
 0:
 	sla	d
@@ -1877,7 +1895,7 @@ replay_process_drum:
 	inc	hl
 	ld	a,(hl)
 	ld	(FM_freqreg2+1),a	
-	jr.	0f				; continue
+	jr.	4f				; continue
 1:
 	; Tone deviation
 	bit	6,a
@@ -1905,6 +1923,7 @@ replay_process_drum:
 3:
 	ld 	(FM_freqreg2),hl
 
+4:	set	0,d
 
 0:
 	sla	d
@@ -1985,7 +2004,7 @@ replay_process_drum:
 	inc	hl
 	ld	a,(hl)
 	ld	(FM_freqreg3+1),a	
-	jr.	0f				; continue
+	jr.	4f				; continue
 1:
 	; Tone deviation
 	bit	6,a
@@ -2013,6 +2032,7 @@ replay_process_drum:
 3:
 	ld 	(FM_freqreg3),hl
 
+4:	set	0,d
 
 0:
 
@@ -3790,58 +3810,99 @@ _tt_route_fmtone:
 	;-----------------
 	; Update drum registers
 	;-----------------
-	ld	a,(DrumMixer)
-	and	a
-	ret	z	; skip drums if disabled
-
-
-
-
-
+;	ld	a,(DrumMixer)
+;	and	a
+;	ret	z	; skip drums if disabled
+debug:
 	ld	a,(FM_DRUM_Flags)
 	ld	d,a		
 
-	;-- Percusion bits
-	rl	d
-	jp	nc,0f
-	
-	
-	; quick fix write key off for percussion
-;	ld	c,0x0e
-;	;-- load the new values
-;	ld	a,c
-;	out	(FM_WRITE),a
+	;; just for debug purposes
+	and	a
+	ret	z
 
-	
-	
-	
-	
-	
-	
+
+	rl	d
+;	jp	nc,route_FM_Tone1
+	;---- Percusion bits
+route_FM_Rythm:	
 	ld	c,0x0e
 	;-- load the new values
 	ld	a,c
-	out	(FM_WRITE),a
+	out	(FM_WRITE),a	; Select rythm register
 	
 	ld	a,(FM_DRUM)		; 7 cycles
 	and	011111b		; erase bit 5 to enable retrigger drum
 	out	(FM_DATA),a		
 	
-	
+	ld	a,(DrumMixer)
+	ld	b,a
 	ld	a,(FM_DRUM)		; 7 cycles
-	or	100000b		; write bit 5 to enable drum
+	or	b			; Mask with drum mixer (bit 5 is set)
 	out	(FM_DATA),a
-		
-0:
-	;--- Tone and vol registers
-	ld	c,0x16
-	ld	b,3
-	ld	hl,FM_freqreg1
-_rfmd_loop:
+	
+	
+route_FM_Tone1:	
 	rl	d
-	jp	nc,0f
-	ld	a,c
+	jp	nc,route_FM_Vol1
+	
+	ld	a,0x16		; register
+	ld	hl,FM_freqreg1	; value
+	call	route_FM_toneUpdate
+	
+
+route_FM_Vol1:
+	rl	d
+	jp	nc,route_FM_Tone2
+	
+	ld	a,0x36		; register
+	ld	hl,FM_volreg1	; value
+	call	route_FM_volumeUpdate
+
+route_FM_Tone2:	
+	rl	d
+	jp	nc,route_FM_Vol2
+	
+	ld	a,0x17		; register
+	ld	hl,FM_freqreg2	; value
+	call	route_FM_toneUpdate
+	
+
+route_FM_Vol2:
+	rl	d
+	jp	nc,route_FM_Tone3
+	
+	ld	a,0x37		; register
+	ld	hl,FM_volreg2	; value
+	call	route_FM_volumeUpdate
+
+route_FM_Tone3:	
+	rl	d
+	jp	nc,route_FM_Vol3
+	
+	ld	a,0x18		; register
+	ld	hl,FM_freqreg3	; value
+	call	route_FM_toneUpdate
+	
+
+route_FM_Vol3:
+	rl	d
+	jp	nc,route_FM_end
+	
+	ld	a,0x38		; register
+	ld	hl,FM_volreg3	; value
+	call	route_FM_volumeUpdate
+
+route_FM_end:
+	xor	a
+	ld	(FM_DRUM_Flags),a
+	
+	ret
+
+
+route_FM_toneUpdate:
 	;-- write tone
+	ld	c,a
 	out	(FM_WRITE),a
 	ld	a,(hl)
 	inc	hl
@@ -3850,27 +3911,21 @@ _rfmd_loop:
 	add	c
 	out	(FM_WRITE),a
 	ld	a,(hl)
-	inc	hl
 	out 	(FM_DATA),a
-0:
-	rl	d
-;	jp	nc,0f
-	ld	a,0x20
-	add	c
+	ret
+
+route_FM_volumeUpdate:
 	;-- write volumes
 	out	(FM_WRITE),a
 	ld	a,(hl)
 	inc	hl
 	out 	(FM_DATA),a
-0:
-	;loop 3 times
-	inc	c
-	djnz	_rfmd_loop
-	
-	xor	a
-	ld	(FM_DRUM_Flags),a
-	
 	ret
+
+
+
+	
+
 
 
 ;;--- FM DRUM VOL

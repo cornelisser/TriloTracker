@@ -61,7 +61,7 @@ start_init:
 	
 
 
-	inc	a
+	ld	a,100000b
 	ld	(DrumMixer),a	; FM drums on	
 	ld	a,11111111b	; all channels active.
 	ld	(MainMixer),a

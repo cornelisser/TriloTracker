@@ -314,12 +314,17 @@ processkey_drumeditor_normal:
 0:
 	cp	_SPACE
 	jr.	nz,1f
+	
+	;-- Always reset
+	ld	a,(keyjazz)
+	and	a
+	jp	nz,2f
 	;--- only if we are editing
 	ld	a,(editsubmode)
 	and	a
 	jr.	nz,1f
 	ld	a,(keyjazz)
-	xor 	1
+2:	xor 	1
 	ld	(keyjazz),a
 	jr.	set_textcolor		
 1:

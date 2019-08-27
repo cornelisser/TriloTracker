@@ -181,6 +181,14 @@ ENDIF
 	jr.	nz,97f
 	
 	ld	a,(key)
+	cp	'0'+128
+	jr.	nz,0f
+	ld	a,(DrumMixer)
+	xor	100000b
+	ld	(DrumMixer),a
+	jr.	draw_pattern_header	
+0:	
+	ld	a,(key)
 	cp	'1'+128
 	jr.	nz,0f
 	ld	a,(MainMixer)

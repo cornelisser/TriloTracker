@@ -147,7 +147,7 @@ _LABEL_DRUMTEXT2SUB:
 
 
 _DRUM_SAMPLESTRING:
-	db	"   _____|--- . .|--- . .|--- . ."
+	db	"   _____|---   .|--- . .|--- . ."
 _udm_pntpos:	dw	0
 ;===========================================================
 ; --- update_drumeditbox
@@ -909,7 +909,7 @@ _drum_vhigh:
 	and	00001111b
 	or	d
 	ld	(hl),a
-	call	next_drum_column
+;	call	next_drum_column
 	jr.	update_drumeditbox
 
 _drum_vlow:	
@@ -954,7 +954,7 @@ _drum_vlow:
 	and	11110000b
 	or	d
 	ld	(hl),a
-	call	next_drum_column
+;	call	next_drum_column
 	jr.	update_drumeditbox
 	
 	

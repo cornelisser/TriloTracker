@@ -3808,8 +3808,8 @@ debug:
 	ld	d,a		
 
 	;; just for debug purposes
-;	and	a
-;	ret	z
+	and	a
+	ret	z
 
 
 	rl	d

@@ -873,7 +873,7 @@ _drum_vhigh:
 	cp	_DEL
 	jr.	nz,1f
 	call	get_drumsample_track_location
-	dec	hl
+;	dec	hl
 	ld	a,(hl)
 	and	00001111b
 	ld	(hl),a
@@ -904,7 +904,7 @@ _drum_vhigh:
 [4]	add	a
 	ld	d,a	
 	call	get_drumsample_track_location
-	dec	hl
+;	dec	hl
 	ld	a,(hl)
 	and	00001111b
 	or	d
@@ -918,7 +918,7 @@ _drum_vlow:
 	cp	_DEL
 	jr.	nz,1f
 	call	get_drumsample_track_location
-	dec	hl
+	;dec	hl
 	ld	a,(hl)
 	and	11110000b
 	ld	(hl),a
@@ -949,7 +949,7 @@ _drum_vlow:
 22:
 	ld	d,a	
 	call	get_drumsample_track_location
-	dec	hl
+;	dec	hl
 	ld	a,(hl)
 	and	11110000b
 	or	d
@@ -1255,10 +1255,26 @@ _drum_jr._to_vol:
 get_drumsample_track_location:	
 	call	get_drumsample_location
 	inc	hl
-	ld	a,(cursor_column)		; track 1 col=5, 2 col=9, 3 col=14
-	sra	a				; track 1 col=2, 2 col=4, 3 col=7
-	and	11111110b			; track 1 col=2, 2 col=4, 3 col=6
-	sub	2				; track 1 col=0, 2 col=2, 3 col=4
+	ld	a,(cursor_column)		
+	ld	b,0
+	cp	8			; < column 8
+	jp	c,_gdstl_add
+	inc	b
+	cp	9			; < column 9
+	jp	c,_gdstl_add
+	inc	b	
+	cp	12			; < column 12
+	jp	c,_gdstl_add
+	inc	b
+	cp	14			; < column 14
+	jp	c,_gdstl_add
+	inc	b	
+	cp	17			; < column 17
+	jp	c,_gdstl_add
+	inc	b
+	
+_gdstl_add:
+	ld	a,b
 	add	a,l
 	ld	l,a
 	jr.	nc,0f

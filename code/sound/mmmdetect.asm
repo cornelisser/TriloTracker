@@ -82,7 +82,17 @@ mmm_enableSN:
 	ld	a,040h
 	ld	(803Ch),a	; Write protect the MMM banks and disable access 
 
-	ld	a,000h
+	;silence the PSG quickly
+	LD A,09Fh
+	OUT (3Fh),A ; channel 1
+	LD A,0BFh
+	OUT (3Fh),A ; channel 2
+	LD A,0DFh
+	OUT (3Fh),A ; channel 3
+	LD A,0FFh
+	OUT (3Fh),A ; channel 4
+
+;	ld	a,000h
 ;	out	(03ch),a	; Enable acces register via address
 	
 	ret

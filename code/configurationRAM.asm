@@ -43,7 +43,11 @@ _CONFIG_INS:
 _CONFIG_VU:	
 	db	1		; vu meter (1=on)
 _CONFIG_PSGPORT:
+IFDEF TTSMS
+	db	0x49		; default franky
+ELSE
 	db	0xa0		; port of the PSG	
+ENDIF
 _ENV_PROGRAM:
 	db	"PROGRAM",0	
 

@@ -229,7 +229,11 @@ update_configbox:
 	ld	de,_LABEL_CONFIG_A010
 	call	draw_label	
 	ld	a,(_CONFIG_PSGPORT)
+IFDEF TTSMS
+	sub	$3f
+ELSE
 	sub	$a0
+ENDIF
 	and	a
 	jr.	z,99f
 	ld	a,7
@@ -634,8 +638,12 @@ _LABEL_CONFIG_CHAN_SETUP:
 ENDIF
 	
 _LABEL_CONFIG_A010:
+IFDEF TTSMS
+	db	"[ $3F    $49 ]",0
+ELSE
 	db	"[ $A0    $10 ]",0
-	
+ENDIF
+
 _LABEL_CONFIG_KEYBOARD:
 	db	_ARROWLEFT,"Japanese     ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"International",_ARROWRIGHT,0
@@ -1167,6 +1175,16 @@ pk_config_theme:
 ;====================================
 pk_config_psg:
 	ld	a,(_CONFIG_PSGPORT)
+	
+IFDEF TTSMS
+	cp	$3f				; MMM?
+	jp	z,1f
+	
+	ld	a,$3f				; MMM
+	jp	2f
+1:	
+	ld	a,$49				; Franky
+ELSE
 	cp	$a0
 	jp	z,1f
 	
@@ -1174,6 +1192,7 @@ pk_config_psg:
 	jp	2f
 1:	
 	ld	a,$10
+ENDIF
 
 2:
 	ld	(_CONFIG_PSGPORT),a

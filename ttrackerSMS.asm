@@ -34,7 +34,7 @@ MAIN:
 	
 	call	start_init		; this calls function that is overwritten after call
 					; the space can be used by the songs 
-debug:
+
 	;-- Find and enable if any MMM is inserted. 
 	ld	b,16
 	ld	h,0x40

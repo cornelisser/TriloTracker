@@ -3521,59 +3521,48 @@ _ptAY_noEnv:
 
 ELSE
 route_SN:
+	ld	a,(_CONFIG_PSGPORT)
 	ld	c,$3f
-	ld	b,10010000b
-	ld	a,(replay_chan_setup)
-	and	a
-	jp	z,99f
-	ld	b,10110000b
 99:	
 	; vol chan 1
 	ld	a,(AY_regVOLA)
 	inc	a
 	neg
 	and	$0f
-	or	b
+	or	10010000b
 	out	(c),a	
-	
-	;--- next reg
-	ld	a,00100000b
-	add	a,b
-	ld	b,a
 	
 	; vol chan 2
 	ld	a,(AY_regVOLB)
 	inc	a
 	neg
 	and	$0f
-	or	b
+	or	10110000b
 	out	(c),a		
 		
-	;-- check if we need 3rd psg
-	ld	a,10110000b
-	cp	b
-	jp	z,99f
-	
-	;--- next reg
-	ld	a,00100000b
-	add	a,b
-	ld	b,a
-	
+;	;-- check if we need 3rd psg
+;	ld	a,10110000b
+;	cp	b
+;	jp	z,99f
+		
 	; vol chan 3
 	ld	a,(AY_regVOLC)
 	inc	a
 	neg
 	and	$0f
-	or	b  
+	or	11010000b 
 	out	(c),a			
 
-99:	
+;99:	
+	;--- next reg
 	; vol noise
 	ld	a,(SN_regVOLN)
+	ld	a,$f		; debug
 	inc	a
 	neg
 	and	$0f
 	or	11110000b
+		LD A,0FFh
 	out	(c),a	
 
 	; noise chan 
@@ -3583,29 +3572,30 @@ route_SN:
 	jp	z,0f
 	ld	(hl),a
 	or	11100000b
-	out	($f0),a
+	ld	a,0 ; debug
+	out	($3f),a
 0:
-;	; tone chan a
-;	ld	bc,(AY_regToneA)
-;	ld	a,c
-;	and	$0f
-;	or	10000000b
-;	out	($f0),a	
-;	rl	c
-;	rl	b
-;	rl	c
-;	rl	b
-;	rl	c
-;	rl	b
-;	rl	c
-;	rl	b
-;	ld	a,00111111b
-;	and	b
-;	out	($f0),a		
+	; tone chan a
+	ld	bc,(AY_regToneA)
+	ld	a,c
+	and	$0f
+	or	10000000b
+	out	($3f),a	
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	rl	c
+	rl	b
+	ld	a,00111111b
+	and	b
+	out	($3f),a		
 	
 	
 	; tone chan b
-	ld	bc,(AY_regToneA)
+	ld	bc,(AY_regToneB)
 	ld	a,c
 	and	$0f
 	or	10100000b
@@ -3623,7 +3613,7 @@ route_SN:
 	out	($3f),a	
 	
 	; tone chan c
-	ld	bc,(AY_regToneB)
+	ld	bc,(AY_regToneC)
 	ld	a,c
 	and	$0f
 	or	11000000b
@@ -3818,12 +3808,12 @@ debug:
 	ld	d,a		
 
 	;; just for debug purposes
-	and	a
-	ret	z
+;	and	a
+;	ret	z
 
 
 	rl	d
-;	jp	nc,route_FM_Tone1
+	jp	nc,route_FM_Tone1
 	;---- Percusion bits
 route_FM_Rythm:	
 	ld	c,0x0e

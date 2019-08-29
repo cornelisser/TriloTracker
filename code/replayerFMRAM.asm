@@ -14,7 +14,7 @@ replay_speed_timer 		db 0 			; counter for speed
 replay_mode 			db 0			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
-replay_chan_setup			db 0			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
+replay_chan_setup			db 1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
 
 replay_patpointer 		dw 0			; pointer to the data
 replay_patpage 			db 0 			; the current page

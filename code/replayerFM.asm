@@ -934,7 +934,7 @@ _pe_chanloop:
 
 
 	
-_TEMPAY:	db "aAAA bBBB cCCC nNN mMM aVbVcV "
+_TEMPAY:	db "aAAA bBBB cCCC nNN mMM aVbVcVnV"
 draw_PSGdebug:		
 	; THIS IS DEBUG INFO ON	THE REGISTERS!!!!
 	ld	de,_TEMPAY+1
@@ -1005,11 +1005,15 @@ draw_PSGdebug:
 	ld	a,(hl)
 	call	draw_fakehex	; vol	c
 	inc	hl
-;	inc	de	
+	inc	de	
+	ld	a,(SN_regVOLN)
+	call	draw_fakehex	; envelope/noise	
+	
+	
 	
 	ld	hl,0
 	ld	de,_TEMPAY
-	ld	b,29;31
+	ld	b,31;31
 	call	draw_label_fast
 	
 ;	call	debug_instruments	
@@ -3554,15 +3558,15 @@ route_SN:
 	out	(c),a			
 
 ;99:	
+debug:
 	;--- next reg
 	; vol noise
 	ld	a,(SN_regVOLN)
-	ld	a,$f		; debug
 	inc	a
 	neg
 	and	$0f
 	or	11110000b
-		LD A,0FFh
+
 	out	(c),a	
 
 	; noise chan 
@@ -3572,7 +3576,7 @@ route_SN:
 	jp	z,0f
 	ld	(hl),a
 	or	11100000b
-	ld	a,0 ; debug
+;	ld	a,0 ; debug
 	out	($3f),a
 0:
 	; tone chan a
@@ -3803,7 +3807,7 @@ _tt_route_fmtone:
 ;	ld	a,(DrumMixer)
 ;	and	a
 ;	ret	z	; skip drums if disabled
-debug:
+
 	ld	a,(FM_DRUM_Flags)
 	ld	d,a		
 

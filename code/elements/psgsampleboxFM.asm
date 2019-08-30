@@ -422,38 +422,49 @@ _noise_dev:
 	; noise deviation
 IFDEF TTFM
 	ld	a,"_";151
-ELSE
-	dec	de
-	ld	a,"p"
-ENDIF
 	bit	6,b
 	jr.	z,99f
-	;-not base
-IFDEF TTFM	
+	;-not base	
 	ld	a,"-"		;	add	a,2
-ELSE
-	ld	a,"w"
-ENDIF
-
 0:
 	bit	5,b
 	jr.	nz,99f
 	;- add
-IFDEF TTFM	
 	ld	a,"+"		;	inc	a
-ELSE
-	ld	a,"w"
-	
-ENDIF
 99:	
 
 	ld	(de),a
 	inc	de
 
 	ld	a,b
-IFDEF TTFM
-	and	0x1f
-ELSE
+	and	0x1f	
+	
+	call	draw_hex2
+	
+	
+	
+ELSE	; TTSMS
+
+	ld	a,b		; Draw noise value
+	rr 	a
+	rr	a
+	rr	a
+	rr	a
+	and	0x07
+	call	draw_hex	
+
+				; Display value meaning
+	ld	a,"p"
+	bit	6,b
+	jr.	z,99f
+	;-not base	
+	ld	a,"w"	
+	bit	5,b
+99:	
+
+	ld	(de),a
+	inc	de
+	ld	a,b
 	and	0x30
 	cp	0x10
 	jr.	c,_sign_low
@@ -474,11 +485,20 @@ _sign_high:
 0:	
 	ld	(de),a
 	inc	de
+	inc	de
+	
+	
+	; Draw Volume
+	ld	a,"_"
+	ld	(de),a
+	inc	de	
 	
 	ld	a,b
-	and	0x7f
+	and	0x0f	
+	call	draw_hex	
+
+	
 ENDIF
-	call	draw_hex2
 
 _vol_update:
 	inc	de
@@ -1419,6 +1439,7 @@ _pkp_noise:
 	
 
 0:
+IFDEF TTFM
 	;===================
 	; INPUT is Noise high
 	;
@@ -1485,41 +1506,21 @@ _pk_psg_noise
 	; is it a number?
 	cp	'0'	; bigger than 0 
 	jr.	c,99f	
-IFDEF TTSMS
-	cp	'8'+1	; smaller than 8?
-ELSE 
 	cp	'1'+1	; smaller than 1?
-ENDIF
 	jr.	c,1f
-IFDEF TTSMS
-	jr.	0f
-ENDIF
 	cp	'9'+1	; number but out of range?
 	jr.	nc,0f
 	ld	a,"1" ; 1 is max value for high byte
 1:
-IFDEF TTFM
 	sub	33
 	and	0x10
-ELSE
-	sub	48
-	rlca
-	rlca
-	rlca
-	rlca
-	and	0x70	
-ENDIF	
 	ld	d,a	
 
 	; get the location in RAM
 	call	get_psgsample_location
 
 	ld	a,(hl)
-IFDEF TTSMS
-	and	0x8f
-ELSE
 	and	0xef
-ENDIF
 	or	d
 
 	ld	(hl),a
@@ -1670,12 +1671,251 @@ _psgvolfound:
 	jr.	process_key_psgsamplebox_END	
 0:
 
+process_key_psgsamplebox_END:
+	ret
+
+ELSE
+
+	;===================
+	; INPUT is SN Noise register
+	;
+	; N O I S E high
+	;
+	;===================
+	;--- Check if we are in a noise high column
+	ld	b,a
+	ld	a,(cursor_input)
+	cp	9
+	ld	a,b
+	jr.	nz,0f
+
+	ld	d,a
+	call	get_psgsample_location
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	0x80
+	ld	a,d
+	jr.	z,_pk_psg_noise
+_pk_psg_voice:
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,0f
+	sub	'A'-10
+22:	
+	rlca
+	rlca
+	rlca
+	rlca
+	ld	d,a	
+
+	; get the location in RAM
+	call	get_psgsample_location
+	ld	a,(hl)
+	and	0x0f
+	or	d
+
+	ld	(hl),a
+99:	;jr.	_psgsamright
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END			
+
+
+_pk_psg_noise	
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'8'+1	; smaller than 8?
+	jr.	c,1f
+	jr.	0f
+1:
+	sub	48
+	rlca
+	rlca
+	rlca
+	rlca
+	and	0x70	
+	ld	d,a	
+
+	; get the location in RAM
+	call	get_psgsample_location
+
+	ld	a,(hl)
+	and	0x8f
+	or	d
+
+	ld	(hl),a
+99:	;jr.	_psgsamright
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END			
+	
+0:
+	;===================
+	; INPUT is NOISE vol
+	;
+	; NOISE	vol
+	;
+	;===================
+	;--- Check if we are in a noisevol column
+	ld	b,a
+	ld	a,(cursor_input)
+	cp	10
+	ld	a,b
+	jr.	nz,0f
+		
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,0f
+	sub	'A'-10
+;	ld	d,a
+22:	
+	ld	d,a	
+
+	; get the location in RAM
+	call	get_psgsample_location
+
+	ld	a,(hl)
+	and	0xf0
+	or	d
+	ld	(hl),a
+;	jr.	_psgsamright
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END			
+	
+	
+	
+
+0:	
+	;===================
+	; INPUT is Volume
+	;
+	; V O L U M E
+	;
+	;===================
+	;--- Check if we are in an volume column
+	ld	a,(cursor_input)
+	cp	13			; 4 = volume type
+	ld	a,b
+	jr.	nz,0f
+	cp	_DEL
+	jr.	nz,99f
+	ld	a,'0'	
+	
+99:	
+	;--- Check if the key pressed is in the envelope range
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	_psgvolfound
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	_psgvolfound
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,0f
+	sub	'A'-10
+	ld	d,a
+_psgvolfound:	
+	ld	d,a
+	
+	;--- get the location in RAM
+	call	get_psgsample_location
+
+	inc	hl		;(2nd byte)
+	ld	a,(hl)
+	and	0xf0
+	or	d
+	ld	(hl),a
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END
+	
+0:
+	;===================
+	; INPUT is volume addition
+	;
+	; VOLUME addition
+	;
+	;===================
+	;--- Check if we are in a volume add type column
+	ld	b,a
+	ld	a,(cursor_input)
+	cp	13
+	ld	a,b
+	jr.	nz,0f
+	
+	;--- check for space.
+	cp	_ENTER
+	jr.	nz,0f
+	
+	;--- get the location in RAM
+	call	get_psgsample_location
+	
+	inc	hl
+	ld	a,(hl)
+	and	16+8
+	jr.	nz,12f
+	add	8
+12:
+	add	8
+	and	16+8
+	ld	b,a
+	ld	a,(hl)
+	and	0xe7	
+	or	b
+	ld	(hl),a
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END	
+0:
+
 
 
 
 process_key_psgsamplebox_END:
 	ret
 
+ENDIF
 
 
 ;===========================================================
@@ -2077,7 +2317,11 @@ reset_cursor_psgsamplebox:
 		ld	(cursor_type),a
 		ld	a,10
 		ld	(cursor_y),a
+IFDEF TTSMS
+		ld	a,8+15+3
+ELSE
 		ld	a,8+15;4
+ENDIF
 		ld	(cursor_x),a
 		xor	a
 		ld	(instrument_line),a
@@ -2154,6 +2398,18 @@ reset_cursor_psgsamplebox:
 
 	db	255	;end
 _COLTAB_PSGSAMPLE:
+IFDEF TTSMS
+	db	4,1	; 4 = freq deviation high
+	db	5,1	; 5 = freq deviation mid
+	db	6,8	; 6 = freq deviation low
+	db	9,5	; 9 = noise deviation high
+	db	10,3	; 6 = noise deviation low
+	db	13,255;1	; 12= volume
+
+
+
+
+ELSE
 ;	db	0,1	; 0 = ena/dis tone
 ;	db	1,2	; 1 = ena/dis noise
 ;	db	2,2	; 2 = ena/dis envelope
@@ -2168,7 +2424,7 @@ _COLTAB_PSGSAMPLE:
 ;	db	11,2	; 11= noise deviation add type
 	db	13,255;1	; 12= volume
 ;	db	12,255	; 13= volume add type
-
+ENDIF
 
 restore_instrumenteditor:
 	ld	a,(editmode)

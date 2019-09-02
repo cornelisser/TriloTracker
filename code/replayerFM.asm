@@ -3560,7 +3560,6 @@ route_SN:
 	out	(c),a			
 
 ;99:	
-debug:
 	;--- next reg
 	; vol noise
 	ld	a,(SN_regVOLN)

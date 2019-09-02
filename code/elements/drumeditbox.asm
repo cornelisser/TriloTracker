@@ -524,6 +524,81 @@ process_key_drumeditbox:
 	and	a
 	ret	z
 
+	cp	_INS
+	jr. nz,0f
+	ld	a,(drum_line)
+	cp	16
+	jr.	nc,process_key_drumeditbox_END
+	;-- increase len
+
+	call _get_drum_start
+	ld	a,(hl)
+	cp	16
+	jr.	nc,99f
+	inc	a
+	ld	(hl),a
+99:	
+	;--- move data 1 line down
+	ld	a,(drum_line)
+	ld	ixh,a
+	ld	a,15
+.line_loop:
+	call	_move_drumlineup
+	and	a
+	jp	z,88f
+	dec	a
+	cp	ixh
+	jr.	nc,.line_loop
+88:
+	jr.	update_drumeditbox	
+	
+	
+0:
+debug:
+	cp	_DEL
+	jr.	nz,0f
+	ld	a,(drum_line)
+	inc	a
+	ld	b,a
+	call	_get_drum_start
+	ld	a,(hl)
+	cp	b		; check if we are at last line
+	jr.	nz,1f
+	
+	cp	1
+	jr.	z,process_key_drumeditbox_END
+	
+	dec	a
+	ld	(hl),a
+	
+	;--- update screen
+	call	flush_cursor
+	ld	a,(cursor_y)
+	dec	a
+	ld	(cursor_y),a	
+	jr.	update_drumeditbox		
+	
+	;--- decrease len
+1:
+	call	_get_drum_start
+	ld	a,(hl)
+	cp	1
+	jp	z,99f
+	dec	a
+	ld	(hl),a
+99:
+	;--- move data 1 line down
+	ld	a,(drum_line)
+.line_loopdel:
+	call	_move_drumlinedown
+	inc	a
+	cp	15
+	jp	z,88f
+	jr.	.line_loopdel
+88:	
+	jr.	update_drumeditbox
+
+	
 0:	
 	;--- key left
 	cp	_KEY_LEFT
@@ -661,6 +736,77 @@ process_key_drumeditbox:
 	
 process_key_drumeditbox_END:
 	ret
+
+;--- Move drum data 1 line down (delete row)
+; in: [A] is the line to move down/delete
+;
+; need to preserve [A]
+_move_drumlinedown:
+	push	af
+	;-- set hl to start macro data of current instrument
+	call	_get_drum_start
+	inc	hl
+;	dec	hl
+;	dec 	hl
+	;-- jump to line ( input)
+	pop	bc
+	push	bc
+	ld	de,7
+.loop:
+	add	hl,de
+	djnz	.loop
+
+	;--- copy the data to next line
+	ld	d,h	
+	ld	e,l
+	ld	a,7
+	add	a,l
+	ld	l,a
+	jr.	nc,.skip
+	inc	h
+.skip:
+[7]	ldi
+	
+	;--- restore and return 	
+	pop	af
+	ret
+
+
+
+;--- Move drum data 1 line up (insert row)
+; in: [A] is the line to move up
+;
+; need to preserve [A]
+_move_drumlineup:
+	push	af
+	;-- set h; to start drum data of current instrument
+	call	_get_drum_start
+	dec	hl
+	dec	hl
+	;-- jump to line (input)
+	pop	bc
+	push	bc
+	ld	de,7		; drum line size
+.loop:
+	add	hl,de
+	djnz	.loop
+
+	;--- copy the data to next line
+	ld	d,h	
+	ld	e,l
+	ld	a,7
+	add	a,e
+	ld	e,a
+	jr.	nc,.skip
+	inc	d
+.skip:
+[7]	ldi
+	;--- restore and return 	
+	pop	af
+	ret
+
+
+
 
 	db	255	;end
 _COLTAB_DRUMSAMPLE:

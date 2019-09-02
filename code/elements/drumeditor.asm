@@ -287,19 +287,7 @@ processkey_drumeditor_normal:
 
 
 	ld	a,(key)
-;	and	a
-;	ret	z
-;	;--- Instrument select
-;	cp	_KEY_TAB
-;	jr.	nz,1f
-;	ld	a,(editmode)
-;	cp	11
-;	ld	a,(key)
-;	jr.	nz,_xxx_instruments
-;
-;1:	
-;	
-;
+
 	; - ESCAPE
 	cp	_ESC
 	jr.	nz,0f

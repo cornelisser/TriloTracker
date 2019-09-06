@@ -963,7 +963,7 @@ _stmu_drumsub:					; calculate the number of bytes
 	pop	hl
 	ld	de,DRUMMACRO_SIZE
 	add	hl,de
-	ex	de,hl	
+;	ex	de,hl	 
 	pop	bc
 	djnz	_stmu_drumloop
 ENDIF

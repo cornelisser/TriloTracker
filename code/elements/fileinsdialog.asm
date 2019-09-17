@@ -97,11 +97,13 @@ draw_ins_filedialog:
 	ld	de,0x1501
 	call	erase_colorbox	
 	ld	hl,(80*18)+0x3b	
-	ld	de,_LABEL_DISKDRIVE
+	ld	de,._LABEL_DISKDRIVE
 	call	draw_label
 
 	ret
-	
+
+._LABEL_DISKDRIVE:
+	db	"Drive:  :",0		
 _LABEL_DISKINS:
 	db	"Load Instrument",0
 	db	"Load Instr. set",0
@@ -113,12 +115,17 @@ _LABEL_DISKMAC:
 	db	"Save Macro",0
 	db	"Save Macro set",0	
 _LABEL_DISKWAVE:
+IFDEF TTSCC
 	db	"Load Waveform",0
 	db	"Load Waveform set",0
 	db	"Save Waveform",0
 	db	"Save Waveform set",0
-
-
+ELSE
+	db	"Load Voice",0
+	db	"Load Voice set",0
+	db	"Save Voice",0
+	db	"Save Voice set",0
+ENDIF
 ;===========================================================
 ; --- update_ins_filedialog
 ; Display the sequence area.  Without actual values 
@@ -713,6 +720,7 @@ _ipfd_eloop:
 	dec	a
 	jr.	z,_ipfd_SAVE_MACSET
 	dec	a
+IFDEF TTSCC
 	jr.	z,_ipfd_LOAD_WAV
 	dec	a
 	jr.	z,_ipfd_LOAD_WAVSET
@@ -720,7 +728,26 @@ _ipfd_eloop:
 	jr.	z,_ipfd_SAVE_WAV
 	dec	a
 	jr.	z,_ipfd_SAVE_WAVSET
-	;--- Add more actions here
+
+ELSE
+	jr.	z,_ipfd_LOAD_VOI
+	dec	a
+	jr.	z,_ipfd_LOAD_VOISET
+	dec	a
+	jr.	z,_ipfd_SAVE_VOI
+	dec	a
+	jr.	z,_ipfd_SAVE_VOISET
+ENDIF	
+	;--- Add more actions here	
+	
+
+
+_ipfd_LOAD_VOI:
+_ipfd_LOAD_VOISET:
+_ipfd_SAVE_VOI:
+_ipfd_SAVE_VOISET:
+	jr.	restore_insfiledialog
+
 	
 _ipfd_LOAD_INS:	
 	xor	a
@@ -802,7 +829,7 @@ _ipfd_SAVE_MACSET:
 	call	save_masfile		; hl needs to point to the filename 
 	jr.	restore_insfiledialog
 
-
+IFDEF TTSCC
 _ipfd_LOAD_WAV:
 	xor	a
 	ld	(window_shown),a	
@@ -814,7 +841,9 @@ _ipfd_LOAD_WAV:
 	and	a
 	jr.	z,restore_psgsampleeditor
 	jr.	restore_insfiledialog
+ENDIF
 
+IFDEF TTSCC
 _ipfd_LOAD_WAVSET:
 	xor	a
 	ld	(window_shown),a	
@@ -826,22 +855,25 @@ _ipfd_LOAD_WAVSET:
 	and	a
 	jr.	z,restore_psgsampleeditor
 	jr.	restore_insfiledialog
+ENDIF
 
-
+IFDEF TTSCC
 _ipfd_SAVE_WAV:
 	;--- Save A waveform
 	ld	de,_FILMES_saving
 	call	message_filedialog
 	call	save_wafile		; hl needs to point to the filename 
 	jr.	restore_insfiledialog
+ENDIF
 
+IFDEF TTSCC
 _ipfd_SAVE_WAVSET:
 	;--- SAVE a waveform set
 	ld	de,_FILMES_saving
 	call	message_filedialog
 	call	save_wasfile		; hl needs to point to the filename 
 	jr.	restore_insfiledialog
-	
+ENDIF	
 	
 _ipfd_sf_DIR:
 	call	open_directory

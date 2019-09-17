@@ -1529,6 +1529,7 @@ _create_mas_continue:
 ; Original file is backed up if the file existed.
 ;===========================================================	
 create_wafile:
+IFDEF TTSCC
 	call	reset_hook
 	ld	(_catch_stackpointer),sp
 	push	hl			; save hl for overwrite handling
@@ -1564,9 +1565,13 @@ _cwaf_overwrite:
 	jr.	save_wafile		; if result is '0' (YES overwrite the file)
 1:
 	call	set_hook			; The result is "NO"
+ENDIF
 	ret
 
 
+
+
+IFDEF TTSCC
 ;===========================================================
 ; --- save_wafile
 ;
@@ -1603,7 +1608,7 @@ _create_wa_continue:
 	call	write_file
 	call	nz,catch_diskerror
 
-IFDEF	TTSCC	
+
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
@@ -1622,7 +1627,7 @@ IFDEF	TTSCC
 	ex	de,hl
 	call	write_file	
 	call	nz,catch_diskerror
-ENDIF 
+ 
 
 	
 	call	close_file
@@ -1631,6 +1636,7 @@ ENDIF
 	call	set_hook
 	ret
 
+ENDIF
 
 
 
@@ -1641,6 +1647,7 @@ ENDIF
 ; Original file is backed up if the file existed.
 ;===========================================================	
 create_wasfile:
+IFDEF TTSCC
 	call	reset_hook
 	ld	(_catch_stackpointer),sp
 	push	hl			; save hl for overwrite handling
@@ -1676,8 +1683,11 @@ _cwasf_overwrite:
 	jr.	save_wasfile		; if result is '0' (YES overwrite the file)
 1:
 	call	set_hook			; The result is "NO"
+ENDIF
 	ret
-	
+
+
+IFDEF TTSCC	
 ;===========================================================
 ; --- save_wasfile
 ;
@@ -1714,7 +1724,7 @@ _create_was_continue:
 	call	write_file
 	call	nz,catch_diskerror
 
-IFDEF TTSCC	
+
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
@@ -1722,14 +1732,13 @@ IFDEF TTSCC
 	ex	de,hl
 	call	write_file	 
 	call	nz,catch_diskerror
-ENDIF
 	
 	call	close_file
 ;	call	nz,catch_diskerror
 	call	set_hook
 	ret
 
-
+ENDIF
 
 ;===========================================================
 ; --- open_tmufile
@@ -2385,7 +2394,7 @@ ENDIF
 	ret
 
 
-
+IFDEF TTSCC
 ;===========================================================
 ; --- open_wavfile
 ;
@@ -2412,7 +2421,7 @@ open_wafile:
 	call	read_file
 	call	nz,catch_diskerror
 			
-IFDEF	TTSCC	
+
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
@@ -2431,7 +2440,6 @@ IFDEF	TTSCC
 	ex	de,hl
 	call	read_file	
 	call	nz,catch_diskerror
-ENDIF
 	
 	
 	call	close_file
@@ -2439,10 +2447,10 @@ ENDIF
 	call	set_hook
 	ret
 	
-
+ENDIF
 	
 
-
+IFDEF TTSCC
 ;===========================================================
 ; --- open_wasfile
 ;
@@ -2468,7 +2476,7 @@ open_wasfile:
 	call	read_file
 	call	nz,catch_diskerror
 
-IFDEF	TTSCC	
+
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
@@ -2476,13 +2484,12 @@ IFDEF	TTSCC
 	ex	de,hl
 	call	read_file	
 	call	nz,catch_diskerror
-ENDIF
 
 	call	close_file
 	
 	call	set_hook
 	ret
-
+ENDIF
 
 ;===========================================================
 ; --- open_mafile
@@ -2627,12 +2634,16 @@ open_masfile:
 ; 
 ; A is changed.
 ;	0 = TMU
-;	1 = IN
+;	1 = IN		; instrument macro
 ;	2 = IS
-;	3 = MA
+;	3 = MA		; macro
 ;	4 = MS
-;	5 = WA
+;	5 = WA		; waveform
 ;	6 = WS
+;	7 = VO		; FM voice
+;	8 = VS
+;	9 = DR		; Drum macro
+;	10= DS
 ;===========================================================
 check_extension:
 	push	hl
@@ -2663,12 +2674,12 @@ check_extension:
 	ld	a,"M"
 	cp	(hl)
 	jr.	nz,0f
-	;---- Instrument file
+	;---- macro file
 		inc	hl
 		ld	a,"S"
 		cp	(hl)
 		jr.	z,1f
-		;--- a single instrument
+		;--- a single macro
 		ld	a,3
 		jr.	_ce_END
 1:		
@@ -2678,17 +2689,54 @@ check_extension:
 	ld	a,"W"
 	cp	(hl)
 	jr.	nz,0f
-	;---- Instrument file
+	;---- Wave file
 		inc	hl
 		ld	a,"S"
 		cp	(hl)
 		jr.	z,1f
-		;--- a single instrument
+		;--- a single Wave
 		ld	a,5
 		jr.	_ce_END
 1:		
 		ld	a,6
 		jr.	_ce_END
+
+0:
+	ld	a,"V"
+	cp	(hl)
+	jr.	nz,0f
+	;---- FM voice file
+		inc	hl
+		ld	a,"S"
+		cp	(hl)
+		jr.	z,1f
+		;--- a single voice
+		ld	a,7
+		jr.	_ce_END
+1:		
+		ld	a,8
+		jr.	_ce_END
+
+0:
+	ld	a,"D"
+	cp	(hl)
+	jr.	nz,0f
+	;---- Drum macro file
+		inc	hl
+		ld	a,"S"
+		cp	(hl)
+		jr.	z,1f
+		;--- a single drum maro
+		ld	a,9
+		jr.	_ce_END
+1:		
+		ld	a,10
+		jr.	_ce_END
+
+
+
+
+
 0:
 	ld	a,255			;- error value
 

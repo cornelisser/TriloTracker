@@ -526,7 +526,9 @@ _ipf_save_cont:
 	; fill buffer with information
 	ld	de,_MACSET_WILDCARD
 	jr.	_ipf_save_cont
-	
+
+
+IFDEF TTSCC	
 8:	;--- 8 = load waveform
 	ld	a,1
 	ld	(editsubmode),a
@@ -562,8 +564,43 @@ _ipf_save_cont:
 	; fill buffer with information
 	ld	de,_WAVSET_WILDCARD
 	jr.	_ipf_save_cont
+ELSE
+8:	;--- 8 = load voice
+	ld	a,1
+	ld	(editsubmode),a
+	call	reset_cursor_ins_filedialog
+	
+	; fill buffer with information
+	ld	de,_VOI_WILDCARD
+	jr.	_ipf_open_cont
 
+9:	;--- 9 = load voice set
+	ld	a,1
+	ld	(editsubmode),a
+	call	reset_cursor_ins_filedialog
+	
+	; fill buffer with information
+	ld	de,_VOISET_WILDCARD
+	jr.	_ipf_open_cont
 
+10:	;--- 11 = save voice	
+	ld	a,2
+	ld	(editsubmode),a
+	call	reset_cursor_ins_filedialog
+	
+	; fill buffer with information
+	ld	de,_VOI_WILDCARD
+	jr.	_ipf_save_cont
+
+11:	;--- 12 = save voice set
+	ld	a,2
+	ld	(editsubmode),a
+	call	reset_cursor_ins_filedialog
+	
+	; fill buffer with information
+	ld	de,_VOISET_WILDCARD
+	jr.	_ipf_save_cont
+ENDIF
 
 
 0:

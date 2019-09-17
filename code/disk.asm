@@ -14,6 +14,10 @@ disk_handle		ds 1		; used for reading writing to a file
 disk_drives		ds 1		; the available drives (bits are set)
 disk_dir_stat	ds 1		; indicates if we want dirs or files
 
+_CHIPSET_SCC	equ	$00	
+_CHIPSET_FM		equ	$10
+_CHIPSET_SMS	equ	$30
+
 
 
 insert_disk_handler:
@@ -1881,6 +1885,48 @@ _otmu_samplsub:				; calculate the number of bytes
 	djnz	_otmu_samploop
 
 IFDEF	TTSCC	
+	;--- Handle loading of FM and SMS tmu files
+	ld	a,(song_version)
+	and	$f0
+	cp	_CHIPSET_SCC
+	jp	z,0f			; jump if SCC TMU file
+; Skip FM/SMS data
+	; skip the custom voice data
+	ld	de,buffer		
+	ld	hl,8*16
+	call	read_file
+	jr.	nz,catch_diskerror	
+	; skip the drum macro names
+	ld	hl,MAX_DRUMS*16
+	call	read_file	
+	jr.	nz,catch_diskerror
+	; skip the drum data
+	ld	b,MAX_DRUMS-1				; 20-1 samples to read.	
+2:	push	bc
+	ld	de,buffer	
+	ld	hl,1
+	call	read_file
+	jr.	nz,catch_diskerror			
+	
+	ld	a,(buffer)				; get the sample length	
+	ld	b,a
+	xor	a
+1:							; calculate the number of bytes
+	add	a,7					; 7 bytes per line
+	djnz	1b
+
+	ld	h,0
+	ld	l,a
+	call	read_file
+	jr.	nz,catch_diskerror	
+	
+	pop	bc
+	djnz	2b
+	
+	jr	_otmu_patterns		; continue to pattern loading
+
+	;--- normal TMU SSC loading
+0:
 	;--- Read the SCC waveform data;
 	ld	de,_WAVESSCC
 	;--- check how many scc waveforms we need to load.
@@ -2785,8 +2831,14 @@ _WAV_WILDCARD:
 	db	"*.WA",0
 _WAVSET_WILDCARD:
 	db	"*.WS",0	
-
-
+_VOI_WILDCARD:
+	db	"*.VO",0
+_VOISET_WILDCARD:
+	db	"*.VS",0
+_DRM_WILDCARD:
+	db	"*.DR",0
+_DRMSET_WILDCARD:
+	db	"*.DS",0
 	
 
 _catch_stackpointer:			; value needs to be set on disk access to be able to

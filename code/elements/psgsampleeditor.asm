@@ -101,6 +101,10 @@ processkey_psgsampleeditor:
 	;--- start filedialog
 	ld	a,5
 	call	swap_loadblock
+	;--- load generic filedialog
+	ld    a,6
+	call    swap_loadelementblock	
+	
 	jr.	init_ins_filedialog
 
 0:

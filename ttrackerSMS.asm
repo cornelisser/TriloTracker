@@ -102,7 +102,7 @@ _LABEL_PATTERNHEADER:
 	db	136,170,171,167,185,188,189,186,187	; scc4	
 	db	136,170,171,168,185,188,189,186,187	; scc5
 	db	136,170,171,169,185,188,189,186,187	; psg3
-	db	136,32,32,32,0
+	db	136,"D","r","m",0
 _LABEL_PATTERNHEADER2:
 	;db	32,129,171,172,175,129			; envelope column
 	db	32,32,32
@@ -114,7 +114,7 @@ _LABEL_PATTERNHEADER2:
 	db	136,170,171,166,185,188,189,186,187	; scc3	
 	db	136,170,171,167,185,188,189,186,187	; scc4	
 	db	136,170,171,168,185,188,189,186,187	; scc5
-	db	136,32,32,32,0	
+	db	136,"D","r","m",0	
 	include	".\code\elements\trackboxFM.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	

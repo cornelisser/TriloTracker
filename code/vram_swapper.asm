@@ -73,6 +73,8 @@ _slv_loop:
 ;---------------------
 ; swap_loadelementblock
 ;
+; Use this for code that uses the replyer.
+;
 ; reads data from VRAM into RAM
 ; [A] - block nr
 swap_loadelementblock:
@@ -112,6 +114,9 @@ swap_loadelementblock:
 ; swap_loadblock
 ;
 ; reads data from VRAM into RAM
+;
+; Use this for code that uses the filedialog. routines
+;
 ; [A] - block nr
 swap_loadblock:
 	;--- make sure no replayer is triggered

@@ -1639,6 +1639,70 @@ _create_wa_continue:
 
 	call	set_hook
 	ret
+ELSE
+;===========================================================
+; --- save_vofile
+;
+; save a vofile. HL needs to point to the file
+; 
+;===========================================================	
+save_vofile:
+	ld	(_catch_stackpointer),sp
+	call	reset_hook
+
+;	call	backup_file
+
+	ld	a,00000000b
+	ld	b,00000000b		; required attributes. 0=overwrite
+	call	create_file
+
+	;--- Check for errors
+	; if error then restore backup
+	and	a
+;	jr.	nz,catch_diskerror ;<- replace with restore
+	call	nz,catch_diskerror
+	
+_create_va_continue:
+	ld	a,b
+	ld	(disk_handle),a
+
+;	ld	a,(current_song)
+	call	set_songpage
+
+	
+	;--- Write header
+	ld	de,disk_wildcard+2
+	ld	hl,3
+	call	write_file
+	call	nz,catch_diskerror
+
+
+	;--- Write voice
+	;--- calculate the current wave pos in RAM
+	ld	a,(instrument_waveform)	; get the current waveform
+	ld	hl,_VOICES
+	ld	de,8
+	and	a
+	jr.	z,99f
+	
+
+0:
+	add	hl,de
+	dec	a
+	jr.	nz,0b
+
+99:
+	ex	de,hl
+	call	write_file	
+	call	nz,catch_diskerror
+ 
+
+	
+	call	close_file
+	call	nz,catch_diskerror
+
+	call	set_hook
+	ret
 
 ENDIF
 
@@ -2492,7 +2556,58 @@ open_wafile:
 	
 	call	set_hook
 	ret
+ELSE
+;===========================================================
+; --- open_vofile
+;
+; Open a vo file. HL needs to point to the file
+; Data is loaded into the current song
+;===========================================================	
+open_vofile:
+	call	reset_hook
+	ld	(_catch_stackpointer),sp
+	ld	a,00000001b		; NO write
+	call	open_file
 	
+	;--- Check for errors
+	and	a
+	call	nz,catch_diskerror
+	
+
+	ld	a,b
+	ld	(disk_handle),a
+	
+	;--- Read type
+	ld	de,buffer
+	ld	hl,3
+	call	read_file
+	call	nz,catch_diskerror
+			
+
+	;--- Read waveform
+	;--- calculate the current wave pos in RAM
+	ld	a,(instrument_waveform)	; get the current waveform
+	ld	hl,_VOICES
+	ld	de,8
+	and	a
+	jr.	z,99f
+	
+
+0:
+	add	hl,de
+	dec	a
+	jr.	nz,0b
+
+99:
+	ex	de,hl
+	call	read_file	
+	call	nz,catch_diskerror
+	
+	
+	call	close_file
+	
+	call	set_hook
+	ret	
 ENDIF
 	
 

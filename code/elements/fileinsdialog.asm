@@ -76,6 +76,8 @@ draw_ins_filedialog:
 	ld	hl,0x3a0d
 	ld	de,0x1504
 	call	erase_colorbox		
+
+IFDEF TTSCC	
 	ld	hl,(80*13)+0x3b	
 	ld	de,_LABEL_DISKWAVE
 	call	draw_label
@@ -88,7 +90,28 @@ draw_ins_filedialog:
 	inc	de	
 	ld	hl,(80*16)+0x3b
 	call	draw_label		
-	
+ELSE
+	ld	a,(instrument_waveform)
+	cp	192-15
+	jp	c,99f
+	;-- only draw is current instrument has custom voice
+	ld	hl,(80*13)+0x3b		
+	ld	de,_LABEL_DISKWAVE
+	call	draw_label
+	inc	de
+	ld	hl,(80*15)+0x3b
+	call	draw_label
+99:
+	ld	de,_LABEL_DISKWAVE_set
+	ld	hl,(80*14)+0x3b
+	call	draw_label
+	inc	de	
+	ld	hl,(80*16)+0x3b
+	call	draw_label		
+
+
+
+ENDIF
 	;drive name
 	ld	hl,(80*17)+57
 	ld	de,(23*256) + 2
@@ -97,13 +120,11 @@ draw_ins_filedialog:
 	ld	de,0x1501
 	call	erase_colorbox	
 	ld	hl,(80*18)+0x3b	
-	ld	de,._LABEL_DISKDRIVE
+	ld	de,_LABEL_DISKDRIVE
 	call	draw_label
 
 	ret
-
-._LABEL_DISKDRIVE:
-	db	"Drive:  :",0		
+		
 _LABEL_DISKINS:
 	db	"Load Instrument",0
 	db	"Load Instr. set",0
@@ -122,10 +143,12 @@ IFDEF TTSCC
 	db	"Save Waveform set",0
 ELSE
 	db	"Load Voice",0
-	db	"Load Voice set",0
 	db	"Save Voice",0
+_LABEL_DISKWAVE_set:
+	db	"Load Voice set",0
 	db	"Save Voice set",0
 ENDIF
+
 ;===========================================================
 ; --- update_ins_filedialog
 ; Display the sequence area.  Without actual values 
@@ -242,7 +265,6 @@ processkey_ins_filedialog:
 	;-- special check for filename
 	cp	255
 	jr.	z,processkey_filedialog_filename
-	
 	and	a
 	jr.	z,processkey_ins_filedialog_menu	;--- Menu select
 	;dec	a
@@ -780,10 +802,31 @@ ENDIF
 
 
 _ipfd_LOAD_VOI:
+	;-- Only if current voice is custom
+	ld	a,(instrument_waveform)
+	cp	192-15
+	jp	c,restore_insfiledialog
 _ipfd_LOAD_VOISET:
-_ipfd_SAVE_VOI:
 _ipfd_SAVE_VOISET:
 	jr.	restore_insfiledialog
+
+IFDEF TTSCC
+ELSE
+_ipfd_SAVE_VOI:
+	;-- Only if current voice is custom
+	ld	a,(instrument_waveform)
+	cp	192-15
+	jp	c,restore_insfiledialog
+
+	;--- Save A voice
+	ld	de,_FILMES_saving
+	call	message_filedialog
+	call	save_vofile		; hl needs to point to the filename 
+	jr.	restore_insfiledialog
+ENDIF
+
+
+
 
 	
 _ipfd_LOAD_INS:	
@@ -992,4 +1035,8 @@ restore_insfiledialog:
 		call	message_filedialog
 		call	draw_ins_filedialog
 		jr.	update_ins_filedialog	
+
+
+
+
 	

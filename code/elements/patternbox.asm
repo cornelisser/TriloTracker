@@ -752,6 +752,17 @@ ENDIF
 		call	draw_label_fast
 		ex	af,af'	;'	
 0:
-	
+IFDEF TTSCC	
+ELSE
+	ld	a,(DrumMixer)
+	and 	a
+	jp	nz,0f
+	ld	hl,(80*9)+4+72
+	ld	de,_LABEL_DISABLED
+	ld	b,3
+	call	draw_label_fast	
+		
+0:
+ENDIF
 
 	ret

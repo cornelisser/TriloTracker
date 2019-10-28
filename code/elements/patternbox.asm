@@ -759,7 +759,7 @@ ELSE
 	jp	nz,0f
 	ld	hl,(80*9)+4+72
 	ld	de,_LABEL_DISABLED
-	ld	b,3
+	ld	b,4
 	call	draw_label_fast	
 		
 0:

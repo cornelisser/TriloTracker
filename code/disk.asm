@@ -1680,6 +1680,7 @@ _create_va_continue:
 	;--- Write voice
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
+	sub	16				; first 16 are hw voices.
 	ld	hl,_VOICES
 	ld	de,8
 	and	a
@@ -2587,6 +2588,7 @@ open_vofile:
 	;--- Read waveform
 	;--- calculate the current wave pos in RAM
 	ld	a,(instrument_waveform)	; get the current waveform
+	sub	16
 	ld	hl,_VOICES
 	ld	de,8
 	and	a

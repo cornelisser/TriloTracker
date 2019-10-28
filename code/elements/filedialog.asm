@@ -405,7 +405,14 @@ _pff_no_init:
 ;		ld	a,(current_song)
 		call	set_songpage
 		jr.	restore_insfiledialog	
-	
+0:		dec	a
+		jr.	nz,0f			; VO?
+		jr.	_ipfd_SAVE_VOI	
+0:		dec	a
+		jr.	nz,0f			; VS?
+		jr.	_ipfd_SAVE_VOISET	
+0:	
+
 		; if all fails.	
 ;		ld	a,(current_song)
 		call	set_songpage

@@ -554,7 +554,6 @@ process_key_drumeditbox:
 	
 	
 0:
-debug:
 	cp	_DEL
 	jr.	nz,0f
 	ld	a,(drum_line)

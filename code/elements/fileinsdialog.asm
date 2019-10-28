@@ -735,7 +735,7 @@ _ipfs_foundvalidchar:
 
 
 0:
-
+debug:
 	;- Enter
 	cp	_KEY_ENTER
 	jr.	z,99f
@@ -806,6 +806,17 @@ _ipfd_LOAD_VOI:
 	ld	a,(instrument_waveform)
 	cp	192-15
 	jp	c,restore_insfiledialog
+	
+	;--- LOAD software voice
+	ld	de,_FILMES_loading
+	call	message_filedialog
+	call	open_vofile		; hl needs to point to the filename 
+	ld	a,(window_shown)
+	and	a
+	jr.	z,restore_psgsampleeditor
+	jr.	restore_insfiledialog	
+	
+	
 _ipfd_LOAD_VOISET:
 _ipfd_SAVE_VOISET:
 	jr.	restore_insfiledialog

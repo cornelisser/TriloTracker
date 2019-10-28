@@ -34,9 +34,16 @@ update_psgsampleeditor:
 	call	update_sccwave
 	ret
 
-
-
 restore_psgsampleeditor:
+
+IFDEF TTSCC
+ELSE
+	; restore voicemanager and Wave/Voice code.
+	ld	a,7
+	call	swap_loadelementblock
+ENDIF
+
+
 	ld	a,(editmode)
 	cp	1
 	jr.	z,99f
@@ -98,12 +105,12 @@ processkey_psgsampleeditor:
 	ld	a,(key)
 	cp	5
 	jr.	nz,0f
-	;--- start filedialog
+	;--- start instrument filedialog
 	ld	a,5
 	call	swap_loadblock
 	;--- load generic filedialog
 	ld    a,6
-	call    swap_loadelementblock	
+	call  swap_loadelementblock	
 	
 	jr.	init_ins_filedialog
 

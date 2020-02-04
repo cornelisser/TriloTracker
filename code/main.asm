@@ -289,6 +289,7 @@ _playback_mix:
 	ld	a,(DrumMixer)
 	xor	100000b
 	ld	(DrumMixer),a
+	call	draw_pattern_header
 	jr.	_playback_loop
 0:	
 	cp	_SPACE

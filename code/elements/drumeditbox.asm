@@ -157,6 +157,7 @@ _udm_pntpos:	dw	0
 update_drumeditbox:
 	;--- Make sure the cursor is inside the macro
 	ld	a,(drum_len)
+	inc 	a
 	ld	b,a
 	ld	a,(drum_line)
 	cp	b
@@ -554,8 +555,10 @@ process_key_drumeditbox:
 	
 	
 0:
-	cp	_DEL
+
+	cp	_BACKSPACE
 	jr.	nz,0f
+debug:
 	ld	a,(drum_line)
 	inc	a
 	ld	b,a
@@ -563,23 +566,26 @@ process_key_drumeditbox:
 	ld	a,(hl)
 	cp	b		; check if we are at last line
 	jr.	nz,1f
-	
+
+	; Backspace on last line
 	cp	1
 	jr.	z,process_key_drumeditbox_END
 	
 	dec	a
-	ld	(hl),a
+	ld	(hl),a	; Make the drum macro 1 step shorter
+	dec	a
+	ld 	(drum_line),a  ; go one line up
+	ld	a,(cursor_y)   ; move cursor allong
+	dec	a
+	ld	(cursor_y),a	
 	
 	;--- update screen
 	call	flush_cursor
-	ld	a,(cursor_y)
-	dec	a
-	ld	(cursor_y),a	
 	jr.	update_drumeditbox		
 	
-	;--- decrease len
+	;--- decrease len + remove line
 1:
-	call	_get_drum_start
+	;call	_get_drum_start  ; hl still points at start macro
 	ld	a,(hl)
 	cp	1
 	jp	z,99f

@@ -735,7 +735,7 @@ _ipfs_foundvalidchar:
 
 
 0:
-debug:
+
 	;- Enter
 	cp	_KEY_ENTER
 	jr.	z,99f

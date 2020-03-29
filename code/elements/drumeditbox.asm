@@ -558,7 +558,7 @@ process_key_drumeditbox:
 
 	cp	_BACKSPACE
 	jr.	nz,0f
-debug:
+
 	ld	a,(drum_line)
 	inc	a
 	ld	b,a

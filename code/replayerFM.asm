@@ -2325,10 +2325,10 @@ _pcAY_noMacroEnd:
 	pop	bc		
 	pop	hl		; tone deviation
 
-;--- Voice link check here as now ew still have all macro row values
+;--- Voice link check here as now we still have all macro row values
 	bit 	7,h
 	jp	z,_noVoicelink	
-
+	
 	res	7,h			; reset bit
 	set	6,(ix+CHIP_Flags)	; set voice update flag
 	ld	a,c
@@ -2342,6 +2342,7 @@ _noVoicelink:
 	jr.	z,_pcAY_noTone
 
 	;-- enable tone output
+	
 	ld	a,(SCC_regMIXER)
 	or	16
 	ld	(SCC_regMIXER),a

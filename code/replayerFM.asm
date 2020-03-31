@@ -1685,6 +1685,7 @@ _CHIPcmdE_notesus:
 	jp	z,99f
 	set	5,(ix+CHIP_Flags)
 	ret
+99:
 	res	5,(ix+CHIP_Flags)
 	ret	
 

@@ -3670,18 +3670,18 @@ _ptAY_voice_loop:
 
 	;--- Apply the mixer.
 	ld	hl,SCC_regMIXER
-;	;--- do not	apply	mmainmixer when in  mode 2
-;;	ld	a,(keyjazz)
-;;	and	a
+	;--- do not	apply	mmainmixer when in  mode 2
+;	ld	a,(keyjazz)
+;	and	a
 ;;	jr.	nz,99f
-;	ld	a,(replay_mode)
-;	cp	2
-;	jr.	z,99f
+	ld	a,(replay_mode)
+	cp	2
+	jr.	z,99f
 ;fmmixer:
 	ld	a,(MainMixer)
 	and	(hl)	; set	to 0 to silence
 	ld	(hl),a
-;99:
+99:
 ;
 	;--- write volume register
 	ld	de,FM_regVOLA

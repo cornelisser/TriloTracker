@@ -937,7 +937,7 @@ _drum_note_deviation:
 	and	00111111b
 	or	10000000b
 	ld	(hl),a
-	call	next_drum_column
+	;call	next_drum_column
 	jr.	update_drumeditbox
 	
 0:	cp	'-'
@@ -948,7 +948,7 @@ _drum_note_deviation:
 	ld	a,(hl)
 	or	11000000b
 	ld	(hl),a
-	call	next_drum_column
+	;call	next_drum_column
 	jr.	update_drumeditbox
 	
 
@@ -973,7 +973,7 @@ _drum_note_deviationhigh:
 	and	11001111b
 	or	d
 	ld	(hl),a
-	call	next_drum_column
+	;call	next_drum_column
 	jr.	update_drumeditbox	
 	
 	
@@ -1014,7 +1014,7 @@ _drum_note_deviationlow:
 	and	11110000b
 	or	d
 	ld	(hl),a
-	call	next_drum_column
+	;call	next_drum_column
 	jr.	update_drumeditbox
 
 

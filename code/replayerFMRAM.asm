@@ -21,7 +21,7 @@ replay_patpage 			db 0 			; the current page
 replay_previous_note		db 0			; previousnote played
 replay_mainvol			db 0			; the volume correction.
 
-replay_vib_table:			dw 0			; pointer to the vibrato table
+;replay_vib_table:			dw 0			; pointer to the vibrato table
 replay_Tonetable:			dw CHIP_ToneTable
 
 CHIP_Instrument		equ 0	
@@ -70,15 +70,15 @@ CHIP_Step			equ 32		; only for VIBRATO???
 
 CHIP_REC_SIZE		equ 33
 
-CHIP_Chan1			ds	CHIP_REC_SIZE
-CHIP_Chan2			ds	CHIP_REC_SIZE
-CHIP_Chan3			ds	CHIP_REC_SIZE
-CHIP_Chan4			ds	CHIP_REC_SIZE
-CHIP_Chan5			ds	CHIP_REC_SIZE
-CHIP_Chan6			ds	CHIP_REC_SIZE
-CHIP_Chan7			ds	CHIP_REC_SIZE
-CHIP_Chan8			ds	CHIP_REC_SIZE
-
+; Moved to RAM > $c000 to free space for replayer code.
+;CHIP_Chan1			ds	CHIP_REC_SIZE
+;CHIP_Chan2			ds	CHIP_REC_SIZE
+;CHIP_Chan3			ds	CHIP_REC_SIZE
+;CHIP_Chan4			ds	CHIP_REC_SIZE
+;CHIP_Chan5			ds	CHIP_REC_SIZE
+;CHIP_Chan6			ds	CHIP_REC_SIZE
+;CHIP_Chan7			ds	CHIP_REC_SIZE
+;CHIP_Chan8			ds	CHIP_REC_SIZE
 
 
 ;--- AY SPECIFIC
@@ -149,6 +149,11 @@ FM_volreg3		db	0	; Cymbal(low) TomTom (High)
 FM_DRUM_LEN		db	0	; Length of drum macro
 FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
 
+FM_softvoice_req	db	0	; Software voice requested
+FM_softvoice_set 	db	0	; Software voice currently loaded
+
+
+
 ;FM_DRUM1_LEN	db	0
 ;FM_DRUM1		dw	0	; pointer to BDrum macro
 ;FM_DRUM2_LEN	db	0
@@ -188,23 +193,21 @@ CHIP_FM_ToneTable:
       db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
       db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh
       db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
-;_FM_drumfreqtable:
-;	dw	$4000
-;	dw	$4002
-;	dw	$4004
-;	dw	$4006
-;	dw	$4008
-;	dw	$400a
-;	dw	$400c
-;	dw	$400e
-;	dw	$0006
-;	dw	$2006
-;	dw	$4006
-;	dw	$6006
-;	dw	$8006
-;	dw	$a006
-;	dw	$c006
-;	dw	$e006
+
+CHIP_ToneTable:	
+	dw	0	;	Dummy value (note 0)
+	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
+	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
+	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
+	dw C_PER/8	,C1_PER/8  ,D_PER/8  ,D1_PER/8  ,E_PER/8	,F_PER/8  ,F1_PER/8  ,G_PER/8	 ,G1_PER/8	,A_PER/8  ,A1_PER/8  ,B_PER/8
+	dw C_PER/16	,C1_PER/16 ,D_PER/16 ,D1_PER/16 ,E_PER/16	,F_PER/16 ,F1_PER/16 ,G_PER/16 ,G1_PER/16	,A_PER/16 ,A1_PER/16 ,B_PER/16
+	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
+	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
+	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
+
+
+
+
 
 ;===========================================================
 ; ---	replay_play

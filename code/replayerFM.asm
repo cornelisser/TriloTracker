@@ -53,30 +53,31 @@ B_PER		equ	$38*32
 ENDIF
 
 
-
-CHIP_ToneTable:	
-	dw	0	;	Dummy value (note 0)
-	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
-	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
-	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
-	dw C_PER/8	,C1_PER/8  ,D_PER/8  ,D1_PER/8  ,E_PER/8	,F_PER/8  ,F1_PER/8  ,G_PER/8	 ,G1_PER/8	,A_PER/8  ,A1_PER/8  ,B_PER/8
-	dw C_PER/16	,C1_PER/16 ,D_PER/16 ,D1_PER/16 ,E_PER/16	,F_PER/16 ,F1_PER/16 ,G_PER/16 ,G1_PER/16	,A_PER/16 ,A1_PER/16 ,B_PER/16
-	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
-	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
-	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
-
 CHIP_Vibrato_sine:
-	db	 0*2,	2*2, 4*2, 7*2,11*2,16*2,22*2,28*2,35*2,43*2,51*2,59*2,68*2,77*2,87*2,96*2
-	db	96*2,86*2,77*2,68*2,59*2,51*2,43*2,35*2,28*2,22*2,16*2,11*2, 7*2,	4*2, 2*2, 0*2
+	db	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 0
+	db	0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  2,  3,  3,  2,  2,  2,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 1
+	db	0,  0,  0,  0,  0,  1,  1,  1,  2,  2,  3,  3,  4,  4,  5,  6,  6,  5,  4,  4,  3,  3,  2,  2,  1,  1,  1,  0,  0,  0,  0,  0 ; Depth 2
+	db	0,  0,  0,  0,  1,  2,  2,  3,  4,  5,  6,  7,  8,  9, 10, 12, 12, 10,  9,  8,  7,  6,  5,  4,  3,  2,  2,  1,  0,  0,  0,  0	; Depth 3
+	db	0,  0,  1,  1,  2,  4,  5,  7,  8, 10, 12, 14, 17, 19, 21, 24, 24, 21, 19, 17, 14, 12, 10,  8,  7,  5,  4,  2,  1,  1,  0,  0	; Depth 4
+	db	0,  1,  2,  3,  5,  8, 11, 14, 17, 21, 25, 29, 34, 38, 43, 48, 48, 43, 38, 34, 29, 25, 21, 17, 14, 11,  8,  5,  3,  2,  1,  0	; Depth 5
+	db	0,  2,  4,  7, 11, 16, 22, 28, 35, 43, 51, 59, 68, 77, 87, 96, 96, 87, 77, 68, 59, 51, 43, 35, 28, 22, 16, 11,  7,  4,  2,  0	; Depth 6	
+	db	0,  4,  8, 14, 22, 32, 44, 56, 70, 86,102,118,136,154,174,192,192,174,154,136,118,102, 86, 70, 56, 44, 32, 22, 14,  8,  4,  0	; Depth 7
 
-CHIP_Vibrato_triangle:
-	db	 0, 6,12,18,24,30,36,42,48,54,60,66,72,78,84,90
-	db	96,90,84,78,72,66,60,54,48,42,36,30,24,18,12, 6
 
-CHIP_Vibrato_pulse:
-	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
+
+
+
+;	db	 0*2,	2*2, 4*2, 7*2,11*2,16*2,22*2,28*2,35*2,43*2,51*2,59*2,68*2,77*2,87*2,96*2
+;	db	96*2,86*2,77*2,68*2,59*2,51*2,43*2,35*2,28*2,22*2,16*2,11*2, 7*2,	4*2, 2*2, 0*2
+;
+;CHIP_Vibrato_triangle:
+;	db	 0, 6,12,18,24,30,36,42,48,54,60,66,72,78,84,90
+;	db	96,90,84,78,72,66,60,54,48,42,36,30,24,18,12, 6
+;
+;CHIP_Vibrato_pulse:
 ;	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-	db      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	
+;;	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
+;	db      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	
 	
 
 
@@ -524,9 +525,9 @@ replay_init_cont:
 	ld	(hl),a
 	ldir
 	
-	;--- Set vibrato table
-	ld	hl,CHIP_Vibrato_sine
-	ld	(replay_vib_table),hl
+;	;--- Set vibrato table
+;	ld	hl,CHIP_Vibrato_sine
+;	ld	(replay_vib_table),hl
 	
 	;--- Set the tone table base
 	ld	hl,CHIP_ToneTable
@@ -1091,13 +1092,17 @@ _dc_noNote:
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	cp	(ix+CHIP_Voice)
-	jr.	z,_dc_noNewWaveform
 	
+	cp	16
+	jp	c,.skip_soft
+	
+	ld	(FM_softvoice_req),a
+	xor	a
+	
+.skip_soft:
 	ld	(ix+CHIP_Voice),a
-	set	6,(ix+CHIP_Flags)
-	
-_dc_noNewWaveform:	
+;	set	6,(ix+CHIP_Flags)
+		
 	call	set_patternpage_safe
 	
 _dc_noInstr:
@@ -1348,26 +1353,51 @@ _CHIPcmd4_vibrato:
 	; waveform to a triangle wave, a square wave, or a
 	; random table by	using	the E4x command).
 
+	
 	;--- Init values
 	and	a
 	jr.	z,_CHIP_cmd4_retrig
-	ld	d,a
-	and	$07
-	;inc	a
-	;--- reverse detph. this is not good for stand alonereplayer?
 	ld	e,a
-	ld	a,8
-	sub	e
-	ld	(ix+CHIP_cmd_4_depth),a
-	ld	a,d
+	
+	;--- Set the speed
 	rra
 	rra
 	rra
 	rra
 	and	$0f
-	ld	(ix+CHIP_cmd_4_step),a
+	inc	a
+	ld	(ix+CHIP_cmd_4_step),a	
 	neg	
-	ld	(ix+CHIP_Step),a
+	ld	(ix+CHIP_Step),a	
+	
+	;-- set the depth
+	ld	a,$0f
+	and	e
+	cp	9
+	jp	c,99f
+	ld	(ix+CHIP_cmd_4_step),0	
+	ld	a,1
+99:
+	dec	a
+	rrc	a
+	rrc	a
+	rrc	a
+	ld	(ix+CHIP_cmd_4_depth),a	
+
+;	;--- reverse detph. this is not good for stand alonereplayer?
+;	ld	e,a
+;	ld	a,8
+;	sub	e
+;	ld	(ix+CHIP_cmd_4_depth),a
+;	ld	a,d
+;	rra
+;	rra
+;	rra
+;	rra
+;	and	$0f
+;	ld	(ix+CHIP_cmd_4_step),a
+;	neg	
+;	ld	(ix+CHIP_Step),a
 
 _CHIP_cmd4_retrig:	
 	set	3,(ix+CHIP_Flags)
@@ -1646,15 +1676,15 @@ _CHIPcmdE_delay:
 	ret
 
 _CHIPcmdE_vibrato:
-	ld	hl,CHIP_Vibrato_sine
-	ld	a,d
-	and	3
-	jr.	z,99f
-	ld	de,32
-88:	add	hl,de
-	dec	a
-	jr.	nz,88b
-99:	ld	(replay_vib_table),hl
+;	ld	hl,CHIP_Vibrato_sine
+;	ld	a,d
+;	and	3
+;	jr.	z,99f
+;	ld	de,32
+;88:	add	hl,de
+;	dec	a
+;	jr.	nz,88b
+;99:	ld	(replay_vib_table),hl
 	ret
 
 _CHIPcmdE_fineup:
@@ -2939,53 +2969,94 @@ _pcAY_cmd3_stop:
 
 	;-- vibrato	
 _pcAY_cmd4:
-
-	ld	hl,(replay_vib_table)
+	ld 	hl,CHIP_Vibrato_sine
+	
 	;--- Get next step
 	ld	a,(IX+CHIP_Step)
 	add	(ix+CHIP_cmd_4_step)
-	and	$3F			; max	32
+	and	$3F			; max	64
 	ld	(ix+CHIP_Step),a
 	
 	bit	5,a			; step 32-63 the neg	
-	jr.	z,_pcAY_cmd4pos
-
-; neg	
-	and	$1f
-	add	l
+	jp	z,.pos	
+	
+.neg:
+	and	$1f	; make it 32 steps again
+	add	a,(ix+CHIP_cmd_4_depth)
+	add	a,l
 	ld	l,a
-	jr.	nc,99f
+	jp	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
-	;apply depth
-	ld	b,(ix+CHIP_cmd_4_depth)
-11:	srl	a
-	djnz	11b
-;	and	$0f
-
 	neg
-	jr.	z,33f			; $ff00 gives strange result ;)	
+	jp	z,.zero			; $ff00 gives strange result ;)	
 	ld	(ix+CHIP_cmd_ToneAdd),a
 	ld	(ix+CHIP_cmd_ToneAdd+1),0xff
-	jr.	_pcAY_commandEND
+	jp	_pcAY_commandEND	
 
-_pcAY_cmd4pos:	
-;	and	$1f
-	add	l
+.pos:
+	add	a,(ix+CHIP_cmd_4_depth)
+	add	a,l
 	ld	l,a
-	jr.	nc,99f
+	jp	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
-	;apply depth
-	ld	b,(ix+CHIP_cmd_4_depth)
-11:	srl	a
-	djnz	11b
-;	and	$0f
-33:	ld	(ix+CHIP_cmd_ToneAdd),a
+.zero:	
+	ld	(ix+CHIP_cmd_ToneAdd),a
 	ld	(ix+CHIP_cmd_ToneAdd+1),0
-	jr.	_pcAY_commandEND
+	jp	_pcAY_commandEND	
+
+	
+	
+	
+;	ld	hl,(replay_vib_table)
+;	;--- Get next step
+;	ld	a,(IX+CHIP_Step)
+;	add	(ix+CHIP_cmd_4_step)
+;	and	$3F			; max	32
+;	ld	(ix+CHIP_Step),a
+;	
+;	bit	5,a			; step 32-63 the neg	
+;	jr.	z,_pcAY_cmd4pos
+;
+;; neg	
+;	and	$1f
+;	add	l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;	ld	a,(hl)
+;	;apply depth
+;	ld	b,(ix+CHIP_cmd_4_depth)
+;11:	srl	a
+;	djnz	11b
+;;	and	$0f
+;
+;	neg
+;	jr.	z,33f			; $ff00 gives strange result ;)	
+;	ld	(ix+CHIP_cmd_ToneAdd),a
+;	ld	(ix+CHIP_cmd_ToneAdd+1),0xff
+;	jr.	_pcAY_commandEND
+;
+;_pcAY_cmd4pos:	
+;;	and	$1f
+;	add	l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;	ld	a,(hl)
+;	;apply depth
+;	ld	b,(ix+CHIP_cmd_4_depth)
+;11:	srl	a
+;	djnz	11b
+;;	and	$0f
+;33:	ld	(ix+CHIP_cmd_ToneAdd),a
+;	ld	(ix+CHIP_cmd_ToneAdd+1),0
+;	jr.	_pcAY_commandEND
 		
 	
 
@@ -3647,24 +3718,33 @@ ENDIF
 ;--------------
 ; F M P A C 
 ;--------------
-	ld	b,6
-	ld	ix,CHIP_Chan3
-_ptAY_voice_loop:	
-	bit	6,(IX+CHIP_Flags)
-	jp	z,0f
-	res	6,(ix+CHIP_Flags)
-	ld	a,(ix+CHIP_Voice)
-;	and	a
-;	jp	nz,99f
-;	inc	a
-99:
-	cp	16
-	call	nc,load_softwarevoice
-	ld	(ix+CHIP_Waveform),a
-0:
-	ld	de,CHIP_REC_SIZE
-	add	ix,de
-	djnz	_ptAY_voice_loop
+	ld	hl,FM_softvoice_req
+	ld	a,(hl)
+	inc	hl
+	cp	(hl)
+	jp	z,.noVoice
+	
+	ld	(hl),a
+	call	load_softwarevoice
+.noVoice:
+;	ld	b,6
+;	ld	ix,CHIP_Chan3
+;_ptAY_voice_loop:	
+;	bit	6,(IX+CHIP_Flags)
+;	jp	z,0f
+;	res	6,(ix+CHIP_Flags)
+;	ld	a,(ix+CHIP_Voice)
+;;	and	a
+;;	jp	nz,99f
+;;	inc	a
+;99:
+;	cp	16
+;	call	nc,load_softwarevoice
+;	ld	(ix+CHIP_Waveform),a
+;0:
+;	ld	de,CHIP_REC_SIZE
+;	add	ix,de
+;	djnz	_ptAY_voice_loop
 
 
 

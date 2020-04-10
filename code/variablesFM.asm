@@ -138,7 +138,6 @@ _SONGDATA_END:	#0
 	;
 	;
 	map 0xc000
-	
 ; MSX-DOS2 memory mapper function jump table	
 ALL_SEG:		#3
 FRE_SEG:		#3
@@ -166,6 +165,20 @@ cnt:		#1	; tic timer for correct playback on 60hz
 equalization_flag:	#1	; flag indicating if only instruments need to be processed.
 
 ;org_stack:	#2	; used to recover from an error.
+
+
+
+CHIP_Chan1:			#CHIP_REC_SIZE
+CHIP_Chan2:			#CHIP_REC_SIZE
+CHIP_Chan3:			#CHIP_REC_SIZE
+CHIP_Chan4:			#CHIP_REC_SIZE
+CHIP_Chan5:			#CHIP_REC_SIZE
+CHIP_Chan6:			#CHIP_REC_SIZE
+CHIP_Chan7:			#CHIP_REC_SIZE
+CHIP_Chan8:			#CHIP_REC_SIZE
+
+
+
 
 
 

@@ -225,8 +225,8 @@ replay_decodedata:
 	;xor	a
 	;ld	(AY_regMIXER),a	;set mixer to silence
 	;--- Set the tone table base
-;	ld	hl,CHIP_ToneTable
-;	ld	(replay_Tonetable),hl
+	ld	hl,CHIP_ToneTable
+	ld	(replay_Tonetable),hl
 
 
 	

@@ -2490,21 +2490,45 @@ IFDEF TTFM
 	ld	(ix+CHIP_Noise),a
 	ld	(AY_regNOISE),a
 ELSE
+	; SN PSG 
 	;--- Set the mixer for noise
 	ld	a,(SCC_regMIXER)
 	or	128
 	ld	(SCC_regMIXER),a
 	
-	ld	a,c
-	and	0x0f
-	ld	(SN_regVOLN),a
+	; volume
 	ld	a,c
 	rrca
 	rrca	
 	rrca
 	rrca
 	and	0x07
-	ld	(AY_regNOISE),a
+	ld	(AY_regNOISE),a	
+
+debug:	
+
+	;--- apply main volume balance
+	ld	a,(replay_mainvol)
+	ld	d,a
+	ld	a,c
+	and 	$0f
+	or	(ix+CHIP_Volume)
+	cp	d
+	jr.	c,88F
+	sub	d
+	jr.	99f
+88:	xor	a
+99:	
+	ld	de,AY_VOLUME_TABLE
+	add	a,e
+	ld 	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	a,(de)			
+	ld	(SN_regVOLN),a
+
+
 
 ENDIF
 	

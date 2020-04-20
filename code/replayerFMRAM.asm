@@ -194,8 +194,164 @@ CHIP_FM_ToneTable:
       db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh
       db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
 
+IFDEF TTSMS
 CHIP_ToneTable:	
 	dw	0	;	Dummy value (note 0)
+	dw $0000	     ; C2			
+	dw $0000	     ; C#2			
+	dw $0000	     ; D1			
+	dw $0000	     ; D#2			
+	dw $0000	     ; E1			
+	dw $0000	     ; F1			
+	dw $0000	     ; F#2			
+	dw $0000	     ; G1
+	dw $0000	     ; G#2			
+   
+	dw $03F9      ;A2
+	dw $03C0      ; A#2/Bb2 
+	dw $038A      ;B2
+	dw $0357      ;C3
+	dw $0327      ; C#3/Db3 
+	dw $02FA      ;D3
+	dw $02CF      ; D#3/Eb3 
+	dw $02A7      ;E3
+	dw $0281      ;F3
+	dw $025D      ; F#3/Gb3 
+	dw $023B      ;G3
+	dw $021B      ; G#3/Ab3 
+	dw $01FC      ;A3
+	dw $01E0      ; A#3/Bb3 
+	dw $01C5      ;B3
+	dw $01AC      ;C4
+	dw $0194      ; C#4/Db4 
+	dw $017D      ;D4
+	dw $0168      ; D#4/Eb4 
+	dw $0153      ;E4
+	dw $0140      ;F4
+	dw $012E      ; F#4/Gb4 
+	dw $011D      ;G4
+	dw $010D      ; G#4/Ab4 
+	dw $00FE      ;A4
+	dw $00F0      ; A#4/Bb4 
+	dw $00E2      ;B4
+	dw $00D6      ;C5
+	dw $00CA      ; C#5/Db5 
+	dw $00BE      ;D5
+	dw $00B4      ; D#5/Eb5 
+	dw $00AA      ;E5
+	dw $00A0      ;F5
+	dw $0097      ; F#5/Gb5 
+	dw $008F      ;G5
+	dw $0087      ; G#5/Ab5 
+	dw $007F      ;A5
+	dw $0078      ; A#5/Bb5 
+	dw $0071      ;B5
+	dw $006B      ;C6
+	dw $0065      ; C#6/Db6 
+	dw $005F      ;D6
+	dw $005A      ; D#6/Eb6 
+	dw $0055      ;E6
+	dw $0050      ;F6
+	dw $004C      ; F#6/Gb6 
+	dw $0047      ;G6
+	dw $0043      ; G#6/Ab6 
+	dw $0040      ;A6
+	dw $003C      ; A#6/Bb6 
+	dw $0039      ;B6
+	dw $0035      ;C7
+	dw $0032      ; C#7/Db7 
+	dw $0030      ;D7
+	dw $002D      ; D#7/Eb7 
+	dw $002A      ;E7
+	dw $0028      ;F7
+	dw $0026      ; F#7/Gb7 
+	dw $0024      ;G7
+	dw $0022      ; G#7/Ab7 
+	dw $0020      ;A7
+	dw $001E      ; A#7/Bb7 
+	dw $001C      ;B7
+	dw $001B      ;C8
+	dw $0019      ; C#8/Db8 
+	dw $0018      ;D8
+	dw $0016      ; D#8/Eb8 
+	dw $0015      ;E8
+	dw $0014      ;F8
+	dw $0013      ; F#8/Gb8 
+	dw $0012      ;G8
+	dw $0011      ; G#8/Ab8 
+	dw $0010      ;A8
+	dw $000F      ; A#8/Bb8 
+	dw $000E      ;B8
+
+CHIP_AutoTune:   	
+	;C 4  = NOTE 37
+      db -6        ;  C4
+      db -6        ;   C#4/Db4 
+      db 0        ;  D4
+      db -9        ;   D#4/Eb4 
+      db 6        ;  E4
+      db 4        ;  F4
+      db 6        ;   F#4/Gb4 
+      db 6        ;  G4
+      db 5        ;   G#4/Ab4 
+      db 4        ;  A4
+      db -1        ;   A#4/Bb4 
+      db 8        ;  B4
+      db -3        ;  C5
+      db -4        ;   C#5/Db5 
+      db 7        ;  D5
+      db -4        ;   D#5/Eb5 
+      db -5        ;  E5
+      db 3        ;  F5
+      db 3        ;   F#5/Gb5 
+      db -5        ;  G5
+      db -5        ;   G#5/Ab5 
+      db 2        ;  A5
+      db 0        ;   A#5/Bb5 
+      db 4        ;  B5
+      db -2        ;  C6
+      db -2        ;   C#6/Db6 
+      db 4        ;  D6
+      db -2        ;   D#6/Eb6 
+      db -3        ;  E6
+      db 1        ;  F6
+      db -7        ;   F#6/Gb6 
+      db 5        ;  G6
+      db 5        ;   G#6/Ab6 
+      db -7        ;  A6
+      db 0        ;   A#6/Bb6 
+      db -6        ;  B6
+      db 7        ;  C7
+      db 7        ;   C#7/Db7 
+      db -6        ;  D7
+      db -1        ;   D#7/Eb7 
+      db 7        ;  E7
+      db 1        ;  F7
+      db -3        ;   F#7/Gb7 
+      db -5        ;  G7
+      db -5        ;   G#7/Ab7 
+      db -4        ;  A7
+      db 0        ;   A#7/Bb7 
+      db 5        ;  B7
+      db -4        ;  C8
+      db 4        ;   C#8/Db8 
+      db -3        ;  D8
+      db 8        ;   D#8/Eb8 
+      db 3        ;  E8
+      db 0        ;  F8
+      db -2        ;   F#8/Gb8 
+      db -3        ;  G8
+      db -3        ;   G#8/Ab8 
+      db -2        ;  A8
+      db 0        ;   A#8/Bb8 
+      db 2        ;  B8
+
+	
+	
+	
+ELSE	
+CHIP_ToneTable:	
+	dw	0
 	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
 	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
 	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
@@ -204,7 +360,24 @@ CHIP_ToneTable:
 	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
 	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
 	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
+	dw C_PER/256,C1_PER/256,D_PER/256,D1_PER/256,E_PER/256,F_PER/256,F1_PER/256,G_PER/256,G1_PER/256,A_PER/256,A1_PER/256,B_PER/256
 
+;Konami values found in	nemesis 2 replayer.
+;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
+C_PER		equ	$6a*32	
+C1_PER	equ	$64*32
+D_PER		equ	$5e*32
+D1_PER	equ	$59*32
+E_PER		equ	$54*32
+F_PER		equ	$4f*32
+F1_PER	equ	$4a*32
+G_PER		equ	$46*32
+G1_PER	equ	$42*32
+A_PER		equ	$3f*32
+A1_PER	equ	$3b*32
+B_PER		equ	$38*32
+
+ENDIF
 
 
 

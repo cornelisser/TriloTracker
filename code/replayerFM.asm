@@ -19,38 +19,6 @@ DRM_DEFAULT_values:
 	dw	0x01c0			; Cymbal + TomTom
 	db	0x11			; vol
 	
-IFDEF TTSMS
-; newly calculated
-C_PER		equ	$d5c	
-C1_PER	equ	$c9c
-D_PER		equ	$be7
-D1_PER	equ	$b3c
-E_PER		equ	$a9a
-F_PER		equ	$a02
-F1_PER	equ	$972
-G_PER		equ	$8ea
-G1_PER	equ	$86a
-A_PER		equ	$7f1
-A1_PER	equ	$77f
-B_PER		equ	$713;
-
-ELSE
-;Konami values found in	nemesis 2 replayer.
-;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
-C_PER		equ	$6a*32	
-C1_PER	equ	$64*32
-D_PER		equ	$5e*32
-D1_PER	equ	$59*32
-E_PER		equ	$54*32
-F_PER		equ	$4f*32
-F1_PER	equ	$4a*32
-G_PER		equ	$46*32
-G1_PER	equ	$42*32
-A_PER		equ	$3f*32
-A1_PER	equ	$3b*32
-B_PER		equ	$38*32
-
-ENDIF
 
 
 CHIP_Vibrato_sine:
@@ -324,6 +292,35 @@ _rdd_3psg_5fm:
 	call	replay_process_chan_AY
 	ld	a,(SCC_regVOLF)
 	ld	(AY_regVOLC),a	
+IFDEF TTSMS
+autoTune:
+	;--- Autotune
+	ld	a,(AY_regNOISE)
+	cp	3	; Periodic Chan3
+	jp	nz,noAutoTune
+	ld	a,(CHIP_Chan3+CHIP_Note)
+	cp	37 	; Only autotune from note 37 C4
+	jp	c,noAutoTune
+	ld	hl,CHIP_AutoTune-37
+	add	a,l
+	ld	l,a
+	jp	99f
+	inc	h
+99:
+	;-- get autotune value
+	ld	c,(hl)
+	ld	b,0
+	cp	a		; max note = 96; If l = negative then start at 128
+	jp	c,99f
+	ld 	b,$ff
+99:	
+	;-- apply autotune to freq
+	ld	hl,(AY_regToneC)
+	add	hl,bc
+	ld	(AY_regToneC),hl
+	
+noAutoTune:	
+ENDIF
 	ld	a,(SCC_regMIXER)
 	srl	a
 	srl	a
@@ -944,7 +941,7 @@ draw_PSGdebug:
 	ld	hl,AY_registers
 	ld	a,(hl)
 	inc	hl
-	add	1
+;	add	1
 	ld	b,a
 	ld	a,(hl)
 	adc	0
@@ -957,7 +954,7 @@ draw_PSGdebug:
 	
 	ld	a,(hl)
 	inc	hl
-	add	1
+;	add	1
 	ld	b,a
 	ld	a,(hl)
 	adc	0
@@ -970,7 +967,7 @@ draw_PSGdebug:
 	
 	ld	a,(hl)
 	inc	hl
-	add	1
+;	add	1
 	ld	b,a
 	ld	a,(hl)
 	adc	0

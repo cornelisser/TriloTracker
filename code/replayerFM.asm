@@ -292,35 +292,7 @@ _rdd_3psg_5fm:
 	call	replay_process_chan_AY
 	ld	a,(SCC_regVOLF)
 	ld	(AY_regVOLC),a	
-IFDEF TTSMS
-autoTune:
-	;--- Autotune
-	ld	a,(AY_regNOISE)
-	cp	3	; Periodic Chan3
-	jp	nz,noAutoTune
-	ld	a,(CHIP_Chan3+CHIP_Note)
-	cp	37 	; Only autotune from note 37 C4
-	jp	c,noAutoTune
-	ld	hl,CHIP_AutoTune-37
-	add	a,l
-	ld	l,a
-	jp	99f
-	inc	h
-99:
-	;-- get autotune value
-	ld	c,(hl)
-	ld	b,0
-	cp	a		; max note = 96; If l = negative then start at 128
-	jp	c,99f
-	ld 	b,$ff
-99:	
-	;-- apply autotune to freq
-	ld	hl,(AY_regToneC)
-	add	hl,bc
-	ld	(AY_regToneC),hl
-	
-noAutoTune:	
-ENDIF
+
 	ld	a,(SCC_regMIXER)
 	srl	a
 	srl	a
@@ -944,7 +916,7 @@ draw_PSGdebug:
 ;	add	1
 	ld	b,a
 	ld	a,(hl)
-	adc	0
+;	adc	0
 	call	draw_hex
 	ld	a,b
 	call	draw_hex2
@@ -957,7 +929,7 @@ draw_PSGdebug:
 ;	add	1
 	ld	b,a
 	ld	a,(hl)
-	adc	0
+;	adc	0
 	call	draw_hex
 	ld	a,b
 	call	draw_hex2
@@ -970,7 +942,7 @@ draw_PSGdebug:
 ;	add	1
 	ld	b,a
 	ld	a,(hl)
-	adc	0
+;	adc	0
 	call	draw_hex
 	ld	a,b
 	call	draw_hex2

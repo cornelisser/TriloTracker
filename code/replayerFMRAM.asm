@@ -197,15 +197,27 @@ CHIP_FM_ToneTable:
 IFDEF TTSMS
 CHIP_ToneTable:	
 	dw	0	;	Dummy value (note 0)
-	dw $0000	     ; C2			
-	dw $0000	     ; C#2			
-	dw $0000	     ; D1			
-	dw $0000	     ; D#2			
-	dw $0000	     ; E1			
-	dw $0000	     ; F1			
-	dw $0000	     ; F#2			
-	dw $0000	     ; G1
-	dw $0000	     ; G#2			
+	dw $0001	     ; C1			
+	dw $0001	     ; C#1			
+	dw $0001	     ; D1			
+	dw $0001	     ; D#1			
+	dw $0001	     ; E1			
+	dw $0001	     ; F1			
+	dw $0001	     ; F#1			
+	dw $0001	     ; G1
+	dw $0001	     ; G#1	
+	dw $0001         ; A1
+	dw $0001         ; A#1/Bb1 
+	dw $0001         ; B1	
+	dw $0001	     ; C2			
+	dw $0001	     ; C#2			
+	dw $0001	     ; D2			
+	dw $0001	     ; D#2			
+	dw $0001	     ; E2			
+	dw $0001	     ; F2			
+	dw $0001	     ; F#2			
+	dw $0001	     ; G2
+	dw $0001	     ; G#2			
    
 	dw $03F9      ;A2
 	dw $03C0      ; A#2/Bb2 
@@ -283,70 +295,9 @@ CHIP_ToneTable:
 	dw $000F      ; A#8/Bb8 
 	dw $000E      ;B8
 
-CHIP_AutoTune:   	
-	;C 4  = NOTE 37
-      db -6        ;  C4
-      db -6        ;   C#4/Db4 
-      db 0        ;  D4
-      db -9        ;   D#4/Eb4 
-      db 6        ;  E4
-      db 4        ;  F4
-      db 6        ;   F#4/Gb4 
-      db 6        ;  G4
-      db 5        ;   G#4/Ab4 
-      db 4        ;  A4
-      db -1        ;   A#4/Bb4 
-      db 8        ;  B4
-      db -3        ;  C5
-      db -4        ;   C#5/Db5 
-      db 7        ;  D5
-      db -4        ;   D#5/Eb5 
-      db -5        ;  E5
-      db 3        ;  F5
-      db 3        ;   F#5/Gb5 
-      db -5        ;  G5
-      db -5        ;   G#5/Ab5 
-      db 2        ;  A5
-      db 0        ;   A#5/Bb5 
-      db 4        ;  B5
-      db -2        ;  C6
-      db -2        ;   C#6/Db6 
-      db 4        ;  D6
-      db -2        ;   D#6/Eb6 
-      db -3        ;  E6
-      db 1        ;  F6
-      db -7        ;   F#6/Gb6 
-      db 5        ;  G6
-      db 5        ;   G#6/Ab6 
-      db -7        ;  A6
-      db 0        ;   A#6/Bb6 
-      db -6        ;  B6
-      db 7        ;  C7
-      db 7        ;   C#7/Db7 
-      db -6        ;  D7
-      db -1        ;   D#7/Eb7 
-      db 7        ;  E7
-      db 1        ;  F7
-      db -3        ;   F#7/Gb7 
-      db -5        ;  G7
-      db -5        ;   G#7/Ab7 
-      db -4        ;  A7
-      db 0        ;   A#7/Bb7 
-      db 5        ;  B7
-      db -4        ;  C8
-      db 4        ;   C#8/Db8 
-      db -3        ;  D8
-      db 8        ;   D#8/Eb8 
-      db 3        ;  E8
-      db 0        ;  F8
-      db -2        ;   F#8/Gb8 
-      db -3        ;  G8
-      db -3        ;   G#8/Ab8 
-      db -2        ;  A8
-      db 0        ;   A#8/Bb8 
-      db 2        ;  B8
 
 	
+
 	
 	
 ELSE	

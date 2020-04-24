@@ -272,12 +272,22 @@ ENDIF
 	call	replay_process_chan_AY
 	ld	a,(SCC_regVOLF)
 	ld	(AY_regVOLA),a	
-
+IFDEF TTSMS
+	;--- for channel mute
+	ld	a,(SN_regVOLN)
+	ld	(SN_regVOLNA),a
+ENDIF
 	ld	ix,CHIP_Chan2
 	ld	hl,AY_regToneB	
 	call	replay_process_chan_AY
 	ld	a,(SCC_regVOLF)
 	ld	(AY_regVOLB),a
+IFDEF TTSMS
+	;--- for channel mute
+	ld	a,(SN_regVOLN)
+	ld	(SN_regVOLNB),a
+ENDIF
+	
 
 	ld	a,(replay_chan_setup)
 	and	a
@@ -411,8 +421,45 @@ _rdd_cont:					; used for waveform updates
 ;	call	replay_process_drum	
 ;	ld	(FM_DRUM3),hl
 	
-
+	
+NoiseMixer:	
+	;------ 
+	; Handle noise on muted channels
+	;------
+	ld	a,(MainMixer)
+	ld	b,a
+	ld	a,(AY_regMIXER)
+	ld	c,a
+	
+.chanC:	
+	bit 5,c	; noise on chan3?
+	jp	nz,.chanB
+	bit 7,b	; chan enabled?
+	ret	nz
+.silence
+	xor	a
+	ld	(SN_regVOLN),a
 	ret
+
+.chanB:
+	bit 4,c	; noise on chan2?
+	jp	nz,.chanA
+	bit 6,b	; noise enabled?
+	jp	z,.silence
+	ld	a,(SN_regVOLNB)
+	ld	(SN_regVOLN),a
+	ret
+.chanA:
+	bit 3,c	; noise on chan1?
+	ret	nz
+	bit 5,b
+	jp	z,.silence
+	ld	a,(SN_regVOLNA)
+	ld	(SN_regVOLN),a
+	ret	
+	
+	
+
 
 
 

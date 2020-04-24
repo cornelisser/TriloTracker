@@ -91,10 +91,19 @@ AY_regToneC 	dw	0	; Tone C freq low
 					; Tone C freq high
 AY_regNOISE 	db	0	; Noise freq (5bit)
 AY_regMIXER 	db	0x38	;x3f	; Mixer control (1 = off, 0 = on)
+
 AY_regVOLA 		db	0	; Chan A volume
 AY_regVOLB 		db	0	; Chan B volume
-AY_regVOLC  	db	0	; Chan C volume
-SN_regVOLN:
+AY_regVOLC		db	0	; Chan C volume
+
+IFDEF TTSMS
+;--- Values are used to be able to mute noise when chan is muted,
+SN_regVOLNA	db	0
+SN_regVOLNB	db 	0
+
+ENDIF
+
+SN_regVOLN
 AY_regEnvL 		db	0	; Volume Env Freq low (8bit)
 SN_regNOISEold	
 AY_regEnvH 		db	0	; Volume Env Freq high (4bit)
@@ -177,21 +186,21 @@ psgport:	db	0
 		
 CHIP_FM_ToneTable:
 	db   	0,0
-	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h
+	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h	; Oct 1
       db	0f4h,000h,003h,001h,012h,001h,022h,001h,034h,001h,046h,001h
-      db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h
+      db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h ; Oct 2
       db    0f4h,002h,003h,003h,012h,003h,022h,003h,034h,003h,046h,003h
-      db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h
+      db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h ; Oct 3
       db    0f4h,004h,003h,005h,012h,005h,022h,005h,034h,005h,046h,005h
-      db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h
+      db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h ; Oct 4
       db    0f4h,006h,003h,007h,012h,007h,022h,007h,034h,007h,046h,007h
-      db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h
+      db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h ; Oct 5
       db    0f4h,008h,003h,009h,012h,009h,022h,009h,034h,009h,046h,009h
-      db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah
+      db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah ; Oct 6
       db    0f4h,00ah,003h,00bh,012h,00bh,022h,00bh,034h,00bh,046h,00bh
-      db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch
+      db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch ; Oct 7
       db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
-      db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh
+      db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh ; Oct 8
       db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
 
 IFDEF TTSMS

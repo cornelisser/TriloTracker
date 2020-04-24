@@ -193,8 +193,8 @@ replay_decodedata:
 	;xor	a
 	;ld	(AY_regMIXER),a	;set mixer to silence
 	;--- Set the tone table base
-;	ld	hl,CHIP_ToneTable
-;	ld	(replay_Tonetable),hl
+	ld	hl,CHIP_ToneTable
+	ld	(replay_Tonetable),hl
 
 
 	
@@ -209,8 +209,8 @@ replay_decodedata:
 	and	a
 	jp	nz,_rdd_3psg
 	
-;	ld	hl,CHIP_FM_ToneTable
-;	ld	(replay_Tonetable),hl
+	ld	hl,CHIP_FM_ToneTable
+	ld	(replay_Tonetable),hl
 
 	
 _rdd_3psg:	
@@ -223,8 +223,8 @@ _rdd_3psg:
 	and	a
 	jp	z,_rdd_2psg
 	
-;	ld	hl,CHIP_FM_ToneTable
-;	ld	(replay_Tonetable),hl
+	ld	hl,CHIP_FM_ToneTable
+	ld	(replay_Tonetable),hl
 	
 	
 _rdd_2psg:		
@@ -1258,20 +1258,10 @@ _CHIPcmd3_portTone:
 		
 _CHIPcmd3_retrig:
 	;--- Check if we have a	note on the	same event
-	ld	h,(ix+CHIP_Flags)
-	bit	0,h
+	bit 	0,(ix+CHIP_Flags)
 	ret	z
 
-	;-- determine which table to use
-	bit 	7,h
-	jp	nz,_cmd3_fm
-_cmd3_psg:
-	ld	hl,CHIP_ToneTable	;TRACK_ToneTable
-	jp	99f
-_cmd3_fm:
-	ld	hl,CHIP_FM_ToneTable	;TRACK_ToneTable
 	set	4,(ix+CHIP_Flags)		; FM notelink bit
-
 99:
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)

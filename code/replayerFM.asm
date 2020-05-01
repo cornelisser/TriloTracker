@@ -1307,9 +1307,14 @@ _CHIPcmd3_retrig:
 	;--- Check if we have a	note on the	same event
 	bit 	0,(ix+CHIP_Flags)
 	ret	z
-
+	
 	set	4,(ix+CHIP_Flags)		; FM notelink bit
-99:
+	res	0,(ix+CHIP_Flags)
+
+	ld	a,(ix+CHIP_cmd_3)
+	and	$7f				; reset deviation
+	ex	af,af'			;'
+	
 	;-- get the	previous note freq
 	ld	a,(replay_previous_note)
 	add	a
@@ -1352,7 +1357,12 @@ _CHIPcmd3_retrig:
 	ld	(ix+CHIP_cmd_ToneSlideAdd),l
 	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h	
 
-	res	0,(ix+CHIP_Flags)
+	ex	af,af'			;'
+	bit	7,h
+	jp	nz,99f
+	or 	128
+99:
+	ld 	(ix+CHIP_cmd_3),a
 	ret
 
 
@@ -2710,58 +2720,73 @@ pcAY_FMinstr:
 	jr.	z,wrap_lowcheck
 wrap_highcheck:
 	ld	a,l
-	cp	$60		; $46 is the strict limit
+	cp	$5a		; $46 is the strict limit
 	jr.	c,_wrap_skip		; stop if smaller
-	
-	push	hl
-	;--- Set 12 notes (1 octave) higher
-	ld	a,(ix+CHIP_Note)
-	add	12
-	cp	96
-	jr.	c,99f
-	add	160		; wrap notes
-99:
-	ld	(ix+CHIP_Note),a
-	;--- Set new ToneSlide Add
-	rr	h
-	rr	l			
-	ld	h,0
-	xor	a
-	ex	de,hl
-	sbc	hl,de			; subtract new wraped base tone - note tone to get delta slide add.
-	ld	(ix+CHIP_cmd_ToneSlideAdd),l
-	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h	
-	pop	hl
-	jr.	_wrap_skip
 
+	push 	hl
+	push	de
+	
+	;--- set new tone value for same note (but octave lower)
+;	add	a,a		; divide by 2 in de 
+	srl	a
+	bit 	0,h		; test 9th bit
+	jp	z,99f
+	add	128
+99:
+	ld	e,a
+;	ld	d,0
+	;--- set octave higher
+	ld	a,h
+	and	$fe
+	add	$02
+;	add	d		; merge with tone value
+	ld	d,a
+	;--- get difference between now and new
+	ex	de,hl
+	xor	a		; reset carry flag
+	sbc	hl,de
+	;--- add difference to current slide
+	pop	de		; restore slide
+	add	hl,de
+	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h
+	ld	(ix+CHIP_cmd_ToneSlideAdd),l
+	
+	pop hl
+	jr.	_wrap_skip
+	
 
 wrap_lowcheck:
 	ld	a,l
-	cp	$90		; $ad is the strict limit
+	cp	$3b		; $ad is the strict limit
 	jr.	nc,_wrap_skip		; stop if smaller
-	
-	push	hl
-	;--- Set 12 notes (1 octave) lower
-	ld	a,(ix+CHIP_Note)
-	sub	12
-	cp	96
-	jr.	c,99f
-	sub	160			; wrap notes
+
+
+	push 	hl		; store freq
+	push	de		; store slide
+	;--- set new tone value for same note (but octave lower)
+	add	a,a		; multiply by 2 in de 
+	ld	e,a
+	ld	d,0
+	jp	nc,99f
+	inc	d	
 99:
-	ld	(ix+CHIP_Note),a
-	;--- Set new ToneSlide Add
-;	xor	a
-	ld	h,0
+	;--- set octave higher
+	ld	a,h
+	and	$fe
+	sub	$02
+	add	d		; merge with tone value
+	ld	d,a
+	;--- get difference between now and new
+	ex	de,hl
+	xor	a		; reset carry flag
+	sbc	hl,de
+	;--- add difference to current slide
+	pop	de		; restore slide
 	add	hl,de
-;	rl	l
-;;	rl	h			
-;	ld	h,1
-;	xor	a
-;	ex	de,hl
-;	sbc	hl,de			; subtract new wraped base tone - note tone to get delta slide add.
+	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h
 	ld	(ix+CHIP_cmd_ToneSlideAdd),l
-	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h	
-	pop	hl
+	
+	pop hl
 _wrap_skip:
 
 	; replace the last pushed value on stack
@@ -2771,19 +2796,6 @@ _wrap_skip:
 	inc	hl
 	ld	(hl),d
 
-;	;---- change voice
-;	bit	7,c
-;	jr.	nz,_pcFM_noVoice
-;	
-;	ld	a,c
-;	and	31
-;	jp	z,_pcFM_noVoice
-;	cp	(ix+CHIP_Voice)	; get	the current	deviation	
-;	jp	z,_pcFM_noVoice
-;
-;	;/// Set here the new voice	
-;	ld	(ix+CHIP_Voice),a
-;	set	6,(ix+CHIP_Flags)
 
 _pcFM_noVoice:
 	;volume
@@ -2979,20 +2991,22 @@ _pcAY_cmd3:
 	ld	a,(ix+CHIP_cmd_3)
 	ld	l,(ix+CHIP_cmd_ToneSlideAdd)
 	ld	h,(ix+CHIP_cmd_ToneSlideAdd+1)
-	bit	7,h
-	jr.	z,_pcAY_cmd3_sub
+	bit	7,a
+	jr.	nz,_pcAY_cmd3_sub
 _pcAY_cmd3_add:
 	;pos slide
+;	and	$7f
 	add	a,l
 	ld	(ix+CHIP_cmd_ToneSlideAdd),a
-	jr.	nc,_pcAY_commandEND
+	jr.	nc,99f
 	inc	h					
-	bit	7,h
+99:	bit	7,h
 	jr.	z,_pcAY_cmd3_stop			; delta turned pos ?
 	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h
 	jr.	_pcAY_commandEND
 _pcAY_cmd3_sub:
 	;negative slide	
+	and	$7f
 	ld	c,a
 	xor	a
 	ld	b,a
@@ -3049,58 +3063,6 @@ _pcAY_cmd4:
 	ld	(ix+CHIP_cmd_ToneAdd),a
 	ld	(ix+CHIP_cmd_ToneAdd+1),0
 	jp	_pcAY_commandEND	
-
-	
-	
-	
-;	ld	hl,(replay_vib_table)
-;	;--- Get next step
-;	ld	a,(IX+CHIP_Step)
-;	add	(ix+CHIP_cmd_4_step)
-;	and	$3F			; max	32
-;	ld	(ix+CHIP_Step),a
-;	
-;	bit	5,a			; step 32-63 the neg	
-;	jr.	z,_pcAY_cmd4pos
-;
-;; neg	
-;	and	$1f
-;	add	l
-;	ld	l,a
-;	jr.	nc,99f
-;	inc	h
-;99:
-;	ld	a,(hl)
-;	;apply depth
-;	ld	b,(ix+CHIP_cmd_4_depth)
-;11:	srl	a
-;	djnz	11b
-;;	and	$0f
-;
-;	neg
-;	jr.	z,33f			; $ff00 gives strange result ;)	
-;	ld	(ix+CHIP_cmd_ToneAdd),a
-;	ld	(ix+CHIP_cmd_ToneAdd+1),0xff
-;	jr.	_pcAY_commandEND
-;
-;_pcAY_cmd4pos:	
-;;	and	$1f
-;	add	l
-;	ld	l,a
-;	jr.	nc,99f
-;	inc	h
-;99:
-;	ld	a,(hl)
-;	;apply depth
-;	ld	b,(ix+CHIP_cmd_4_depth)
-;11:	srl	a
-;	djnz	11b
-;;	and	$0f
-;33:	ld	(ix+CHIP_cmd_ToneAdd),a
-;	ld	(ix+CHIP_cmd_ToneAdd+1),0
-;	jr.	_pcAY_commandEND
-		
-	
 
 _pcAY_cmd5:
 	call	_pcAY_cmdasub

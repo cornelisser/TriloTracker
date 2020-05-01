@@ -2,7 +2,7 @@ ERROR_FILE		equ	0xc8	;File allocation error
 ERROR_FILEX		equ	0xcb	;File already exists
 ERROR_DIRX		equ	0xcc	;Directory name exists
 ERROR_SYSX		equ	0xcb	;System
-_EOF:         equ     0xC7
+_EOF:         	equ   0xC7
 
 
 ; disk vars

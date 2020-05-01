@@ -39,9 +39,9 @@ _DEFAB		equ 0x63		; set the abort handler.
 _FLUSH		equ 0x5f		; flush buffers
 PATTERN_WIN		equ 0			; pattern edit window
 
+
 _PNT		equ	0x2000		; pnt
 _CNT		equ	0x2a00		; cnt
-
 
 	; --- Song Variables
 	;

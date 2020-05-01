@@ -2961,9 +2961,7 @@ _pcAY_cmd0:
 	ld	(ix+CHIP_Timer),1
 ;	ld	(ix+CHIP_cmd_NoteAdd),0		
 	jr.	_pcAY_commandEND
-	
-	
-	
+		
 	
 _pcAY_cmd1:
 	ld	a,(ix+CHIP_cmd_1)

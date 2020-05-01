@@ -1094,10 +1094,14 @@ _psgsamright:
 	call	get_psgsample_location
 	;--- what are we editing
 	ld	a,(cursor_input)
-	cp	9
+	cp	7
 	jr.	c,_pkp_freq
 	cp	13
+IFDEF	TTSMS	
+	jr.	nz,update_psgsamplebox
+ELSE
 	jr.	nz,_pkp_noise
+ENDIF 
 
 	;-- set volume deviation
 _pkp_vol:
@@ -1141,7 +1145,7 @@ _pkp_freq:
 	jr.	3f
 		
 	
-	
+IFDEF TTFM	
 _pkp_noise:
 	ld	a,(hl)
 	and	0xbf
@@ -1166,7 +1170,7 @@ _pkp_noise:
 
 	jr.	update_psgsamplebox
 	;end
-
+ENDIF
 0:
 	;===================
 	; INPUT is FREQ high

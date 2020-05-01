@@ -1183,7 +1183,11 @@ _psgsamright:
 	cp	9
 	jr.	c,_pkp_freq
 	cp	13
+IFDEF TTFM
 	jr.	nz,_pkp_noise
+ELSE
+	jr.	nz,process_key_psgsamplebox_END
+ENDIF
 
 	;-- set volume deviation
 _pkp_vol:
@@ -1227,7 +1231,6 @@ _pkp_freq:
 	jr.	3f
 		
 	
-	
 _pkp_noise:
 	ld	a,(hl)
 	and	0x9f
@@ -1252,7 +1255,6 @@ _pkp_noise:
 
 	jr.	update_psgsamplebox
 	;end
-
 0:
 	;===================
 	; INPUT is FREQ high

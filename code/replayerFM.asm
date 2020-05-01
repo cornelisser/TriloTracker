@@ -1766,6 +1766,7 @@ _CHIPcmdE_trackdetune:
 _CHIPcmdE_transpose:
 	res	3,(ix+CHIP_Flags)		; command in-active
 
+IFDEF TT
 	ld	a,d
 	add	a
 	ld	hl,CHIP_ToneTable;(replay_Tonetable)
@@ -1781,11 +1782,13 @@ _CHIPcmdE_transpose:
 	xor	a
 	sbc	hl,de
 	ld	(replay_Tonetable),hl
+
 	ret
 ; pos
 99:	
 	add	hl,de
 	ld	(replay_Tonetable),hl
+ENDIF	
 	ret
 
 _CHIPcmdE_envelope:

@@ -567,53 +567,55 @@ open_directory:
 	
 	ret	
 	
-_DISK_BACKUPNAME:
-	db	0,0,0,0,0,0,0,0,0,0,0,0,0	
+;_DISK_BACKUPNAME:
+;	db	0,0,0,0,0,0,0,0,0,0,0,0,0	
 ;===========================================================
 ; --- backup_tmufile
 ;
 ; Deletes old back-up and renames the current to tm_
 ; HL points to the filename.
 ;===========================================================	
-backup_tmufile:	
-	push	hl	; save the pointer to the file
-	
-	; put the name without extension in temp buffer
-	ld	de,_DISK_BACKUPNAME
-99:	ld	a,(hl)
-	ld	(de),a
-	inc	de
-	inc	hl
-	cp	"."
-	jr.	z,0f
-
-	jr.	99b
-0:	
-	;--- Add the backup file extension
-	ex	de,hl
-	ld	(hl),"T"
-	inc	hl
-	ld	(hl),"M"
-	inc	hl
-	ld	(hl),"_"
-	inc	hl
-	ld	(hl),0
-	
-	ld	hl,_DISK_BACKUPNAME
-	call	delete_file
-	
-	;--- Get the original filename	
-	pop	de
-	push	de
-
-	
-	ld	hl,_DISK_BACKUPNAME
-	call	rename_file
-
-
-	pop	hl	
-	ret
-	
+;backup_tmufile:	
+;
+;	
+;	;--- Disabled as it gave strange errors where old data is in the new file.???
+;	push	hl	; save the pointer to the file
+;	
+;	; put the name without extension in temp buffer
+;	ld	de,_DISK_BACKUPNAME
+;99:	ld	a,(hl)
+;	ld	(de),a
+;	inc	de
+;	inc	hl
+;	cp	"."
+;	jr.	z,0f
+;
+;	jr.	99b
+;0:	
+;	;--- Add the backup file extension
+;	ex	de,hl
+;	ld	(hl),"T"
+;	inc	hl
+;	ld	(hl),"M"
+;	inc	hl
+;	ld	(hl),"_"
+;	inc	hl
+;	ld	(hl),0
+;	
+;	ld	hl,_DISK_BACKUPNAME
+;	call	delete_file
+;	
+;	;--- Get the original filename	
+;	pop	de
+;	push	de
+;
+;	
+;	ld	hl,_DISK_BACKUPNAME
+;	call	rename_file
+;
+;	pop	hl	
+;	ret
+;
 	
 	
 ;===========================================================
@@ -807,7 +809,9 @@ save_tmufile:
 	ld	(_catch_stackpointer),sp
 	call	reset_hook
 
-	call	backup_tmufile
+;	call	backup_tmufile
+;	and	a
+;	call	nz,catch_diskerror	
 
 	ld	a,00000000b
 	ld	b,00000000b		; required attributes. 0=overwrite
@@ -893,6 +897,7 @@ _stmu_samploop:
 	
 	dec	de
 	ld	a,(de)			; get the sample length	
+
 	inc	de
 	ld	b,a
 	xor	a
@@ -928,7 +933,7 @@ _save_tmufile_customvoices:
 	ld	de,_VOICES+((192-16)*8)
 	ld	hl,8*16
 	call	write_file
-	jr.	nz,catch_diskerror
+	call	nz,catch_diskerror
 
 		
 _save_tmufile_drumnames:
@@ -999,13 +1004,13 @@ _save_tmufile_patloop:
 	ld	de,_tmp_pat		;--- _tmp_pat + _tmp_len = bytes
 	ld	hl,3
 	call	write_file
-	;catch error here
+	call	nz,catch_diskerror
 	
 	;--- Write packed data
 	pop	hl
 	ld	de,pat_buffer
 	call	write_file
-	;catch error here
+	call	nz,catch_diskerror
 	
 _save_tmufile_patskip:
 	ld	a,(max_pattern)
@@ -1023,10 +1028,10 @@ _save_tmufile_patskip:
 	ld	de,_tmp_pat
 	ld	hl,1
 	call	write_file
-	;catch error here
+	call	nz,catch_diskerror
 	
 	call	close_file
-	;catch error here
+	call	nz,catch_diskerror
 
 	call	set_hook
 	ret
@@ -1114,7 +1119,7 @@ _create_in_continue:
 	ld	de,disk_wildcard+2
 	ld	hl,3
 	call	write_file
-	;catch error here
+	call	nz,catch_diskerror
 	
 	;--- Write the instrument name
 	ld	hl,song_instrument_list-16
@@ -1129,6 +1134,7 @@ _create_in_continue:
 1:
 	ex	de,hl
 	call	write_file	
+	call	nz,catch_diskerror
 	
 	;--- Write macro
 	;--- Calculate the position in RAM of current sample	
@@ -1144,7 +1150,7 @@ _create_in_continue:
 1:	
 	ex	de,hl
 	call	write_file
-	;catch error here
+	call	nz,catch_diskerror
 
 
 IFDEF TTSCC	
@@ -1165,7 +1171,7 @@ IFDEF TTSCC
 99:
 	ex	de,hl
 	call	write_file	
-	;catch error here
+	call	nz,catch_diskerror
 ENDIF
 	
 	call	close_file
@@ -1927,6 +1933,7 @@ _otmu_samploop:
 	dec	de
 	ld	a,(de)			; get the sample length	
 	inc	de
+	
 	ld	b,a
 	xor	a
 
@@ -2979,10 +2986,10 @@ catch_diskerror:
 	
 	call	window	
 
-	ld	c,_CLOSE
-	ld	a,(disk_handle)
-	ld	b,a
-	call	DOS
+;	ld	c,_CLOSE
+;	ld	a,(disk_handle)
+;	ld	b,a
+;	call	DOS
 
 
 	ld	sp,(_catch_stackpointer)

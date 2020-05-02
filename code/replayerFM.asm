@@ -2536,7 +2536,6 @@ ELSE
 	and	0x07
 	ld	(AY_regNOISE),a	
 
-debug:	
 
 	;--- apply main volume balance
 	ld	a,(replay_mainvol)

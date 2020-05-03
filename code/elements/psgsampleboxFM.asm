@@ -1,3 +1,7 @@
+_base equ	14			; to move the FM part.
+
+
+
 ;===========================================================
 ; --- draw_samplebox
 ; Display the  area.  Without actual values 
@@ -45,9 +49,9 @@ draw_psgsamplebox:
 	ld	de,(31*256) + 17
 	call	draw_box	
 	
-	;box around waveform
-	ld	hl,(80*9)+30
-	ld	de,(48*256) + 17
+	;box around FM voice
+	ld	hl,(80*9)+30+_base
+	ld	de,(36*256) + 17
 	call	draw_box	
 	;box around waveform data
 ;	ld	hl,(80*17)+32
@@ -71,15 +75,15 @@ draw_psgsamplebox:
 	call	draw_label
 
 	;--- FM voice stuff
-	ld	hl,(80*9)+1+28+2
+	ld	hl,(80*9)+1+28+2+_base
 	ld	de,_LABEL_SAMPPLEFORM
 	call	draw_label
-	ld	hl,(80*12)+1+28+16+6
+	ld	hl,(80*12)+1+28+16+6+_base
 	ld	de,_LABEL_VOICE_EDIT_HEADER
 	call	draw_label
 
 	; editor labels
-	ld	hl,(80*13)+2+28+2
+	ld	hl,(80*13)+2+28+2+_base
 	ld	de,_LABEL_VOICE_EDIT
 	ld	ixh, 13
 66:
@@ -136,21 +140,21 @@ draw_psgsamplebox:
 	call	erase_colorbox	
 
 	; voice values
-	ld	hl,0x330d
+	ld	hl,0x330d+(_base*256)
 	ld	de,0x040d	
 	call	erase_colorbox
-	ld	hl,0x3a0d
+	ld	hl,0x3a0d+(_base*256)
 	ld	de,0x0406	
 	call	erase_colorbox
-	ld	hl,0x3a14
+	ld	hl,0x3a14+(_base*256)
 	ld	de,0x0401	
 	call	erase_colorbox
-	ld	hl,0x3a16
+	ld	hl,0x3a16+(_base*256)
 	ld	de,0x0404	
 	call	erase_colorbox	
 	
 	; voice name
-	ld	hl,0x240a
+	ld	hl,0x240a+(_base*256)
 	ld	de,0x1401	
 	call	erase_colorbox
 	
@@ -178,7 +182,7 @@ _LABEL_keyjazz:
 	db	"  ",_ARROWRIGHT,0
 _PSG_SAMPLESTRING:
 ;	db	" xxTN _xxx _xx _x **************** ***** *****",0
-	db	"           [000]        X****"
+	db	"           [000]        X****   "
 
 _LABEL_VOICE_EDIT_HEADER:
 	db	"Mod.   Car.",0
@@ -2377,7 +2381,7 @@ ENDIF
 	dec	a
 	jr.	nz,0f
 	;--- Wave form editor
-		ld	a,1
+		ld	a,2
 		ld	(cursor_type),a
 ;		dec	a
 		ld	a,(_scc_waveform_col)

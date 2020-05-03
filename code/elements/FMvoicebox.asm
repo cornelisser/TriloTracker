@@ -1,32 +1,35 @@
 
 ;_SCCWAVE_TEXT:
 
-_LABEL_VOICE_ON:
+;_LABEL_VOICE_ON_EDIT:
 ;	db	_ARROWLEFT,"ON",_ARROWRIGHT
-	db	" ON "
-_LABEL_VOICE_OFF:
+;_LABEL_VOICE_ON:	
+;	db	" ON "
+;_LABEL_VOICE_OFF:
 ;	db	_ARROWLEFT,"..",_ARROWRIGHT
-	db	" .. "
+;_LABEL_VOICE_OFF_EDIT:	
+;	db	" .. "
+_LABEL_VOICE_VAL_EDIT:
+	db	_ARROWLEFT,"xx",_ARROWRIGHT
 _LABEL_VOICE_VAL:
-;	db	_ARROWLEFT," x",_ARROWRIGHT
-	db	"  x "
-_LABEL_VOICE_VAL2:
-;	db	_ARROWLEFT,"xx",_ARROWRIGHT
 	db	" xx "
-_LABEL_VOICE_DEC:
+;_LABEL_VOICE_VAL2:
+;	db	_ARROWLEFT,"xx",_ARROWRIGHT
+;	db	" xx "
+;_LABEL_VOICE_DEC:
 ;	db	_ARROWLEFT," D",_ARROWRIGHT
-	db	"  D "
-_LABEL_VOICE_SUS:
+;	db	"  D "
+;_LABEL_VOICE_SUS:
 ;	db	_ARROWLEFT," S",_ARROWRIGHT
-	db	"  S "
+;	db	"  S "
 _LABEL_VOICE_DEFAULT:
 	db	"           "	
-_LABEL_WAVE1:
-	db	" ",140,142," "
-_LABEL_WAVE2:
-	db	" ",140,141," "
-		
-	
+;_LABEL_WAVE1:
+;	db	_ARROWLEFT,140,142,_ARROWRIGHT
+;_LABEL_WAVE2:
+;	db	_ARROWLEFT,140,141,_ARROWRIGHT
+;		
+_labelpointer  db 2		; points to eighter edit/view mode string	
 	
 _FM_TEMPSTRING:
 	db	"XXx."
@@ -46,7 +49,7 @@ update_sccwave:
 	ld	de,_FM_TEMPSTRING
 	call	draw_decimal_3
 	ld	de,_FM_TEMPSTRING
-	ld	hl,(80*10)+30+2
+	ld	hl,(80*10)+30+2+_base
 	ld	b,4
 	call	draw_label_fast
 	
@@ -54,7 +57,7 @@ update_sccwave:
 	ld	a,(instrument_waveform)
 	call	get_voicename
 	ex	de,hl
-	ld	hl,(80*10)+36
+	ld	hl,(80*10)+36+_base
 	ld	b,20
 	call	draw_label_fast
 	
@@ -66,6 +69,17 @@ update_sccwave:
 	cp	16
 	jr.	c,_default_voice		; add erase value for ROM instruments
 	sub	16
+	
+	;-- determine if view or edit
+	push 	hl
+	ld	hl,_LABEL_VOICE_VAL
+	cp 	161
+	jp	c,99f
+	ld	hl,_LABEL_VOICE_VAL_EDIT
+99:
+	ld 	(_labelpointer),hl
+	pop	hl
+	
 	jr.	z,99f
 44:
 	add	hl,de
@@ -78,16 +92,18 @@ update_sccwave:
 	;
 	;=================
 	;-- Amp modulation
+
 	bit 7,(hl)
 	jp	z,_m_amp_off
 _m_amp_on:
-	ld	de,_LABEL_VOICE_ON
+	ld	a,1
 	jp	66f
 _m_amp_off:
-	ld	de,_LABEL_VOICE_OFF
+	ld	a,0
 66:
 	push	hl
-	ld	hl,(80*13)+38+10+3
+	call	fill_value
+	ld	hl,(80*13)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -96,13 +112,14 @@ _m_amp_off:
 	bit 6,(hl)
 	jp	z,_m_vib_off
 _m_vib_on:
-	ld	de,_LABEL_VOICE_ON
+	ld	a,1
 	jp	66f
 _m_vib_off:
-	ld	de,_LABEL_VOICE_OFF
+	ld	a,0
 66:
 	push	hl
-	ld	hl,(80*14)+38+10+3
+	call	fill_value
+	ld	hl,(80*14)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -111,13 +128,14 @@ _m_vib_off:
 	bit 5,(hl)
 	jp	nz,_m_env_sus
 _m_env_dec:
-	ld	de,_LABEL_VOICE_DEC
+	ld	a,0
 	jp	66f
 _m_env_sus:
-	ld	de,_LABEL_VOICE_SUS
+	ld	a,1
 66:
 	push	hl
-	ld	hl,(80*15)+38+10+3
+	call	fill_value
+	ld	hl,(80*15)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -132,10 +150,8 @@ _m_ksr1:
 	ld	a,1
 66:
 	push	hl
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*16)+38+10+3
+	call	fill_value
+	ld	hl,(80*16)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -144,10 +160,8 @@ _m_ksr1:
 	ld	a,(hl)
 	and	$0f	
 	push	hl
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*17)+38+10+3
+	call	fill_value
+	ld	hl,(80*17)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -162,13 +176,14 @@ _m_ksr1:
 	bit 7,(hl)
 	jp	z,_c_amp_off
 _c_amp_on:
-	ld	de,_LABEL_VOICE_ON
+	ld	a,1
 	jp	66f
 _c_amp_off:
-	ld	de,_LABEL_VOICE_OFF
+	ld	a,0
 66:
 	push	hl
-	ld	hl,(80*13)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*13)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -177,13 +192,14 @@ _c_amp_off:
 	bit 6,(hl)
 	jp	z,_c_vib_off
 _c_vib_on:
-	ld	de,_LABEL_VOICE_ON
+	ld	a,1
 	jp	66f
 _c_vib_off:
-	ld	de,_LABEL_VOICE_OFF
+	ld	a,0
 66:
 	push	hl
-	ld	hl,(80*14)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*14)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -192,13 +208,14 @@ _c_vib_off:
 	bit 5,(hl)
 	jp	nz,_c_env_sus
 _c_env_dec:
-	ld	de,_LABEL_VOICE_DEC
+	ld	a,0
 	jp	66f
 _c_env_sus:
-	ld	de,_LABEL_VOICE_SUS
+	ld	a,1
 66:
 	push	hl
-	ld	hl,(80*15)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*15)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -213,10 +230,8 @@ _c_ksr1:
 	ld	a,1
 66:
 	push	hl
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*16)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*16)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -225,10 +240,8 @@ _c_ksr1:
 	ld	a,(hl)
 	and	$0f	
 	push	hl
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*17)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*17)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -244,10 +257,8 @@ _c_ksr1:
 	rlc	a
 	rlc	a
 	and	$03
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*18)+38+10+3
+	call	fill_value
+	ld	hl,(80*18)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -256,10 +267,8 @@ _c_ksr1:
 	ld	a,(hl)
 	push	hl
 	and	63
-	ld	de,_LABEL_VOICE_VAL2+1
-	call	draw_hex2
-	ld	de,_LABEL_VOICE_VAL2
-	ld	hl,(80*19)+38+10+3
+	call	fill_value
+	ld	hl,(80*19)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -274,41 +283,41 @@ _c_ksr1:
 	push	hl
 	rlc	a
 	rlc	a
-	and	$03
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*18)+38+10+3+7
+	and	00000011b
+	call	fill_value
+	ld	hl,(80*18)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
 
 	;--Wave distortion Modulator
-	bit 	4,(hl)
+	bit 	3,(hl)
 	push	hl
 	jp	z,_m_dist_off
 _m_dist_on:
-	ld	de,_LABEL_WAVE1
+	ld	a,1
 	jp	66f
 _m_dist_off:
-	ld	de,_LABEL_WAVE2
+	ld	a,0
 66:
-	ld	hl,(80*20)+38+10+3
+	call	fill_value
+	ld	hl,(80*20)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
 	
 	;--Wave distortion Carrier
-	bit 	3,(hl)
+	bit 	4,(hl)
 	push	hl
 	jp	z,_c_dist_off
 _c_dist_on:
-	ld	de,_LABEL_WAVE1
+	ld	a,1
 	jp	66f
 _c_dist_off:
-	ld	de,_LABEL_WAVE2
+	ld	a,0
 66:
-	ld	hl,(80*20)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*20)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -316,11 +325,9 @@ _c_dist_off:
 	;--- Feedback (modulator)
 	ld	a,(hl)
 	push	hl
-	and	$07
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*21)+38+10+3
+	and	00000111b
+	call	fill_value
+	ld	hl,(80*21)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -338,10 +345,8 @@ _c_dist_off:
 	rlc	a
 	rlc	a
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*22)+38+10+3
+	call	fill_value
+	ld	hl,(80*22)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -350,10 +355,8 @@ _c_dist_off:
 	ld	a,(hl)
 	push	hl
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*23)+38+10+3
+	call	fill_value
+	ld	hl,(80*23)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -371,10 +374,8 @@ _c_dist_off:
 	rlc	a
 	rlc	a
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*22)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*22)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -383,10 +384,8 @@ _c_dist_off:
 	ld	a,(hl)
 	push	hl
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*23)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*23)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
@@ -405,10 +404,8 @@ _c_dist_off:
 	rlc	a
 	rlc	a
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*24)+38+10+3
+	call	fill_value
+	ld	hl,(80*24)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -417,10 +414,8 @@ _c_dist_off:
 	ld	a,(hl)
 	push	hl
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*25)+38+10+3
+	call	fill_value
+	ld	hl,(80*25)+38+10+3+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -438,10 +433,8 @@ _c_dist_off:
 	rlc	a
 	rlc	a
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*24)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*24)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl
@@ -450,14 +443,20 @@ _c_dist_off:
 	ld	a,(hl)
 	push	hl
 	and	$0f
-	ld	de,_LABEL_VOICE_VAL+2
-	call	draw_hex
-	ld	de,_LABEL_VOICE_VAL
-	ld	hl,(80*25)+38+10+3+7
+	call	fill_value
+	ld	hl,(80*25)+38+10+3+7+_base
 	ld	b,4
 	call	draw_label_fast
 	pop	hl	
 	ret
+
+fill_value:
+	ld 	de,(_labelpointer)
+	inc	de
+	call	draw_hex2
+	ld 	de,(_labelpointer)
+	ret
+
 
 
 	
@@ -469,6 +468,12 @@ _c_dist_off:
 ; 
 ;===========================================================
 process_key_voicebox_edit:
+	
+	;--- disable edit when not in a custom voice
+	ld	a,(instrument_waveform)
+	cp	177
+	jr.	c,restore_cursor
+
 	
 	ld	a,(key)
 	and	a
@@ -491,35 +496,45 @@ process_key_voicebox_edit:
 0:
 	cp	_KEY_LEFT
 	jr.	nz,0f
-	;---	move 1 column to the left	
-		ld	a,(_scc_waveform_col)
-		and	a
-		jr.	z,process_key_voicebox_edit_END
-		dec	a
-		ld	(_scc_waveform_col),a
-		call	flush_cursor
-		jp	_set_voice_cursor
+	;---	move 1 column to the left
+		call 	.handleleftright
+;		ld	a,(_scc_waveform_col)
+;		and	a
+;		jr.	z,process_key_voicebox_edit_END
+;		dec	a
+;		ld	(_scc_waveform_col),a
+;		call	flush_cursor
+;		jp	_set_voice_cursor
 		
 0:	
 	cp	_KEY_RIGHT
 	jr.	nz,0f
 	;---	move 1 column to the right	
-		ld	a,(_scc_waveform_col)
-		cp	25
-		jr.	nc,process_key_voicebox_edit_END
-		inc	a
-		ld	(_scc_waveform_col),a
-		call	flush_cursor
-		jp	_set_voice_cursor
+		call 	.handleleftright
+;		ld	a,(_scc_waveform_col)
+;		cp	25
+;		jr.	nc,process_key_voicebox_edit_END
+;		inc	a
+;		ld	(_scc_waveform_col),a
+;		call	flush_cursor
+;		jp	_set_voice_cursor
 0:	
 	cp	_KEY_UP
 	jr.	nz,0f
 	;---	increase value by 2
 		ld	a,(_scc_waveform_col)
-		cp	2
+		cp	1
 		jr.	c,process_key_voicebox_edit_END
+		cp 	14
+		jp	nz,99f
 		dec	a
+99:	
+		cp 	18
+		jp	nz,99f
 		dec	a
+99:
+		dec	a
+		;dec	a
 		ld	(_scc_waveform_col),a
 		call	flush_cursor
 		jp	_set_voice_cursor
@@ -529,9 +544,17 @@ process_key_voicebox_edit:
 	jr.	nz,0f
 	;---	decrease value by 2
 		ld	a,(_scc_waveform_col)
-		cp	24
+		cp	25
 		jr.	nc,process_key_voicebox_edit_END
+		cp 	12
+		jp	nz,99f
 		inc	a
+99:	
+		cp 	16
+		jp	nz,99f
+		inc	a
+99:
+		;inc	a
 		inc	a
 		ld	(_scc_waveform_col),a
 		call	flush_cursor
@@ -540,13 +563,15 @@ process_key_voicebox_edit:
 0:
 
 	;--- check for keyjazz
-	ld	b,a
+;	ld	b,a
 	ld	a,(keyjazz)
 	and	a
 	jr.	nz,process_key_keyjazz	
-	ld	a,b
-	
-	
+;	ld	a,b
+	ret
+
+.handleleftright:	
+	ld 	b,a
 	;--- handle input
 	ld	a,(_scc_waveform_col)
 	add	a
@@ -593,8 +618,8 @@ _pkv_jumplist:
 	
 _pkv_mod_amp:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -605,8 +630,8 @@ _pkv_mod_amp:
 	
 _pkv_car_amp:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -620,8 +645,8 @@ _pkv_car_amp:
 
 _pkv_mod_freq:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -632,8 +657,8 @@ _pkv_mod_freq:
 	
 _pkv_car_freq:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -644,9 +669,9 @@ _pkv_car_freq:
 	jp	update_sccwave
 
 _pkv_mod_env:
-	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	ld	a,(key)
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -657,8 +682,8 @@ _pkv_mod_env:
 	
 _pkv_car_env:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -670,8 +695,8 @@ _pkv_car_env:
 
 _pkv_mod_rate:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -682,8 +707,8 @@ _pkv_mod_rate:
 	
 _pkv_car_rate:
 	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -694,9 +719,9 @@ _pkv_car_rate:
 	jp	update_sccwave
 
 _pkv_mod_wav:
-	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	ld	a,(key)
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -705,14 +730,14 @@ _pkv_mod_wav:
 	inc	hl
 	ld	a,(hl)
 	
-	xor	00010000b
+	xor	00001000b
 	ld	(hl),a
 	jp	update_sccwave	
 	
 _pkv_car_wav:
-	ld	a,(key)
-	cp	_ENTER
-	ret	nz
+;	ld	a,(key)
+;	cp	_ENTER
+;	ret	nz
 	
 	ld	a,(instrument_waveform)
 	call	get_voice_location
@@ -720,28 +745,36 @@ _pkv_car_wav:
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	xor	00001000b
+	xor	00010000b
 	ld	(hl),a
 	jp	update_sccwave
 	
 _pkv_mod_mlev:
-	call	_pkv_input_4bitvalue
-	ld	d,a
+;	call	_pkv_input_4bitvalue
+;	ld	d,a
 
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
 	ld	a,(hl)
+	and	$0f
+	call	_4bit_leftright	
+	
+	ld	a,(hl)	
 	and	$f0
 	or	d
 	ld	(hl),a
 	jp	update_sccwave	
 	
 _pkv_car_mlev:
-	call	_pkv_input_4bitvalue
-	ld	d,a
+;	call	_pkv_input_4bitvalue
+;	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
 	inc	hl
+	ld	a,(hl)
+	and	$0f
+	call	_4bit_leftright
+	
 	ld	a,(hl)
 	and	$f0
 	or	d
@@ -749,21 +782,13 @@ _pkv_car_mlev:
 	jp	update_sccwave	
 	
 _pkv_mod_klev:
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	ret	c	
-	cp	'3'+1	; smaller than 3?
-	ret	nc
-	sub 	'0'
-
-	rrc	a
-	rrc	a
-	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
 	inc	hl
 	inc	hl
+	ld	a,(hl)
+	and	11000000b
+	call	_2bits_high_leftright
 	ld	a,(hl)
 	and	00111111b
 	or	d
@@ -771,22 +796,14 @@ _pkv_mod_klev:
 	jp	update_sccwave
 	
 _pkv_car_klev:
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	ret	c	
-	cp	'3'+1	; smaller than 3?
-	ret	nc
-	sub 	'0'
-
-	rrc	a
-	rrc	a
-	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
 	inc	hl
 	inc	hl
 	inc	hl
+	ld	a,(hl)
+	and	11000000b	
+	call	_2bits_high_leftright	
 	ld	a,(hl)
 	and	00111111b
 	or	d
@@ -796,31 +813,16 @@ _pkv_car_klev:
 	
 
 _pkv_mod_total:
-	ld	a,(_pkv_mod_total_COL)
-	and	a
-	jp	nz,_pkv_mod_total2
-_pkv_mod_total1:	
 
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	ret	c	
-	cp	'3'+1	; smaller than 3?
-	ret	nc
-	sub 	'0'
-	
-	rrc	a
-	rrc	a
-	rrc	a
-	rrc	a
-	
-	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	and	11001111b
+	and	00111111b
+	call	_6bit_leftright
+	ld	a,(hl)
+	and	11000000b
 	or	d
 	ld	(hl),a
 		
@@ -828,54 +830,29 @@ _pkv_mod_total1:
 	ld	(_pkv_mod_total_COL),a
 	jp	update_sccwave	
 
-	
-	
-_pkv_mod_total2:	
-	call	_pkv_input_4bitvalue
-	ld	d,a
-	ld	a,(instrument_waveform)
-	call	get_voice_location
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	11110000b
-	or	d
-	ld	(hl),a
-		
-	xor 	a
-	ld	(_pkv_mod_total_COL),a
-	jp	update_sccwave	
-	
-
-
 _pkv_mod_feed:
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	ret	c	
-	cp	'7'+1	; smaller than 7?
-	ret	nc
-	sub 	'0'
-
-	ld	d,a
 	ld	a,(instrument_waveform)
 	call	get_voice_location
 	inc	hl
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	and	11000000b
+	and	00000111b
+	call	_3bit_leftright
+	
+	ld	a,(hl)
+	and	11111000b
 	or	d
 	ld	(hl),a
 	jp	update_sccwave
 	
 _pkv_mod_attack:
-	call	_pkv_input_4bitvalue
-	rrc	a
-	rrc	a
-	rrc	a
-	rrc	a
-	ld	d,a
+;	call	_pkv_input_4bitvalue
+;	rrc	a
+;	rrc	a
+;	rrc	a
+;	rrc	a
+;	ld	d,a
 
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
@@ -883,6 +860,10 @@ _pkv_mod_attack:
 	inc	hl
 	inc	hl
 	inc	hl 
+	ld	a,(hl)
+	and	$f0
+	call	_4bit_high_leftright
+	
 	ld	a,(hl)
 	and	$0f
 	or	d
@@ -892,12 +873,6 @@ _pkv_mod_attack:
 
 
 _pkv_car_attack:
-	call	_pkv_input_4bitvalue
-	rrc	a
-	rrc	a
-	rrc	a
-	rrc	a
-	ld	d,a
 
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
@@ -906,6 +881,10 @@ _pkv_car_attack:
 	inc	hl
 	inc	hl 
 	inc	hl
+	ld	a,(hl)
+	and	$f0
+	call	_4bit_high_leftright	
+		
 	ld	a,(hl)
 	and	$0f
 	or	d
@@ -913,15 +892,16 @@ _pkv_car_attack:
 	jp	update_sccwave
 	
 _pkv_mod_decay:
-	call	_pkv_input_4bitvalue
-	ld	d,a
-
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
 	inc	hl
 	inc	hl
 	inc	hl
 	inc	hl 
+	ld	a,(hl)
+	and	$0f
+	call	_4bit_leftright	
+	
 	ld	a,(hl)
 	and	$f0
 	or	d
@@ -929,9 +909,6 @@ _pkv_mod_decay:
 	jp	update_sccwave
 	
 _pkv_car_decay:
-	call	_pkv_input_4bitvalue
-	ld	d,a
-
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
 	inc	hl
@@ -939,6 +916,10 @@ _pkv_car_decay:
 	inc	hl
 	inc	hl 
 	inc	hl
+	ld	a,(hl)
+	and	$0f
+	call	_4bit_leftright	
+	
 	ld	a,(hl)
 	and	$f0
 	or	d
@@ -946,54 +927,6 @@ _pkv_car_decay:
 	jp	update_sccwave
 	
 _pkv_mod_sustain:
-	call	_pkv_input_4bitvalue
-	rrc	a
-	rrc	a
-	rrc	a
-	rrc	a
-	ld	d,a
-
-	ld	a,(instrument_waveform)	
-	call	get_voice_location
-	inc	hl
-	inc	hl
-	inc	hl
-	inc	hl 
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	$0f
-	or	d
-	ld	(hl),a
-	jp	update_sccwave
-	
-_pkv_car_sustain:
-	call	_pkv_input_4bitvalue
-	rrc	a
-	rrc	a
-	rrc	a
-	rrc	a
-	ld	d,a
-
-	ld	a,(instrument_waveform)	
-	call	get_voice_location
-	inc	hl
-	inc	hl
-	inc	hl
-	inc	hl 
-	inc	hl
-	inc	hl
-	inc	hl
-	ld	a,(hl)
-	and	$0f
-	or	d
-	ld	(hl),a
-	jp	update_sccwave
-	
-_pkv_mod_release:
-	call	_pkv_input_4bitvalue
-	ld	d,a
-
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
 	inc	hl
@@ -1004,14 +937,15 @@ _pkv_mod_release:
 	inc	hl
 	ld	a,(hl)
 	and	$f0
+	call	_4bit_high_leftright	
+	
+	ld	a,(hl)
+	and	$0f
 	or	d
 	ld	(hl),a
 	jp	update_sccwave
 	
-_pkv_car_release:
-	call	_pkv_input_4bitvalue
-	ld	d,a
-
+_pkv_car_sustain:
 	ld	a,(instrument_waveform)	
 	call	get_voice_location
 	inc	hl
@@ -1021,6 +955,48 @@ _pkv_car_release:
 	inc	hl
 	inc	hl
 	inc	hl
+	ld	a,(hl)
+	and	$f0
+	call	_4bit_high_leftright	
+	
+	ld	a,(hl)
+	and	$0f
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
+_pkv_mod_release:
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	$0f
+	call	_4bit_leftright	
+		
+	ld	a,(hl)
+	and	$f0
+	or	d
+	ld	(hl),a
+	jp	update_sccwave
+	
+_pkv_car_release:
+	ld	a,(instrument_waveform)	
+	call	get_voice_location
+	inc	hl
+	inc	hl
+	inc	hl
+	inc	hl 
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	$0f
+	call	_4bit_leftright
 	ld	a,(hl)
 	and	$f0
 	or	d
@@ -1029,36 +1005,175 @@ _pkv_car_release:
 	
 _pkv_none:
 	ret
+	
+	
+_3bit_leftright:
+	; in B the key (LEFT or RIGHT)
+	; in A the value to change
+	;
+	; out the new value in D
+	ex	af,af'
+	ld	a,b
+	;-- left
+	cp 	_KEY_LEFT
+	jp	nz,99f
+	ex	af,af'
+	and	a
+	jp	z,88f
+	dec	a
+	jp	88f
+99:
+	;-- right
+	cp	_KEY_RIGHT
+	jp	nz,99f
+	ex	af,af'
+	cp	00000111b
+	jp	z,88f
+	inc	a
+88:
+	ld	d,a
+	ret
+
+
+_4bit_leftright:
+	; in B the key (LEFT or RIGHT)
+	; in A the value to change
+	;
+	; out the new value in D
+	ex	af,af'
+	ld	a,b
+	;-- left
+	cp 	_KEY_LEFT
+	jp	nz,99f
+	ex	af,af'
+	and	a
+	jp	z,88f
+	dec	a
+	jp	88f
+99:
+	;-- right
+	cp	_KEY_RIGHT
+	jp	nz,99f
+	ex	af,af'
+	cp	15
+	jp	z,88f
+	inc	a
+88:
+	ld	d,a
+	ret
+	
+	
+_6bit_leftright:
+	; in B the key (LEFT or RIGHT)
+	; in A the value to change
+	;
+	; out the new value in D
+	ex	af,af'
+	ld	a,b
+	;-- left
+	cp 	_KEY_LEFT
+	jp	nz,99f
+	ex	af,af'
+	and	a
+	jp	z,88f
+	dec	a
+	jp	88f
+99:
+	;-- right
+	cp	_KEY_RIGHT
+	jp	nz,99f
+	ex	af,af'
+	cp	00111111b
+	jp	z,88f
+	inc	a
+88:
+	ld	d,a
+	ret
+_4bit_high_leftright:
+	; in B the key (LEFT or RIGHT)
+	; in A the value to change
+	;
+	; out the new value in D
+	ex	af,af'
+	ld	a,b
+	;-- left
+	cp 	_KEY_LEFT
+	jp	nz,99f
+	ex	af,af'
+	and	a
+	jp	z,88f
+	sub	16
+	jp	88f
+99:
+	;-- right
+	cp	_KEY_RIGHT
+	jp	nz,99f
+	ex	af,af'
+	cp	$f0
+	jp	z,88f
+	add	16
+88:
+	ld	d,a
+	ret
+
+
+_2bits_high_leftright:
+	; in B the key (LEFT or RIGHT)
+	; in A the value to change
+	;
+	; out the new value in D
+	ex	af,af'
+	ld	a,b
+	;-- left
+	cp	_KEY_LEFT
+	jp	nz,99f
+	ex	af,af'
+	cp	0
+	jp	z,88f
+	sub	01000000b
+	jp	88f
+	;-- right
+99:	
+	cp	_KEY_RIGHT
+	jp	nz,88f
+	ex	af,af'
+	cp	11000000b
+	jp	z,88f
+	add	01000000b
+88:	
+	ld	d,a
+	ret
+
 
 ; sub routine to get a 0-f hex value
-_pkv_input_4bitvalue:
-	ld	a,(key)
-	; is it a number?
-	cp	'0'	; bigger than 0 
-	jr.	c,99f	
-	cp	'9'+1	; smaller than 9?
-	jr.	nc,99f
-	sub 	'0'
-	jr.	22f
-99:	
-	cp	'a'
-	jr.	c,99f
-	cp	'f'+1
-	jr.	nc,99f
-	sub	'a'-10
-	jr.	22f
-99:	
-	cp	'A'
-	ret	c
-	cp	'F'+1
-	jp	44f
-	sub	'A'-10
-22:
-	ret
-
-44:	; Retur trick to stop processing in calling code
-	pop	af
-	ret
+;_pkv_input_4bitvalue:
+;	ld	a,(key)
+;	; is it a number?
+;	cp	'0'	; bigger than 0 
+;	jr.	c,99f	
+;	cp	'9'+1	; smaller than 9?
+;	jr.	nc,99f
+;	sub 	'0'
+;	jr.	22f
+;99:	
+;	cp	'a'
+;	jr.	c,99f
+;	cp	'f'+1
+;	jr.	nc,99f
+;	sub	'a'-10
+;	jr.	22f
+;99:	
+;	cp	'A'
+;	ret	c
+;	cp	'F'+1
+;	jp	44f
+;	sub	'A'-10
+;22:
+;	ret
+;
+;44:	; Retur trick to stop processing in calling code
+;	pop	af
+;	ret
 
 
 get_voice_location:
@@ -1093,11 +1208,11 @@ _set_voice_cursor:
 
 	;--- modulator column
 _svc_mod:
-	ld	a,52
+	ld	a,52+_base
 	jp	0f
 	;--- carrier column
 _svc_car:	
-	ld	a,59
+	ld	a,59+_base
 0:	
 	ld	(cursor_x),a	
 	ld	a,13
@@ -1122,7 +1237,7 @@ _svc_car:
 	
 _default_voice:
 	ld	ixh,13
-	ld	hl,(80*13)+38+10+3
+	ld	hl,(80*13)+38+10+3+_base
 _dv_loop:
 	push	hl
 	ld	de,_LABEL_VOICE_DEFAULT

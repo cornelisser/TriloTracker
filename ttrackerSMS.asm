@@ -122,7 +122,7 @@ _LABEL_PATTERNHEADER2:
 	include 	".\code\elements\filedialogRAM.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsampleboxFM.asm"
-;	include 	".\code\elements\sccwaveboxFM.asm"
+;	include 	".\code\elements\FMvoicebox.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazzFM.asm"
 	include	".\code\elements\instrumentbox.asm"
@@ -256,7 +256,7 @@ SWAP_FILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_VOICEMAN:
      include    ".\code\elements\voicemanager.asm"
-     include 	".\code\elements\sccwaveboxFM.asm"
+     include 	".\code\elements\FMvoicebox.asm"
 SWAP_VOICEMAN_END:
 
      ; Voice manager swappable code block

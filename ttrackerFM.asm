@@ -252,7 +252,7 @@ SWAP_FILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_VOICEMAN:
      include    ".\code\elements\voicemanager.asm"
-     include 	".\code\elements\sccwaveboxFM.asm"	
+     include 	".\code\elements\FMvoicebox.asm"	
 SWAP_VOICEMAN_END:
 
      ; Drum macro editor swappable code block

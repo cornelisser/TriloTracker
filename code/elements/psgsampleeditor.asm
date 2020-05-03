@@ -177,8 +177,15 @@ processkey_psgsampleeditor:
 		;--- sample nr down
 			ld	a,(hl)
 			and	a
+IFDEF TTSCC
 			ret	z
 			dec	a
+ELSE
+			jp	nz,99f
+			ld	a,MAX_WAVEFORM
+99:
+			dec	a
+ENDIF
 			ld	(instrument_waveform),a
 			ld	(hl),a
 			call	update_sccwave
@@ -190,9 +197,17 @@ processkey_psgsampleeditor:
 		jr.	nz,0f
 		;--- sample nr up
 			ld	a,(hl)
+IFDEF TTSCC
 			cp	MAX_WAVEFORM-1
 			ret	nc
 			inc	a
+ELSE
+			cp	MAX_WAVEFORM-1
+			jp	c,99f
+			ld	a,-1
+99:
+			inc	a
+ENDIF
 			ld	(hl),a
 			ld	(instrument_waveform),a
 			call	update_sccwave
@@ -301,6 +316,12 @@ ENDIF
 	;--- CTRL_F - Wave form edit
 	cp	_CTRL_F
 	jr.	nz,0f
+IFDEF TTSCC
+ELSE
+		ld	a,(instrument_waveform)
+		cp	177
+		jr	c,0f
+ENDIF	
 		ld	a,(editsubmode)
 		and	a
 		jr.	nz,79f

@@ -421,7 +421,10 @@ _rdd_cont:					; used for waveform updates
 ;	call	replay_process_drum	
 ;	ld	(FM_DRUM3),hl
 	
-	
+
+
+IFDEF TTSMS	
+;--- Silence the Noise on SN7 if needed.
 NoiseMixer:	
 	;------ 
 	; Handle noise on muted channels
@@ -456,6 +459,9 @@ NoiseMixer:
 	jp	z,.silence
 	ld	a,(SN_regVOLNA)
 	ld	(SN_regVOLN),a
+	
+ENDIF	
+	
 	ret	
 	
 	

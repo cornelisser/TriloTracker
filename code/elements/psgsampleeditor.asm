@@ -234,11 +234,18 @@ ENDIF
 		jr.	99f
 44:
 		dec	a
-		jr.	nz,44f	
+		jr.	nz,44f
+IFDEF TTSCC		
 		;-- scc
 		ld	(hl),162
 		inc	hl
 		ld	(hl),163	
+ELSE
+		;-- scc
+		ld	(hl),162+8
+		inc	hl
+		ld	(hl),163+8
+ENDIF
 		jr.	99f
 		
 44:

@@ -1,4 +1,4 @@
-_base equ	14			; to move the FM part.
+_base equ	16			; to move the FM part.
 
 
 
@@ -25,9 +25,9 @@ draw_psgsamplebox:
 		dec	a
 		jr.	nz,44f	
 		;-- scc
-		ld	(hl),162
+		ld	(hl),162+8
 		inc	hl
-		ld	(hl),163	
+		ld	(hl),163+8	
 		jr.	99f
 		
 44:
@@ -46,12 +46,12 @@ draw_psgsamplebox:
 	
 	; box around macro lines
 	ld	hl,(80*9)+0
-	ld	de,(31*256) + 17
+	ld	de,((31+_base)*256) + 17
 	call	draw_box	
 	
 	;box around FM voice
 	ld	hl,(80*9)+30+_base
-	ld	de,(36*256) + 17
+	ld	de,(34*256) + 17
 	call	draw_box	
 	;box around waveform data
 ;	ld	hl,(80*17)+32
@@ -136,7 +136,7 @@ draw_psgsamplebox:
 
 	; macro data
 	ld	hl,0x040a
-	ld	de,0x1a10	
+	ld	de,0x1a10+(_base*256)	
 	call	erase_colorbox	
 
 	; voice values
@@ -181,8 +181,28 @@ _LABEL_SAMPLETEXT2SUB:
 _LABEL_keyjazz:
 	db	"  ",_ARROWRIGHT,0
 _PSG_SAMPLESTRING:
+	db	"tnv+000 [000]                                 "
 ;	db	" xxTN _xxx _xx _x **************** ***** *****",0
-	db	"           [000]        X****   "
+;	db	"           [000]        X****   "
+
+_NOISE_0:
+	db	"[pHi]"
+_NOISE_1:
+	db	"[pMe]"
+_NOISE_2:
+	db	"[pLo]"
+_NOISE_3:
+	db	"[pCh]"
+_NOISE_4:
+	db	"[wHi]"
+_NOISE_5:
+	db	"[wMe]"
+_NOISE_6:
+	db	"[wLo]"
+_NOISE_7:
+	db	"[wCh]"
+
+
 
 _LABEL_VOICE_EDIT_HEADER:
 	db	"Mod.   Car.",0
@@ -226,6 +246,7 @@ _PSG_VOLC:	db 245,245,245,245, 32
 _PSG_VOLD:	db 245,245,245,245,247
 _PSG_VOLE:	db 245,245,245,245,246
 _PSG_VOLF:	db 245,245,245,245,245
+
 ;===========================================================
 ; --- update_psgsamplebox
 ; Display the values
@@ -257,15 +278,6 @@ update_psgsamplebox:
 	
 	;--- Calculate the position in RAM of current sample	
 	call	_get_instrument_start
-
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	ld	a,(hl)
 	ld	(instrument_len),a
@@ -302,7 +314,7 @@ _ups_lineloop:
 		inc	c				; increase line number
 		push	bc				; store line+len	
 		ld	a," "
-		ld	b,23+6
+		ld	b,23+6+8+7
 10:		ld	(de),a
 		inc	de
 		djnz	10b
@@ -408,19 +420,36 @@ _ups_lineloop:
 	inc	de
 	inc	de
 
+_vol_update:
+	;--- Volume	
+	bit	5,c
+	jr.	nz,0f		; 1= relative, 0=absolute
+	;- base
+	ld	a,"_"
+	jr.	1f
+0:
+	bit	4,c
+	jr.	nz,99f	; 0 = add, 1=subtract
 
-	ld	a,(_PSG_SAMPLESTRING+5)
-	cp	_NOISE_ON_SIGN+5
-	jr.	nz,_noise_dev
-
-	;// voice link active
-	ld	a,"v"
+	;- add
+	ld	a,"+"
+	jr.	1f
+99:	;- sub			
+	ld	a,"-"
+1:
 	ld	(de),a
 	inc	de
-	ld	a,b	
-	call	draw_hex2
-	jr.	_vol_update
 
+	ld	a,c
+	and	0x0f
+	call	draw_hex
+
+	ld	a,c
+	and	0x0f
+
+	inc	de
+	call	draw_volumebar
+	inc	de
 
 _noise_dev:
 	; noise deviation
@@ -449,48 +478,49 @@ IFDEF TTFM
 	
 ELSE	; TTSMS
 
-	ld	a,b		; Draw noise value
-	rr 	a
-	rr	a
-	rr	a
-	rr	a
-	and	0x07
-	call	draw_hex	
-
-				; Display value meaning
-	ld	a,"p"
-	bit	6,b
-	jr.	z,99f
-	;-not base	
-	ld	a,"w"	
-	bit	5,b
-99:	
-
-	ld	(de),a
-	inc	de
-	ld	a,b
-	and	0x30
-	cp	0x10
-	jr.	c,_sign_low
-	jr.	z,_sign_med
-	cp	0x30
-	jr.	c,_sign_high
-	;sign tone
-	ld	a,"T"
-	jr.	0f
-_sign_low:
-	ld	a,"H"
-	jr.	0f
-_sign_med:
-	ld	a,"M"
-	jr.	0f
-_sign_high:
-	ld	a,"L"
-0:	
-	ld	(de),a
-	inc	de
-	inc	de
+	ld	a,(_PSG_SAMPLESTRING+5)
+	cp	_NOISE_ON_SIGN+5
+	jr.	nz,88f
 	
+	push	hl
+	ex	de,hl
+	ld	a,15
+0:	ld	(hl),32
+	inc	hl
+	dec	a
+	jp	nz,0b
+	
+	ex	de,hl
+	pop	hl
+	jp	2f
+	
+88:
+	push	hl
+	ld	a,b		; Draw noise value
+	and	01110000b
+	srl 	a
+	srl	a
+	ld	l,a
+	rr	a
+	rr	a
+	
+	push	af
+	call	draw_hex
+	pop	af
+	
+	add	a,l
+
+	ld	hl,_NOISE_0
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	push	bc
+	ld	bc,5
+	ldir
+	pop	bc
+	inc	de
 	
 	; Draw Volume
 	ld	a,"_"
@@ -499,55 +529,44 @@ _sign_high:
 	
 	ld	a,b
 	and	0x0f	
-	call	draw_hex	
+	push	af
+	call	draw_hex
+	inc	de
+	pop	af
+	call	draw_volumebar	
+	pop	hl
+2:
+
 
 	
 ENDIF
+;	inc	de
+	ld	a,(_PSG_SAMPLESTRING+5)
+	cp	_NOISE_ON_SIGN+5
+	jr.	z,88f
 
-_vol_update:
-	inc	de
-	
-	;--- Volume	
-	bit	5,c
-	jr.	nz,0f		; 1= relative, 0=absolute
-	;- base
-	ld	a,"_"
-	jr.	1f
-0:
-	bit	4,c
-	jr.	nz,99f	; 0 = add, 1=subtract
-
-	;- add
-	ld	a,"+"
-	jr.	1f
-99:	;- sub			
-	ld	a,"-"
-1:
+	ld	a,0
 	ld	(de),a
 	inc	de
-
-	ld	a,c
-	and	0x0f
-	call	draw_hex
-
-	ld	a,c
-	and	0x0f
-
+	ld	(de),a
+	inc	de	
+	ld	(de),a
 	inc	de
-	; volume bar
-	push	hl
-	ld	hl,_PSG_VOL0
-	ld	bc,5
-	and	0x0f
-	jr.	z,1f
-0:
-	add	hl,bc
-	dec	a
-	jr.	nz,0b
-1:	
-	ld	bc,5
-	ldir		
-	pop hl	
+	jp	55f
+88:
+;// voice link active
+	ld	a,"v"
+	ld	(de),a
+	inc	de
+	ld	a,b	
+	and	00001111b
+	call	draw_hex2
+;	jp	55f
+
+
+
+
+
 
 55:	; end of line making,,,,,
 	push	hl			; store data pointer
@@ -558,7 +577,7 @@ _vol_update:
 	
 
 	ld	de,_PSG_SAMPLESTRING	; draw the string
-	ld	b,23+6
+	ld	b,45
 	call	draw_label_fast	
 	
 	pop	hl
@@ -613,6 +632,26 @@ _vol_update:
 	
 	call	update_tonecum
 	ret
+
+draw_volumebar:
+	; volume bar
+	push	hl
+	push	bc
+	ld	hl,_PSG_VOL0
+	ld	bc,5
+	and	0x0f
+	jr.	z,1f
+0:
+	add	hl,bc
+	dec	a
+	jr.	nz,0b
+1:	
+	ld	bc,5
+	ldir	
+	pop	bc
+	pop 	hl
+	ret
+
 
 
 update_tonecum:
@@ -1111,6 +1150,13 @@ _psgsamright:
 	ld	a,(hl)
 	xor	128
 	ld	(hl),a
+	and 	128		; check if need to reset voice link
+	jr	z,99f
+	;-- Reset the voice link flag
+	inc	hl
+	inc	hl
+	res	7,(hl)
+99:
 	call	update_psgsamplebox
 	jr.	process_key_psgsamplebox_END
 
@@ -1158,6 +1204,13 @@ _psgsamright:
 	ld	a,(hl)
 	xor	128
 	ld	(hl),a
+	and	128
+	jp	z,99f
+	;-- reset the noise bit
+	dec	hl
+	dec	hl
+	res	7,(hl)
+99:
 	call	update_psgsamplebox
 	jr.	process_key_psgsamplebox_END
 
@@ -2324,7 +2377,7 @@ reset_cursor_psgsamplebox:
 		ld	a,10
 		ld	(cursor_y),a
 IFDEF TTSMS
-		ld	a,8+15+3
+		ld	a,8+15+3-7
 ELSE
 		ld	a,8+15;4
 ENDIF
@@ -2338,7 +2391,7 @@ ENDIF
 		ld	(cursor_input),a
 		xor	a
 		ld	(instrument_line),a
-		ld	a,5
+		ld	a,3
 		ld	(cursor_column),a
 		ret
 0:
@@ -2407,15 +2460,27 @@ _COLTAB_PSGSAMPLE:
 IFDEF TTSMS
 	db	4,1	; 4 = freq deviation high
 	db	5,1	; 5 = freq deviation mid
-	db	6,8	; 6 = freq deviation low
-	db	9,5	; 9 = noise deviation high
-	db	10,3	; 6 = noise deviation low
-	db	13,255;1	; 12= volume
+	db	6,9	; 6 = freq deviation low
+	db	13,8;1	; 12= volume
+	db	9,8	; 9 = noise deviation high
+	db	10,8	; 6 = noise deviation low
+	db	10,255	;
+
+;	db	4,1	; 4 = freq deviation high
+;	db	5,1	; 5 = freq deviation mid
+;	db	6,8	; 6 = freq deviation low
+;	db	9,5	; 9 = noise deviation high
+;	db	10,3	; 6 = noise deviation low
+;	db	13,255;1	; 12= volume
 
 
 
 
 ELSE
+
+
+
+
 ;	db	0,1	; 0 = ena/dis tone
 ;	db	1,2	; 1 = ena/dis noise
 ;	db	2,2	; 2 = ena/dis envelope

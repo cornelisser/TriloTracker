@@ -61,8 +61,8 @@ set_vdpwrite:
 	ret
 
 
-	; --- set_vdpwrite
-	; sets up the vdp address in HL to write to
+	; --- set_vdpread
+	; sets up the vdp address in HL to read from
 	; enables ISR and changes a
 
 set_vdpread:

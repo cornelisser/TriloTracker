@@ -454,6 +454,10 @@ _vol_update:
 _noise_dev:
 	; noise deviation
 IFDEF TTFM
+	ld	a,(_PSG_SAMPLESTRING+5)
+	cp	_NOISE_ON_SIGN+5
+	jr.	z,88f
+
 	ld	a,"_";151
 	bit	6,b
 	jr.	z,99f
@@ -473,9 +477,20 @@ IFDEF TTFM
 	and	0x1f	
 	
 	call	draw_hex2
+	inc	de
+	jp	2f
+88:	;--- draw empty
+	ld	a," "	; space
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	inc	de
 	
 	
-	
+2:	
 ELSE	; TTSMS
 
 	ld	a,(_PSG_SAMPLESTRING+5)
@@ -1178,6 +1193,13 @@ _psgsamright:
 	ld	a,(hl)
 	xor	128
 	ld	(hl),a
+	; reset Voicelink if needed.
+	bit 	7,a
+	jp	z,99f
+	inc	hl
+	inc	hl
+	inc	hl
+	res	7,(hl)
 	call	update_psgsamplebox
 	jr.	process_key_psgsamplebox_END
 
@@ -1207,6 +1229,7 @@ _psgsamright:
 	and	128
 	jp	z,99f
 	;-- reset the noise bit
+	dec	hl
 	dec	hl
 	dec	hl
 	res	7,(hl)
@@ -2379,7 +2402,7 @@ reset_cursor_psgsamplebox:
 IFDEF TTSMS
 		ld	a,8+15+3-7
 ELSE
-		ld	a,8+15;4
+		ld	a,8+15-4
 ENDIF
 		ld	(cursor_x),a
 		xor	a
@@ -2466,34 +2489,17 @@ IFDEF TTSMS
 	db	10,8	; 6 = noise deviation low
 	db	10,255	;
 
-;	db	4,1	; 4 = freq deviation high
-;	db	5,1	; 5 = freq deviation mid
-;	db	6,8	; 6 = freq deviation low
-;	db	9,5	; 9 = noise deviation high
-;	db	10,3	; 6 = noise deviation low
-;	db	13,255;1	; 12= volume
-
-
-
-
 ELSE
-
-
-
-
-;	db	0,1	; 0 = ena/dis tone
-;	db	1,2	; 1 = ena/dis noise
-;	db	2,2	; 2 = ena/dis envelope
-;	db	3,1	; 3 = pos/neg freq deviation
 	db	4,1	; 4 = freq deviation high
 	db	5,1	; 5 = freq deviation mid
 	db	6,3+6	; 6 = freq deviation low
+	db	13,9	; 12= volume
 	;db	7,2	; 7 = freq deviation add type
 ;	db	8,1	; 8 = pos/neg noise deviation
 	db	9,1	; 9 = noise deviation high
-	db	10,3	; 6 = noise deviation low
+	db	10,4	; 6 = noise deviation low
 ;	db	11,2	; 11= noise deviation add type
-	db	13,255;1	; 12= volume
+	db	10,255;1	; 12= volume
 ;	db	12,255	; 13= volume add type
 ENDIF
 

@@ -3660,7 +3660,6 @@ route_SN:
 	jp	z,0f
 	ld	(hl),a
 	or	11100000b
-;	ld	a,0 ; debug
 	out	($3f),a
 0:
 	; tone chan a

@@ -264,6 +264,12 @@ update_psgsamplebox:
 	jr.	c,99f
 	call	reset_cursor_psgsamplebox	
 99:
+	;--- Make sure the cursor is on Noise/Voicelink only if
+	;    active
+
+
+
+
 	;--- Get the current sample
 	ld	a,(instrument_macro_offset)
 	ld	c,a			; contains the line#

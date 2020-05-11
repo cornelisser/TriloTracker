@@ -99,12 +99,27 @@ _dpe_lineloop:
 	ld	(_dpe_step_count),a
 	ld	a,_VERTICAL_STEP
 	ld	(_dpe_step_char),a
+	ld	(_dpe_step_char26),a	
+	ld	(_dpe_step_char35),a	
+	
 	jr.	77f	
 	;--- no step indicator
 88:	
 	ld	a,_VERTICAL_SMALL
-	ld	(_dpe_step_char),a	
-	
+	ld	(_dpe_step_char),a
+	ld	a,(replay_chan_setup)
+	and	1
+	jp	nz,66f
+	ld	a,_VERTICAL_SMALL
+	ld	(_dpe_step_char35),a
+	dec	a
+	ld	(_dpe_step_char26),a	
+	jp	77f
+66:
+	ld	a,_VERTICAL_SMALL
+	ld	(_dpe_step_char26),a
+	dec	a
+	ld	(_dpe_step_char35),a		
 77:	
 	; each line
 	ld	de,_LABEL_PATLINE
@@ -147,13 +162,11 @@ _dpe_emptyline:
 	ld	(de),a
 	inc	de		; skip the '|'
 	call	draw_channel
-	ld	a,_VERTICAL_DOUBLE
-;	ld	a,(_dpe_step_char)
+	ld	a,(_dpe_step_char26)
 	ld	(de),a
-	inc	de		; skip the '|'	
+	inc	de		; skip the '|'
 	call	draw_channel
-;	ld	a,_VERTICAL_DOUBLE
-	ld	a,(_dpe_step_char)
+	ld	a,(_dpe_step_char35)
 	ld	(de),a
 	inc	de		; skip the '|'
 	call	draw_channel
@@ -258,6 +271,8 @@ _dpe_emptyline:
 _dpe_step:		ds 1
 _dpe_step_count:	ds 1
 _dpe_step_char:		ds 1
+_dpe_step_char26:		db "x"		; divider for 2-6 chan setup 
+_dpe_step_char35:		db "o"		; divider for 3-5 chan setup
 _dpe_pntpos:		ds 2
 _dpe_patlen:		ds 1
 

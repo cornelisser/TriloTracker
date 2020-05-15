@@ -1,15 +1,5 @@
 
-_KEYJAZZ_LINE:
-		db	0,0,0,0
-_KJ_PSG:	db	0,0,0,0
-_KJ_PSG2:	db	0,0,0,0
-_KJ_SCC:	db	0,0
-_KJ_DRM1:	db	0,0
-		db	0,0
-_KJ_DRM2:	db	0,0
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
+
 		
 ;_DRUM_AUDIT_MAPPING:
 ;		db 	1
@@ -148,23 +138,11 @@ process_key_keyjazz:
 	call	replay_init
 ;	ld	a,(current_song)
 	call	set_songpage	
-	ld	hl,_KEYJAZZ_LINE
-	ld	(replay_patpointer),hl
-	ld	a,2
-	ld	(replay_mode),a
+;	ld	hl,_KEYJAZZ_LINE
+;	ld	(replay_patpointer),hl
+;	ld	a,2
+;	ld	(replay_mode),a
 
-;	;- determine the chip for location to set values	
-;	ld	a,(editmode)
-;	and	a
-;	jr.	nz, 8f
-;	ld	a,(cursor_x)
-;	cp	31
-;	ld	a,1
-;	jr.	c,9f
-;	inc	a
-;9:	ld	(keyjazz_chip),a	
-;
-;8:	
 	ld	hl,_KJ_SCC
 	ld	(hl),97	
 
@@ -209,10 +187,18 @@ _ky_noPSG:
 
 99:
 	pop	af
-	di
-	call	replay_play
-	call	replay_route	
-	ei
+
+	ld	hl,_KEYJAZZ_LINE
+	ld	(replay_patpointer),hl
+;	ld	(replay_speed_timer),a
+	ld	a,2
+	ld	(replay_speed_timer),a
+	ld	(replay_mode),a
+
+;	di
+;	call	replay_play
+;	call	replay_route	
+;	ei
 	
 88:	;halt
 ;	--- wait till key is released	

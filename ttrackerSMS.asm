@@ -1,6 +1,6 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.10.0 SMS PSG+FM "
-define YEAR "2019"
+define VERSION "v0.10.B SMS PSG+FM "
+define YEAR "2020"
 define CHIPSET_CODE $30
 
 DEFINE TTSMS 

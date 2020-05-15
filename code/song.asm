@@ -142,6 +142,14 @@ ENDIF
 IFDEF TTSCC
 	ret
 ELSE
+	;clear audition line
+	ld hl,_KEYJAZZ_LINE
+	ld	b,32
+0:
+	ld 	(hl),0
+	inc	hl
+	djnz 	0b
+
 clear_drummacros:
 	; Clear Drum macro values
 	ld	b,MAX_DRUMS

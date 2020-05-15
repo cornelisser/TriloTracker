@@ -177,6 +177,17 @@ CHIP_Chan6:			#CHIP_REC_SIZE
 CHIP_Chan7:			#CHIP_REC_SIZE
 CHIP_Chan8:			#CHIP_REC_SIZE
 
+_KEYJAZZ_LINE:#4;db	0,0,0,0
+_KJ_PSG:	#4;db	0,0,0,0
+_KJ_PSG2:	#4;db	0,0,0,0
+_KJ_SCC:	#2;db	0,0
+_KJ_DRM1:	#4;db	0,0
+		  ;db	0,0
+_KJ_DRM2:	#14;db	0,0
+		  ;db	0,0,0,0
+		  ;db	0,0,0,0
+		  ;db	0,0,0,0
+
 
 
 

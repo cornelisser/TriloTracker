@@ -1027,17 +1027,16 @@ _pfd_LOAD:
 	ld	(window_shown),a
 	;--- LOAD A SONG
 	push	hl
+	ld	de,_FILMES_loading
+	call	message_filedialog
 ;	ld	a,(current_song)
 	call 	new_song
 	ld	a,5
 	ld	(editmode),a
 	pop	hl
 
-	ld	de,_FILMES_loading
-	call	message_filedialog
 	call	open_tmufile		; hl needs to point to the filename 
 	
-	call	clear_clipboard	
 	;--- if loading was succesfull return to pattern editor
 	ld	a,(window_shown)
 	and	a
@@ -1052,6 +1051,8 @@ _pfd_SAVE:
 	
 	ld	de,_FILMES_saving
 	call	message_filedialog
+	halt	; to make sure it is shown.
+	
 	call	save_tmufile		; hl points to filename
 
 ;	xor	a

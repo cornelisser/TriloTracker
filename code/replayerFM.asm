@@ -1149,6 +1149,8 @@ _dc_noVolume:
 	;=============
 	ld	a,(bc)
 	and	0x0f
+	jp	z,noCMDchange
+
 	;--- only for tracker. fix in compiler
 	; SWAP cmd 1 and 2 for FM
 	bit	7,(ix+CHIP_Flags)
@@ -1180,6 +1182,14 @@ _dc_noVolume:
 	inc	bc
 	jp	hl			; jump to the command
 	; END
+	
+	
+noCMDchange:
+	inc	bc
+	inc	bc
+	ret
+
+
 
 ;-------------------
 ; Rest the note
@@ -1231,7 +1241,7 @@ _CHIPcmd0_arpeggio:
 ;	ld	(ix+CHIP_cmd_ToneAdd+1),0
 ;	ld	a,(ix+CHIP_cmd_detune)
 	ld	(ix+CHIP_cmd_NoteAdd),0		
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 ;	ld	(ix+CHIP_cmd_ToneAdd),a
 ;	cp	16
 ;	ret	nc
@@ -1770,7 +1780,7 @@ _CHIPcmdE_trackdetune:
 	ret
 	
 _CHIPcmdE_transpose:
-	res	3,(ix+CHIP_Flags)		; command in-active
+	;res	3,(ix+CHIP_Flags)		; command in-active
 
 IFDEF TT
 	ld	a,d
@@ -3023,7 +3033,7 @@ _pcAY_cmd3_sub:
 	ld	(ix+CHIP_cmd_ToneSlideAdd+1),h
 	jr.	_pcAY_commandEND
 _pcAY_cmd3_stop:	
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	ld	(ix+CHIP_cmd_ToneSlideAdd),0
 	ld	(ix+CHIP_cmd_ToneSlideAdd+1),0	
 	jr.	_pcAY_commandEND
@@ -3138,15 +3148,15 @@ _pcAY_cmd6:
 
 
 _pcAY_cmd7:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 _pcAY_cmd8:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 _pcAY_cmd9:
 	dec	(ix+CHIP_Timer)
 	jr.	nz,_pcAY_commandEND
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 
 
@@ -3217,20 +3227,20 @@ _pcAY_cmdb:
 	
 	jr.	_pcAY_commandEND
 _pcAY_cmdc:
-;	res	3,(ix+CHIP_Flags)
+;	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 _pcAY_cmdd:
 	;call	replay_setnextpattern
 	ld	a,64
 	ld	(replay_line),a
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 	
 _pcAY_cmde:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 _pcAY_cmdf:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 ;--- SHORT ARP
 _pcAY_cmd10:
@@ -3245,7 +3255,7 @@ _pcAY_cmd11:
 	dec	(ix+CHIP_Timer)
 	jr.	nz,_pcAY_commandEND
 
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	ld	a,(ix+CHIP_cmd_ToneSlideAdd)
 	add	(ix+CHIP_cmd_E)
 	ld	(ix+CHIP_cmd_ToneSlideAdd),a
@@ -3257,7 +3267,7 @@ _pcAY_cmd12:
 	dec	(ix+CHIP_Timer)
 	jr.	nz,_pcAY_commandEND
 
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	ld	a,(ix+CHIP_cmd_ToneSlideAdd)
 	sub	(ix+CHIP_cmd_E)
 	ld	(ix+CHIP_cmd_ToneSlideAdd),a
@@ -3266,16 +3276,16 @@ _pcAY_cmd12:
 	jr.	_pcAY_commandEND	
 
 _pcAY_cmd13:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd14:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd15:
 ;	dec	(ix+CHIP_Timer)
 ;	jr.	nz,_pcAY_commandEND
 ;
-;	res	3,(ix+CHIP_Flags)
+;	;res	3,(ix+CHIP_Flags)
 ;	ld	a,(ix+CHIP_cmd_E)
 ;	ld	d,a
 ;	ld	e,(ix+CHIP_cmd_ToneAdd)
@@ -3295,13 +3305,13 @@ _pcAY_cmd15:
 ;	
 
 _pcAY_cmd16:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd17:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd18:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd19:
 	;retrig
@@ -3315,10 +3325,10 @@ _pcAY_cmd19:
 	
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1a:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1b:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
 	dec	(ix+CHIP_Timer)
@@ -3326,7 +3336,7 @@ _pcAY_cmd1c:
 	
 	; stop note
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jp	_pcAY_commandEND	
 _pcAY_cmd1d:
 	; note delay
@@ -3337,24 +3347,24 @@ _pcAY_cmd1d:
 	ld	a,(ix+CHIP_cmd_E)		
 	ld	(ix+CHIP_Note),a		; set	the note val
 	set	0,(ix+CHIP_Flags)		; set	trigger note flag
-	res	3,(ix+CHIP_Flags)		; reset tiggger cmd flag
+	;res	3,(ix+CHIP_Flags)		; reset tiggger cmd flag
 	
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1e:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1f:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd20:
-	res	3,(ix+CHIP_Flags)
+	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 	
 _pcAY_cmd21:
 	;=================
 	; Waveform PWM / Duty Cycle
 	;=================
-;	res	3,(ix+CHIP_Flags)	; reset command
+;	;res	3,(ix+CHIP_Flags)	; reset command
 ;	res	6,(ix+CHIP_Flags)	; reset normal wave update
 ;
 ;	;get the waveform	start	in [DE]
@@ -3396,7 +3406,7 @@ _pcAY_cmd22:
 	; Waveform Cut
 	;=================
 
-;	res	3,(ix+CHIP_Flags)	; reset command
+;	;res	3,(ix+CHIP_Flags)	; reset command
 ;	res	6,(ix+CHIP_Flags)	; reset normal wave update
 ;
 ;	;get the waveform	start	in [DE]
@@ -3449,7 +3459,7 @@ _pcAY_cmd24:
 	;=================
 	; Waveform Compress
 	;=================
-;	res	3,(ix+CHIP_Flags)	; reset command
+;	;res	3,(ix+CHIP_Flags)	; reset command
 ;	res	6,(ix+CHIP_Flags)	; reset normal wave update
 ;
 ;	;get the waveform	start	in [DE]

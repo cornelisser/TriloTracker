@@ -1093,9 +1093,12 @@ replay_decode_chan:
 	jr.	z,_dc_restNote	; 97 is a rest
 	jr.	nc,_dc_noNote	; anything higher	than 97 are	no notes
 	
+	
 	ld	(ix+CHIP_Note),a
 	set	0,(ix+CHIP_Flags)		; bit0=1 ; trigger a note
 	res	4,(ix+CHIP_Flags)		; set key for FM
+	res	3,(ix+CHIP_Flags)		; reset running command
+
 _dc_noNote:	
 	inc	bc
 	;=============
@@ -1214,6 +1217,8 @@ _dc_restNote:
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 ;	res	4,(ix+CHIP_Flags)	; release key
 	res	5,(ix+CHIP_Flags)	; sustain
+	res	3,(ix+CHIP_Flags) ; reset commands
+	
 	xor	a
 	ld	a,(replay_previous_note)
 	ld	(ix+CHIP_Note),a
@@ -1228,7 +1233,7 @@ _CHIPcmdlist:
 	dw	_CHIPcmd4_vibrato
 	dw	_CHIPcmd5
 	dw	_CHIPcmd6_vibrato_vol
-	dw	_CHIPcmd7
+	dw	_CHIPcmd7_tremelo
 	dw	_CHIPcmd8_env_mul
 	dw	_CHIPcmd9_macro_offset
 	dw	_CHIPcmdA_volSlide
@@ -1283,13 +1288,11 @@ _CHIPcmd1_portUp:
 	
 	;--- test for retrigger	(do not update values)
 	and	a
-	jr.	z,_CHIPcmd1_retrig
+	jr.	z,_CHIPcmd_end
 	ld	(ix+CHIP_cmd_1),a
 
-_CHIPcmd1_retrig:
-	;--- Init values
-	set	3,(ix+CHIP_Flags)
-;	ld	(ix+CHIP_Timer),2
+_CHIPcmd_end:
+	res	3,(ix+CHIP_Flags)
 	ret
 	
 	 
@@ -1304,10 +1307,10 @@ _CHIPcmd2_portDown:
 
 	;--- test for retrigger	(do not update values)
 	and	a
-	jr.	z,_CHIPcmd2_retrig
+	jr.	z,_CHIPcmd_end
 	ld	(ix+CHIP_cmd_2),a	
-	
-_CHIPcmd2_retrig:
+;	
+;_CHIPcmd2_retrig:
 	;--- Init values
 	set	3,(ix+CHIP_Flags)
 ;	ld	(ix+CHIP_Timer),2
@@ -1331,11 +1334,11 @@ _CHIPcmd3_portTone:
 	set	3,(ix+CHIP_Flags)
 	set	1,(ix+CHIP_Flags)
 	and	a
-	jr.	z,_CHIPcmd3_retrig
+	jr.	z,_CHIPcmd_end
 	ld	(ix+CHIP_cmd_3),a
 	ld	(ix+CHIP_Timer),2
-		
-_CHIPcmd3_retrig:
+;		
+;_CHIPcmd3_retrig:
 	;--- Check if we have a	note on the	same event
 	bit 	0,(ix+CHIP_Flags)
 	ret	z
@@ -1400,7 +1403,14 @@ _CHIPcmd3_retrig:
 
 
 
-
+_CHIPcmd7_tremelo:
+	; in:	[A] contains the paramvalue
+	; 
+	; ! do not change	[BC] this is the data pointer
+	;--------------------------------------------------
+	; Tremelo with speed x and depth y.	This command 
+	; will oscillate the volume of the current note
+	; with a sine wave.
 	
 _CHIPcmd4_vibrato:
 	; in:	[A] contains the paramvalue
@@ -1409,11 +1419,7 @@ _CHIPcmd4_vibrato:
 	;--------------------------------------------------
 	; Vibrato with speed x and depth y.	This command 
 	; will oscillate the frequency of the current note
-	; with a sine wave. (You can change	the vibrato
-	; waveform to a triangle wave, a square wave, or a
-	; random table by	using	the E4x command).
-
-	
+	; with a sine wave.
 	;--- Init values
 	and	a
 	jr.	z,_CHIP_cmd4_end  ; <--- make this end effect
@@ -1427,7 +1433,7 @@ _CHIPcmd4_vibrato:
 	;--- Set the speed
 	and	$0f
 	jp	z,.depth 	; 0 -> no speed update
-	inc	a
+;	inc	a
 	ld	(ix+CHIP_cmd_4_step),a	
 	neg	
 	ld	(ix+CHIP_Step),a	
@@ -1437,7 +1443,7 @@ _CHIPcmd4_vibrato:
 	ld	a,e
 	and	$f0
 	ret	z		; 0 -> no depth update
-	cp	$D0		; max 12
+	cp	$E0		; max 1-13
 	jp	c,99f
 	ld	(ix+CHIP_cmd_4_step),0	
 	ld	a,1
@@ -1467,18 +1473,6 @@ _CHIP_cmd4_end:
 	
 
 	
-	
-_CHIPcmd7:
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	;  
-	
-	ret
-	
-	
-
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1512,9 +1506,9 @@ _CHIPcmd9_macro_offset:
 
 	;--- Init values
 	and	a
-	jr.	z,_CHIPcmd9_retrig
+	jr.	z,_CHIPcmd_end
 	ld	(ix+CHIP_cmd_9),a
-_CHIPcmd9_retrig:	
+;_CHIPcmd9_retrig:	
 	set	3,(ix+CHIP_Flags)
 	ld	(ix+CHIP_Timer),2		; timer is set as	we process cmd
 						; before new notes.
@@ -1546,7 +1540,7 @@ _CHIPcmdA_volSlide:
 	
 	;--- test for retrigger	(do not update values)
 	and	a
-	jr.	z,_CHIPcmdA_retrig
+	jr.	z,_CHIPcmd_end
 ;	ld	(ix+CHIP_cmd_1),a
 
 	;--- neg or	pos
@@ -1564,15 +1558,12 @@ _CHIPcmdA_volSlide:
 	
 _CHIPcmdA_neg:
 	;-- neg
-
-
-;	sla	a
 	or	128
-	
 99:	ld	(ix+CHIP_cmd_A),a
-	ld	(ix+CHIP_Timer),1
-	
-_CHIPcmdA_retrig:
+	and	$0f
+	ld	(ix+CHIP_Timer),a
+;	
+;_CHIPcmdA_retrig:
 	;--- Init values
 	set	3,(ix+CHIP_Flags)
 	ret
@@ -1702,7 +1693,7 @@ _CHIPcmdE_shortarp:
 
 	ld	(ix+CHIP_cmd_E),a		; store the halve not to add
 	ld	(ix+CHIP_Timer),0
-_CHIPcmdE_shortarp_retrig:
+;_CHIPcmdE_shortarp_retrig:
 	set	3,(ix+CHIP_Flags)		; command active		
 	ld	(ix+CHIP_Command),0x10
 	ret	
@@ -2656,7 +2647,7 @@ _noEnv:
 	ld	c,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	
 	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	nc,_sub_Vadd
+	jr.	c,_sub_Vadd
 _add_Vadd:
 	add	a,c
 	jr.	nc,_Vadd
@@ -2665,9 +2656,9 @@ _add_Vadd:
 	jr.	_Vadd
 _sub_Vadd:
 	ld	b,a
-	xor	a
-	sub	b
-	ld	b,a
+;	xor	a
+;	sub	b
+;	ld	b,a
 	ld	a,c
 	sub	a,b
 	jr.	nc,_Vadd
@@ -3085,71 +3076,60 @@ _pcAY_cmd5:
 	jr.	_pcAY_cmd3
 	
 	
-;	jr.	z,_pcAY_cmd5_pos
-;	;--- neg
-;	and	$1f
-;	ld	(ix+CHIP_Timer),a
-;	ld	a,(ix+CHIP_cmd_VolumeAdd)
-;	and	a
-;	jr.	z,_pcAY_cmd3
-;	sub	16
-;;	cp	-16		; only store values smaller then -15
-;;	jr.	z,_pcAY_cmd3
-;	ld	(ix+CHIP_cmd_VolumeAdd),a
-;	jr.	_pcAY_cmd3
-;_pcAY_cmd5_pos:
-;	ld	(ix+CHIP_Timer),a
-;	ld	a,(ix+CHIP_cmd_VolumeAdd)
-;	add	16
-;	jr.	z,_pcAY_cmd3
-;	inc	a
-;	cp	16		; only store values smaller then -15
-;	jr.	z,_pcAY_cmd3
-;	ld	(ix+CHIP_cmd_VolumeAdd),a
-;	jr.	_pcAY_cmd3		
-
-
 
 
 _pcAY_cmd6:
 	call	_pcAY_cmdasub
 	jr.	_pcAY_cmd4		
 
-;	;retrig
-;	dec	(ix+CHIP_Timer)
-;	jr.	nz,_pcAY_cmd4
-;	
-;	; vol	slide
-;	ld	a,(ix+CHIP_cmd_A)
-;	bit	7,a		;- if	set vol slide is neg
-;	jr.	z,_pcAY_cmd6_pos
-;	;--- neg
-;	and	$1f
-;	ld	(ix+CHIP_Timer),a
-;	ld	a,(ix+CHIP_cmd_VolumeAdd)
-;	and	a
-;	jr.	z,_pcAY_cmd4
-;	sub	16
-;;	dec	a
-;;	cp	-16		; only store values smaller then -15
-;;	jr.	z,_pcAY_cmd4
-;	ld	(ix+CHIP_cmd_VolumeAdd),a
-;	jr.	_pcAY_cmd4
-;_pcAY_cmd6_pos:
-;	ld	(ix+CHIP_Timer),a
-;	ld	a,(ix+CHIP_cmd_VolumeAdd)
-;	add	16
-;	jr.	z,_pcAY_cmd4
-;;	inc	a
-;;	cp	16		; only store values smaller then -15
-;;	jr.	z,_pcAY_cmd4
-;	ld	(ix+CHIP_cmd_VolumeAdd),a
 
-
-
+	;-- Tremelo
 _pcAY_cmd7:
-	;res	3,(ix+CHIP_Flags)
-	jr.	_pcAY_commandEND
+	ld	l,(ix+CHIP_cmd_4_depth)
+	ld	h,(ix+CHIP_cmd_4_depth+1)	
+	
+	;--- Get next step
+	ld	a,(IX+CHIP_Step)
+	add	(ix+CHIP_cmd_4_step)
+	and	$7F			; max	64
+	ld	(ix+CHIP_Step),a
+	sra 	a	; divide the step with 2
+	
+	bit	5,a			; step 32-63 the neg	
+	jp	z,.pos	
+	
+.neg:
+	and	$1f	; make it 32 steps again
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	sla	a
+	sla	a	
+	sla	a	
+;	jp	z,.zero			; $ff00 gives strange result ;)
+;	or 	128				; set the neg bit
+.zero:
+	ld	(ix+CHIP_cmd_VolumeAdd),a
+	jp	_pcAY_commandEND		
+.pos:
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	sla	a
+	sla	a	
+	sla	a
+	or 128
+;.zero:	
+	ld	(ix+CHIP_cmd_VolumeAdd),a
+	jp	_pcAY_commandEND	
+
+
 _pcAY_cmd8:
 	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
@@ -3167,7 +3147,7 @@ _pcAY_cmda:
 	call	_pcAY_cmdasub
 	jr.	_pcAY_commandEND
 
-_pcAY_cmdasub
+_pcAY_cmdasub:
 	dec	(ix+CHIP_Timer)
 ;	jr.	nz,_pcAY_cmd3
 	ret	nz
@@ -3177,52 +3157,25 @@ _pcAY_cmdasub
 	ld	d,a
 	and	0x7f
 	ld	(ix+CHIP_Timer),a
-	
+
+	ld	a,(IX+CHIP_Volume)
+	ld	e,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)
 	bit	7,d
 	jr.	nz,.inc
 .dec:
-	cp	0x00
-	ret	z
+	cp	8
+	ret	c
 	sub	8
 	ld	(ix+CHIP_cmd_VolumeAdd),a
 	ret
 .inc:
-	cp	0x88
-	ret	z
+	cp	e
+	ret	nc
 	add	8	
 	ld	(ix+CHIP_cmd_VolumeAdd),a
 	ret
 	
-;	; vol	slide
-;	ld	a,(ix+CHIP_cmd_A)
-;	bit	7,a		;- if	set vol slide is neg
-;	jr.	z,_pcAY_cmda_pos
-;	;--- neg
-;	and	$1f
-;	ld	(ix+CHIP_Timer),a
-;	ld	a,(ix+CHIP_cmd_VolumeAdd)
-;	sub	16
-;	jr.	c,_pcAY_commandEND
-;	dec	a
-;	cp	-16		; only store values smaller then -15
-;	jr.	z,_pcAY_commandEND
-;	ld	(ix+CHIP_cmd_VolumeAdd),a
-;	jr.	_pcAY_commandEND
-;_pcAY_cmda_pos:
-;	ld	(ix+CHIP_Timer),a
-;	ld	a,(ix+CHIP_cmd_VolumeAdd)
-;	add	16
-;	jr.	c,_pcAY_commandEND
-;;	inc	a
-;;	cp	16		; only store values smaller then 16
-;;	jr.	z,_pcAY_commandEND
-;	ld	(ix+CHIP_cmd_VolumeAdd),a
-
-
-;	jr.	_pcAY_commandEND		
-	
-
 
 _pcAY_cmdb:
 	

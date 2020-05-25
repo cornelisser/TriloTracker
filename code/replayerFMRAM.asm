@@ -55,20 +55,20 @@ CHIP_cmd_0			equ 19
 CHIP_cmd_1			equ 20
 CHIP_cmd_2			equ 21
 CHIP_cmd_3			equ 22
-CHIP_cmd_4_depth		equ 23
-CHIP_cmd_4_step		equ 24
+CHIP_cmd_4_depth		equ 23	; pointer to the sine table
+CHIP_cmd_4_step		equ 25
 ;CHIP_cmd_6			equ 26
-CHIP_cmd_detune		equ 25
+CHIP_cmd_detune		equ 26
 
-CHIP_cmd_9			equ 27
-CHIP_cmd_A			equ 28		
-CHIP_cmd_B			equ 29		
-CHIP_cmd_E			equ 30
+CHIP_cmd_9			equ 28
+CHIP_cmd_A			equ 29		
+CHIP_cmd_B			equ 30		
+CHIP_cmd_E			equ 31
 ;CHIP_cmd_F			equ 31
-CHIP_Timer			equ 31		; used for timing by all cmd's
-CHIP_Step			equ 32		; only for VIBRATO???
+CHIP_Timer			equ 32		; used for timing by all cmd's
+CHIP_Step			equ 33		; only for VIBRATO???
 
-CHIP_REC_SIZE		equ 33
+CHIP_REC_SIZE		equ 34
 
 ; Moved to RAM > $c000 to free space for replayer code.
 ;CHIP_Chan1			ds	CHIP_REC_SIZE

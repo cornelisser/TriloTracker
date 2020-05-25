@@ -20,16 +20,32 @@ DRM_DEFAULT_values:
 	db	0x11			; vol
 	
 
-
+; Sine table used for tremelo and vibrato
 CHIP_Vibrato_sine:
-	db	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 0
-	db	0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  2,  3,  3,  2,  2,  2,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 1
-	db	0,  0,  0,  0,  0,  1,  1,  1,  2,  2,  3,  3,  4,  4,  5,  6,  6,  5,  4,  4,  3,  3,  2,  2,  1,  1,  1,  0,  0,  0,  0,  0 ; Depth 2
-	db	0,  0,  0,  0,  1,  2,  2,  3,  4,  5,  6,  7,  8,  9, 10, 12, 12, 10,  9,  8,  7,  6,  5,  4,  3,  2,  2,  1,  0,  0,  0,  0	; Depth 3
-	db	0,  0,  1,  1,  2,  4,  5,  7,  8, 10, 12, 14, 17, 19, 21, 24, 24, 21, 19, 17, 14, 12, 10,  8,  7,  5,  4,  2,  1,  1,  0,  0	; Depth 4
-	db	0,  1,  2,  3,  5,  8, 11, 14, 17, 21, 25, 29, 34, 38, 43, 48, 48, 43, 38, 34, 29, 25, 21, 17, 14, 11,  8,  5,  3,  2,  1,  0	; Depth 5
-	db	0,  2,  4,  7, 11, 16, 22, 28, 35, 43, 51, 59, 68, 77, 87, 96, 96, 87, 77, 68, 59, 51, 43, 35, 28, 22, 16, 11,  7,  4,  2,  0	; Depth 6	
-	db	0,  4,  8, 14, 22, 32, 44, 56, 70, 86,102,118,136,154,174,192,192,174,154,136,118,102, 86, 70, 56, 44, 32, 22, 14,  8,  4,  0	; Depth 7
+      db 	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00		      ; depth 	1
+      db 	$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00		      ; depth 	2
+      db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$03,$02,$02,$02,$02,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	3
+      db 	$00,$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$04,$03,$03,$02,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00,$00		      ; depth 	4
+      db 	$00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$01,$00,$00,$00,$00		      ; depth 	5
+      db 	$00,$00,$00,$00,$01,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$05,$05,$04,$04,$03,$03,$02,$02,$01,$01,$01,$00,$00,$00,$00		      ; depth 	6
+      db 	$00,$00,$00,$01,$01,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$07,$06,$06,$05,$04,$04,$03,$02,$02,$01,$01,$01,$00,$00,$00		      ; depth 	7
+      db 	$00,$00,$01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0C,$0D,$0D,$0C,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$01,$01,$00,$00		      ; depth 	8
+      db 	$00,$00,$01,$02,$02,$04,$05,$06,$08,$09,$0B,$0D,$0F,$11,$13,$15,$15,$13,$11,$0F,$0D,$0B,$09,$08,$06,$05,$04,$02,$02,$01,$00,$00		      ; depth 	9
+      db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
+      db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
+      db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
+
+
+
+
+;	db	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 0
+;	db	0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  2,  3,  3,  2,  2,  2,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 1
+;	db	0,  0,  0,  0,  0,  1,  1,  1,  2,  2,  3,  3,  4,  4,  5,  6,  6,  5,  4,  4,  3,  3,  2,  2,  1,  1,  1,  0,  0,  0,  0,  0 ; Depth 2
+;	db	0,  0,  0,  0,  1,  2,  2,  3,  4,  5,  6,  7,  8,  9, 10, 12, 12, 10,  9,  8,  7,  6,  5,  4,  3,  2,  2,  1,  0,  0,  0,  0	; Depth 3
+;	db	0,  0,  1,  1,  2,  4,  5,  7,  8, 10, 12, 14, 17, 19, 21, 24, 24, 21, 19, 17, 14, 12, 10,  8,  7,  5,  4,  2,  1,  1,  0,  0	; Depth 4
+;	db	0,  1,  2,  3,  5,  8, 11, 14, 17, 21, 25, 29, 34, 38, 43, 48, 48, 43, 38, 34, 29, 25, 21, 17, 14, 11,  8,  5,  3,  2,  1,  0	; Depth 5
+;	db	0,  2,  4,  7, 11, 16, 22, 28, 35, 43, 51, 59, 68, 77, 87, 96, 96, 87, 77, 68, 59, 51, 43, 35, 28, 22, 16, 11,  7,  4,  2,  0	; Depth 6	
+;	db	0,  4,  8, 14, 22, 32, 44, 56, 70, 86,102,118,136,154,174,192,192,174,154,136,118,102, 86, 70, 56, 44, 32, 22, 14,  8,  4,  0	; Depth 7
 
 
 
@@ -1400,51 +1416,49 @@ _CHIPcmd4_vibrato:
 	
 	;--- Init values
 	and	a
-	jr.	z,_CHIP_cmd4_retrig
+	jr.	z,_CHIP_cmd4_end  ; <--- make this end effect
+	set	3,(ix+CHIP_Flags)
+	rrca
+	rrca
+	rrca
+	rrca
 	ld	e,a
 	
 	;--- Set the speed
-	rra
-	rra
-	rra
-	rra
 	and	$0f
+	jp	z,.depth 	; 0 -> no speed update
 	inc	a
 	ld	(ix+CHIP_cmd_4_step),a	
 	neg	
 	ld	(ix+CHIP_Step),a	
 	
+.depth
 	;-- set the depth
-	ld	a,$0f
-	and	e
-	cp	9
+	ld	a,e
+	and	$f0
+	ret	z		; 0 -> no depth update
+	cp	$D0		; max 12
 	jp	c,99f
 	ld	(ix+CHIP_cmd_4_step),0	
 	ld	a,1
 99:
-	dec	a
-	rrc	a
-	rrc	a
-	rrc	a
-	ld	(ix+CHIP_cmd_4_depth),a	
+	ld	hl,CHIP_Vibrato_sine -32
+	add	a,a
+	jp	nc,99f
+	inc	h
+99:	
+	add	a,l
+	ld 	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	(ix+CHIP_cmd_4_depth),l
+	ld	(ix+CHIP_cmd_4_depth+1),h
+	ret
 
-;	;--- reverse detph. this is not good for stand alonereplayer?
-;	ld	e,a
-;	ld	a,8
-;	sub	e
-;	ld	(ix+CHIP_cmd_4_depth),a
-;	ld	a,d
-;	rra
-;	rra
-;	rra
-;	rra
-;	and	$0f
-;	ld	(ix+CHIP_cmd_4_step),a
-;	neg	
-;	ld	(ix+CHIP_Step),a
 
-_CHIP_cmd4_retrig:	
-	set	3,(ix+CHIP_Flags)
+_CHIP_cmd4_end:	
+	res	3,(ix+CHIP_Flags)
 ;	xor	a
 ;	ld	(ix+CHIP_Timer),a
 	
@@ -1553,7 +1567,7 @@ _CHIPcmdA_neg:
 
 
 ;	sla	a
-	add	128
+	or	128
 	
 99:	ld	(ix+CHIP_cmd_A),a
 	ld	(ix+CHIP_Timer),1
@@ -2642,7 +2656,7 @@ _noEnv:
 	ld	c,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	
 	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	c,_sub_Vadd
+	jr.	nc,_sub_Vadd
 _add_Vadd:
 	add	a,c
 	jr.	nc,_Vadd
@@ -2660,20 +2674,7 @@ _sub_Vadd:
 	ld	a,c
 	and	0x0f	
 	;-- next is _Vadd
-;	bit	7,(IX+CHIP_cmd_VolumeAdd)
-;	jr.	nz,1f
-;;--- pos
-;	add	(ix+CHIP_cmd_VolumeAdd)
-;	jr.	nc,99f
-;	ld	a,l
-;	jr.	99f
-;1:
-;;--- neg
-;	sub	(ix+CHIP_cmd_VolumeAdd)
-;	jr.	nc,99f
-;	ld	a,l
-;	jr.	99f
-;99:
+
 _Vadd:
 	;--- apply main volume balance
 	ld	hl,replay_mainvol
@@ -2852,17 +2853,16 @@ _pcFM_noVoice:
 	ld	c,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	
 	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	c,_sub_FMVadd
+	jr.	nc,_sub_FMVadd
+
 _add_FMVadd:
 	add	a,c
 	jr.	nc,_FMVadd
 	ld	a,c
 	or	0xf0
 	jr.	_FMVadd
+
 _sub_FMVadd:
-	ld	b,a
-	xor	a
-	sub	b
 	ld	b,a
 	ld	a,c
 	sub	a,b
@@ -2870,12 +2870,13 @@ _sub_FMVadd:
 	ld	a,c
 	and	0x0f	
 	;-- next is _Vadd
+
 _FMVadd:
 
 	;--- Volume
 ;	ld	a,15	; debug max vol
-	or	(ix+CHIP_Volume)
-	ld	c,a
+;	or	(ix+CHIP_Volume)
+;	ld	c,a
 	;--- apply main volume balance
 	ld	hl,replay_mainvol
 	CP	(HL)
@@ -3041,7 +3042,8 @@ _pcAY_cmd3_stop:
 
 	;-- vibrato	
 _pcAY_cmd4:
-	ld 	hl,CHIP_Vibrato_sine
+	ld	l,(ix+CHIP_cmd_4_depth)
+	ld	h,(ix+CHIP_cmd_4_depth+1)	
 	
 	;--- Get next step
 	ld	a,(IX+CHIP_Step)
@@ -3054,7 +3056,6 @@ _pcAY_cmd4:
 	
 .neg:
 	and	$1f	; make it 32 steps again
-	add	a,(ix+CHIP_cmd_4_depth)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
@@ -3068,7 +3069,6 @@ _pcAY_cmd4:
 	jp	_pcAY_commandEND	
 
 .pos:
-	add	a,(ix+CHIP_cmd_4_depth)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
@@ -3177,17 +3177,18 @@ _pcAY_cmdasub
 	ld	d,a
 	and	0x7f
 	ld	(ix+CHIP_Timer),a
+	
 	ld	a,(IX+CHIP_cmd_VolumeAdd)
 	bit	7,d
-	jr.	z,_pcAY_cmda_inc
-_pcAY_cmda_dec:
-	cp	0x88
+	jr.	nz,.inc
+.dec:
+	cp	0x00
 	ret	z
 	sub	8
 	ld	(ix+CHIP_cmd_VolumeAdd),a
 	ret
-_pcAY_cmda_inc:
-	cp	0x78
+.inc:
+	cp	0x88
 	ret	z
 	add	8	
 	ld	(ix+CHIP_cmd_VolumeAdd),a

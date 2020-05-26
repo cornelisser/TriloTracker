@@ -153,8 +153,22 @@ start_playback:
 	
 	ld	a,(song_pattern_offset)
 	ld	(_tmp_pattern_offset),a
+
+	; set the correct pattern for display
+		ld	a,(song_order_pos)
+		ld	hl,song_order
+		add	a,l
+		ld	l,a
+		jr.	nc,4f
+		inc	h
+4:				
+		ld	a,(hl)
+		ld	(song_pattern),a	
+
+
 		
 	call	replay_init		; setup all registers
+
 ;	di		
 	ld	a,1			; replay mode 1 = play song
 _start_playback_continue:
@@ -179,16 +193,7 @@ _start_playback_continue:
 
 	call	draw_colorbox		
 	
-	; set the correct pattern for display
-		ld	a,(song_order_pos)
-		ld	hl,song_order
-		add	a,l
-		ld	l,a
-		jr.	nc,4f
-		inc	h
-4:				
-		ld	a,(hl)
-		ld	(song_pattern),a	
+
 
 	
 

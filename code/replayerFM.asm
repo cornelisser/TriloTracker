@@ -1168,8 +1168,14 @@ _dc_noVolume:
 	;=============
 	ld	a,(bc)
 	and	0x0f
+	jp	nz,99f
+	inc	bc
+	ld	a,(bc)
+	dec	bc
+	and	a
 	jp	z,noCMDchange
-
+	xor 	a
+99:
 	;--- only for tracker. fix in compiler
 	; SWAP cmd 1 and 2 for FM
 	bit	7,(ix+CHIP_Flags)
@@ -1296,11 +1302,9 @@ _CHIPcmd1_portUp:
 	and	a
 	jr.	z,_CHIPcmd_end
 	ld	(ix+CHIP_cmd_1),a
+	set	3,(ix+CHIP_Flags)
+	ret	
 
-_CHIPcmd_end:
-	res	3,(ix+CHIP_Flags)
-	ret
-	
 	 
 _CHIPcmd2_portDown:
 	; in:	[A] contains the paramvalue
@@ -1315,11 +1319,8 @@ _CHIPcmd2_portDown:
 	and	a
 	jr.	z,_CHIPcmd_end
 	ld	(ix+CHIP_cmd_2),a	
-;	
-;_CHIPcmd2_retrig:
-	;--- Init values
+
 	set	3,(ix+CHIP_Flags)
-;	ld	(ix+CHIP_Timer),2
 	ret	
 	
 	
@@ -1407,7 +1408,9 @@ _CHIPcmd3_portTone:
 	ret
 
 
-
+_CHIPcmd_end:
+	res	3,(ix+CHIP_Flags)
+	ret	
 
 _CHIPcmd7_tremelo:
 	; in:	[A] contains the paramvalue
@@ -1429,7 +1432,6 @@ _CHIPcmd4_vibrato:
 	;--- Init values
 	and	a
 	jr.	z,_CHIP_cmd4_end  ; <--- make this end effect
-	set	3,(ix+CHIP_Flags)
 	rrca
 	rrca
 	rrca
@@ -1448,13 +1450,16 @@ _CHIPcmd4_vibrato:
 	;-- set the depth
 	ld	a,e
 	and	$f0
-	ret	z		; 0 -> no depth update
-	cp	$E0		; max 1-13
+	jp	nz,99f	; set depth when 0 only when command was not active.
+	bit 	3,(ix+CHIP_Flags)	
+	ld	a,16
+
+99:	cp	$D0		; max 1-12
 	jp	c,99f
-	ld	(ix+CHIP_cmd_4_step),0	
-	ld	a,1
+	ld	a,$b
 99:
-	ld	hl,CHIP_Vibrato_sine -32
+	sub	16
+	ld	hl,CHIP_Vibrato_sine
 	add	a,a
 	jp	nc,99f
 	inc	h
@@ -1466,6 +1471,8 @@ _CHIPcmd4_vibrato:
 99:
 	ld	(ix+CHIP_cmd_4_depth),l
 	ld	(ix+CHIP_cmd_4_depth+1),h
+.end	set	3,(ix+CHIP_Flags)	
+	
 	ret
 
 

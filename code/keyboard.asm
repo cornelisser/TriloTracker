@@ -59,7 +59,21 @@ detect_keyboardtype:
 	ld	a,0x80
 	ld	hl,0x002c
 	call	0x000c
+	and $0f
 	
+	;-- Set French to International
+	cp	2
+	jp	nz, 99f
+	ld 	a,1
+	;-- Set UK to International
+	cp	3
+	jp	nz, 99f
+	ld 	a,1	
+	;--- Set German to 2 = German mapping
+	cp	4
+	jp	nz,99f
+	ld 	a,2
+99:
 	ld	(keyboardtype),a
 
 	
@@ -71,13 +85,35 @@ detect_keyboardtype:
 ; inits
 ;===========================================================	
 create_keyboardtype_mapping:
-	
 	ld	hl,KH_map_jap
+	
+	ld	a,(_CONFIG_KB)
+	cp	3
+	jp	c,99f
 	ld	a,(keyboardtype)
-	and	a
-	jr.	z,99f
-	ld	hl,KH_map_int
 99:
+	and	a
+	jr.	z,.matrixupdate
+	;--- Update the note table for int and german keyboards
+	ld 	hl,_KEY_NOTE_TABLE+$2e		;location of Y int, Z german
+	dec	a
+	jp	z,.setQWERTY
+; --- German keyboard
+.setQWERTZ:
+	ld	(hl),0+1
+	inc	hl
+	ld 	(hl),9+12+1
+	jp	0f
+	
+; --- International keyboard 	
+.setQWERTY:
+	ld	(hl),9+12+1
+	inc	hl
+	ld 	(hl),0+1
+0:	
+	ld	hl,KH_map_int
+	
+.matrixupdate:
 	;--- copy the data to the keyboard mapping area
 	;-- row 1 and 2
 	ld	de,KH_mapping+8		;row1
@@ -124,10 +160,6 @@ init_keyboard:
 ; Reads the key pressed using the DOS function 
 ;===========================================================
 read_key:
-
-
-
-
 	ld	bc,(KH_buffer_writepos)	; C = writepos B= readpos
 
 	ld	a,b
@@ -730,7 +762,9 @@ KH_mapping:		;[INTERNATIONAL]
 	db	"'","`",",",".","/",  0,"a","b"
 	db	"c","d","e","f","g","h","i","j"
 	db	"k","l","m","n","o","p","q","r"
-	db	"s","t","u","v","w","x","y","z"	
+	db	"s","t","u","v","w","x"
+;KH_mapping_yl:	
+	db	"y","z"	
 	db	  0,  0,  0,  0,  0,  1,  2,  3
 	db	  4,  5, 27,  9,  0,  8,  0, 13
 	db	" ", 11, 18,127, 29, 30, 31, 28
@@ -742,7 +776,9 @@ KH_mapping:		;[INTERNATIONAL]
 	db	"\"","~","<",">","?", 0,"A","B"
 	db	"C","D","E","F","G","H","I","J"
 	db	"K","L","M","N","O","P","Q","R"
-	db	"S","T","U","V","W","X","Y","Z"	
+	db	"S","T","U","V","W","X"
+;KH_mapping_yc:
+	db	"Y","Z"	
 
 ;KH_keyboard-mappings:
 ;KH_map_jap:;
@@ -760,7 +796,7 @@ KH_map_int:
 	db	")","!","@","#","$","%","^","&"
 	db	"*","(","_","+","|","{","}",":"
 	db	"\"","~","<",">","?", 0,"A","B"
-KH_map_jap	; jap delta
+KH_map_jap:	; jap delta
 	db	"8","9","-","^","\\","@","[",";"
 	db	":","]",",",".","/","_","a","b"	
 	db	0  ,"!","\"","#","$","%","&","'"

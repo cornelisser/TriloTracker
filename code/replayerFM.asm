@@ -1186,7 +1186,14 @@ _dc_noVolume:
 	
 99:	
 	ld	(ix+CHIP_Command),a
+
+	;--- Hack to disable commands > $f Otherwise it could crash
+	cp	$10
+	jp	c,99f
+	xor	a
+99:	
 	;--- calculate cmd address
+
 	add	a
 	ld	hl,_CHIPcmdlist
 	ld	d,0
@@ -1224,7 +1231,6 @@ _dc_restNote:
 	ld	(ix+CHIP_Note),a
 	jr.	_dc_noNote
 
-AA_COMMANDS_decode:
 _CHIPcmdlist:
 	dw	_CHIPcmd0_arpeggio
 	dw	_CHIPcmd1_portUp
@@ -2298,11 +2304,18 @@ replay_process_chan_AY:
 	bit	3,(ix+CHIP_Flags)
 	jr.	z,_pcAY_noCommand
 	
-	ld	hl,_pcAY_cmdlist
 	ld	a,(ix+CHIP_Command)
+
+	;--- Hack to disable commands > $24 Otherwise it might crash
+	cp	$25
+	jp	c,99f
+	xor	a
+99:	
+	
 	add	a
 	ld	e,a
 	ld	d,0
+	ld	hl,_pcAY_cmdlist
 	add	hl,de
 	
 	ld	a,(hl)
@@ -2887,17 +2900,6 @@ _FMVadd:
 	
 
 	
-
-
-
-
-
-
-
-
-
-	
-AA_COMMANDS_process:	
 _pcAY_cmdlist:
 	dw	_pcAY_cmd0
 	dw	_pcAY_cmd1

@@ -13,8 +13,8 @@ _CONFIG_KEYJAZZ:
 	db	0		; 0 = default off, 1= default on
 _CONFIG_VDP:	
 	db	255		; 0 = 60 hz, 1 = 50, 255 = auto
-_CONFIG_FREE2:	
-	db	0		
+_CONFIG_KB:			; keyboard type  0= jap, 1 = int, 2 =ger, 255 = auto	
+	db	255		
 _CONFIG_SPEED:
 	db	7		; default speed on start
 _CONFIG_ADD:	

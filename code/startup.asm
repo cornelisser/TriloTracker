@@ -76,7 +76,6 @@ start_init:
 ;	call	swap_loadblock
 
 ;	call	init_hook
-	call	init_keyboard
 
 ;	ld	iy,(EXPTBL-1)       ;BIOS slot in iyh
  ;     ld	ix,$005F             ;address of BIOS routine
@@ -128,18 +127,11 @@ config:
 	;---- configuration loading
 	call	init_config
 	call	load_config
-	call	set_vsf
-
 	
-
-
+	call	init_keyboard
+	call	set_vsf
 	call	set_textcolor		; Adjust the colors to the current song.
 
-
-
-	
-	
-	
 	ret
 
 

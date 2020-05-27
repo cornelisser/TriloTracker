@@ -443,7 +443,7 @@ ENDIF
 	;--------------------
 	; KEYBOARD type
 	;--------------------
-	ld	a,(keyboardtype)
+	ld	a,(_CONFIG_KB)
 	add	a
 	add	a
 	add	a
@@ -647,7 +647,8 @@ ENDIF
 _LABEL_CONFIG_KEYBOARD:
 	db	_ARROWLEFT,"Japanese     ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"International",_ARROWRIGHT,0
-
+	db	_ARROWLEFT,"German       ",_ARROWRIGHT,0
+	db	_ARROWLEFT,"Autodetect   ",_ARROWRIGHT,0
 _LABEL_CONFIG_ONOFF:
 	db	"[ OFF    ON  ]",0
 _LABEL_CONFIG_VDP_FRQ:
@@ -749,14 +750,14 @@ process_key_configbox:
 
 0:
 	cp	_ENTER
-	jp	z,4f
+	jp	z,.save
 	cp	_SPACE
 	jp	nz,0f
 4:
 	ld	a,(editsubmode)
 	cp	19
 	jp	nz,0f
-	
+.save	
 	;--- save data
 	call	reset_hook
 	call	get_program_path
@@ -980,10 +981,26 @@ ENDIF
 ; change keyboard
 ;====================================
 pk_config_keyboard:
-	ld	a,(keyboardtype)
+	ld	a,(key)
+	cp	_KEY_RIGHT
+	ld	a,(_CONFIG_KB)
+	jp	nz,0f
+
+	; -- Right
 	inc	a
-	and	1
-	ld	(keyboardtype),a
+	cp	4
+	jp	c,99f
+	xor	a
+99:	jp	88f
+	
+0:	;-- lEFT
+	and 	a
+	jp	z,99f
+	dec	a
+	jp	88f
+99:	ld	a,3
+88:
+	ld	(_CONFIG_KB),a
 	call	create_keyboardtype_mapping
 	jr.	update_configbox
 

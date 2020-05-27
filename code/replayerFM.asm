@@ -1133,7 +1133,8 @@ _dc_noNote:
 	inc	hl
 	inc	hl
 	ld	a,(hl)
-	
+	and	a
+	jp	z,.voice0
 	cp	16
 	jp	c,.skip_soft
 	
@@ -1143,7 +1144,7 @@ _dc_noNote:
 .skip_soft:
 	ld	(ix+CHIP_Voice),a
 ;	set	6,(ix+CHIP_Flags)
-		
+.voice0		
 	call	set_patternpage_safe
 	
 _dc_noInstr:

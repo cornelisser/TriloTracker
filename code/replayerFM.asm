@@ -1561,19 +1561,26 @@ _CHIPcmdA_volSlide:
 
 	;--- neg or	pos
 	cp	16
-	jr.	c,_CHIPcmdA_neg
+	jr.	c,.neg
 	
+.pos:
 	;-- pos
 	rra		; only use high 4	bits
 	rra
 	rra
 	rra
 	and	$0f
+	ld	d,a
+	ld	a,16
+	sub	d
 	jr.	99f
 
 	
-_CHIPcmdA_neg:
+.neg:
 	;-- neg
+	ld	d,a
+	ld	a,16
+	sub	d	
 	or	128
 99:	ld	(ix+CHIP_cmd_A),a
 	and	$0f
@@ -3171,22 +3178,20 @@ _pcAY_cmdasub:
 	and	0x7f
 	ld	(ix+CHIP_Timer),a
 
-	ld	a,(IX+CHIP_Volume)
-	ld	e,a
-	ld	a,(IX+CHIP_cmd_VolumeAdd)
+	ld	a,(ix+CHIP_Volume)
 	bit	7,d
-	jr.	nz,.inc
+	jr.	z,.inc
 .dec:
-	cp	8
-	ret	c
-	sub	8
-	ld	(ix+CHIP_cmd_VolumeAdd),a
+	and	a
+	ret	z
+	sub	$10
+	ld	(ix+CHIP_Volume),a
 	ret
 .inc:
-	cp	e
+	cp	$F0
 	ret	nc
-	add	8	
-	ld	(ix+CHIP_cmd_VolumeAdd),a
+	add	$10
+	ld	(ix+CHIP_Volume),a
 	ret
 	
 

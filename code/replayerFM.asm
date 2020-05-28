@@ -1771,6 +1771,7 @@ _CHIPcmdE_fineup:
 _CHIPcmdE_finedown:
 	ld	a,d
 	and	0x0f
+	neg
 	ld	(ix+CHIP_cmd_E),a
 	ld	(ix+CHIP_Timer),2
 	set	3,(ix+CHIP_Flags)		; command active
@@ -3221,27 +3222,28 @@ _pcAY_cmd10:
 	jr.	_pcAY_commandEND
 	
 _pcAY_cmd11:
-	dec	(ix+CHIP_Timer)
-	jr.	nz,_pcAY_commandEND
+;	dec	(ix+CHIP_Timer)
+;	jr.	nz,_pcAY_commandEND
 
-	;res	3,(ix+CHIP_Flags)
-	ld	a,(ix+CHIP_cmd_ToneSlideAdd)
-	add	(ix+CHIP_cmd_E)
+;	res	3,(ix+CHIP_Flags)
+;	ld	a,(ix+CHIP_cmd_ToneSlideAdd)
+	ld	a,(ix+CHIP_cmd_E)
 	ld	(ix+CHIP_cmd_ToneSlideAdd),a
-	jr.	nc,_pcAY_commandEND	
-	inc	(ix+CHIP_cmd_ToneSlideAdd+1)
+	xor	a
+	ld	(ix+CHIP_cmd_ToneSlideAdd+1),a	
+;	jr.	nc,_pcAY_commandEND	
 	jr.	_pcAY_commandEND	
 
 _pcAY_cmd12:
-	dec	(ix+CHIP_Timer)
-	jr.	nz,_pcAY_commandEND
+;	dec	(ix+CHIP_Timer)
+;	jr.	nz,_pcAY_commandEND
 
 	;res	3,(ix+CHIP_Flags)
-	ld	a,(ix+CHIP_cmd_ToneSlideAdd)
-	sub	(ix+CHIP_cmd_E)
+;	ld	a,(ix+CHIP_cmd_ToneSlideAdd)
+	ld	a,(ix+CHIP_cmd_E)
 	ld	(ix+CHIP_cmd_ToneSlideAdd),a
-	jr.	nc,_pcAY_commandEND	
-	dec	(ix+CHIP_cmd_ToneSlideAdd+1)
+	ld	a,$ff
+	ld	(ix+CHIP_cmd_ToneSlideAdd+1),a
 	jr.	_pcAY_commandEND	
 
 _pcAY_cmd13:

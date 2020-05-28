@@ -1097,7 +1097,7 @@ replay_decode_chan:
 	ld	(ix+CHIP_Note),a
 	set	0,(ix+CHIP_Flags)		; bit0=1 ; trigger a note
 	res	4,(ix+CHIP_Flags)		; set key for FM
-	res	3,(ix+CHIP_Flags)		; reset running command
+;	res	3,(ix+CHIP_Flags)		; reset running command
 
 _dc_noNote:	
 	inc	bc
@@ -1231,7 +1231,7 @@ _dc_restNote:
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 ;	res	4,(ix+CHIP_Flags)	; release key
 	res	5,(ix+CHIP_Flags)	; sustain
-	res	3,(ix+CHIP_Flags) ; reset commands
+;	res	3,(ix+CHIP_Flags) ; reset commands
 	
 	xor	a
 	ld	a,(replay_previous_note)
@@ -1457,7 +1457,7 @@ _CHIPcmd4_vibrato:
 
 99:	cp	$D0		; max 1-12
 	jp	c,99f
-	ld	a,$b
+	ld	a,$b0
 99:
 	sub	16
 	ld	hl,CHIP_Vibrato_sine
@@ -2973,6 +2973,7 @@ _pcAY_cmd0:
 		ld	(ix+CHIP_Timer),0
 		ld	a,(ix+CHIP_cmd_0)
 		and	0x0f
+		jp	z,99f
 		ld	(ix+CHIP_cmd_NoteAdd),a		
 		jr.	_pcAY_commandEND
 	

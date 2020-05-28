@@ -1421,6 +1421,8 @@ _CHIPcmd7_tremelo:
 	; Tremelo with speed x and depth y.	This command 
 	; will oscillate the volume of the current note
 	; with a sine wave.
+	cp	$10
+	jp	c,_CHIPcmd_end
 	
 _CHIPcmd4_vibrato:
 	; in:	[A] contains the paramvalue
@@ -1432,7 +1434,7 @@ _CHIPcmd4_vibrato:
 	; with a sine wave.
 	;--- Init values
 	and	a
-	jr.	z,_CHIP_cmd4_end  ; <--- make this end effect
+	jr.	z,_CHIPcmd_end  ; <--- make this end effect
 	rrca
 	rrca
 	rrca
@@ -1477,12 +1479,12 @@ _CHIPcmd4_vibrato:
 	ret
 
 
-_CHIP_cmd4_end:	
-	res	3,(ix+CHIP_Flags)
-;	xor	a
-;	ld	(ix+CHIP_Timer),a
+;_CHIP_cmd4_end:	
+;	res	3,(ix+CHIP_Flags)
+;;	xor	a
+;;	ld	(ix+CHIP_Timer),a
 	
-	ret
+;	ret
 	
 	
 
@@ -2865,7 +2867,7 @@ _pcFM_noVoice:
 	ld	c,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	
 	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	nc,_sub_FMVadd
+	jr.	c,_sub_FMVadd
 
 _add_FMVadd:
 	add	a,c
@@ -3102,12 +3104,12 @@ _pcAY_cmd7:
 	;--- Get next step
 	ld	a,(IX+CHIP_Step)
 	add	(ix+CHIP_cmd_4_step)
-	and	$7F			; max	64
+	and	$3F			; max	64
 	ld	(ix+CHIP_Step),a
 	sra 	a	; divide the step with 2
 	
-	bit	5,a			; step 32-63 the neg	
-	jp	z,.pos	
+;	bit	5,a			; step 32-63 the neg	
+;	jp	z,.pos	
 	
 .neg:
 	and	$1f	; make it 32 steps again
@@ -3122,23 +3124,23 @@ _pcAY_cmd7:
 	sla	a	
 ;	jp	z,.zero			; $ff00 gives strange result ;)
 ;	or 	128				; set the neg bit
-.zero:
+;.zero:
 	ld	(ix+CHIP_cmd_VolumeAdd),a
 	jp	_pcAY_commandEND		
-.pos:
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	ld	a,(hl)
-	sla	a
-	sla	a	
-	sla	a
-	or 128
-;.zero:	
-	ld	(ix+CHIP_cmd_VolumeAdd),a
-	jp	_pcAY_commandEND	
+;.pos:
+;	add	a,l
+;	ld	l,a
+;	jp	nc,99f
+;	inc	h
+;99:
+;	ld	a,(hl)
+;	sla	a
+;	sla	a	
+;	sla	a
+;	or 128
+;;.zero:	
+;	ld	(ix+CHIP_cmd_VolumeAdd),a
+;	jp	_pcAY_commandEND	
 
 
 _pcAY_cmd8:

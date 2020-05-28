@@ -1569,6 +1569,23 @@ _CHIPcmd5:
 	;--------------------------------------------------
 	; portTone	+ volumeslide
 	;--- Init values
+	;--- Check if we have a	note on the	same event
+	and	a
+	jp	z,_CHIPcmd_end
+	
+	bit 	0,(ix+CHIP_Flags)
+	jp	z,_CHIPcmdA_volSlide
+	
+	set	4,(ix+CHIP_Flags)		; FM notelink bit
+	res	0,(ix+CHIP_Flags)
+
+	ld	iyh,a
+	ld	a,(ix+CHIP_cmd_3)
+	call	_CHPcmd3_newNote
+
+	ld	a,iyh
+	jp 	_CHIPcmdA_volSlide
+	
 _CHIPcmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
 	; 

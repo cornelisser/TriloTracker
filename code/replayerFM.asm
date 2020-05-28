@@ -1684,7 +1684,7 @@ _CHIPcmdE_extended:
 	; 
 	ld	d,a	
 	and	0xf0	; get	the extended comand
-	jr.	z,_CHIPcmdE_shortarp
+;	jr.	z,_CHIPcmdE_shortarp
 	cp	0x60	; track detune
 	jr.	z,_CHIPcmdE_trackdetune
 	cp	0xe0
@@ -1709,17 +1709,17 @@ _CHIPcmdE_extended:
 	ret
 
 
-_CHIPcmdE_shortarp:
-	ld	a,d			;- Get the parameter
-	and	0x0f
-;	jr.	z,_CHIPcmdE_shortarp_retrig	;-- Jump if value is 0
-
-	ld	(ix+CHIP_cmd_E),a		; store the halve not to add
-	ld	(ix+CHIP_Timer),0
-;_CHIPcmdE_shortarp_retrig:
-	set	3,(ix+CHIP_Flags)		; command active		
-	ld	(ix+CHIP_Command),0x10
-	ret	
+;_CHIPcmdE_shortarp:
+;	ld	a,d			;- Get the parameter
+;	and	0x0f
+;;	jr.	z,_CHIPcmdE_shortarp_retrig	;-- Jump if value is 0
+;
+;	ld	(ix+CHIP_cmd_E),a		; store the halve not to add
+;	ld	(ix+CHIP_Timer),0
+;;_CHIPcmdE_shortarp_retrig:
+;	set	3,(ix+CHIP_Flags)		; command active		
+;	ld	(ix+CHIP_Command),0x10
+;	ret	
 
 _CHIPcmdE_notecut:
 	set	3,(ix+CHIP_Flags)
@@ -3156,7 +3156,7 @@ _pcAY_cmd8:
 _pcAY_cmd9:
 	dec	(ix+CHIP_Timer)
 	jr.	nz,_pcAY_commandEND
-	;res	3,(ix+CHIP_Flags)
+	res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 
 
@@ -3196,16 +3196,13 @@ _pcAY_cmdasub:
 	
 
 _pcAY_cmdb:
-	
-	jr.	_pcAY_commandEND
-_pcAY_cmdc:
-;	;res	3,(ix+CHIP_Flags)
+_pcAY_cmdc:	
 	jr.	_pcAY_commandEND
 _pcAY_cmdd:
 	;call	replay_setnextpattern
 	ld	a,64
 	ld	(replay_line),a
-	;res	3,(ix+CHIP_Flags)
+	res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 	
 _pcAY_cmde:

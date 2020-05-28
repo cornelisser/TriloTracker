@@ -1170,6 +1170,7 @@ _dc_noVolume:
 	ld	a,(bc)
 	and	0x0f
 	jp	nz,99f
+	;-- arpeggio of parameters is 0
 	inc	bc
 	ld	a,(bc)
 	dec	bc
@@ -1218,6 +1219,31 @@ _dc_noVolume:
 	
 	
 noCMDchange:
+	; check for command 3 to continue
+	ld	d,(IX+CHIP_Flags)
+	bit 	0,d			; note trigger?
+	jp	z,99f
+debug:
+	bit 	3,d			; effect active
+	jp	z,99f
+	ld	a,(ix+CHIP_Command)	; active effect is 3?
+	cp	3				; tone portamento?
+	jp	z,.trigger
+	cp 	5
+	jp	nz,99f			; tone portamento + fade?
+.trigger:	
+	;--- start new note but keep sliding to this new note
+	res	0,d	; reset note trigger
+	set	1,d   ; set note active
+	set   4,d   ; FM link active
+	ld 	(IX+CHIP_Flags),d
+	ld	a,(ix+CHIP_cmd_3)
+	inc	bc
+	inc	bc
+	jp	_CHPcmd3_newNote
+	
+	
+99:
 	inc	bc
 	inc	bc
 	ret
@@ -1353,8 +1379,8 @@ _CHIPcmd3_portTone:
 	
 	set	4,(ix+CHIP_Flags)		; FM notelink bit
 	res	0,(ix+CHIP_Flags)
-
-	ld	a,(ix+CHIP_cmd_3)
+_CHPcmd3_newNote:
+;	ld	a,(ix+CHIP_cmd_3)
 	and	$7f				; reset deviation
 	ex	af,af'			;'
 	
@@ -1377,7 +1403,6 @@ _CHIPcmd3_portTone:
 
 	add	hl,de	
 	ex	de,hl				; store current freq in	[de]
-
 	;--- get the current note freq
 	ld	a,(ix+CHIP_Note)
 	add	a
@@ -1387,6 +1412,10 @@ _CHIPcmd3_portTone:
 	jr.	nc,99f
 	inc	h
 99:
+;	;-- set previous note to be able to slide over new notes.
+;	ld	a,(replay_previous_note)
+;	ld	(ix+CHIP_Note),a
+	
 	ld	a,(hl)
 	inc	hl
 	ld	h,(hl)
@@ -2875,7 +2904,7 @@ _pcFM_noVoice:
 	ld	c,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	
 	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	c,_sub_FMVadd
+	jr.	nc,_sub_FMVadd
 
 _add_FMVadd:
 	add	a,c

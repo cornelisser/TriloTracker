@@ -1111,8 +1111,7 @@ _pktc_kright_loop:
 99:	
 	;- Note under this keys?
 	cp	48			
-	jr.	nc,_process_key_trackbox_compact_END	
-debug:	
+	jr.	nc,_process_key_trackbox_compact_END		
 	;--- Get the note value of the key pressed
 	ld	hl,_KEY_NOTE_TABLE
 	add	a,l

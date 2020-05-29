@@ -252,7 +252,7 @@ _playback_loop:
 	jr.	nz,0f
 	
 	ld	a,1
-	ld	(replay_mode),a
+;	ld	(replay_mode),a
 
 0:	
 	call	read_key

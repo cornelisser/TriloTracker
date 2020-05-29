@@ -11,7 +11,7 @@ replay_line				db 0			; local playing line to sync visual playback
 replay_speed 			db 2			; speed to replay (get from song)
 replay_speed_subtimer 		db 0			; counter for finer speed
 replay_speed_timer 		db 0 			; counter for speed
-replay_mode 			db 0			; Replayer status
+replay_mode: 			db 0			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
 ; mode 2  = instrument key jazz
@@ -364,6 +364,8 @@ replay_play:
 	jr.	z,replay_mode3	; note audition
 	dec	a
 	jr.	z,replay_mode4	; [ENTER] looped play
+	dec	a
+	jr.	z,replay_mode5	; [ENTER] looped play
 	;--- DEBUG
 	XOR	A
 	LD	(replay_mode),A

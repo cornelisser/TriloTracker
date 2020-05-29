@@ -310,25 +310,25 @@ _WINDOW_ERROR_YN_LABEL:
 	
 
 _WINDOW_STARTUP:
-	;-- box
-	dw	(80*05)+7		; HL = position in PNT (relative)
-	dw	0x420e		; D = width; E = height
-	;-- color
-	dw	0x0705		; H = x pos	; L = y pos
-	dw	0x420e		; D = width ; E = height
-	;-- text
-	dw	(80*6)+9
-	db	"TriloTracker ",VERSION," (c) ",YEAR,".",0
-	db	0
-	db	"Code          : Richard Cornelisse (Huey)",0
-	db	"Add. code     : Arturo Ragozini (ARTRAG)",0
-	db	"Design        : John Hassink, Inverse Phase",0
-	db	"Testers       : John Hassink, Gryzor87, Inverse Phase",0
-	db	"Special Thanks: BiFi, Hap, Quibus, msd and all beta testers.",0            
-	db	0
-	db	"For more information go to: www.trilobyte-msx.com\\TriloTracker",0
-	db	0,0
-	db	"Press any key to continue.",0,255
+;	;-- box
+;	dw	(80*05)+7		; HL = position in PNT (relative)
+;	dw	0x420e		; D = width; E = height
+;	;-- color
+;	dw	0x0705		; H = x pos	; L = y pos
+;	dw	0x420e		; D = width ; E = height
+;	;-- text
+;	dw	(80*6)+9
+;	db	"TriloTracker ",VERSION," (c) ",YEAR,".",0
+;	db	0
+;	db	"Code          : Richard Cornelisse (Huey)",0
+;	db	"Add. code     : Arturo Ragozini (ARTRAG)",0
+;	db	"Design        : John Hassink, Inverse Phase",0
+;	db	"Testers       : John Hassink, Gryzor87, Inverse Phase",0
+;	db	"Special Thanks: BiFi, Hap, Quibus, msd and all beta testers.",0            
+;	db	0
+;	db	"For more information go to: www.trilobyte-msx.com\\TriloTracker",0
+;	db	0,0
+;	db	"Press any key to continue.",0,255
 
 _WIN_NODEFAULT:
 	;-- box

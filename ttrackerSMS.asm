@@ -67,8 +67,8 @@ MAIN:
 
 	call	cursorstack_init
 
-	ld	a,WIN_STARTUP
-	call	window
+;	ld	a,WIN_STARTUP
+;	call	window
 	
 	;--- should we load default instruments?
 	ld	a,(_CONFIG_INS)

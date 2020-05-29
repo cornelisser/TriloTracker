@@ -65,7 +65,7 @@ CHIP_Vibrato_sine:
 	
 
 
-;--- Replay	music
+;--- Replay	music stepped
 replay_mode5:
 	;--- The speed timer
 	ld	hl,replay_speed_timer
@@ -75,11 +75,12 @@ replay_mode5:
 
 	ld	a,(key)
 	and	a
-	jp	nz,_rplmd_cont
+	jp	nz,.key
 .nokey:
 	inc	(hl)
 	jr. 	replay_decodedata_NO
-
+.key:
+	jp	_rplmd_cont
 
 ;--- Replay	music
 replay_mode1:

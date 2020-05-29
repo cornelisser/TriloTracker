@@ -116,6 +116,10 @@ cursor_sp:	#2
 cursor_stack:	#4*6	; room for 6 stacks?
 
 
+
+
+
+
 ;tmp_cursor_type:	#1	; large or small cursor
 ;tmp_cursor_input:	#1	; type of input
 ;tmp_cursor_column:	#1	; column# we are in (to caclulate the data adress to write. en next pos

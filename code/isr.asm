@@ -70,7 +70,6 @@ interrupt:
 	call	GET_P2
 	push	af
 
-	call	key_handler
 	; --- sound
       ld      a,(vsf)
       and     a
@@ -125,8 +124,7 @@ PAL:                             ; execute the PSG and ayFX core
 	
 	;--- Keyboard
 
-	
-	
+	call	key_handler
 	call	read_functionkeys
 	
 	;-- Cursor blink

@@ -122,8 +122,18 @@ processkey_patterneditor:
 	jr.	z,97f
 	dec	a		;--- F1 = Playback
 	jr.	nz,0f
+	
+		;--- Check if shift is pressed
+		ld	a,(skey)
+		cp	1	
+		jp	z,5f
+		;-- normal play back
 		call	start_playback
-		jr.	processkey_patterneditor_END
+		jr.	processkey_patterneditor_END	
+5:		;-- stepped playback
+		call	start_playback_stepped
+		jr.	processkey_patterneditor_END	
+
 0:	dec	a		;--- F2 = Instrument editor
 	jr.	nz,0f
 IFDEF TTSCC
@@ -172,13 +182,7 @@ ENDIF
 		ld	a,3
 		call	swap_loadblock		
 		jr.	init_configeditor
-		
-0:	
-	; F6 stepped playback
-	dec	a	
-	jr.	nz,0f
-		call	start_playback_stepped
-		jr.	processkey_patterneditor_END			
+			
 0:	;--- CTRL
 	ld	a,(fkey)
 	cp	6

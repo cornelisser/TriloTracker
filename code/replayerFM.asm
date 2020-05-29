@@ -65,6 +65,21 @@ CHIP_Vibrato_sine:
 	
 
 
+;--- Replay	music
+replay_mode5:
+	;--- The speed timer
+	ld	hl,replay_speed_timer
+	dec	(hl)
+
+	jr.	nz,replay_decodedata_NO	; jmp	if timer > 0
+
+	ld	a,(key)
+	and	a
+	jp	nz,_rplmd_cont
+.nokey:
+	inc	(hl)
+	jr. 	replay_decodedata_NO
+
 
 ;--- Replay	music
 replay_mode1:
@@ -73,7 +88,7 @@ replay_mode1:
 	dec	(hl)
 	
 	jr.	nz,replay_decodedata_NO	; jmp	if timer > 0
-	
+_rplmd_cont:	
 	;--- Reset Timer == 0
 	xor	a
 	ld	bc,(replay_speed)		; [b]	subtimer [c] speed
@@ -1488,7 +1503,7 @@ _CHIPcmd4_vibrato:
 
 99:	cp	$D0		; max 1-12
 	jp	c,99f
-	ld	a,$b0
+	ld	a,$C0
 99:
 	sub	16
 	ld	hl,CHIP_Vibrato_sine

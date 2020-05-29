@@ -112,7 +112,29 @@ _tmp_pattern_offset:	db	0
 _tmp_orderpos:		db	0
 _tmp_patline:		db	0
 
+;===========================================================
+; --- start_playback_stepped
+;
+; Start playing from current pos/line but only this pattern
+;===========================================================
+start_playback_stepped:
+	ld	a,(song_pattern)	; store current pattern
+	ld	(_tmp_pattern),a
 
+	ld	a,(song_pattern_line)
+	ld	(_tmp_patline),a
+	
+	ld	a,(song_order_pos)		
+	ld	(_tmp_orderpos),a
+	
+	ld	a,(song_pattern_offset)
+	ld	(_tmp_pattern_offset),a
+		
+	call	replay_init		; setup all registers
+	di
+	ld	a,5			; replay mode 5 = play stepped
+	jr.	_start_playback_continue
+	
 ;===========================================================
 ; --- start_playback_looped
 ;

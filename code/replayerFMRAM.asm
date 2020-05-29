@@ -14,6 +14,9 @@ replay_speed_timer 		db 0 			; counter for speed
 replay_mode 			db 0			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
+; mode 2  = instrument key jazz
+; mode 4  = pattern keyjazz
+; mode 5  = replay song step based  
 replay_chan_setup			db 1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
 
 replay_patpointer 		dw 0			; pointer to the data

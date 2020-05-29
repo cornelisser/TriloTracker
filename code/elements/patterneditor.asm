@@ -173,8 +173,12 @@ ENDIF
 		call	swap_loadblock		
 		jr.	init_configeditor
 		
-		
-			
+0:	
+	; F6 stepped playback
+	dec	a	
+	jr.	nz,0f
+		call	start_playback_stepped
+		jr.	processkey_patterneditor_END			
 0:	;--- CTRL
 	ld	a,(fkey)
 	cp	6

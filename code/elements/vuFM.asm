@@ -23,6 +23,27 @@ draw_vu:
 	and	a
 	ret	z
 
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,26f
+35:
+	;--- copy values
+	ld	de,_VU_VALUES
+	ld	hl,AY_regVOLA
+[3]	ldi
+	ld	hl,SCC_regVOLB	
+	; copy and invert value
+	ld	b,5
+_dv_invert1:
+	ld	c,(hl)
+	ld	a,15
+	sub	c
+	ld	(de),a
+	inc	de
+	inc	hl
+	djnz	_dv_invert1
+	JP	1f
+26:
 	;--- copy values
 	ld	de,_VU_VALUES
 	ld	hl,AY_regVOLA
@@ -30,15 +51,17 @@ draw_vu:
 	ld	hl,SCC_regVOLA	
 	; copy and invert value
 	ld	b,6
-_dv_invert:
+_dv_invert2:
 	ld	c,(hl)
 	ld	a,15
 	sub	c
 	ld	(de),a
 	inc	de
 	inc	hl
-	djnz	_dv_invert
-;[6]	ldi	
+	djnz	_dv_invert2
+
+
+
 
 1:	call	_vu_line_calc
 	ld	hl,(80*5)+48

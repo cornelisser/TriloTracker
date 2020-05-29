@@ -2787,8 +2787,13 @@ _Vadd:
 
 _pcAY_noNoteActive:
 	pop	hl
-	xor	a
-	ld	(SCC_regVOLF),a
+	
+	bit	7,(ix+CHIP_Flags)
+	jp	z,0f
+	ld	a,$0f
+	jp	99f
+0:	xor	a
+99:	ld	(SCC_regVOLF),a
 	
 	ret
 	

@@ -71,7 +71,11 @@ clear_patterns:
 	;--- Undo Redo init
 	call	init_undoredo
 	
-	
+	;--- Clear clipboard
+	call	clear_clipboard
+
+
+
 	; custom defaults
 	ld	a,4
 	ld	(song_octave),a

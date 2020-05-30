@@ -297,6 +297,9 @@ IFDEF TTSMS
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a
 	ld	(AY_regVOLC),a
+	ld	a,(replay_chan_setup)
+	xor	1				; 0 = only 2 psg so start at 1
+	ld	iyh,a				; for panning contains chan#
 ENDIF	
 
 	ld	ix,CHIP_Chan1
@@ -308,7 +311,9 @@ IFDEF TTSMS
 	;--- for channel mute
 	ld	a,(SN_regVOLN)
 	ld	(SN_regVOLNA),a
+	inc	iyh
 ENDIF
+
 	ld	ix,CHIP_Chan2
 	ld	hl,AY_regToneB	
 	call	replay_process_chan_AY
@@ -318,6 +323,7 @@ IFDEF TTSMS
 	;--- for channel mute
 	ld	a,(SN_regVOLN)
 	ld	(SN_regVOLNB),a
+	inc	iyh
 ENDIF
 	
 
@@ -561,7 +567,10 @@ _snp_continue:
 ; 
 ;===========================================================
 replay_init_cont:
-	;call	draw_vu_empty
+	; init GG panning
+	ld	a,$ff
+	ld	(GG_panning),a
+
 	;--- Get the start speed.
 	ld	a,(song_speed)
 	ld	(replay_speed),a
@@ -1745,30 +1754,66 @@ _CHIPcmdE_extended:
 	; Following	are supported:
 	; 
 	ld	d,a	
-	and	0xf0	; get	the extended comand
-;	jr.	z,_CHIPcmdE_shortarp
-	cp	0x60	; track detune
-	jr.	z,_CHIPcmdE_trackdetune
-	cp	0xe0
-	jp	z,_CHIPcmdE_envelope
-	cp	0x10	
-	jr.	z,_CHIPcmdE_fineup
-	cp	0x20
-	jr.	z,_CHIPcmdE_finedown
-	cp	0xd0	; delay cmd?
-	jr.	z,_CHIPcmdE_delay
-	cp	$40	; set	vibrato
-	jr.	z,_CHIPcmdE_vibrato
-	cp	0x50	; note_link
-	jr.	z,_CHIPcmdE_notelink
-	cp	0x70	; note_link
-	jr.	z,_CHIPcmdE_notesus
-	cp	0x80	; global transpose
-	jr.	z,_CHIPcmdE_transpose
-	cp	0xc0	; note cut
-	jr.	z,_CHIPcmdE_notecut
+	;and	0xf0	; get	the extended comand
+	rrca
+	rrca
+	rrca	
+	and $1E
+	
+	ld	hl,_CHIPcmdExtended_List
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	hl
+99:	
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	jp	hl
 
-	ret
+_CHIPcmdExtended_List:
+	dw	_CHIPcmdE_none		;0
+	dw	_CHIPcmdE_fineup		;1
+	dw	_CHIPcmdE_finedown	;2
+	dw	_CHIPcmdE_none		;3
+	dw	_CHIPcmdE_notelink	;4
+	dw	_CHIPcmdE_none		;5
+	dw	_CHIPcmdE_trackdetune	;6
+	dw	_CHIPcmdE_notesus		;7
+	dw	_CHIPcmdE_tonepanning	;8
+	dw	_CHIPcmdE_noisepanning	;9
+	dw	_CHIPcmdE_none		;A
+	dw	_CHIPcmdE_none		;B
+	dw	_CHIPcmdE_notecut		;C	
+	dw	_CHIPcmdE_notecut		;D	
+	dw	_CHIPcmdE_envelope	;E
+	dw	_CHIPcmdE_none		;F
+
+
+
+;	jr.	z,_CHIPcmdE_shortarp
+;	cp	0x60	; track detune
+;	jr.	z,_CHIPcmdE_trackdetune
+;	cp	0xe0
+;	jp	z,_CHIPcmdE_envelope
+;	cp	0x10	
+;	jr.	z,_CHIPcmdE_fineup
+;	cp	0x20
+;	jr.	z,_CHIPcmdE_finedown
+;	cp	0xd0	; delay cmd?
+;	jr.	z,_CHIPcmdE_delay
+;	cp	$40	; set	vibrato
+;	jr.	z,_CHIPcmdE_vibrato
+;	cp	0x50	; note_link
+;	jr.	z,_CHIPcmdE_notelink
+;	cp	0x70	; note_link
+;	jr.	z,_CHIPcmdE_notesus
+;	cp	0x80	; global transpose
+;	jr.	z,_CHIPcmdE_transpose
+;	cp	0xc0	; note cut
+;	jr.	z,_CHIPcmdE_notecut
+;	ret
 
 
 ;_CHIPcmdE_shortarp:
@@ -1782,6 +1827,87 @@ _CHIPcmdE_extended:
 ;	set	3,(ix+CHIP_Flags)		; command active		
 ;	ld	(ix+CHIP_Command),0x10
 ;	ret	
+
+
+_CHIPcmdE_none:
+	ret
+
+IFDEF TTSMS
+
+_panning_masks:
+	db	11101110b	; chan1
+	db	11011101b	; chan2
+	db	10111011b	; chan3
+	db	01110111b	; noise
+_paning_values:
+	db	00000000b	; silent
+	db	00010000b	; left
+	db	00000001b   ; right
+	db	00010001b	; stereo
+	db	00000000b	; silent
+	db	00100000b	; left
+	db	00000010b   ; right
+	db	00100010b	; stereo
+	db	00000000b	; silent
+	db	01000000b	; left
+	db	00000100b   ; right
+	db	01000100b	; stereo
+	db	00000000b	; silent
+	db	10000000b	; left
+	db	00001000b   ; right
+	db	10001000b	; stereo
+	
+_CHIPcmdE_tonepanning:
+	;--- get mask
+	ld	a,iyh		; contains channel nr
+_cmdep_cont:	
+	ld	iyl,a	
+	ld	hl,_panning_masks
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	e,(hl)	; store mask in e
+	
+	;--- Get parameter
+	ld	a,d
+	and	$0f
+	ld	d,a	
+	
+	;--- get value
+	ld 	hl,_paning_values
+	ld	a,iyl
+	add	a,a
+	add	a,a
+	add	a,d
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc 	h
+99:
+	ld	d,(hl)	; store value in d
+	
+	;--- Apply values
+	ld	a,(GG_panning)
+	and	e			; erase current bits
+	or	d			; set new bits
+	ld	(GG_panning),a
+	ret
+
+_CHIPcmdE_noisepanning:
+	; init
+	ld	a,3	
+	jp	_cmdep_cont	
+
+ELSE
+
+_CHIPcmdE_noisepanning:
+_CHIPcmdE_tonepanning:
+	ret
+ENDIF
+
+
 
 _CHIPcmdE_notecut:
 	set	3,(ix+CHIP_Flags)
@@ -3765,8 +3891,10 @@ route_SN:
 	and	b
 	out	($3f),a	
 
-
-
+route_gg:
+	;==== output the GG stereo panning
+	ld	a,(GG_panning)
+	out	($06),a
 
 ENDIF
 	

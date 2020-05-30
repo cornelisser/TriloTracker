@@ -101,8 +101,11 @@ AY_regVOLC		db	0	; Chan C volume
 
 IFDEF TTSMS
 ;--- Values are used to be able to mute noise when chan is muted,
-SN_regVOLNA	db	0
-SN_regVOLNB	db 	0
+SN_regVOLNA		db	0
+SN_regVOLNB		db 	0
+
+GG_panning		db	0
+
 
 ENDIF
 

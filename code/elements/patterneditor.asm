@@ -119,7 +119,7 @@ processkey_patterneditor:
 	;--- general keys for patterneditor
 	ld	a,(key)
 	and	a
-	jr.	z,97f
+	jr.	z,_noCTRL
 	dec	a		;--- F1 = Playback
 	jr.	nz,0f
 	
@@ -184,24 +184,104 @@ ENDIF
 		jr.	init_configeditor
 			
 0:	;--- CTRL
+debug:
+	ld	a,(fkey)
+	cp	7
+	jp	nz,_noGraph
+
+	ld	a,(key)
+	sub	$30
+	and	a
+	jp	nz,99f
+	;-- ONLY DRUM
+	ld	a,(DrumMixer)	; If drum is off then enable and silence others
+	bit 	5,a
+	jp	z,22f
+	
+	ld	a,(MainMixer)	; If any other channel is on then silence others
+	and	a
+	jp	z,_enableAll
+22:
+	or	100000b
+	ld	(DrumMixer),a
+	xor	a
+	ld	(MainMixer),a
+	jr.	draw_pattern_header
+99:
+	;-- ONLY 1 CHANNEL
+	cp	9
+	jp	nc,_noGraph
+	;-- get mask
+	ld	hl,_mixer_mask-1
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:	
+	ld	d,(hl)
+	ld	a,(MainMixer)
+	xor	d
+	jp	z,_enableAll
+	ld	a,d
+	ld	(MainMixer),a
+	;-- silence drums
+	ld	a,(DrumMixer)
+	;and	011111b
+	xor	a
+	ld	(DrumMixer),a
+	jr.	draw_pattern_header
+	
+_enableAll:
+	ld	a,(DrumMixer)
+	or	100000b
+	ld	(DrumMixer),a
+	ld	a,$ff
+	ld	(MainMixer),a
+	jr.	draw_pattern_header
+	
+_mixer_mask:
+	db	00100000b
+	db	01000000b
+	db	10000000b
+	db	00000001b
+	db	00000010b
+	db	00000100b
+	db	00001000b
+	db	00010000b
+
+_noGraph:
+
+
 	ld	a,(fkey)
 	cp	6
-	jr.	nz,97f
-	
+	jr.	nz,_noCTRL
+
 	ld	a,(key)
-	cp	'0'+128
+22:	cp	'0'+128
 	jr.	nz,0f
 	ld	a,(DrumMixer)
 	xor	100000b
 	ld	(DrumMixer),a
 	jr.	draw_pattern_header	
 0:	
-	ld	a,(key)
+;	ld	a,(key)
 	cp	'1'+128
 	jr.	nz,0f
 	ld	a,(MainMixer)
 	xor	32
-_mix:	ld	(MainMixer),a
+_mix:	
+;	ld	d,a
+;	ld	a,(fkey)
+;	cp	7
+;	jp	nz,_mix_normal
+;_mix_invert:
+;	ld	a,$ff
+;	xor	d
+;	jp	99f
+;_mix_normal:
+;	ld	a,d
+;99:	
+	ld	(MainMixer),a
 	jr.	draw_pattern_header
 0:
 	cp	'2'+128
@@ -255,6 +335,12 @@ _mix:	ld	(MainMixer),a
 ;0:	call	init_psgsampleeditor
 ;	jr.	processkey_patterneditor_END
 1:
+;	;--- escape this for GRAPH/ALT
+;	ld	a,(fkey)
+;	cp	7
+;	jp	z,_noCTRL
+
+
 	;--- CTRL + N - Song Name
 	cp	_CTRL_N
 	jr.	nz,1f
@@ -426,7 +512,7 @@ _ppp_instruments:
 
 	
 	;--- Check here the other combinations	
-97:	; when no CTRL was pressed
+_noCTRL:	; when no CTRL was pressed
 
 	;--- Check here the skey's
 	ld	a,(skey)

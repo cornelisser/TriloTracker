@@ -567,10 +567,12 @@ _snp_continue:
 ; 
 ;===========================================================
 replay_init_cont:
+
+IFDEF TTSMS
 	; init GG panning
 	ld	a,$ff
 	ld	(GG_panning),a
-
+ENDIF
 	;--- Get the start speed.
 	ld	a,(song_speed)
 	ld	(replay_speed),a
@@ -1248,7 +1250,6 @@ noCMDchange:
 	ld	d,(IX+CHIP_Flags)
 	bit 	0,d			; note trigger?
 	jp	z,99f
-debug:
 	bit 	3,d			; effect active
 	jp	z,99f
 	ld	a,(ix+CHIP_Command)	; active effect is 3?

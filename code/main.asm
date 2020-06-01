@@ -247,78 +247,26 @@ _playback_loop:
 	call	update_orderbox
 
 
-	ld	a,(key)
-	cp	1
-	jr.	nz,0f
-	
-	ld	a,1
-;	ld	(replay_mode),a
-
-0:	
+;	ld	a,(key)
+;	cp	1
+;	jr.	nz,0f
+;	
+;	ld	a,1
+;;	ld	(replay_mode),a
+;
+;0:	
 	call	read_key
+
 	ld	a,(key)
-; mixer	
+	and	a
+	jp	z,_playback_loop
+
+	; check key for muting channels
+	call	check_channel_mute
+	call	check_channel_soloplay
 
 
-	cp	'1'
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK1ONOFF
-_playback_mix:	
-	ld	(MainMixer),a
-	call	draw_pattern_header
-	jr.	_playback_loop
-0:
-	cp	'2'
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK2ONOFF
-	jr.	_playback_mix
-0:
-	cp	"3"
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK3ONOFF
-	jr.	_playback_mix
-0:
-	cp	"4"
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK4ONOFF
-	jr.	_playback_mix
-0:
-	cp	"5"
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK5ONOFF
-	jr.	_playback_mix
-0:
-	cp	"6"
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK6ONOFF
-	jr.	_playback_mix
-0:
-	cp	"7"
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK7ONOFF
-	jr.	_playback_mix
-0:
-	cp	"8"
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	_TRACK8ONOFF
-	jr.	_playback_mix
-0:	
-	cp	"0"
-	jr.	nz,0f
-	ld	a,(DrumMixer)
-	xor	100000b
-	ld	(DrumMixer),a
-	call	draw_pattern_header
-	jr.	_playback_loop
-0:	
+	ld	a,(key)
 	cp	_SPACE
 	jr.	nz,0f
 	

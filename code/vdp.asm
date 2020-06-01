@@ -201,3 +201,13 @@ _theme8a:
 	db 	$77,$7		;text
 	db	$32,$1		; back blink
 	db	$76,$5
+_theme9a:
+	db 	$01,$0		;backgrnd
+	db 	$57,$5		;text
+	db	$53,$0		; back blink
+	db	$77,$7	
+_theme10a:
+	db 	$00,$0		;backgrnd
+	db 	$77,$7		;text
+	db	$33,$3		; back blink
+	db	$66,$6	

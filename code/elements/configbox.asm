@@ -660,12 +660,15 @@ _LABEL_CONFIG_NUMBER:
 _LABEL_CONFIG_THEME:
 	db	_ARROWLEFT,"TriloTracker ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"MSX blues    ",_ARROWRIGHT,0
-	db	_ARROWLEFT,"Schismtracker",_ARROWRIGHT,0
+	db	_ARROWLEFT,"SchismTracker",_ARROWRIGHT,0
 	db	_ARROWLEFT,"ZX Spectrum  ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"MSX-Musixx   ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"Beatrix      ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"Jungle       ",_ARROWRIGHT,0	
-	db	_ARROWLEFT,"Purple Haze  ",_ARROWRIGHT,0	
+	db	_ARROWLEFT,"Purple Haze  ",_ARROWRIGHT,0
+	db	_ARROWLEFT,"CottonTracker",_ARROWRIGHT,0
+	db	_ARROWLEFT,"Custom theme ",_ARROWRIGHT,0
+	
 ;===========================================================
 ; --- update selection
 ;
@@ -1168,21 +1171,31 @@ pk_config_add:
 	jr.	update_configbox	
 
 
+nr_of_themes	equ 	10		; number of themes
 ;====================================
 ; change theme
 ;====================================
 pk_config_theme:
 
-	ld	b,1
 	ld	a,(key)
 	cp	_KEY_RIGHT
 	jp	z,0f
-	ld	b,-1
-0:
 	ld	a,(_CONFIG_THEME)
-	add	a,b
-	and	7
-	ld	(_CONFIG_THEME),a
+	inc	a
+	cp	nr_of_themes
+	jp	c,1f
+	xor	a
+	jp	1f
+0:
+	cp	_KEY_LEFT
+	ret	z
+	ld	a,(_CONFIG_THEME)
+	dec	a
+	cp	$ff
+	jp	nz,1f
+	ld	a,nr_of_themes-1
+
+1:	ld	(_CONFIG_THEME),a
 	call	set_textcolor
 	jr.	update_configbox	
 

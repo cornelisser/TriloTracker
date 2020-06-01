@@ -183,148 +183,10 @@ ENDIF
 		call	swap_loadblock		
 		jr.	init_configeditor
 			
-0:	;--- CTRL
-debug:
-	ld	a,(fkey)
-	cp	7
-	jp	nz,_noGraph
-
-	ld	a,(key)
-	sub	$30
-	and	a
-	jp	nz,99f
-	;-- ONLY DRUM
-	ld	a,(DrumMixer)	; If drum is off then enable and silence others
-	bit 	5,a
-	jp	z,22f
-	
-	ld	a,(MainMixer)	; If any other channel is on then silence others
-	and	a
-	jp	z,_enableAll
-22:
-	or	100000b
-	ld	(DrumMixer),a
-	xor	a
-	ld	(MainMixer),a
-	jr.	draw_pattern_header
-99:
-	;-- ONLY 1 CHANNEL
-	cp	9
-	jp	nc,_noGraph
-	;-- get mask
-	ld	hl,_mixer_mask-1
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:	
-	ld	d,(hl)
-	ld	a,(MainMixer)
-	xor	d
-	jp	z,_enableAll
-	ld	a,d
-	ld	(MainMixer),a
-	;-- silence drums
-	ld	a,(DrumMixer)
-	;and	011111b
-	xor	a
-	ld	(DrumMixer),a
-	jr.	draw_pattern_header
-	
-_enableAll:
-	ld	a,(DrumMixer)
-	or	100000b
-	ld	(DrumMixer),a
-	ld	a,$ff
-	ld	(MainMixer),a
-	jr.	draw_pattern_header
-	
-_mixer_mask:
-	db	00100000b
-	db	01000000b
-	db	10000000b
-	db	00000001b
-	db	00000010b
-	db	00000100b
-	db	00001000b
-	db	00010000b
-
-_noGraph:
-
-
-	ld	a,(fkey)
-	cp	6
-	jr.	nz,_noCTRL
-
-	ld	a,(key)
-22:	cp	'0'+128
-	jr.	nz,0f
-	ld	a,(DrumMixer)
-	xor	100000b
-	ld	(DrumMixer),a
-	jr.	draw_pattern_header	
 0:	
-;	ld	a,(key)
-	cp	'1'+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	32
-_mix:	
-;	ld	d,a
-;	ld	a,(fkey)
-;	cp	7
-;	jp	nz,_mix_normal
-;_mix_invert:
-;	ld	a,$ff
-;	xor	d
-;	jp	99f
-;_mix_normal:
-;	ld	a,d
-;99:	
-	ld	(MainMixer),a
-	jr.	draw_pattern_header
-0:
-	cp	'2'+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	64
-	jr.	_mix
-0:
-	cp	"3"+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	128
-	jr.	_mix
-0:
-	cp	"4"+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	1
-	jr.	_mix
-0:
-	cp	"5"+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	2
-	jr.	_mix
-0:
-	cp	"6"+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	4
-	jr.	_mix
-0:
-	cp	"7"+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	8
-	jr.	_mix
-0:
-	cp	"8"+128
-	jr.	nz,0f
-	ld	a,(MainMixer)
-	xor	16
-	jr.	_mix
+	call	check_channel_soloplay
+	call	check_channel_mute
+
 0:	
 	
 ;	;--- CTRL + S sampleeditor
@@ -671,5 +533,104 @@ _pkp_home_cont:
 processkey_patterneditor_END:
 	ret	
 
+check_channel_soloplay:
+	;--- GRAPH / ALT
+	ld	a,(fkey)
+	cp	7
+	ret	nz
 
+	ld	a,(key)
+	sub	$30
+	and	a
+	jp	nz,99f
+	;-- ONLY DRUM
+	ld	a,(DrumMixer)	
+	bit 	5,a
+	jp	z,22f
 	
+	ld	a,(MainMixer)	
+	and	a
+	jp	z,_enableAll
+22:
+	or	100000b
+	ld	(DrumMixer),a
+	xor	a
+	ld	(MainMixer),a
+	call	draw_pattern_header
+	ret				
+99:
+	;-- ONLY 1 CHANNEL
+	cp	9
+	ret	nc			
+	;-- get mask
+	ld	hl,_mixer_mask-1
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:	
+	ld	d,(hl)
+	ld	a,(MainMixer)
+	xor	d
+	jp	z,_enableAll
+	ld	a,d
+	ld	(MainMixer),a
+	;-- silence drums
+	ld	a,(DrumMixer)
+	;and	011111b
+	xor	a
+	ld	(DrumMixer),a
+	call	draw_pattern_header
+	ret					
+	
+_enableAll:
+	ld	a,(DrumMixer)
+	or	100000b
+	ld	(DrumMixer),a
+	ld	a,$ff
+	ld	(MainMixer),a
+	call	draw_pattern_header
+	ret					
+	
+_mixer_mask:
+	db	00100000b
+	db	01000000b
+	db	10000000b
+	db	00000001b
+	db	00000010b
+	db	00000100b
+	db	00001000b
+	db	00010000b
+	
+check_channel_mute:
+	ld	a,(fkey)
+	cp	6
+	ret	nz
+
+	ld	a,(key)
+	sub	a,"0"+128
+	and	a
+	jp	z,.drum
+	cp	9
+	ret	nc
+
+	;-- get mask
+	ld	hl,_mixer_mask-1
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:	
+	ld	d,(hl)
+	ld	a,(MainMixer)
+	xor	d
+	ld	(MainMixer),a
+	call	draw_pattern_header
+	ret				
+
+.drum:	
+	ld	a,(DrumMixer)
+	xor	100000b
+	ld	(DrumMixer),a
+	call	draw_pattern_header
+	ret	

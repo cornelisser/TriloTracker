@@ -599,20 +599,20 @@ _move_macrolinedown:
 ;
 ; need to preserve [A]
 _move_macrolineup:
-	push	af
+	ex	af,af'
 	;-- set hl to start macro data of current instrument
 	call	_get_instrument_start
-	dec	hl
-	dec 	hl
+;	dec	hl
+;	dec 	hl
 	;-- jump to line ( input)
-	pop	bc
-	push	bc
-	inc	b
-	ld	de,4
-.loop:
-	add	hl,de
-	djnz	.loop
-
+	ex	af,af
+	add	a	; x2
+	add	a	; x4
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
 	;--- copy the data to next line
 	ld	d,h	
 	ld	e,l

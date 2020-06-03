@@ -184,10 +184,6 @@ ENDIF
 		jr.	init_configeditor
 			
 0:	
-	call	check_channel_soloplay
-	call	check_channel_mute
-
-0:	
 	
 ;	;--- CTRL + S sampleeditor
 ;	cp	's'
@@ -202,7 +198,7 @@ ENDIF
 ;	cp	7
 ;	jp	z,_noCTRL
 
-
+	ld	a,(key)
 	;--- CTRL + N - Song Name
 	cp	_CTRL_N
 	jr.	nz,1f
@@ -372,6 +368,8 @@ _ppp_instruments:
 
 0:	
 
+	call	check_channel_soloplay
+	call	check_channel_mute
 	
 	;--- Check here the other combinations	
 _noCTRL:	; when no CTRL was pressed
@@ -550,13 +548,15 @@ check_channel_soloplay:
 	
 	ld	a,(MainMixer)	
 	and	a
-	jp	z,_enableAll
+	jp	z,.enableAll
 22:
 	or	100000b
 	ld	(DrumMixer),a
 	xor	a
 	ld	(MainMixer),a
 	call	draw_pattern_header
+.end	xor	a
+	ld	(key),a
 	ret				
 99:
 	;-- ONLY 1 CHANNEL
@@ -572,7 +572,7 @@ check_channel_soloplay:
 	ld	d,(hl)
 	ld	a,(MainMixer)
 	xor	d
-	jp	z,_enableAll
+	jp	z,.enableAll
 	ld	a,d
 	ld	(MainMixer),a
 	;-- silence drums
@@ -581,16 +581,16 @@ check_channel_soloplay:
 	xor	a
 	ld	(DrumMixer),a
 	call	draw_pattern_header
-	ret					
+	jp	.end				
 	
-_enableAll:
+.enableAll:
 	ld	a,(DrumMixer)
 	or	100000b
 	ld	(DrumMixer),a
 	ld	a,$ff
 	ld	(MainMixer),a
 	call	draw_pattern_header
-	ret					
+	jp	.end					
 	
 _mixer_mask:
 	db	00100000b
@@ -626,11 +626,13 @@ check_channel_mute:
 	xor	d
 	ld	(MainMixer),a
 	call	draw_pattern_header
-	ret				
+.end	xor	a
+	ld	(key),a
+	ret					
 
 .drum:	
 	ld	a,(DrumMixer)
 	xor	100000b
 	ld	(DrumMixer),a
 	call	draw_pattern_header
-	ret	
+	jp 	.end	

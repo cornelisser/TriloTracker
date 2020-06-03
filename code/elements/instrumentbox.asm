@@ -356,25 +356,25 @@ _ifound:
 		and	a
 		jr.	z,99f				; only set instrument if >0		
 		ld	(song_cur_instrument),a
-99:		;dec	a
-		cp	c
-		jr.	c,_ifl
-		;--- instr# larger than offset
-		sub	c
-		cp	7
-		ld	a,c
-		jr.	c,_if ;< jmp if instr is visible
-	;-- instr < offset
-		ld	a,b
-		sub	7
-		jr.	99f
-_ifl:
-		ld	a,b
-		dec	a	
-99:		
+		
+		
 
-_if:		;-- instrument is in visible range		
-	ld	(song_instrument_offset),a
+99:		
+		cp	c
+		jp	c,1f	; instrument < offset?
+		sub	c
+		cp	7	
+		jp	nc,99f	; not visible now
+		ld	a,c		; vissible not change offset
+		jp	1f
+99:		
+		ld	a,b
+		cp	$1a
+		jp	c,1f	; instrument < 'P'
+		ld	a,$19
+	
+1:		; set the offset
+		ld	(song_instrument_offset),a
 		;call	flush_cursor
 		ld	a,0
 		ld	(editsubmode),a

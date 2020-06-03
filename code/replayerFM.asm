@@ -1778,8 +1778,8 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_fineup		;1
 	dw	_CHIPcmdE_finedown	;2
 	dw	_CHIPcmdE_none		;3
-	dw	_CHIPcmdE_notelink	;4
-	dw	_CHIPcmdE_none		;5
+	dw	_CHIPcmdE_none		;4
+	dw	_CHIPcmdE_notelink	;5
 	dw	_CHIPcmdE_trackdetune	;6
 	dw	_CHIPcmdE_notesus		;7
 	dw	_CHIPcmdE_tonepanning	;8

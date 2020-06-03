@@ -700,7 +700,7 @@ process_key_psgsamplebox:
 
 0:	
 	;--- DEL key to delete macro line
-	cp	_DEL
+	cp	_BACKSPACE
 	jr.	nz,0f
 	ld	a,(instrument_line)
 	inc	a

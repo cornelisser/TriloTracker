@@ -177,7 +177,7 @@ process_key_orderbox:
 		
 0:
 	; - DELETE
-	cp	_DEL
+	cp	_BACKSPACE
 	jr.	nz,0f
 	; delete entry 
 		ld	a,(song_order_len)

@@ -728,9 +728,9 @@ _CONFIG_MENU_XY:
 	db	0x11
 	db	0x12			
 	db	0x14
-	db	0x15
+;	db	0x15
 	db	0x16
-	db	0x17			
+;	db	0x18			
 	db	0x1a
 	; H = x pos
 	; L = y pos
@@ -824,7 +824,7 @@ _lsav_error:
 	ld 	(cursor_input),a		; reset colorinput
 	ld	a,(editsubmode)
 	inc	a
-	cp	20
+	cp	19
 	jr.	c,99f
 	xor	a
 99:	ld	(editsubmode),a
@@ -840,7 +840,7 @@ _lsav_error:
 	dec	a
 	cp	0xff
 	jr.	nz,99f
-	ld	a,19
+	ld	a,18
 99:	ld	(editsubmode),a
 	jr.	update_config_selection
 	

@@ -794,8 +794,11 @@ process_key_configbox:
 
 	call	close_file
 	call	set_hook
-
-	ret
+	
+	ld	a,WIN_CFGSAV
+	call	window
+	jp	draw_configbox
+	
 	
 _lsav_error:
 	call	set_hook

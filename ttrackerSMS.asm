@@ -67,7 +67,7 @@ MAIN:
 
 	call	cursorstack_init
 
-;	ld	a,WIN_STARTUP
+;	ld	a,WIN_CFGSAV
 ;	call	window
 	
 	;--- should we load default instruments?

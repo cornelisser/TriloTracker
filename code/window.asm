@@ -185,7 +185,7 @@ _OPTION_YESNO		equ	1	; [Y or N] 'option'.
 WIN_FILE_CORRUPT		equ	0	
 WIN_WARN_LESS_RAM		equ	1
 WIN_WARN_DELETE		equ	2
-WIN_STARTUP			equ	3
+WIN_CFGSAV			equ	3
 WIN_INSERTDISK		equ	4
 WIN_NODEFAULT		equ	5
 WIN_NOSCC			equ	6
@@ -194,7 +194,7 @@ WINDOW_TT_LIST:
 	dw	_WINDOW_FILECORRUPT	-SWAP_WIN_START+SWAP_WIN_VRAMSTART
 	dw	_WINDOW_LESSRAM		-SWAP_WIN_START+SWAP_WIN_VRAMSTART
 	dw	_WINDOW_DELETE		-SWAP_WIN_START+SWAP_WIN_VRAMSTART
-	dw	_WINDOW_STARTUP		-SWAP_WIN_START+SWAP_WIN_VRAMSTART
+	dw	_WINDOW_CFGSAV		-SWAP_WIN_START+SWAP_WIN_VRAMSTART
 	dw	_WINDOW_INSERT		-SWAP_WIN_START+SWAP_WIN_VRAMSTART
 	dw	_WIN_NODEFAULT		-SWAP_WIN_START+SWAP_WIN_VRAMSTART
 	dw	_WIN_NOSCC			-SWAP_WIN_START+SWAP_WIN_VRAMSTART
@@ -309,7 +309,21 @@ _WINDOW_ERROR_YN_LABEL:
 	db	_OPTION_YESNO	
 	
 
-_WINDOW_STARTUP:
+_WINDOW_CFGSAV:
+	;-- box
+	dw	(80*12)+20		; HL = position in PNT (relative)
+	dw	0x2806		; D = width; E = height
+	;-- color
+	dw	0x140c		; H = x pos	; L = y pos
+	dw	0x2806		; D = width ; E = height
+	;-- text
+	dw	(80*12)+22
+	db	"Info:",0,0
+	db	"Configuration has been saved.",0,0
+	db	"Press any key to continue",0,255
+	db	255
+	db	_OPTION_CLOSE
+
 ;	;-- box
 ;	dw	(80*05)+7		; HL = position in PNT (relative)
 ;	dw	0x420e		; D = width; E = height

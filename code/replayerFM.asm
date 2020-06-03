@@ -1787,7 +1787,7 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_none		;A
 	dw	_CHIPcmdE_none		;B
 	dw	_CHIPcmdE_notecut		;C	
-	dw	_CHIPcmdE_notecut		;D	
+	dw	_CHIPcmdE_notedelay	;D	
 	dw	_CHIPcmdE_envelope	;E
 	dw	_CHIPcmdE_none		;F
 

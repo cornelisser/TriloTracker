@@ -118,8 +118,10 @@ processkey_patterneditor:
 
 	;--- general keys for patterneditor
 	ld	a,(key)
+
 	and	a
-	jr.	z,_noCTRL
+	ret	z
+
 	dec	a		;--- F1 = Playback
 	jr.	nz,0f
 	
@@ -194,9 +196,9 @@ ENDIF
 ;	jr.	processkey_patterneditor_END
 1:
 ;	;--- escape this for GRAPH/ALT
-;	ld	a,(fkey)
-;	cp	7
-;	jp	z,_noCTRL
+	ld	a,(fkey)
+	cp	6
+	jp	nz,_noCTRL
 
 	ld	a,(key)
 	;--- CTRL + N - Song Name

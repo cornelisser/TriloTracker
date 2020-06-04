@@ -589,76 +589,11 @@ process_key_trackbox_compact:
 	cp	_CTRL_G
 	jr.	nz,0f
 
-	;--- copy current pattern onto the buffer
 	ld	a,(song_pattern)
-	ld	b,a
-	call	set_patternpage
-	ld	de,buffer
-	ld	bc,SONG_PATSIZE
-	ldir
+	call	copy_to_empty_pattern
 	
-	;--- search for the next available free pattern
-	ld	b,0
-_pkt_gloop:
-	push	bc
-	call	set_patternpage
-	pop	bc
-	
-	ld	de,SONG_PATSIZE
-_pkt_gloop1:
-	ld	a,(hl)
-	cp	0
-	jr.	nz,_pkt_gloop_not_empty
-	inc	hl
-	dec	de
-	ld	a,d
-	cp	e
-	jr.	nz,_pkt_gloop1
-	and	a
-	jr.	nz,_pkt_gloop1
-		
-	;--- found an empty pattern!
-	push	bc
-;	ld	a,(current_song)
-	call	set_songpage
-	pop	bc
-	ld	a,b
-	ld	(song_pattern),a
-
-	call	set_patternpage
-	push	hl
-	ld	de,buffer
-	ex	de,hl
-
-	ld 	bc,SONG_PATSIZE
-	ldir
-
-	;-- clear buffer for edit log dif check
-	ld	hl,buffer
-	ld	de,buffer+1
-	ld	(hl),0
-	ld	bc,SONG_PATSIZE-1
-	ldir
-	
-	pop	hl
-	call	store_log_block
-
-
 	call	reset_cursor_trackbox
 	jr.	update_patternbox
-	
-_pkt_gloop_not_empty:
-	inc	b
-;	ld	a,b
-	;-- did we process all patterns
-;	cp	SONG_MAXPAT
-	ld	a,(max_pattern)
-	cp	b
-	ld	a,b
-	jr.	nc,_pkt_gloop
-;	ld	a,(current_song)
-	jr.	set_songpage	
-	
 
 
 
@@ -1734,6 +1669,79 @@ _auto_increment_END:
 	pop	bc
 	pop	af
 	ret
+
+;==================================================
+;--- Copies the pattern in a into an empty pattern. 
+;    in [A] the pattern to copy.
+;==================================================
+copy_to_empty_pattern:
+	;--- copy pattern onto the buffer
+	ld	b,a
+	call	set_patternpage
+	ld	de,buffer
+	ld	bc,SONG_PATSIZE
+	ldir
+	
+	;--- search for the next available free pattern
+	ld	b,0
+_pkt_gloop:
+	push	bc
+	call	set_patternpage
+	pop	bc
+	
+	ld	de,SONG_PATSIZE
+_pkt_gloop1:
+	ld	a,(hl)
+	cp	0
+	jr.	nz,_pkt_gloop_not_empty
+	inc	hl
+	dec	de
+	ld	a,d
+	cp	e
+	jr.	nz,_pkt_gloop1
+	and	a
+	jr.	nz,_pkt_gloop1
+		
+	;--- found an empty pattern!
+	push	bc
+;	ld	a,(current_song)
+	call	set_songpage
+	pop	bc
+	ld	a,b
+	ld	(song_pattern),a
+
+	call	set_patternpage
+	push	hl
+	ld	de,buffer
+	ex	de,hl
+
+	ld 	bc,SONG_PATSIZE
+	ldir
+
+	;-- clear buffer for edit log dif check
+	ld	hl,buffer
+	ld	de,buffer+1
+	ld	(hl),0
+	ld	bc,SONG_PATSIZE-1
+	ldir
+	
+	pop	hl
+	call	store_log_block
+	ret
+	
+_pkt_gloop_not_empty:
+	inc	b
+;	ld	a,b
+	;-- did we process all patterns
+;	cp	SONG_MAXPAT
+	ld	a,(max_pattern)
+	cp	b
+	ld	a,b
+	jr.	nc,_pkt_gloop
+;	ld	a,(current_song)
+	jr.	set_songpage	
+	
+
 
 ;===========================================================
 ; --- reset_cursor_trackbox

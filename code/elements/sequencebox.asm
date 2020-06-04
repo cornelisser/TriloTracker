@@ -90,18 +90,66 @@ update_orderbox:
 ; 
 ; 
 ;===========================================================
-_order_input_timer:	db	0
+;_order_input_timer:	db	0
 
 process_key_orderbox:
 	ld	a,(song_order_pos)
 	ld	c,a	
-
-99:
 	ld	a,(key)
+	and	a
+	ret	z
+
+
+	;--- Check for CTRL+G
+	cp	_CTRL_G
+	jp	nz,0f
 	
-	; - ESCAPE
-;	cp	0x60	; [`]
-;	jr.	z,77f
+	;--- Is there still room?
+	ld	a,(song_order_len)
+	cp	SONG_SEQSIZE
+	jr.	z,processkey_psgsampleeditor_END
+
+	; UPDATE SONG LENGTH
+	inc	a
+	ld	(song_order_len),a
+	
+	;--- Copy the pattern to a new one
+	ld	hl,song_order
+	ld	b,0
+	add	hl,bc			; c still holds the song order pos
+	ld	a,(hl)
+	call	copy_to_empty_pattern
+	
+	;--- Move all lower lines to make room for new pattern
+	ld	a,(song_order_pos)
+	ld	c,a
+
+	ld	hl,song_order+SONG_SEQSIZE-2	; point to order end
+	ld	a,SONG_SEQSIZE-2			; number of elements to move
+	sub	c
+	ld	c,a
+	ld	b,0
+	ld	d,h
+	ld	e,l
+	inc	de
+	;--- move them
+	lddr
+	
+	;--- Insert the new line
+	ld	a,(song_order_pos)
+	inc	a
+	ld	hl,song_order
+	ld	c,a
+	ld	b,0
+	add	hl,bc
+	ld	a,(song_pattern)
+	ld	(hl),a
+	
+	ld	a,(song_order_pos)
+	ld	c,a
+	jr.	.keydown
+
+0:
 	cp	_ENTER
 	jr.	z,77f
 	cp	_ESC
@@ -149,13 +197,16 @@ process_key_orderbox:
 		lddr
 		
 		; store new pattern number at new order position
+		inc	hl
 		ld	b,(hl)
 		inc	b
 		
-		ld	a,(song_order_pos)
-		and	a
-		jr.	nz,99f
-		ld	b,0
+;		ld	a,(song_order_pos)
+;		and	a
+;		jr.	nz,99f		
+;		ld	hl,song_order	; if pos is one we cannot 
+;		ld	b,(hl)
+;		inc	b
 99:		
 		ld	a,(max_pattern)
 		cp	b
@@ -282,6 +333,7 @@ process_key_orderbox:
 0:
 	cp	_KEY_DOWN
 	jr.	nz,0f
+.keydown:
 	;-- Move 1 pos down
 		ld	a,(song_order_len)
 		inc	c		
@@ -407,8 +459,8 @@ process_key_orderbox:
 
 
 process_key_orderbox_END:
-	xor	a
-	ld	(_order_input_timer),a
+;	xor	a
+;	ld	(_order_input_timer),a
 	ret
 
 

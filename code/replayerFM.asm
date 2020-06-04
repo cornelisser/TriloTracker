@@ -1919,7 +1919,7 @@ _CHIPcmdE_notecut:
 	ld	(ix+CHIP_Timer),a		; set	the timer to param y
 	ret
 	
-_CHIPcmdE_delay:
+_CHIPcmdE_notedelay:
 	bit	0,(ix+CHIP_Flags)		; is there a note	in this eventstep?
 	ret	z				; return if	no note
 	

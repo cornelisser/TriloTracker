@@ -751,7 +751,7 @@ _upsb_add:
 	cp	c
 	ret	c
 
-	ld	a,16
+	ld	a,15
 	cp	b
 	jr.	nc,_upsb_loop
 

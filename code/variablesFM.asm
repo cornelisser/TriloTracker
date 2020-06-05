@@ -307,6 +307,7 @@ selection_x2:		#1
 selection_type2:		#1
 selection_column2:	#1
 selection_status:		#1
+copy_transparent:		#1
 
 tmp_cur_instrument:	#1		; local copy of the current instrument.
 						; be sure to copy this when switching songs.

@@ -561,6 +561,13 @@ _ctp_store_single_value:
 					; 4 (parameter y) otherwise	
 
 _ctpssv_low:
+	ld	a,(copy_transparent)
+	and	a
+	jp	z,0f	
+	ld	a,(de)		; get current value	
+	and	$f0
+	jr.	nz,_ctpssv_end	; end if there is a value
+0:	
 	ld	a,(hl)
 	and	0x0f			; keep only the x value
 	ld	b,a
@@ -571,6 +578,13 @@ _ctpssv_low:
 	jr.	_ctpssv_end
 
 _ctpssv_high:
+	ld	a,(copy_transparent)
+	and	a
+	jp	z,0f	
+	ld	a,(de)		; get current value	
+	and	$0f
+	jr.	nz,_ctpssv_end	; end if there is a value
+0:
 	ld	a,(hl)
 	and	0xf0			; keep only the y value
 	ld	b,a
@@ -581,6 +595,13 @@ _ctpssv_high:
 	jr.	_ctpssv_end
 
 _ctpssv_byte:
+	ld	a,(copy_transparent)
+	and	a
+	jp	z,0f	
+	ld	a,(de)		; get current value	
+	and	a
+	jr.	nz,_ctpssv_end	; end if there is a value
+0:
 	ld	a,(hl)
 	ld	(de),a
 	jr.	_ctpssv_end

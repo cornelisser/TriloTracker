@@ -6,7 +6,7 @@
 
 RDSLT: equ 0CH
 WRSLT: equ 14H
-EXPTBL: equ 0FCC1H
+;EXPTBL: equ 0FCC1H
 
 MSXMusic_ID_ADDRESS: equ 4018H
 MSXMusic_ENABLE_ADDRESS: equ 7FF6H
@@ -18,11 +18,17 @@ MSXMusic_Detect:
     ld 	hl,MSXMusic_MatchInternalID
     call 	Memory_SearchSlots
     ld 	b,-1
-    ret 	c
+    jp 	c,.end
     ld 	hl,MSXMusic_MatchExternalID
     call 	Memory_SearchSlots
     ld 	b,0
-    ret
+    
+    ;--- restore the page before returning
+	ld	a,(mapper_slot)				; Recuperamos el slot
+	ld	h,0x80
+	call enaslt
+.end
+  
 
 ; a = slot id
 ; f <- c: found

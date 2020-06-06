@@ -34,6 +34,10 @@ MAIN:
 	
 	call	start_init		; this calls function that is overwritten after call
 					; the space can be used by the songs 
+
+	call	MSXMusic_Detect
+
+
 	ld	a,(_CONFIG_SLOT)
 	ld	(replay_chan_setup),a	
 					
@@ -129,7 +133,7 @@ _LABEL_PATTERNHEADER:
 	
 SWAP_ELEMENTSTART:
 	; temporary start up code and data!!! Will be over written after init
-
+	include	".\code\sound\fmdetect.asm"
 font_data:
 	incbin  ".\data\fontpat.bin"
 	include ".\code\startup.asm"

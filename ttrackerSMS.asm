@@ -39,9 +39,8 @@ MAIN:
 	ld	b,16
 	ld	h,0x40
 	call mmm_srch	; This routine will find and activate SN if found
+	call	MSXMusic_Detect
 
-	
-	
 	; new that we have the memory reserved. Switch to slot of song data
 	ld	a,(mapper_slot)			; get mapper slot
 	ld	h,0x80
@@ -66,6 +65,20 @@ MAIN:
 	call	set_songpage
 
 	call	cursorstack_init
+
+
+;	call	MSXMusic_Detect
+;	jp	c,99f
+;	ld	a,WIN_NOSCC
+;	call	window	
+;99:
+
+;	cp	$ff
+;	jp	nz,99f
+;	ld	a,WIN_NOSCC
+;	call	window	
+;99:
+
 
 ;	ld	a,WIN_CFGSAV
 ;	call	window
@@ -134,6 +147,8 @@ _LABEL_PATTERNHEADER2:
 SWAP_ELEMENTSTART:		
 	; temporary start up code and data!!! Will be over written after init
 	include	".\code\sound\mmmdetect.asm"
+	include	".\code\sound\fmdetect.asm"
+	
 font_data:
 	incbin  ".\data\fontpat.bin"
 	include ".\code\startup.asm"
@@ -169,7 +184,6 @@ font_data:
 	include	".\code\vram_swapper.asm"
 	include 	".\code\window.asm"
 	include 	".\code\replayerFMRAM.asm"	
-
 
 	
 	

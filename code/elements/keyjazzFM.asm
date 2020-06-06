@@ -63,6 +63,7 @@ process_key_drumjazz:
 	ei
 
 88:
+	halt
 	ld	a,(replay_mode)
 	and	a
 	jp	nz,88b

@@ -564,9 +564,11 @@ _ctpssv_low:
 	ld	a,(copy_transparent)
 	and	a
 	jp	z,0f	
-	ld	a,(de)		; get current value	
+;	ld	a,(de)		; don't overwrite destination 	
+	ld	a,(hl)		; don't overwrite with empty		
 	and	$f0
-	jr.	nz,_ctpssv_end	; end if there is a value
+;	jr.	nz,_ctpssv_end	; don't overwrite destination
+	jr.	z,_ctpssv_end	; ; don't overwrite with empty
 0:	
 	ld	a,(hl)
 	and	0x0f			; keep only the x value
@@ -581,9 +583,11 @@ _ctpssv_high:
 	ld	a,(copy_transparent)
 	and	a
 	jp	z,0f	
-	ld	a,(de)		; get current value	
+;	ld	a,(de)		; don't overwrite destination 
+	ld	a,(hl)		; don't overwrite with empty	
 	and	$0f
-	jr.	nz,_ctpssv_end	; end if there is a value
+;	jr.	nz,_ctpssv_end	; don't overwrite destination
+	jr.	z,_ctpssv_end	; ; don't overwrite with empty
 0:
 	ld	a,(hl)
 	and	0xf0			; keep only the y value
@@ -598,9 +602,11 @@ _ctpssv_byte:
 	ld	a,(copy_transparent)
 	and	a
 	jp	z,0f	
-	ld	a,(de)		; get current value	
+;	ld	a,(de)		; don't overwrite destination 
+	ld	a,(hl)		; don't overwrite with empty	
 	and	a
-	jr.	nz,_ctpssv_end	; end if there is a value
+;	jr.	nz,_ctpssv_end	; don't overwrite destination
+	jr.	z,_ctpssv_end	; ; don't overwrite with empty
 0:
 	ld	a,(hl)
 	ld	(de),a

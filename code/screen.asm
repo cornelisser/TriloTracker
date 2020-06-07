@@ -17,7 +17,6 @@ _ENV_ON_SIGN		equ	246
 _CMD_SIGN			equ	6*32-1
 _CURSOR			equ	254
 
-MOUSE_CHR			equ 	252
 
 ; ==========================================================	
 	; --- clear_window

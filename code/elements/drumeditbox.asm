@@ -261,10 +261,10 @@ _udm_lineloop:
 	inc	hl	
 	bit	1,b				;- Cymbal
 	jr.	z,99f
-	ld	(hl),$FD
+	ld	(hl),$0c
 	jr.	88f
 99:	
-	ld	(hl),$FC
+	ld	(hl),$Fd
 88:
 	inc	hl	
 	bit	0,b				;- HiHat

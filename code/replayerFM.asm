@@ -1692,15 +1692,16 @@ _CHIPcmdC_drum:
 	ret	nc
 
 	and	a
-	jr.	nz,0f
-	;--- DRUM reset
-	push	bc
-	ld	de,FM_DRUM_Flags
-	ld	hl,DRM_DEFAULT_values
-	ld	bc,10
-	ldir
-	pop	bc
-	ret
+	ret	z			; B00 does nothing
+;	jr.	nz,0f
+;	;--- DRUM reset
+;	push	bc
+;	ld	de,FM_DRUM_Flags
+;	ld	hl,DRM_DEFAULT_values
+;	ld	bc,10
+;	ldir
+;	pop	bc
+;	ret
 
 0:	
 	;--- Set the song page

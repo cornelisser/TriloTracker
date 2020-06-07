@@ -33,8 +33,8 @@ _sc_loop:				; add lines to the pnt
 	
 	in	a,(0x98)		; get value of first char
 	;-- check if cursor is still there
-	cp	MOUSE_CHR		
-	jr.	nc,0f			; jmp if a is a mouse or cursor char
+	cp	_CURSOR	
+	jr.	nc,0f			; jmp if a cursor char
 	ld	(de),a		; store 3 char of pnt in cursor buffer
 	in	a,(0x98)	
 	inc	de

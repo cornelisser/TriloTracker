@@ -178,7 +178,7 @@ process_key_orderbox:
 
 		;--- is control pressed?
 		ld	a,(fkey)
-		cp	_KEY_CTRL
+		cp	6
 		jr.	nz,1f
 		ld	a,b			; point to the last postion
 		ld	c,a

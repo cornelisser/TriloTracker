@@ -28,12 +28,12 @@ draw_patternbox:
 	ld	hl,0x0a08
 	ld	de,0x0501	
 	call	erase_colorbox	
-	ld	hl,0x1008
-	ld	de,0x0501	
-	call	erase_colorbox		
-	ld	hl,0x1608
-	ld	de,0x0501	
-	call	erase_colorbox
+;	ld	hl,0x1008
+;	ld	de,0x0501	
+;	call	erase_colorbox		
+;	ld	hl,0x1608
+;	ld	de,0x0501	
+;	call	erase_colorbox
 	ld	hl,0x1c08
 	ld	de,0x0401	
 	call	erase_colorbox
@@ -189,48 +189,53 @@ process_key_patternbox_pattern_END:
 ; 
 ; 
 ;===========================================================
-process_key_patternbox_restart:
-	ld	a,(key)
-
-	;--- Check if edit is ended.
-	cp	_ENTER
-	jr.	z,44f
-	cp	_ESC
-	jr.	nz,0f
-44:		ld	a,0
-		ld	(editsubmode),a
-		call	restore_cursor
-		jr.	process_key_patternbox_restart_END
-0:		
-	;--- Key_up - restart down	
-	cp	_KEY_DOWN
-	jr.	z,44f
-	cp	_KEY_LEFT
-	jr.	nz,0f
-44:		ld	a,(song_order_loop)
-		and	a
-		jr.	z,process_key_patternbox_restart_END
-		dec	a
-88:		ld	(song_order_loop),a
-		call	update_patterneditor
-		jr.	process_key_patternbox_restart_END	
-0:
-	;--- Key_down - length up	
-	cp	_KEY_UP
-	jr.	z,44f
-	cp	_KEY_RIGHT
-	jr.	nz,0f
-44:		ld	a,(song_order_len)
-		ld	b,a
-		ld	a,(song_order_loop)
-		cp	b
-		jr.	nc,process_key_patternbox_restart_END
-		inc	a
-		jr.	88b	
-0:	
-process_key_patternbox_restart_END:
-	ret
-
+;process_key_patternbox_restart:
+;	ld	a,(key)
+;
+;	;--- Check if edit is ended.
+;	cp	_ENTER
+;	jr.	z,44f
+;	cp	_ESC
+;	jr.	nz,0f
+;44:		ld	a,0
+;		ld	(editsubmode),a
+;		call	restore_cursor
+;		jr.	process_key_patternbox_restart_END
+;0:		
+;	;--- Key_up - restart down	
+;	cp	_KEY_DOWN
+;	jr.	z,44f
+;	cp	_KEY_LEFT
+;	jr.	nz,0f
+;44:		ld	a,(song_order_loop)
+;		and	a
+;		jr.	z,process_key_patternbox_restart_END
+;		dec	a
+;88:		ld	(song_order_loop),a
+;
+;		ld	a,(song_order_update)
+;		inc	a
+;		ld	(song_order_update),a
+;		call	update_orderbox
+;		call	update_patterneditor
+;		jr.	process_key_patternbox_restart_END	
+;0:
+;	;--- Key_down - length up	
+;	cp	_KEY_UP
+;	jr.	z,44f
+;	cp	_KEY_RIGHT
+;	jr.	nz,0f
+;44:		ld	a,(song_order_len)
+;		ld	b,a
+;		ld	a,(song_order_loop)
+;		cp	b
+;		jr.	nc,process_key_patternbox_restart_END
+;		inc	a
+;		jr.	88b	
+;0:	
+;process_key_patternbox_restart_END:
+;	ret
+;
 
 
 ;===========================================================
@@ -239,53 +244,55 @@ process_key_patternbox_restart_END:
 ; 
 ; 
 ;===========================================================
-process_key_patternbox_length:
-
-	ld	a,(key)
-
-	;--- Check if edit is ended.
-	cp	_ENTER
-	jr.	z,44f
-	cp	_ESC
-	jr.	nz,0f
-44:		ld	a,0
-		ld	(editsubmode),a
-		call	restore_cursor
-		jr.	process_key_patternbox_length_END
-0:		
-	;--- Key_up - length down	
-	cp	_KEY_DOWN
-	jr.	z,44f
-	cp	_KEY_LEFT
-	jr.	nz,0f
-44:		ld	a,(song_order_len)
-		dec	a
-		jr.	z,process_key_patternbox_length_END
-88:		ld	(song_order_len),a
-		;--- make sure restart is nog bigger than length
-		ld	bc,(song_order_loop)
-		cp	c
-		jr.	nc,77f
-		ld	(song_order_loop ),a
-
-77:
-		call	build_order_list
-		call	update_patterneditor
-		jr.	process_key_patternbox_length_END	
-0:
-	;--- Key_down - length up	
-	cp	_KEY_UP
-	jr.	z,44f
-	cp	_KEY_RIGHT
-	jr.	nz,0f
-44:		ld	a,(song_order_len)
-		cp	SONG_SEQSIZE
-		jr.	nc,process_key_patternbox_length_END
-		inc	a
-		jr.	88b	
-0:	
-process_key_patternbox_length_END:
-	ret
+;process_key_patternbox_length:
+;
+;	ld	a,(key)
+;
+;	;--- Check if edit is ended.
+;	cp	_ENTER
+;	jr.	z,44f
+;	cp	_ESC
+;	jr.	nz,0f
+;44:		ld	a,0
+;		ld	(editsubmode),a
+;		call	restore_cursor
+;		jr.	process_key_patternbox_length_END
+;0:		
+;	;--- Key_up - length down	
+;	cp	_KEY_DOWN
+;	jr.	z,44f
+;	cp	_KEY_LEFT
+;	jr.	nz,0f
+;44:		ld	a,(song_order_len)
+;		dec	a
+;		jr.	z,process_key_patternbox_length_END
+;88:		ld	(song_order_len),a
+;		;--- make sure restart is nog bigger than length
+;		ld	bc,(song_order_loop)
+;		cp	c
+;		jr.	nc,77f
+;		ld	(song_order_loop ),a
+;
+;77:
+;		ld	a,(song_order_update)
+;		inc	a
+;		ld	(song_order_update),a
+;		call	update_patterneditor
+;		jr.	process_key_patternbox_length_END	
+;0:
+;	;--- Key_down - length up	
+;	cp	_KEY_UP
+;	jr.	z,44f
+;	cp	_KEY_RIGHT
+;	jr.	nz,0f
+;44:		ld	a,(song_order_len)
+;		cp	SONG_SEQSIZE
+;		jr.	nc,process_key_patternbox_length_END
+;		inc	a
+;		jr.	88b	
+;0:	
+;process_key_patternbox_length_END:
+;	ret
 
 
 ;===========================================================

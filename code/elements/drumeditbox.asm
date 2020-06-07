@@ -261,10 +261,10 @@ _udm_lineloop:
 	inc	hl	
 	bit	1,b				;- Cymbal
 	jr.	z,99f
-	ld	(hl),$0c
+	ld	(hl),$fd
 	jr.	88f
 99:	
-	ld	(hl),$Fd
+	ld	(hl),$0c
 88:
 	inc	hl	
 	bit	0,b				;- HiHat
@@ -575,12 +575,12 @@ process_key_drumeditbox:
 	ld	(hl),a	; Make the drum macro 1 step shorter
 	dec	a
 	ld 	(drum_line),a  ; go one line up
+	call	flush_cursor
 	ld	a,(cursor_y)   ; move cursor allong
 	dec	a
 	ld	(cursor_y),a	
 	
 	;--- update screen
-	call	flush_cursor
 	jr.	update_drumeditbox		
 	
 	;--- decrease len + remove line

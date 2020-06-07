@@ -1053,6 +1053,11 @@ _pktc_kright_loop:
 	and	a
 	jr.	nz,process_key_keyjazz
 	
+	;--- place notes in combination with CTRL
+	ld	a,(fkey)
+	cp	_KEY_CTRL
+	jr.	z,_process_key_trackbox_compact_END	
+
 
 	;===================
 	; INPUT is NOTES

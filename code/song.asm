@@ -60,6 +60,7 @@ clear_patterns:
 	ld	(tmp_cur_instrument),a
 	inc	a
 	ld	(song_cur_instrument),a
+	ld	(song_cur_drum),a
 
 	ld	(song_order_len),a
 	ld	(song_order_pos_old),a

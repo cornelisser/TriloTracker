@@ -11,10 +11,10 @@ draw_drumeditbox:
 	ld	de,(49*256) + 3
 	call	draw_box
 	
-;	; box around macro lines
-;	ld	hl,(80*9)+0
-;	ld	de,(31*256) + 17
-;	call	draw_box	
+	; box around macro lines
+	ld	hl,(80*9)+0
+	ld	de,(34*256) + 17
+	call	draw_box	
 ;	
 ;	;box around waveform
 ;	ld	hl,(80*9)+32
@@ -135,7 +135,7 @@ draw_drumeditbox:
 _LABEL_DRUMBOX:
 	db	"Drummacro edit:",0
 _LABEL_DRUMMACRO:
-	db	"Macro:         B     H S     T C",0
+	db	"Macro:",$81,$81,$81,$81,$81,$81,$81,$81,$81,"B",$81,$81,$81,$81,$81,"H",$81,"S",$81,$81,$81,$81,$81,"T",$81,"C",0
 
 _LABEL_DRUMTEXT:
 	db	"Drm: Len:           Description:     Oct:",0
@@ -237,42 +237,42 @@ _udm_lineloop:
 	ex	de,hl
 	bit	4,b				;- Basedrum bit
 	jr.	z,99f
-	ld	(hl),"B"
+	ld	(hl),$FA
 	jr.	88f
 99:	
-	ld	(hl),"."
+	ld	(hl),$0B
 88:
 	inc	hl
 	bit	3,b				;- Snare bit
 	jr.	z,99f
-	ld	(hl),"S"
+	ld	(hl),$FB
 	jr.	88f
 99:	
-	ld	(hl),"."
+	ld	(hl),$1c
 88:
 	inc	hl	
 	bit	2,b				;- TomTom
 	jr.	z,99f
-	ld	(hl),"T"
+	ld	(hl),$FC
 	jr.	88f
 99:	
-	ld	(hl),"."
+	ld	(hl),$1d
 88:
 	inc	hl	
 	bit	1,b				;- Cymbal
 	jr.	z,99f
-	ld	(hl),"C"
+	ld	(hl),$FD
 	jr.	88f
 99:	
-	ld	(hl),"."
+	ld	(hl),$FC
 88:
 	inc	hl	
 	bit	0,b				;- HiHat
 	jr.	z,99f
-	ld	(hl),"H"
+	ld	(hl),$94
 	jr.	88f
 99:	
-	ld	(hl),"."
+	ld	(hl),$11
 88:
 	ex	de,hl
 	inc	de
@@ -302,9 +302,9 @@ _udm_lineloop:
 
 	;--- Macro info
 	
-	ld	de,_LABEL_DRUMTEXT2+2
+	ld	de,_LABEL_DRUMTEXT2+1
 	ld	a,(song_cur_drum)
-	call	draw_fake_hex_sp
+	call	draw_hex2
 
 	ld	de,_LABEL_DRUMTEXT2+5+1
 	ld	a,(drum_len)

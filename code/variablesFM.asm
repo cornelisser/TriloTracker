@@ -75,8 +75,8 @@ song_speed			#1
 ;Instrument/Macro:	
 song_active_instrument	#1	; -> 	instrument in instrument selection
 					;	and is added to the note
-song_cur_drum		#0
 song_cur_instrument	#1
+song_cur_drum		#1
 song_instrument_offset	#1
 song_empty_string		#16
 song_instrument_list	#16*31

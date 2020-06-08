@@ -161,6 +161,21 @@ vsf:		#1	; vdp type for correct playback on 60hz
 cnt:		#1	; tic timer for correct playback on 60hz
 equalization_flag:	#1	; flag indicating if only instruments need to be processed.
 
+
+_KEYJAZZ_LINE:#4;db	0,0,0,0
+_KJ_PSG:	#4;db	0,0,0,0
+_KJ_PSG2:	#4;db	0,0,0,0
+_KJ_SCC:	#2;db	0,0
+_KJ_DRM1:	#4;db	0,0
+		  ;db	0,0
+_KJ_DRM2:	#14;db	0,0
+		  ;db	0,0,0,0
+		  ;db	0,0,0,0
+		  ;db	0,0,0,0
+
+
+
+
 MainMixer:				#1
 mainPSGvol:				#1
 mainSCCvol:				#1
@@ -270,6 +285,7 @@ selection_x2:		#1
 selection_type2:		#1
 selection_column2:	#1
 selection_status:		#1
+copy_transparent:		#1
 
 tmp_cur_instrument:	#1		; local copy of the current instrument.
 						; be sure to copy this when switching songs.

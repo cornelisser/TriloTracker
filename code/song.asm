@@ -8,7 +8,6 @@
 new_song:
 clear_patterns:
 	; --- Clear the patterndata
-	
 	;xor	a
 	ld	a,(max_pattern)
 4:
@@ -60,8 +59,10 @@ clear_patterns:
 	ld	(tmp_cur_instrument),a
 	inc	a
 	ld	(song_cur_instrument),a
+IFDEF TTSCC
+ELSE
 	ld	(song_cur_drum),a
-
+ENDIF
 	ld	(song_order_len),a
 	ld	(song_order_pos_old),a
 

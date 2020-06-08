@@ -99,27 +99,12 @@ _dpe_lineloop:
 	ld	(_dpe_step_count),a
 	ld	a,_VERTICAL_STEP
 	ld	(_dpe_step_char),a
-	ld	(_dpe_step_char26),a	
-	ld	(_dpe_step_char35),a	
-	
 	jr.	77f	
 	;--- no step indicator
 88:	
 	ld	a,_VERTICAL_SMALL
-	ld	(_dpe_step_char),a
-	ld	a,(replay_chan_setup)
-	and	1
-	jp	nz,66f
-	ld	a,_VERTICAL_SMALL
-	ld	(_dpe_step_char35),a
-	dec	a
-	ld	(_dpe_step_char26),a	
-	jp	77f
-66:
-	ld	a,_VERTICAL_SMALL
-	ld	(_dpe_step_char26),a
-	dec	a
-	ld	(_dpe_step_char35),a		
+	ld	(_dpe_step_char),a	
+	
 77:	
 	; each line
 	ld	de,_LABEL_PATLINE
@@ -162,11 +147,11 @@ _dpe_emptyline:
 	ld	(de),a
 	inc	de		; skip the '|'
 	call	draw_channel
-	ld	a,(_dpe_step_char26)
+	ld	a,(_dpe_step_char)
 	ld	(de),a
-	inc	de		; skip the '|'
+	inc	de		; skip the '|'	
 	call	draw_channel
-	ld	a,(_dpe_step_char35)
+	ld	a,_VERTICAL_DOUBLE
 	ld	(de),a
 	inc	de		; skip the '|'
 	call	draw_channel
@@ -268,16 +253,6 @@ _dpe_emptyline:
 
 	ret
 	
-_dpe_step:		ds 1
-_dpe_step_count:	ds 1
-_dpe_step_char:		ds 1
-_dpe_step_char26:		db "x"		; divider for 2-6 chan setup 
-_dpe_step_char35:		db "o"		; divider for 3-5 chan setup
-_dpe_pntpos:		ds 2
-_dpe_patlen:		ds 1
-
-_LABEL_PATLINE:
-	db	"XX          ",135,"        ",135,"        ",135,"        ",135,"        ",135,"        ",135,"        ",135,"           XX",0
 
 
 	
@@ -589,11 +564,76 @@ process_key_trackbox_compact:
 	cp	_CTRL_G
 	jr.	nz,0f
 
+	;--- copy current pattern onto the buffer
 	ld	a,(song_pattern)
-	call	copy_to_empty_pattern
+	ld	b,a
+	call	set_patternpage
+	ld	de,buffer
+	ld	bc,SONG_PATSIZE
+	ldir
 	
+	;--- search for the next available free pattern
+	ld	b,0
+_pkt_gloop:
+	push	bc
+	call	set_patternpage
+	pop	bc
+	
+	ld	de,SONG_PATSIZE
+_pkt_gloop1:
+	ld	a,(hl)
+	cp	0
+	jr.	nz,_pkt_gloop_not_empty
+	inc	hl
+	dec	de
+	ld	a,d
+	cp	e
+	jr.	nz,_pkt_gloop1
+	and	a
+	jr.	nz,_pkt_gloop1
+		
+	;--- found an empty pattern!
+	push	bc
+;	ld	a,(current_song)
+	call	set_songpage
+	pop	bc
+	ld	a,b
+	ld	(song_pattern),a
+
+	call	set_patternpage
+	push	hl
+	ld	de,buffer
+	ex	de,hl
+
+	ld 	bc,SONG_PATSIZE
+	ldir
+
+	;-- clear buffer for edit log dif check
+	ld	hl,buffer
+	ld	de,buffer+1
+	ld	(hl),0
+	ld	bc,SONG_PATSIZE-1
+	ldir
+	
+	pop	hl
+	call	store_log_block
+
+
 	call	reset_cursor_trackbox
 	jr.	update_patternbox
+	
+_pkt_gloop_not_empty:
+	inc	b
+;	ld	a,b
+	;-- did we process all patterns
+;	cp	SONG_MAXPAT
+	ld	a,(max_pattern)
+	cp	b
+	ld	a,b
+	jr.	nc,_pkt_gloop
+;	ld	a,(current_song)
+	jr.	set_songpage	
+	
 
 
 
@@ -609,18 +649,9 @@ process_key_trackbox_compact:
 	;--- copy selection into copy buffer 
 	cp	_CTRL_V
 	jr.	nz,0f
-	
-	ld	a,(skey)  ; Check if 
-	cp	1
-	jp	nz,99f	 
-	ld	a,1
-	ld	(copy_transparent),a
-99:			
 	; copy to buffer
 	call	copy_to_pattern
 	call	update_trackbox
-	xor	a
-	ld	(copy_transparent),a
 	jr.	_process_key_trackbox_compact_END
 0:
 	;--- copy selection into copy buffer and clear selection 
@@ -659,6 +690,8 @@ process_key_trackbox_compact:
 	call	set_songpage	
 	
 	ld	a,(song_pattern_line)		; current editline	
+;	cp	63
+;	jr.	z,_process_key_trackbox_compact_END
 	push	af
 	call	get_chanrecord_location		; get the start pos in HL
 	ld	a,h					; het the next row in DE	
@@ -674,6 +707,7 @@ process_key_trackbox_compact:
 	ld	b,a
 	ld	a,63					
 	sub	b					; a = rows till end
+	jr.	z,33f
 _pktc_bckspc_loop:
 	; copy the 4 bytes
 	ldi	
@@ -689,7 +723,7 @@ _pktc_bckspc_loop:
 	
 	dec	a
 	jr.	nz,_pktc_bckspc_loop
-	
+33:	
 	;--- clear the last row
 	ld b,4
 	xor	a
@@ -1060,7 +1094,8 @@ _pktc_kright_loop:
 99:	
 	;- Note under this keys?
 	cp	48			
-	jr.	nc,_process_key_trackbox_compact_END		
+	jr.	nc,_process_key_trackbox_compact_END	
+	
 	;--- Get the note value of the key pressed
 	ld	hl,_KEY_NOTE_TABLE
 	add	a,l
@@ -1527,8 +1562,6 @@ _process_key_trackbox_compact_END_sound:
 	ld	a,(_CONFIG_AUDIT)
 	and	a
 	ret	z
-
-
 	;--- sound the pattern line
 	call	replay_init
 ;	ld	a,(song_pattern)
@@ -1565,7 +1598,7 @@ _process_key_trackbox_compact_END_sound:
 	
 	ld	a,(_CONFIG_DEBUG)
 	and	a
-	jr.	z,88b	
+	jr.	z,88b
 	
 	call	draw_PSGdebug
 	call	draw_SCCdebug
@@ -1684,79 +1717,6 @@ _auto_increment_END:
 	pop	af
 	ret
 
-;==================================================
-;--- Copies the pattern in a into an empty pattern. 
-;    in [A] the pattern to copy.
-;==================================================
-copy_to_empty_pattern:
-	;--- copy pattern onto the buffer
-	ld	b,a
-	call	set_patternpage
-	ld	de,buffer
-	ld	bc,SONG_PATSIZE
-	ldir
-	
-	;--- search for the next available free pattern
-	ld	b,0
-_pkt_gloop:
-	push	bc
-	call	set_patternpage
-	pop	bc
-	
-	ld	de,SONG_PATSIZE
-_pkt_gloop1:
-	ld	a,(hl)
-	cp	0
-	jr.	nz,_pkt_gloop_not_empty
-	inc	hl
-	dec	de
-	ld	a,d
-	cp	e
-	jr.	nz,_pkt_gloop1
-	and	a
-	jr.	nz,_pkt_gloop1
-		
-	;--- found an empty pattern!
-	push	bc
-;	ld	a,(current_song)
-	call	set_songpage
-	pop	bc
-	ld	a,b
-	ld	(song_pattern),a
-
-	call	set_patternpage
-	push	hl
-	ld	de,buffer
-	ex	de,hl
-
-	ld 	bc,SONG_PATSIZE
-	ldir
-
-	;-- clear buffer for edit log dif check
-	ld	hl,buffer
-	ld	de,buffer+1
-	ld	(hl),0
-	ld	bc,SONG_PATSIZE-1
-	ldir
-	
-	pop	hl
-	call	store_log_block
-	ret
-	
-_pkt_gloop_not_empty:
-	inc	b
-;	ld	a,b
-	;-- did we process all patterns
-;	cp	SONG_MAXPAT
-	ld	a,(max_pattern)
-	cp	b
-	ld	a,b
-	jr.	nc,_pkt_gloop
-;	ld	a,(current_song)
-	jr.	set_songpage	
-	
-
-
 ;===========================================================
 ; --- reset_cursor_trackbox
 ;
@@ -1784,63 +1744,3 @@ reset_cursor_trackbox:
 	ret
 
 
-	db	255	;end
-_COLTAB_COMPACT:
-	;chan 1
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 2
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 3
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 4
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 5
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 6
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 7
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5,2	; 5= y
-	;chan 8
-	db	0,3	; 0= note
-	db	1,1	; 1= sample
-	db	2,1	; 2= volume
-	db	3,1	; 3= command
-	db	4,1	; 4= x
-	db	5	; 5= y
-	db	255
-	

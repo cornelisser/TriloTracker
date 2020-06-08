@@ -116,7 +116,7 @@ _LABEL_PATTERNHEADER:
 	db	136,162,163,168,185,188,189,186,187	; scc5
 	db	136,32,32,32,0
 	include	".\code\elements\trackbox.asm"
-	include	".\code\elements\trackboxRAM.asm"
+;	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"

@@ -800,6 +800,8 @@ ENDIF
 	;--- Add more actions here	
 	
 
+IFDEF TTSCC
+ELSE
 
 _ipfd_LOAD_VOI:
 	;-- Only if current voice is custom
@@ -821,8 +823,7 @@ _ipfd_LOAD_VOISET:
 _ipfd_SAVE_VOISET:
 	jr.	restore_insfiledialog
 
-IFDEF TTSCC
-ELSE
+
 _ipfd_SAVE_VOI:
 	;-- Only if current voice is custom
 	ld	a,(instrument_waveform)
@@ -835,8 +836,6 @@ _ipfd_SAVE_VOI:
 	call	save_vofile		; hl needs to point to the filename 
 	jr.	restore_insfiledialog
 ENDIF
-
-
 
 
 	

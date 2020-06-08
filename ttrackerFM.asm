@@ -115,7 +115,7 @@ _LABEL_PATTERNHEADER:
 	db	136,170,171,168,185,188,189,186,187	; scc5
 	db	136,170,171,169,185,188,189,186,187	; fm6
 	db	136,151,152,153,154,0
-	include	".\code\elements\trackboxFM.asm"
+	include	".\code\elements\trackbox.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
@@ -124,7 +124,7 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\psgsampleboxFM.asm"
 
 	include 	".\code\elements\voicemanagerRAM.asm"
-	include 	".\code\elements\keyjazzFM.asm"
+	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	

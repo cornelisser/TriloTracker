@@ -206,7 +206,9 @@ ENDIF
 	
 	
 _ns_TEMP:
-	db	"TriloTracker ",VERSION
-	db	"Richard Cornelisse      (c) ",YEAR
+	db	"                                "
+;	db	"TriloTracker ",VERSION
+	db	"                                "
+;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:
 	db	"<no instrument> "

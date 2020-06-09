@@ -370,12 +370,12 @@ _ppp_instruments:
 
 0:	
 
-	call	check_channel_soloplay
+
 	call	check_channel_mute
-	
 	;--- Check here the other combinations	
 _noCTRL:	; when no CTRL was pressed
-
+	call	check_channel_soloplay
+	
 	;--- Check here the skey's
 	ld	a,(skey)
 	cp	2		;HOME

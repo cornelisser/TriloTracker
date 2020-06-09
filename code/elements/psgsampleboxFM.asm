@@ -2068,7 +2068,7 @@ ENDIF
 ;===========================================================
 ; --- get_psgsample_location:
 ;
-; returns in hl the start ofthe current sampel line.
+; returns in hl the start ofthe current sample line.
 ; Changes: A, HL and BC
 ;===========================================================
 get_psgsample_location:

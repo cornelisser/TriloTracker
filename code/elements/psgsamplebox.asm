@@ -551,7 +551,7 @@ _upsb_add:
 	cp	c
 	ret	c
 
-	ld	a,16
+	ld	a,15
 	cp	b
 	jr.	nc,_upsb_loop
 
@@ -561,74 +561,76 @@ _upsb_add:
 ; in: [A] is the line to move down/delete
 ;
 ; need to preserve [A]
-_move_macrolinedown:
-	push	af
-	;-- set hl to start macro data of current instrument
-	call	_get_instrument_start
-	dec	hl
-	dec 	hl
-	;-- jump to line ( input)
-	pop	bc
-	push	bc
-	inc	b
-	ld	de,4
-.loop:
-	add	hl,de
-	djnz	.loop
-
-	;--- copy the data to next line
-	ld	d,h	
-	ld	e,l
-	ld	a,4
-	add	a,l
-	ld	l,a
-	jr.	nc,.skip
-	inc	h
-.skip:
-	ldi
-	ldi
-	ldi
-	ldi
-	
-	;--- restore and return 	
-	pop	af
-	ret
+;_move_macrolinedown:
+;	push	af
+;	;-- set hl to start macro data of current instrument
+;	call	_get_instrument_start
+;	dec	hl
+;	dec 	hl
+;	;-- jump to line ( input)
+;	pop	bc
+;	push	bc
+;	inc	b
+;	ld	de,4
+;.loop:
+;	add	hl,de
+;	djnz	.loop
+;
+;	;--- copy the data to next line
+;	ld	d,h	
+;	ld	e,l
+;	ld	a,4
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,.skip
+;	inc	h
+;.skip:
+;	ldi
+;	ldi
+;	ldi
+;	ldi
+;	
+;	;--- restore and return 	
+;	pop	af
+;	ret
 	
 ;--- Move macro data 1 line up (insert row)
 ; in: [A] is the line to move up
 ;
 ; need to preserve [A]
-_move_macrolineup:
-	ex	af,af'
-	;-- set hl to start macro data of current instrument
-	call	_get_instrument_start
-;	dec	hl
-;	dec 	hl
-	;-- jump to line ( input)
-	ex	af,af
-	add	a	; x2
-	add	a	; x4
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	;--- copy the data to next line
-	ld	d,h	
-	ld	e,l
-	ld	a,4
-	add	a,e
-	ld	e,a
-	jr.	nc,.skip
-	inc	d
-.skip:
-	ldi
-	ldi
-	ldi
-	ldi
-	;--- restore and return 	
-	pop	af
-	ret
+;_move_macrolineup:
+;	ex	af,af'
+;	;-- set hl to start macro data of current instrument
+;	call	_get_instrument_start
+;;	dec	hl
+;;	dec 	hl
+;	  
+;	;-- jump to line ( input)
+;	ex	af,af
+;	add	a	; x2
+;	add	a	; x4
+;	add	a,l
+;	ld	l,a
+;	jp	nc,99f
+;	inc	h
+;99:
+; 
+;	;--- copy the data to next line
+;	ld	d,h	
+;	ld	e,l
+;	ld	a,4
+;	add	a,e
+;	ld	e,a
+;	jr.	nc,.skip
+;	inc	d
+;.skip:
+;	ldi
+;	ldi
+;	ldi
+;	ldi
+;	;--- restore and return 	
+;	pop	af
+;	ret
 	
 	
 
@@ -678,23 +680,43 @@ process_key_psgsamplebox:
 	;inc	hl
 	ld	a,(hl)
 	cp	32
-	jp	nc,99f
+	jr.	nc,99f
 	inc	a
 	ld	(hl),a
 	ld	(instrument_len),a
 99:
 	;--- move data 1 line down
+	ld	de,(30*4)+3+3		
+	add	hl,de
+	ld	d,h
+	ld	e,l
+	inc	de
+	inc	de
+	inc	de 
+	inc	de
+	
 	ld	a,(instrument_line)
-	ld	ixh,a
-	ld	a,30		; start from end to current line
-.line_loop:
-	call	_move_macrolineup
-	and	a
-	jp	z,88f
-	dec	a
-	cp	ixh
-	jr.	nc,.line_loop
-88:	
+	ld	b,a
+	ld	a,31
+	sub	a,b
+	add	a	;x2
+	add	a	;x4
+	ld	c,a
+	ld	b,0
+	
+	lddr
+;	
+;	ld	a,(instrument_line)
+;	ld	ixh,a
+;	ld	a,30		; start from end to current line
+;.line_loop:
+;	call	_move_macrolineup
+;	and	a
+;	jr.	z,88f
+;	dec	a
+;	cp	ixh
+;	jr.	nc,.line_loop
+;88:	
 	call	update_psgsamplebox
 	jr.	process_key_psgsamplebox_END	
 
@@ -723,9 +745,9 @@ process_key_psgsamplebox:
 	ld	b,a
 	ld	a,(hl)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	cp	b
-	jp	c,99f
+	jr.	c,99f
 	dec	(hl)
 99:	
 	;--- update screen
@@ -745,7 +767,7 @@ process_key_psgsamplebox:
 	;inc	hl
 	ld	a,(hl)
 	cp	1
-	jp	z,99f
+	jr.	z,99f
 	dec	a
 	ld	(hl),a
 	ld	(instrument_len),a
@@ -756,20 +778,60 @@ process_key_psgsamplebox:
 	inc	hl
 	ld	a,(hl)
 	cp	b
-	jp	c,99f
+	jr.	c,99f
 	dec	b
 	ld	(hl),b
 99:
-	;--- move data 1 line down
+	inc	hl	; set HL to start of first line of data
+	inc	hl
+	;-- Get address of current line
 	ld	a,(instrument_line)
-;	ld	ixh,a
-;	ld	a,30		; start from end to current line
-.line_loopdel:
-	call	_move_macrolinedown
-	inc	a
+	    
+										    
+	  
+				 
+	
 	cp	31
-	jp	z,88f
-	jr.	.line_loopdel
+	jp	nc,88f
+	add	a	;x2
+	add	a	;x4
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc 	h
+99:
+	ld	d,h	; store in DE
+	ld	e,l
+	
+	inc	hl	; point hl to next line
+	inc	hl	
+	inc	hl
+	inc	hl
+	
+	;calculate how many bytes to move here.
+	ld	a,(instrument_line)
+	ld	b,a
+	ld	a,31
+	sub	b
+	add	a
+	add	a
+	ld	c,a
+	ld	b,0
+	
+	ldir
+	
+;	
+;
+;	;--- move data 1 line down
+;	ld	a,(instrument_line)
+;;	ld	ixh,a
+;;	ld	a,30		; start from end to current line
+;.line_loopdel:
+;	call	_move_macrolinedown
+;	inc	a
+;	cp	31
+;	jr.	z,88f
+;	jr.	.line_loopdel
 88:	
 	call	update_psgsamplebox
 	jr.	process_key_psgsamplebox_END	

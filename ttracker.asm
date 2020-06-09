@@ -68,10 +68,6 @@ MAIN:
 	
 99:
 
-	
-	ld	a,WIN_CFGSAV
-	call	window
-
 	;--- should we load default instruments?
 	ld	a,(_CONFIG_INS)
 	and	a

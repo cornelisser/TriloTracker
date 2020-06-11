@@ -552,7 +552,7 @@ check_channel_soloplay:
 	and	a
 	jp	z,.enableAll
 22:
-	or	100000b
+	ld	a,100000b
 	ld	(DrumMixer),a
 	xor	a
 	ld	(MainMixer),a

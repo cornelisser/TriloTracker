@@ -631,15 +631,14 @@ process_key_trackbox_compact:
 	
 	ld	a,(skey)  ; Check if 
 	cp	1
+	ld	a,0
 	jp	nz,99f	 
 	ld	a,1
-	ld	(copy_transparent),a
-99:			
+99:	
+	ld	(copy_transparent),a		
 	; copy to buffer
 	call	copy_to_pattern
 	call	update_trackbox
-	xor	a
-	ld	(copy_transparent),a
 	jr.	_process_key_trackbox_compact_END
 0:
 	;--- copy selection into copy buffer and clear selection 

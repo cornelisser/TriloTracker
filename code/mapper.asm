@@ -4,7 +4,7 @@
 ; Sets the song page in bank 2. This contains songs vars
 ; (not pattern data)
 ;
-; Input: A contains the song name
+; 
 ;===========================================================
 set_songpage:
 	ld	a,(song_list)
@@ -40,7 +40,7 @@ set_songpage_safe:
 ; Sets the song pattern in bank 2. In hl the start is returned
 ; 
 ;
-; Input: b contains the patternname
+; Input: b contains the patternnumber
 ;
 ; Changed af,de,hl
 ;===========================================================

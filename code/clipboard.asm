@@ -440,6 +440,8 @@ copy_to_pattern:
 	ld	c,a				; store # rows in c
 _ctp_row_loop:
 		push	de
+		ld	a,(clipb_column_start)
+		ld	iyl,a			; store input type for transparent copy
 		ld	a,(clipb_bytes)
 		ld	b,a			; store the # of bytes to copy
 
@@ -451,6 +453,7 @@ _ctp_row_loop:
 		jr.	55f
 		
 _ctp_byte_loop:
+		call	_ctp_next_inputtype	; Set the next type to copy
 		call	_ctp_store_value
 		call	_ctp_pattern_end
 		djnz	_ctp_byte_loop
@@ -481,6 +484,28 @@ _ctp_byte_loop:
 		
 	ret	
 	
+	
+_ctp_next_inputtype:
+	ld	a,iyl
+	inc	a
+	cp	3		; command is already copied -> set 4 Xy
+	jp	nz,99f
+	inc	a
+	jp	0f
+99:
+	cp	5		; y is already copied -> set 0 note
+	jp	nz,99f
+	inc	a
+	jp	0f
+99:
+
+0:	ld	iyl,a
+	ret
+	
+	
+	
+	
+	
 ;----------------
 ; _ctp_pattern_end
 ; sets b and c to 0 if the end of pattern is reached.
@@ -503,6 +528,8 @@ _ctp_pattern_end:
 ; 
 ; Input: 	HL = source
 ; 		DE = destination
+;		B = number of bytes to copy
+;		IYH = input type
 ;
 ; Output:	HL++
 ;		DE++
@@ -551,6 +578,7 @@ _ctp_store_single_value:
 	push	bc
 
 	ld	a,(clipb_column_start)
+	ld	iyl,a		; used by _ctpssv_byte
 	cp	2			
 	jr.	c,_ctpssv_byte	; 0 (note) and 1(instr) are full bytes
 	jr.	z,_ctpssv_high	; 1 (volume) 	
@@ -565,8 +593,9 @@ _ctpssv_low:
 	and	a
 	jp	z,0f	
 ;	ld	a,(de)		; don't overwrite destination 	
+;	and	$f0
 	ld	a,(hl)		; don't overwrite with empty		
-	and	$f0
+	and	$0f
 ;	jr.	nz,_ctpssv_end	; don't overwrite destination
 	jr.	z,_ctpssv_end	; ; don't overwrite with empty
 0:	
@@ -584,8 +613,9 @@ _ctpssv_high:
 	and	a
 	jp	z,0f	
 ;	ld	a,(de)		; don't overwrite destination 
+;	and	$0f
 	ld	a,(hl)		; don't overwrite with empty	
-	and	$0f
+	and	$f0
 ;	jr.	nz,_ctpssv_end	; don't overwrite destination
 	jr.	z,_ctpssv_end	; ; don't overwrite with empty
 0:
@@ -602,6 +632,10 @@ _ctpssv_byte:
 	ld	a,(copy_transparent)
 	and	a
 	jp	z,0f	
+	ld	a,iyl
+	cp	2
+	jp	z,_ctpssv_hilo
+	
 ;	ld	a,(de)		; don't overwrite destination 
 	ld	a,(hl)		; don't overwrite with empty	
 	and	a
@@ -612,7 +646,27 @@ _ctpssv_byte:
 	ld	(de),a
 	jr.	_ctpssv_end
 
-
+;-- transparent copy volume and effect 
+_ctpssv_hilo:
+	ld	a,(hl)
+	and	0xf0	
+	jp	z,1f	; is there a value
+	ld	b,a
+	ld	a,(de)
+	and	0x0f
+	or	b
+	ld	(de),a
+1:
+	ld	a,(hl)
+	and	0x0f	
+	jp	z,1f	; is there a value
+	ld	b,a
+	ld	a,(de)
+	and	0xf0
+	or	b
+	ld	(de),a
+1:
+	; continue below
 _ctpssv_end
 	pop	bc
 	inc	hl

@@ -453,8 +453,8 @@ _ctp_row_loop:
 		jr.	55f
 		
 _ctp_byte_loop:
-		call	_ctp_next_inputtype	; Set the next type to copy
 		call	_ctp_store_value
+		call	_ctp_next_inputtype	; Set the next type to copy
 		call	_ctp_pattern_end
 		djnz	_ctp_byte_loop
 

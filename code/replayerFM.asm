@@ -2866,16 +2866,19 @@ ENDIF
 _noEnv:
 	or	(ix+CHIP_Volume)
 	ld	c,a
+	
+		; This part is only for tremolo
+	
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	
-	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	c,_sub_Vadd
-_add_Vadd:
-	add	a,c
-	jr.	nc,_Vadd
-	ld	a,c
-	or	0xf0
-	jr.	_Vadd
-_sub_Vadd:
+;	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
+;	jr.	c,_sub_Vadd
+;_add_Vadd:
+;	add	a,c
+;	jr.	nc,_Vadd
+;	ld	a,c
+;	or	0xf0
+;	jr.	_Vadd
+;_sub_Vadd:
 	ld	b,a
 ;	xor	a
 ;	sub	b
@@ -3325,6 +3328,7 @@ _pcAY_cmd7:
 	sla	a
 	sla	a	
 	sla	a	
+	sla	a
 ;	jp	z,.zero			; $ff00 gives strange result ;)
 ;	or 	128				; set the neg bit
 ;.zero:

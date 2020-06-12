@@ -1146,7 +1146,6 @@ _CHIPcmd7_tremelo:
 	cp	$10
 	jp	c,_CHIPcmd_end
 	
-	
 _CHIPcmd4_vibrato:
 	; in:	[A] contains the paramvalue
 	; 
@@ -1155,9 +1154,6 @@ _CHIPcmd4_vibrato:
 	; Vibrato with speed x and depth y.	This command 
 	; will oscillate the frequency of the current note
 	; with a sine wave.
-								   
-							
-
 	;--- Init values
 	and	a
 	jr.	z,_CHIPcmd_end  ; <--- make this end effect
@@ -1168,12 +1164,6 @@ _CHIPcmd4_vibrato:
 	ld	e,a
 	
 	;--- Set the speed
-	    
-	 
-    
-    
-    
-    
 	and	$0f
 	jp	z,.depth 	; 0 -> no speed update
 ;	inc	a
@@ -2121,16 +2111,19 @@ _pcAY_noNoise:
 _noEnv:
 	or	(ix+TRACK_Volume)
 	ld	c,a
+	
+	; This part is only for tremolo
+	
 	ld	a,(IX+TRACK_cmd_VolumeAdd)	
-	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jp	c,_sub_Vadd
-_add_Vadd:
-	add	a,c
-	jp	nc,_Vadd
-	ld	a,c
-	or	0xf0
-	jp	_Vadd
-_sub_Vadd:
+;	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
+;	jp	c,_sub_Vadd
+;_add_Vadd:
+;	add	a,c
+;	jp	nc,_Vadd
+;	ld	a,c
+;	or	0xf0
+;	jp	_Vadd
+;_sub_Vadd:
 	ld	b,a
 ;	xor	a
 ;	sub	b
@@ -2350,8 +2343,6 @@ _pcAY_cmd4:
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0
 	jp	_pcAY_commandEND	
-		
-
 
 _pcAY_cmd5:
 	call	_pcAY_cmdasub
@@ -2443,7 +2434,8 @@ _pcAY_cmd7:
 	ld	a,(hl)
 	sla	a
 	sla	a	
-	sla	a	
+	sla	a
+	sla	a
 ;	jp	z,.zero			; $ff00 gives strange result ;)
 ;	or 	128				; set the neg bit
 ;.zero:

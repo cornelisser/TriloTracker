@@ -14,13 +14,17 @@ replay_speed_timer 		db 0 			; counter for speed
 replay_mode 			db 0			; Replayer status
 ; mode 0  = no sound output
 ; mode 1  = replay song 
+; mode 2  = instrument key jazz
+; mode 4  = pattern keyjazz
+; mode 5  = replay song step based  
+
 
 replay_patpointer 		dw 0			; pointer to the data
 replay_patpage 			db 0 			; the current page
 replay_previous_note		db 0			; previousnote played
 replay_mainvol			db 0			; the volume correction.
 
-replay_vib_table			dw 0			; pointer to the vibrato table
+;replay_vib_table			dw 0			; pointer to the vibrato table
 replay_Tonetable			dw TRACK_ToneTable
 
 replay_morph_active		db 0			; flag to indicate morphing is active
@@ -34,6 +38,7 @@ replay_morph_waveform		db 0 			; waveform we are morphin to.
 
 TRACK_Instrument		equ 0	
 TRACK_Waveform		equ 1
+
 TRACK_Command		equ 2
 TRACK_MacroPointer	equ 3	
 TRACK_Note			equ 5	
@@ -62,19 +67,19 @@ TRACK_cmd_1			equ 20
 TRACK_cmd_2			equ 21
 TRACK_cmd_3			equ 22
 TRACK_cmd_4_depth		equ 23
-TRACK_cmd_4_step		equ 24
+TRACK_cmd_4_step		equ 25
 ;TRACK_cmd_6			equ 26
-TRACK_cmd_detune		equ 25
+TRACK_cmd_detune		equ 26
 
-TRACK_cmd_9			equ 27
-TRACK_cmd_A			equ 28		
-TRACK_cmd_B			equ 29		
-TRACK_cmd_E			equ 30
-;TRACK_cmd_F			equ 31
-TRACK_Timer			equ 31		; used for timing by all cmd's
-TRACK_Step			equ 32		; only for VIBRATO???
+TRACK_cmd_9			equ 28
+TRACK_cmd_A			equ 29		
+TRACK_cmd_B			equ 30		
+TRACK_cmd_E			equ 31
+;TRACK_cmd_F		equ 31
+TRACK_Timer			equ 32		; used for timing by all cmd's
+TRACK_Step			equ 33		; only for VIBRATO???
 
-TRACK_REC_SIZE		equ 33
+TRACK_REC_SIZE		equ 34
 
 TRACK_Chan1			ds	TRACK_REC_SIZE
 TRACK_Chan2			ds	TRACK_REC_SIZE

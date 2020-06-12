@@ -27,6 +27,15 @@ replay_mainvol			db 0			; the volume correction.
 ;replay_vib_table:			dw 0			; pointer to the vibrato table
 replay_Tonetable:			dw CHIP_ToneTable
 
+
+
+
+
+
+
+
+
+
 CHIP_Instrument		equ 0	
 CHIP_Voice			equ 1
 CHIP_Waveform		equ 1

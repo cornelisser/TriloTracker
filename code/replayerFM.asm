@@ -1999,31 +1999,31 @@ _CHIPcmdE_trackdetune:
 	ret
 	
 _CHIPcmdE_transpose:
-	;res	3,(ix+CHIP_Flags)		; command in-active
-
-IFDEF TT
-	ld	a,d
-	add	a
-	ld	hl,CHIP_ToneTable;(replay_Tonetable)
-	; This comment sets the	detune of the track.
-	and	15		; low	4 bits is value
-	bit	3,d		; Center around 8
-	ld	d,0
-	ld	e,a
-
-	jr.	z,99f
-
-;neg	
-	xor	a
-	sbc	hl,de
-	ld	(replay_Tonetable),hl
-
-	ret
-; pos
-99:	
-	add	hl,de
-	ld	(replay_Tonetable),hl
-ENDIF	
+;	;res	3,(ix+CHIP_Flags)		; command in-active
+;
+;IFDEF TT
+;	ld	a,d
+;	add	a
+;	ld	hl,CHIP_ToneTable;(replay_Tonetable)
+;	; This comment sets the	detune of the track.
+;	and	15		; low	4 bits is value
+;	bit	3,d		; Center around 8
+;	ld	d,0
+;	ld	e,a
+;
+;	jr.	z,99f
+;
+;;neg	
+;	xor	a
+;	sbc	hl,de
+;	ld	(replay_Tonetable),hl
+;
+;	ret
+;; pos
+;99:	
+;	add	hl,de
+;	ld	(replay_Tonetable),hl
+;ENDIF	
 	ret
 
 _CHIPcmdE_envelope:
@@ -2689,7 +2689,6 @@ _pcAY_Tminus:
 	jr.	nz,pcAY_FMinstr
 	
 	ex	de,hl				; store macro deviation	in [DE]
-
 	ex	af,af'			;' get note	offset
 	ld	sp,(replay_Tonetable)	;CHIP_ToneTable-2	; -2 as note 0 is	no note
 	ld	l,a

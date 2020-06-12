@@ -246,6 +246,9 @@ replay_decodedata:
 	;--- process thechannels (tracks)
 	;xor	a
 	;ld	(AY_regMIXER),a	;set mixer to silence
+	;--- Set the tone table base
+	ld	hl,TRACK_ToneTable
+	ld	(replay_Tonetable),hl
 	
 	ld	ix,TRACK_Chan1
 	call	replay_decode_chan
@@ -1726,28 +1729,28 @@ _CHIPcmdE_trackdetune:
 	ret
 	
 _CHIPcmdE_transpose:
-	res	3,(ix+TRACK_Flags)		; command in-active
-
-	ld	a,d
-	add	a
-	ld	hl,TRACK_ToneTable;(replay_Tonetable)
-	; This comment sets the	detune of the track.
-	and	15		; low	4 bits is value
-	bit	3,d		; Center around 8
-	ld	d,0
-	ld	e,a
-
-	jp	z,99f
-
-;neg	
-	xor	a
-	sbc	hl,de
-	ld	(replay_Tonetable),hl
-	ret
-; pos
-99:	
-	add	hl,de
-	ld	(replay_Tonetable),hl
+;	res	3,(ix+TRACK_Flags)		; command in-active
+;
+;	ld	a,d
+;	add	a
+;	ld	hl,TRACK_ToneTable;(replay_Tonetable)
+;	; This comment sets the	detune of the track.
+;	and	15		; low	4 bits is value
+;	bit	3,d		; Center around 8
+;	ld	d,0
+;	ld	e,a
+;
+;	jp	z,99f
+;
+;;neg	
+;	xor	a
+;	sbc	hl,de
+;	ld	(replay_Tonetable),hl
+;	ret
+;; pos
+;99:	
+;	add	hl,de
+;	ld	(replay_Tonetable),hl
 	ret
 
 _CHIPcmdE_envelope:
@@ -1982,9 +1985,15 @@ _pcAY_Tminus:
 ;;	ex	de,hl
 88:	
 ;_pcAY_tbase:	
+
 	;--- Store new deviation
 	ld	(ix+TRACK_ToneAdd),l
 	ld	(ix+TRACK_ToneAdd+1),h
+	
+	
+	
+	
+	
 	ex	de,hl				; store macro deviation	in [DE]
 	ex	af,af'			;' get note	offset
 	ld	sp,(replay_Tonetable)	;TRACK_ToneTable-2	; -2 as note 0 is	no note
@@ -1999,9 +2008,6 @@ _pcAY_Tminus:
 	ld	e,(ix+TRACK_cmd_detune)
 	ld	d,(ix+TRACK_cmd_detune+1)
 	add	hl,de
-
-
-
 
 	ld	e,(ix+TRACK_cmd_ToneAdd)
 	ld	d,(ix+TRACK_cmd_ToneAdd+1)

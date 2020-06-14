@@ -63,12 +63,12 @@ restore_patterneditor:
 
 
 	ld	a,0
-	ld	(editmode),a	
-		
+	ld	(editmode),a		
 	call	restore_cursor
-	
 	call	draw_patterneditor
 	call	update_patterneditor
+	call	build_order_list
+	call	update_orderbox_always
 	
 	ret
 	

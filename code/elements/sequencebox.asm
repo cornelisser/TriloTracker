@@ -48,7 +48,7 @@ update_orderbox:
 	cp	b
 	ret	z
 	ld	(song_order_update),a
-
+update_orderbox_always:
 ;	call	build_order_list
 	ld	hl,(80*2)+1
 	ld	de,_LABEL_ORDER

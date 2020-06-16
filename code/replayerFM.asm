@@ -621,6 +621,8 @@ ENDIF
 	ld	(CHIP_Chan6+CHIP_Voice),a	
 	ld	(CHIP_Chan7+CHIP_Voice),a	
 	ld	(CHIP_Chan8+CHIP_Voice),a
+	ld	a,255
+	ld	(FM_softvoice_req),a
 	ld	a,128
 	ld	(CHIP_Chan3+CHIP_Flags),a
 	ld	(CHIP_Chan4+CHIP_Flags),a

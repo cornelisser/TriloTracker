@@ -194,7 +194,7 @@ store_log_note:
 	cp 	97 	;< also no instrument for rest
 	ld	a,(tmp_cur_instrument)
 
-	jr.	nz,46f
+	jr.	c,46f
 	xor	a
 46:
 

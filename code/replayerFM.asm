@@ -114,7 +114,13 @@ replay_mode2:
 	;--- mode 2	- Replay the line	in 'replay_patpointer'
 	ld	a,(replay_speed_timer)
 	and	a
-	jr.	nz,1f
+	jr.	z,_rpm2_3
+	
+	;-- decode data only once. Timer is never updated again.
+	xor	a
+	ld	(replay_speed_timer),a
+	jr.	replay_decodedata	
+	
 	;--- test if key is still pressed.
 _rpm2_3:
 	ld	a,0x0f
@@ -141,13 +147,8 @@ _rpm2_3:
 	jr.	z,replay_decodedata_NO
 	
 	;--- stop playing.
-	call	replay_init
+	call	replay_stop
 	ret
-1:
-	xor	a
-	ld	(replay_speed_timer),a
-	
-	jr.	replay_decodedata
 ;-- end
 
 replay_mode3:
@@ -289,7 +290,7 @@ replay_decodedata_NO:
 	ld	(replay_Tonetable),hl
 
 	xor	a
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 	ld	a,(mainPSGvol)
 	ld	(replay_mainvol),a
 IFDEF TTSMS
@@ -305,8 +306,9 @@ ENDIF
 	ld	ix,CHIP_Chan1
 	ld	hl,AY_regToneA
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
+	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLA),a	
+	ld	(_VU_VALUES+0),a
 IFDEF TTSMS
 	;--- for channel mute
 	ld	a,(SN_regVOLN)
@@ -317,8 +319,9 @@ ENDIF
 	ld	ix,CHIP_Chan2
 	ld	hl,AY_regToneB	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
+	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLB),a
+	ld	(_VU_VALUES+1),a
 IFDEF TTSMS
 	;--- for channel mute
 	ld	a,(SN_regVOLN)
@@ -338,10 +341,11 @@ _rdd_3psg_5fm:
 	ld	ix,CHIP_Chan3
 	ld	hl,AY_regToneC	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
+	ld	a,(FM_regVOLF)
 	ld	(AY_regVOLC),a	
+	ld	(_VU_VALUES+2),a
 
-	ld	a,(SCC_regMIXER)
+	ld	a,(FM_regMIXER)
 	srl	a
 	srl	a
 	;srl	a
@@ -352,7 +356,7 @@ _rdd_3psg_5fm:
 	ld	(replay_mainvol),a		; setup volume for FM
 
 	xor	a			; reset the mixer
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl	
@@ -364,7 +368,7 @@ _rdd_2psg_6fm:
 	; =======================================
 	;--- Play chan 3 over FM
 	; =======================================
-	ld	a,(SCC_regMIXER)		; correct the mixer
+	ld	a,(FM_regMIXER)		; correct the mixer
 	srl	a
 	srl	a
 	srl	a		
@@ -375,90 +379,77 @@ _rdd_2psg_6fm:
 	ld	(replay_mainvol),a		; setup volume for FM
 
 	xor	a			; reset the mixer
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl
 	
 	ld	ix,CHIP_Chan3
-	ld	hl,SCC_regToneA	
+	ld	hl,FM_regToneA	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
+	ld	a,(FM_regVOLF)
+	ld	(_VU_VALUES+2),a
+	ld	b,(ix+CHIP_Voice)		; Add voice to volume
+	or 	b
 	ld	(FM_regVOLA),a
-
-	
 	
 _rdd_cont:					; used for waveform updates
 	ld	ix,CHIP_Chan4
-	ld	hl,SCC_regToneB	
+	ld	hl,FM_regToneB	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
+	ld	a,(FM_regVOLF)
+	ld	(_VU_VALUES+3),a
+	ld	b,(ix+CHIP_Voice)		; Add voice to volume
+	or 	b
 	ld	(FM_regVOLB),a	
 
 ;	inc	iyh
 	
 	ld	ix,CHIP_Chan5
-	ld	hl,SCC_regToneC
+	ld	hl,FM_regToneC
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
-	ld	(SCC_regVOLC),a
+	ld	a,(FM_regVOLF)
+	ld	(_VU_VALUES+4),a
+	ld	b,(ix+CHIP_Voice)		; Add voice to volume
+	or 	b
+	ld	(FM_regVOLC),a
 
-;	inc	iyh
 		
 	ld	ix,CHIP_Chan6
-	ld	hl,SCC_regToneD	
+	ld	hl,FM_regToneD	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
-	ld	(SCC_regVOLD),a	
+	ld	a,(FM_regVOLF)
+	ld	(_VU_VALUES+5),a
+	ld	b,(ix+CHIP_Voice)		; Add voice to volume
+	or 	b
+	ld	(FM_regVOLD),a	
 
-;	inc	iyh
-		
+
 	ld	ix,CHIP_Chan7
-	ld	hl,SCC_regToneE	
+	ld	hl,FM_regToneE	
 	call	replay_process_chan_AY
-	ld	a,(SCC_regVOLF)
-	ld	(SCC_regVOLE),a	
+	ld	a,(FM_regVOLF)
+	ld	(_VU_VALUES+6),a
+	ld	b,(ix+CHIP_Voice)		; Add voice to volume
+	or 	b
+	ld	(FM_regVOLE),a	
 
-;	inc	iyh
 
-;	ld	a,(replay_chan_setup)
-;	and	a
-;	jp	z,99f
-;	;-- set the	mixer	right
-;	ld	hl,SCC_regMIXER
-;	rrc	(hl)
-;	jp	88f
-	
-;99:		
 	ld	ix,CHIP_Chan8
-	ld	hl,SCC_regToneF	
+	ld	hl,FM_regToneF	
 	call	replay_process_chan_AY
+	ld	a,(FM_regVOLF)
+	ld	b,(ix+CHIP_Voice)		; Add voice to volume
+	ld	(_VU_VALUES+7),a
+	or 	b
+	ld	(FM_regVOLF),a
 
-;	ld	a,(SCC_regMIXER)
-;	rlca	
-;	ld	(SCC_regMIXER),a
-88:
-	;---- Process the drum macros
-;	xor	a
-;	ld	(FM_DRUM_Flags),a
-;	ld	(FM_DRUM),a
 	call	replay_process_drum
-;	ld	bc,FM_DRUM1_LEN
-;	ld	de,FM_freqreg1	
-;	ld	hl,(FM_DRUM1)
-;	call	replay_process_drum
-;	ld	(FM_DRUM1),hl
-;	ld	bc,FM_DRUM2_LEN
-;	ld	de,FM_freqreg2
-;	ld	hl,(FM_DRUM2)
-;	call	replay_process_drum
-;	ld	(FM_DRUM2),hl
-;	ld	bc,FM_DRUM3_LEN
-;	ld	de,FM_freqreg3
-;	ld	hl,(FM_DRUM3)
-;	call	replay_process_drum	
-;	ld	(FM_DRUM3),hl
 	
+	;call	processMainMixer
+	
+
+
 
 
 IFDEF TTSMS	
@@ -603,7 +594,7 @@ ENDIF
 	ld	a,0x3f
 	ld	(AY_regMIXER),a
 	xor	a
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a	
 	ld	(AY_regVOLC),a
@@ -614,7 +605,7 @@ ENDIF
 ;	ld	h,0x80
 ;	call enaslt
 	
-	ld	a,1
+	ld	a,1*16
 	ld	(CHIP_Chan3+CHIP_Voice),a
 	ld	(CHIP_Chan4+CHIP_Voice),a
 	ld	(CHIP_Chan5+CHIP_Voice),a
@@ -640,19 +631,19 @@ ENDIF
 99:
 		
 	xor	a
-	ld	(FM_regVOLA),a
-	ld	(FM_regVOLB),a
-	ld	(FM_regVOLC),a
-	ld	(FM_regVOLD),a
-	ld	(FM_regVOLE),a
-	ld	(FM_regVOLF),a
+;	ld	(FM_regVOLA),a
+;	ld	(FM_regVOLB),a
+;	ld	(FM_regVOLC),a
+;	ld	(FM_regVOLD),a
+;	ld	(FM_regVOLE),a
+;	ld	(FM_regVOLF),a
 	
 	ld	(FM_DRUM_LEN),a
 	ld	(FM_DRUM),a
 ;	ld	(FM_DRUM2_LEN),a
 ;	ld	(FM_DRUM3_LEN),a
 	
-;call scc_reg_update
+;call FM_reg_update
 	
 ;	ld	a,(mapper_slot)				; Recuperamos el slot
 ;	ld	h,0x80
@@ -688,9 +679,39 @@ ENDIF
 	ld	bc,10
 	ldir
 	pop	bc
-
 	
 	; end	is here
+	ret
+
+replay_stop:
+	xor	a
+	ld	(replay_mode),a	
+
+	ld	b,6
+	ld	hl,FM_Registers+2
+	ld	de,6
+	xor	a
+0:
+;	res	4,(hl)
+	ld	(hl),a
+	add	hl,de
+	djnz	0b
+	
+IFDEF TTSMS
+	;--- Silence the SN7 PSG
+	xor	a
+	ld	(AY_regVOLA),a
+	ld	(AY_regVOLB),a
+	ld	(AY_regVOLC),a
+
+ELSE	
+	;--- Silence the AY3 PSG chip
+	ld	a,0x3f
+	ld	(AY_regMIXER),a
+ENDIF	
+	
+	
+	call	replay_route
 	ret
 
 
@@ -989,7 +1010,7 @@ _pe_chanloop:
 ;	ld	a,0x3f
 ;	ld	(AY_regMIXER),a
 ;	xor	a
-;	ld	(SCC_regMIXER),a
+;	ld	(FM_regMIXER),a
 ;
 ;	ld	a,(current_song)
 ;	call	set_songpage	
@@ -1120,12 +1141,14 @@ replay_decode_chan:
 	jr.	z,_dc_noNote
 	cp	97
 	jr.	z,_dc_restNote	; 97 is a rest
+	cp	98
+	jr.	z,_dc_sustainNote	; 98 is a rest	
 	jr.	nc,_dc_noNote	; anything higher	than 97 are	no notes
 	
 	
 	ld	(ix+CHIP_Note),a
 	set	0,(ix+CHIP_Flags)		; bit0=1 ; trigger a note
-	res	4,(ix+CHIP_Flags)		; set key for FM
+	set	4,(ix+CHIP_Flags)		; set key for FM
 ;	res	3,(ix+CHIP_Flags)		; reset running command
 
 _dc_noNote:	
@@ -1171,6 +1194,11 @@ _dc_noNote:
 	xor	a
 	
 .skip_soft:
+	rla	
+	rla
+	rla	
+	rla
+	and 	$f0
 	ld	(ix+CHIP_Voice),a
 ;	set	6,(ix+CHIP_Flags)
 .voice0		
@@ -1276,17 +1304,23 @@ noCMDchange:
 	inc	bc
 	ret
 
-
+;-------------------
+;  Sustain the note
+;===================
+_dc_sustainNote:	
+	res	1,(ix+CHIP_Flags)	; set	note bit to	0
+	res	4,(ix+CHIP_Flags)	; release key
+	set	5,(ix+CHIP_Flags)	; sustain
+	jp	99f
 
 ;-------------------
 ; Rest the note
 ;===================
 _dc_restNote:	
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
-;	res	4,(ix+CHIP_Flags)	; release key
+	res	4,(ix+CHIP_Flags)	; release key
 	res	5,(ix+CHIP_Flags)	; sustain
-;	res	3,(ix+CHIP_Flags) ; reset commands
-	
+99:	
 	xor	a
 	ld	a,(replay_previous_note)
 	ld	(ix+CHIP_Note),a
@@ -1784,7 +1818,7 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_none		;4
 	dw	_CHIPcmdE_notelink	;5
 	dw	_CHIPcmdE_trackdetune	;6
-	dw	_CHIPcmdE_notesus		;7
+	dw	_CHIPcmdE_none		;7
 	dw	_CHIPcmdE_tonepanning	;8
 	dw	_CHIPcmdE_noisepanning	;9
 	dw	_CHIPcmdE_none		;A
@@ -1793,45 +1827,6 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_notedelay	;D	
 	dw	_CHIPcmdE_envelope	;E
 	dw	_CHIPcmdE_none		;F
-
-
-
-;	jr.	z,_CHIPcmdE_shortarp
-;	cp	0x60	; track detune
-;	jr.	z,_CHIPcmdE_trackdetune
-;	cp	0xe0
-;	jp	z,_CHIPcmdE_envelope
-;	cp	0x10	
-;	jr.	z,_CHIPcmdE_fineup
-;	cp	0x20
-;	jr.	z,_CHIPcmdE_finedown
-;	cp	0xd0	; delay cmd?
-;	jr.	z,_CHIPcmdE_delay
-;	cp	$40	; set	vibrato
-;	jr.	z,_CHIPcmdE_vibrato
-;	cp	0x50	; note_link
-;	jr.	z,_CHIPcmdE_notelink
-;	cp	0x70	; note_link
-;	jr.	z,_CHIPcmdE_notesus
-;	cp	0x80	; global transpose
-;	jr.	z,_CHIPcmdE_transpose
-;	cp	0xc0	; note cut
-;	jr.	z,_CHIPcmdE_notecut
-;	ret
-
-
-;_CHIPcmdE_shortarp:
-;	ld	a,d			;- Get the parameter
-;	and	0x0f
-;;	jr.	z,_CHIPcmdE_shortarp_retrig	;-- Jump if value is 0
-;
-;	ld	(ix+CHIP_cmd_E),a		; store the halve not to add
-;	ld	(ix+CHIP_Timer),0
-;;_CHIPcmdE_shortarp_retrig:
-;	set	3,(ix+CHIP_Flags)		; command active		
-;	ld	(ix+CHIP_Command),0x10
-;	ret	
-
 
 _CHIPcmdE_none:
 	ret
@@ -1939,18 +1934,6 @@ _CHIPcmdE_notedelay:
 	res	0,(ix+CHIP_Flags)		; reset any	triggernote
 	ret
 
-_CHIPcmdE_vibrato:
-;	ld	hl,CHIP_Vibrato_sine
-;	ld	a,d
-;	and	3
-;	jr.	z,99f
-;	ld	de,32
-;88:	add	hl,de
-;	dec	a
-;	jr.	nz,88b
-;99:	ld	(replay_vib_table),hl
-	ret
-
 _CHIPcmdE_fineup:
 	ld	a,d
 	and	0x0f
@@ -1974,15 +1957,7 @@ _CHIPcmdE_notelink:
 	set	4,(ix+CHIP_Flags)		; FM notelink bit
 	res	0,(ix+CHIP_Flags)
 	ret
-_CHIPcmdE_notesus:
-	ld	a,d
-	and	a
-	jp	z,99f
-	set	5,(ix+CHIP_Flags)
-	ret
-99:
-	res	5,(ix+CHIP_Flags)
-	ret	
+	
 
 _CHIPcmdE_trackdetune:
 	ld	a,d
@@ -2000,33 +1975,6 @@ _CHIPcmdE_trackdetune:
 	ld	(ix+CHIP_cmd_detune+1),0x00	
 	ret
 	
-_CHIPcmdE_transpose:
-;	;res	3,(ix+CHIP_Flags)		; command in-active
-;
-;IFDEF TT
-;	ld	a,d
-;	add	a
-;	ld	hl,CHIP_ToneTable;(replay_Tonetable)
-;	; This comment sets the	detune of the track.
-;	and	15		; low	4 bits is value
-;	bit	3,d		; Center around 8
-;	ld	d,0
-;	ld	e,a
-;
-;	jr.	z,99f
-;
-;;neg	
-;	xor	a
-;	sbc	hl,de
-;	ld	(replay_Tonetable),hl
-;
-;	ret
-;; pos
-;99:	
-;	add	hl,de
-;	ld	(replay_Tonetable),hl
-;ENDIF	
-	ret
 
 _CHIPcmdE_envelope:
 	set	2,(IX+CHIP_Flags)
@@ -2117,10 +2065,10 @@ replay_process_drum:
 	inc	h
 99:
 	ld	a,(hl)
-	ld	(FM_freqreg1),a
+	ld	(DRUM_regToneBD),a
 	inc	hl
 	ld	a,(hl)
-	ld	(FM_freqreg1+1),a	
+	ld	(DRUM_regToneBD+1),a	
 	jr.	4f				; continue
 1:
 	; Tone deviation
@@ -2129,7 +2077,7 @@ replay_process_drum:
 	;negative
 	and	00111111b
 	neg
-	ld	hl,(FM_freqreg1)
+	ld	hl,(DRUM_regToneBD)
 	dec	h
 	add	a,l
 	ld	l,a
@@ -2140,14 +2088,14 @@ replay_process_drum:
 	jr.	3f
 2:	
 	;positive
-	ld	hl,(FM_freqreg1)
+	ld	hl,(DRUM_regToneBD)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
 	inc	h
 99:
 3:
-	ld 	(FM_freqreg1),hl
+	ld 	(DRUM_regToneBD),hl
 
 4:	set	0,d
 
@@ -2172,7 +2120,7 @@ replay_process_drum:
 	ld	l,a
 	ld	a,0x0f
 	sub	l
-	ld	(FM_volreg1),a
+	ld	(DRUM_regVolBD),a
 
 	
 	
@@ -2196,10 +2144,10 @@ replay_process_drum:
 	inc	h
 99:
 	ld	a,(hl)
-	ld	(FM_freqreg2),a
+	ld	(DRUM_regToneSH),a
 	inc	hl
 	ld	a,(hl)
-	ld	(FM_freqreg2+1),a	
+	ld	(DRUM_regToneSH+1),a	
 	jr.	4f				; continue
 1:
 	; Tone deviation
@@ -2208,7 +2156,7 @@ replay_process_drum:
 	;negative
 	and	00111111b
 	neg
-	ld	hl,(FM_freqreg1)
+	ld	hl,(DRUM_regToneBD)
 	dec	h
 	add	a,l
 	ld	l,a
@@ -2219,14 +2167,14 @@ replay_process_drum:
 	jr.	3f
 2:	
 	;positive
-	ld	hl,(FM_freqreg2)
+	ld	hl,(DRUM_regToneSH)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
 	inc	h
 99:
 3:
-	ld 	(FM_freqreg2),hl
+	ld 	(DRUM_regToneSH),hl
 
 4:	set	0,d
 
@@ -2254,14 +2202,14 @@ replay_process_drum:
 88:	xor	a
 99:	
 	ld	l,a
-	ld	a,(FM_volreg2)
+	ld	a,(DRUM_regVolSH)
 	and	0x0f
 	ld	h,a
 	ld	a,0x0f
 	sub	l
 [4]	sla	a
 	or	h
-	ld	(FM_volreg2),a
+	ld	(DRUM_regVolSH),a
 
 1:	;- low vol	
 	ld	a,(bc)
@@ -2278,13 +2226,13 @@ replay_process_drum:
 88:	xor	a
 99:	
 	ld	l,a
-	ld	a,(FM_volreg2)
+	ld	a,(DRUM_regVolSH)
 	and	0xf0
 	ld	h,a
 	ld	a,0x0f
 	sub	l
 	or	h
-	ld	(FM_volreg2),a
+	ld	(DRUM_regVolSH),a
 	
 0:
 	sla	d
@@ -2305,10 +2253,10 @@ replay_process_drum:
 	inc	h
 99:
 	ld	a,(hl)
-	ld	(FM_freqreg3),a
+	ld	(DRUM_regToneCT),a
 	inc	hl
 	ld	a,(hl)
-	ld	(FM_freqreg3+1),a	
+	ld	(DRUM_regToneCT+1),a	
 	jr.	4f				; continue
 1:
 	; Tone deviation
@@ -2317,7 +2265,7 @@ replay_process_drum:
 	;negative
 	and	00111111b
 	neg
-	ld	hl,(FM_freqreg1)
+	ld	hl,(DRUM_regToneBD)
 	dec	h
 	add	a,l
 	ld	l,a
@@ -2328,14 +2276,14 @@ replay_process_drum:
 	jr.	3f
 2:	
 	;positive
-	ld	hl,(FM_freqreg3)
+	ld	hl,(DRUM_regToneCT)
 	add	a,l
 	ld	l,a
 	jp	nc,99f
 	inc	h
 99:
 3:
-	ld 	(FM_freqreg3),hl
+	ld 	(DRUM_regToneCT),hl
 
 4:	set	0,d
 
@@ -2363,14 +2311,14 @@ replay_process_drum:
 88:	xor	a
 99:	
 	ld	l,a
-	ld	a,(FM_volreg3)
+	ld	a,(DRUM_regVolCT)
 	and	0x0f
 	ld	h,a
 	ld	a,0x0f
 	sub	l
 [4]	sla	a
 	or	h
-	ld	(FM_volreg3),a	
+	ld	(DRUM_regVolCT),a	
 
 
 1:	;- low vol	
@@ -2388,13 +2336,13 @@ replay_process_drum:
 88:	xor	a
 99:	
 	ld	l,a
-	ld	a,(FM_volreg3)
+	ld	a,(DRUM_regVolCT)
 	and	0xf0
 	ld	h,a
 	ld	a,0x0f
 	sub	l
 	or	h
-	ld	(FM_volreg3),a
+	ld	(DRUM_regVolCT),a
 	
 0:
 	sla	d
@@ -2493,7 +2441,7 @@ replay_process_chan_AY:
 
 	
 	;-- set the	mixer	right
-	ld	hl,SCC_regMIXER
+	ld	hl,FM_regMIXER
 	rrc	(hl)
 	;srl	(hl)
 	
@@ -2553,7 +2501,7 @@ _pcAY_commandEND:
 
 _pcAY_triggerNote:	
 	;--- get new Note
-	res	0,(ix+CHIP_Flags)		; reset trigger note flag
+	;res	0,(ix+CHIP_Flags)		; reset trigger note flag
 	set	1,(ix+CHIP_Flags)		; set	note active	flag
 ;	res	2,(ix+CHIP_Flags)		; key flag for FM
 	; init macrostep but check for cmd9
@@ -2634,11 +2582,17 @@ _pcAY_noMacroEnd:
 ;--- Voice link check here as now we still have all macro row values
 	bit 	7,h
 	jp	z,_noVoicelink	
-	
+
+_voiceLink:	
 	res	7,h			; reset bit
 	set	6,(ix+CHIP_Flags)	; set voice update flag
 	ld	a,c
-	ld	(ix+CHIP_Voice),c	; set new voice to be loaded
+	rla	
+	rla
+	rla
+	rla
+	and 	$f0
+	ld	(ix+CHIP_Voice),a	; set new voice to be loaded
 	res	7,c			; reset noise bit
 
 _noVoicelink:
@@ -2649,9 +2603,9 @@ _noVoicelink:
 
 	;-- enable tone output
 	
-	ld	a,(SCC_regMIXER)
+	ld	a,(FM_regMIXER)
 	or	16
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 _pcAY_noTone:
 
 
@@ -2690,6 +2644,8 @@ _pcAY_Tminus:
 	bit 	7,(ix+CHIP_Flags)
 	jr.	nz,pcAY_FMinstr
 	
+	res	0,(ix+CHIP_Flags) 	; reset any note trigger for PSG. FM needs it.
+	
 	ex	de,hl				; store macro deviation	in [DE]
 	ex	af,af'			;' get note	offset
 	ld	sp,(replay_Tonetable)	;CHIP_ToneTable-2	; -2 as note 0 is	no note
@@ -2721,7 +2677,7 @@ _pcAY_noCMDToneAdd:
 	pop	de
 	ex	de,hl
 	ld	(hl),e
-	inc	hl
+	inc	hl	
 	ld	(hl),d
 		
 	;-- Test for noise
@@ -2736,9 +2692,9 @@ _pcAY_noCMDToneAdd:
 
 IFDEF TTFM
 	;--- Set the mixer for noise
-	ld	a,(SCC_regMIXER)
+	ld	a,(FM_regMIXER)
 	or	128
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 
 	ld	e,(ix+CHIP_Noise)	; get	the current	deviation	
 	ld	a,c
@@ -2766,9 +2722,9 @@ IFDEF TTFM
 ELSE
 	; SN PSG 
 	;--- Set the mixer for noise
-	ld	a,(SCC_regMIXER)
+	ld	a,(FM_regMIXER)
 	or	128
-	ld	(SCC_regMIXER),a
+	ld	(FM_regMIXER),a
 	
 	; volume
 	ld	a,c
@@ -2844,12 +2800,12 @@ _pcAY_noNoise:
 	ld	c,a
 	
 IFDEF TTSMS
-	ld	a,(SCC_regMIXER)
+	ld	a,(FM_regMIXER)
 	and	16
 
 	jp	nz,7f
 	xor	a
-	ld	(SCC_regVOLF),a	
+	ld	(FM_regVOLF),a	
 	ret
 	
 7:
@@ -2861,7 +2817,7 @@ ENDIF
 	bit	2,(IX+CHIP_Flags)
 	jp	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
-	ld	(SCC_regVOLF),a
+	ld	(FM_regVOLF),a
 	ret	
 	
 _noEnv:
@@ -2912,20 +2868,29 @@ _Vadd:
 ;88:
 	add	hl,de
 	ld	a,(hl)	
-	ld	(SCC_regVOLF),a
+	ld	(FM_regVOLF),a
 	
 	ret
 	
 
 _pcAY_noNoteActive:
 	pop	hl
-	
-	bit	7,(ix+CHIP_Flags)
-	jp	z,0f
-	ld	a,$0f
-	jp	99f
-0:	xor	a
-99:	ld	(SCC_regVOLF),a
+	inc	hl
+	ld	a,(ix+CHIP_Flags)
+	and	16+32	; keep key and sustain flags
+	ld	b,a
+	ld	a,(hl)
+	and 	$0f
+	or 	b
+	ld	(hl),a
+;	bit	7,(ix+CHIP_Flags)
+;	jp	z,0f
+;	ld	a,$0f
+;	jp	99f
+;0:	
+	xor	a
+;99:	
+	ld	(FM_regVOLF),a
 	
 	ret
 	
@@ -3033,8 +2998,15 @@ _wrap_skip:
 	pop	de
 	ex	de,hl
 	ld	(hl),e
+;	inc	hl
 	inc	hl
-	ld	(hl),d
+	ld	a,d	; reset keyon and sustain
+	and	$0f
+	ld	d,a
+	ld	a,(ix+CHIP_Flags)	; Add the sustain and key bits.
+	and	16+32	
+	or	d
+	ld	(hl),a
 
 
 _pcFM_noVoice:
@@ -3111,7 +3083,7 @@ _FMVadd:
 	ld	de,SCC_VOLUME_TABLE
 	add	hl,de
 	ld	a,(hl)	
-	ld	(SCC_regVOLF),a
+	ld	(FM_regVOLF),a
 	
 	ret
 	
@@ -3591,7 +3563,7 @@ _pcAY_cmd22:
 ;	jr.	nc,99f
 ;	inc	d
 ;99:
-;	ld	a,(ix+CHIP_Waveform)
+;	ld	a,(ix+CHIP_Voice)
 ;	add	a,a
 ;	add	a,a
 ;	add	a,a	
@@ -3644,7 +3616,7 @@ _pcAY_cmd24:
 ;	jr.	nc,99f
 ;	inc	d
 ;99:
-;	ld	a,(ix+CHIP_Waveform)
+;	ld	a,(ix+CHIP_Voice)
 ;	add	a,a
 ;	add	a,a
 ;	add	a,a	
@@ -3694,6 +3666,7 @@ _pcAY_cmd24:
 ;===========================================================
 replay_route:
 
+replay_route_PSG:
 ;---------------
 ; P S G 
 ;---------------
@@ -3910,6 +3883,7 @@ ENDIF
 ;--------------
 ; F M P A C 
 ;--------------
+replay_route_FM:
 	ld	hl,FM_softvoice_req
 	ld	a,(hl)
 	inc	hl
@@ -3919,29 +3893,8 @@ ENDIF
 	ld	(hl),a
 	call	load_softwarevoice
 .noVoice:
-;	ld	b,6
-;	ld	ix,CHIP_Chan3
-;_ptAY_voice_loop:	
-;	bit	6,(IX+CHIP_Flags)
-;	jp	z,0f
-;	res	6,(ix+CHIP_Flags)
-;	ld	a,(ix+CHIP_Voice)
-;;	and	a
-;;	jp	nz,99f
-;;	inc	a
-;99:
-;	cp	16
-;	call	nc,load_softwarevoice
-;	ld	(ix+CHIP_Waveform),a
-;0:
-;	ld	de,CHIP_REC_SIZE
-;	add	ix,de
-;	djnz	_ptAY_voice_loop
-
-
-
 	;--- Apply the mixer.
-	ld	hl,SCC_regMIXER
+	ld	hl,FM_regMIXER
 	;--- do not	apply	mmainmixer when in  mode 2
 ;	ld	a,(keyjazz)
 ;	and	a
@@ -3954,150 +3907,74 @@ ENDIF
 	and	(hl)	; set	to 0 to silence
 	ld	(hl),a
 99:
-;
-	;--- write volume register
-	ld	de,FM_regVOLA
-	ld	hl,CHIP_Chan3+CHIP_Waveform
-	ld	b,6		; 5 tracks
-	ld	a,$30
-;	ex	af,af'	;'
-_tt_route_fmvol:
-	ex	af,af'	; '
-	ld	a,(hl)
-	rla
-	rla
-	rla
-	rla
-	and	$f0
-	ld	c,a
-	
-	ld	a,(de)	
-	push	hl
-	ld	hl,SCC_regMIXER
-
-	bit	7,(hl)
-	jr	nz,33f
-	ld	a,$0f			; silentio
-33:
-	rrc	(hl)
-	pop	hl	
-	
-	and	0x0f
-	or	c
-	ex	af,af'		;'
-	out	(FM_WRITE),a
-	inc	a			; 4 cycles
-	ex	af,af'		; 4 cycles	 '
-	inc	de			; 6 cycles
-	out	(FM_DATA),a
-
-	ld	a,CHIP_REC_SIZE
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	ex	af,af'		;	'
-
-
-	djnz	_tt_route_fmvol
-
-;	pop	af
-;	ld	(MainMixer),a
-
-
-
-
-	;--- write tone register
-	ld	hl,FM_registers
+	;------------------------------------------
+	;---- Update the tone and drum registers
+	;------------------------------------------
+	ld 	hl,FM_Registers
 	ld	de,CHIP_Chan3+CHIP_Flags
-	ld	b,6		; 5 tracks
-	ld	a,$10
-;	ex	af,af'	;'
-_tt_route_fmtone:
+	ld	a,$10		; Register $10
+	ld	b,6;9		; 6 channels to update
 
-	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles 	'
-	ld	a,(hl)		; 13 cycles  	the low byte
-	out	(FM_DATA),a
-	inc	hl
-	ld	a,(de)		; the flags (bit 4 has key)
-	ld	c,a
-	and	48			; preserve key and sustain
+.channel_loop:	
+	; Tone low
+	call	_route_FM_reg16_update
+	dec	hl
+	add	a,$10	; Register# $20
 
-	;--- check for new note (keyon is off '0')
+	ex	af,af'
+	;-- Check if we need to toggle key to start a new note
+	ld	a,(de)
+	bit	0,a
+	jp	z,99f	; no notetrigger
+	
+	res	0,a		; reset trigger
+	ld	(de),a
 	bit	4,a
-	jp	nz,99f		; skip if no keyoff
-
-	or	(hl)
-	ex	af,af'		;'
-	add	a,$10
-	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles '
-	out 	(FM_DATA),a
-
-	or	16			; set keyon on '1'
-	ld	(de),a		; store keyon
-	ex	af,af'		;'
-	jp 	88f	
-			
-	
-
-
+	call	nz,_route_FM_keyOff_update
 99:
-	or	(hl)			; add the tone high byte
-
-	ex	af,af'		;'
-	add	a,$10
-	
-	;--- delay to get 84 cycles at least
-;	push ix
-;	pop ix
-;	nop
-	
-	
-	
-88:	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles '
-	inc	hl			; 6 cycles 
-	out 	(FM_DATA),a
-	ld	a,16
-	or	c
-	ld	(de),a		; write key flag enabled to disable retrigger of note
 	ld	a,CHIP_REC_SIZE
 	add	a,e
 	ld	e,a
-	jr.	nc,99f
+	jp	nc,99f
 	inc	d
-99:
-	ex	af,af'		;'
-	sub	$f
-	djnz	_tt_route_fmtone
+99:	
+	ex	af,af'
+	
+	; Tone High + key & sustain
+	call	_route_FM_reg16_update
+	inc	hl
+	add	a,$10	; Register# $30
+	
+	; Volume + voice
+	call	_route_FM_reg8_update
+	inc	hl
+	add	a,-$1F	; Register# = channel + $10
+	djnz	.channel_loop
 
+	ret
 
-
-	;-----------------
-	; Update drum registers
-	;-----------------
-;	ld	a,(DrumMixer)
+;	;-----------------
+;	; Update drum registers
+;	;-----------------
+;;	ld	a,(DrumMixer)
+;;	and	a
+;;	ret	z	; skip drums if disabled
+;
+;	ld	a,(FM_DRUM_Flags)
+;	ld	d,a		
+;
+;	;; just for debug purposes
 ;	and	a
-;	ret	z	; skip drums if disabled
+;	ret	z
+;
+;
+;	rl	d
+;	jp	nc,route_FM_Tone1
+;	;---- Percusion bits
 
-	ld	a,(FM_DRUM_Flags)
-	ld	d,a		
-
-	;; just for debug purposes
-	and	a
-	ret	z
-
-
-	rl	d
-	jp	nc,route_FM_Tone1
-	;---- Percusion bits
 route_FM_Rythm:	
-	ld	c,0x0e
+	ld	a,0x0e
 	;-- load the new values
-	ld	a,c
 	out	(FM_WRITE),a	; Select rythm register
 	
 	ld	a,(FM_DRUM)		; 7 cycles
@@ -4110,86 +3987,119 @@ route_FM_Rythm:
 	or	b			; Mask with drum mixer (bit 5 is set)
 	out	(FM_DATA),a
 	
-	
-route_FM_Tone1:	
-	rl	d
-	jp	nc,route_FM_Vol1
-	
-	ld	a,0x16		; register
-	ld	hl,FM_freqreg1	; value
-	call	route_FM_toneUpdate
-	
-
-route_FM_Vol1:
-	rl	d
-	jp	nc,route_FM_Tone2
-	
-	ld	a,0x36		; register
-	ld	hl,FM_volreg1	; value
-	call	route_FM_volumeUpdate
-
-route_FM_Tone2:	
-	rl	d
-	jp	nc,route_FM_Vol2
-	
-	ld	a,0x17		; register
-	ld	hl,FM_freqreg2	; value
-	call	route_FM_toneUpdate
-	
-
-route_FM_Vol2:
-	rl	d
-	jp	nc,route_FM_Tone3
-	
-	ld	a,0x37		; register
-	ld	hl,FM_volreg2	; value
-	call	route_FM_volumeUpdate
-
-route_FM_Tone3:	
-	rl	d
-	jp	nc,route_FM_Vol3
-	
-	ld	a,0x18		; register
-	ld	hl,FM_freqreg3	; value
-	call	route_FM_toneUpdate
-	
-
-route_FM_Vol3:
-	rl	d
-	jp	nc,route_FM_end
-	
-	ld	a,0x38		; register
-	ld	hl,FM_volreg3	; value
-	call	route_FM_volumeUpdate
-
-route_FM_end:
-	xor	a
-	ld	(FM_DRUM_Flags),a
-	
 	ret
+	
 
-
-route_FM_toneUpdate:
-	;-- write tone
-	ld	c,a
-	out	(FM_WRITE),a
+;------- Writes safe to the FM chip
+; in :
+;	[a]	Register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to previous value
+;	[A]	contains register# written
+;-----------
+_route_FM_reg8_update:
+	ex	af,af'
+	ld	a,(hl)
+	jp	_rfr_cont
+	
+	
+;------- Writes safe to the FM chip
+; in :
+;	[a]	Register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to previous value
+;	[A]	contains register# written
+;-----------
+_route_FM_reg16_update:
+	ex	af,af'
 	ld	a,(hl)
 	inc	hl
-	out 	(FM_DATA),a
-	ld	a,0x10
-	add	c
+_rfr_cont:
+	inc	hl
+	cp	(hl)	
+	jp	z,99f		; no change in tone low value
+	ex	af,af'	
 	out	(FM_WRITE),a
+	ex	af,af'
+	ld	(hl),a
+	out	(FM_DATA),a	
+99:	ex	af,af'
+;	dec	hl	
+	ret
+	
+;------- Writes Volume safe to the FM chip
+; in :
+;	[a]	Register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to previous value
+;	[A]	contains register# written
+;-----------
+;_route_FM_volreg_update:
+;	ex	af,af'
+;	ld	a,(hl)
+;	inc	hl
+;	cp	(hl)
+;	jp	z,99f	; no change in tone low value
+;	ex	af,af'
+;	out	(FM_WRITE),a
+;	ex	af,af'
+;	ld	(hl),a
+;	out	(FM_DATA),a	
+;99:	ex	af,af'
+;	inc	hl
+;	ret
+
+;------- Writes a keyoff to the existing tone high register 
+; in :
+;	[A']	register# to write
+;	[HL]	point to register (previous value is next in RAM)
+;
+; out:
+;	[HL] points to same location
+;	[A']	contains register# written
+;-----------
+_route_FM_keyOff_update:
+	ex	af,af'
+	out	(FM_WRITE),a
+	ex	af,af'		; 4 cycles	 '
 	ld	a,(hl)
-	out 	(FM_DATA),a
+	and	11101111b	; erase keyON bit.
+	out	(FM_DATA),a	
+	inc	hl
+	inc	hl
+	ld	(hl),a		; make sure to change old value to trigger update
+	dec	hl
+	dec	hl
 	ret
 
-route_FM_volumeUpdate:
-	;-- write volumes
-	out	(FM_WRITE),a
-	ld	a,(hl)
-	inc	hl
-	out 	(FM_DATA),a
-	ret
+
+;route_FM_toneUpdate:
+;	;-- write tone
+;	ld	c,a
+;	out	(FM_WRITE),a
+;	ld	a,(hl)
+;	inc	hl
+;	out 	(FM_DATA),a
+;	ld	a,0x10
+;	add	c
+;	out	(FM_WRITE),a
+;	ld	a,(hl)
+;	out 	(FM_DATA),a
+;	ret
+
+;route_FM_volumeUpdate:
+;	;-- write volumes
+;	out	(FM_WRITE),a
+;	ld	a,(hl)
+;	inc	hl
+;	out 	(FM_DATA),a
+;	ret
 
 
 
@@ -4203,7 +4113,7 @@ route_FM_volumeUpdate:
 ;	
 ;	ld	c,$36			; 7 cycles
 ;	ld	b,3			; 7 cycles
-;	ld	hl,FM_volreg1
+;	ld	hl,DRUM_regVolBD
 ;_drmvolloop:
 ;	srl	d
 ;	jr.	nc,0f
@@ -4224,7 +4134,7 @@ route_FM_volumeUpdate:
 ;	ld	c,$16
 ;	ld	e,$26
 ;	ld	b,3
-;	ld	hl,FM_freqreg1
+;	ld	hl,DRUM_regToneBD
 ;_drmfreqloop:
 ;	srl	d
 ;	jr.	nc,0f
@@ -4366,92 +4276,113 @@ _TEMPSCC:	db "aAAA bBBB cCCC dDDD eEEE fFFF aVbVcVdVeVfV mMM"
 draw_SCCdebug:		
 	; THIS IS DEBUG INFO ON	THE REGISTERS!!!!
 	ld	de,_TEMPSCC+1
-	ld	hl,SCC_registers
+	ld	hl,FM_regToneA 
 	ld	a,(hl)
 	ld	b,a
 	inc	hl
 	ld	a,(hl)
-	call	draw_hex
+	call	draw_hex2
 	ld	a,b
 	call	draw_hex2
+;	inc	de
+	inc	de
 	inc	hl
+	inc	hl
+	inc	hl
+	
+	ld	hl,FM_regToneB
+	ld	a,(hl)
+	ld	b,a
+	inc	hl
+	ld	a,(hl)
+	call	draw_hex2
+	ld	a,b
+	call	draw_hex2
+;	inc	de
 	inc	de
+	inc	hl
+	inc	hl
+	inc	hl
+	
+	ld	hl,FM_regToneC	
+	ld	a,(hl)
+	ld	b,a
+	inc	hl
+	ld	a,(hl)
+	call	draw_hex2
+	ld	a,b
+	call	draw_hex2
+;	inc	de
 	inc	de
+	inc	hl
+	inc	hl
+	inc	hl	
+	
+	ld	hl,FM_regToneD
+	ld	a,(hl)
+	ld	b,a
+	inc	hl
+	ld	a,(hl)
+	call	draw_hex2
+	ld	a,b
+	call	draw_hex2
+;	inc	de
+	inc	de
+	inc	hl
+	inc	hl
+	inc	hl	
+	
+	ld	hl,FM_regToneE
+	ld	a,(hl)
+	ld	b,a
+	inc	hl
 
 	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex
+	call	draw_hex2
 	ld	a,b
 	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
+;	inc	de
 	inc	de	
+	inc	hl
+	inc	hl
+	inc	hl
 	
+	ld	hl,FM_regToneF
 	ld	a,(hl)
 	ld	b,a
 	inc	hl
 	ld	a,(hl)
-	call	draw_hex
+	call	draw_hex2
 	ld	a,b
 	call	draw_hex2
-	inc	hl
 	inc	de
-	inc	de
-	
+
+
+	ld	hl,FM_regVOLA	
 	ld	a,(hl)
 	call	draw_hex	;vol a
-	inc	hl
 	inc	de
+	
+	ld	hl,FM_regVOLB
 	ld	a,(hl)
 	call	draw_hex	    ;vol b
-	inc	hl
+	
+	ld	hl,FM_regVOLC
 	inc	de
 	ld	a,(hl)
 	call	draw_hex	    ;vol c
-	inc	hl
+	
+	ld	hl,FM_regVOLD
 	inc	de
 	ld	a,(hl)
 	call	draw_hex	    ;vol d
-	inc	hl
+	
+	ld	hl,FM_regVOLE
 	inc	de
 	ld	a,(hl)
 	call	draw_hex	    ;vol e
-	inc	hl
+	
+	ld	hl,FM_regVOLF
 	inc	de
 	ld	a,(hl)
 	call	draw_hex	;vol f

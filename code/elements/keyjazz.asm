@@ -28,7 +28,7 @@ process_key_drumjazz:
 	call	replay_init
 	ld	a,0x00
 	ld	b,3
-	ld	hl,FM_volreg1
+	ld	hl,DRUM_regVolBD
 33:	ld	(hl),a
 	inc	hl
 	djnz	33b
@@ -74,6 +74,8 @@ ENDIF
 		
 process_key_keyjazz:
 	call	set_songpage
+	
+	;--- Check if valid key pressed
 	ld	a,(key_value)
 	ld	(replay_key),a
 	ld	b,0
@@ -89,6 +91,8 @@ process_key_keyjazz:
 	;- Note under this keys?
 	cp	48			
 	jr.	nc,_keyjazz_END	
+	
+	
 	
 	;--- Get the note value of the key pressed
 	ld	hl,_KEY_NOTE_TABLE
@@ -125,13 +129,7 @@ process_key_keyjazz:
 77:		
 	push	af
 	call	replay_init
-;	ld	a,(current_song)
 	call	set_songpage	
-;	ld	hl,_KEYJAZZ_LINE
-;	ld	(replay_patpointer),hl
-;	ld	a,2
-;	ld	(replay_mode),a
-
 	ld	hl,_KJ_SCC
 	ld	(hl),97	
 IFDEF TTSCC
@@ -142,9 +140,10 @@ ELSE
 	ld	hl,_KJ_PSG2
 	jp	88f
 99:
+ENDIF
 	ld	hl,_KJ_PSG
 88:	ld	(hl),97
-ENDIF
+
 	ld	a,(keyjazz_chip)
 	and	1
 	jr.	z,_ky_noPSG
@@ -180,17 +179,12 @@ _ky_noPSG:
 
 	ld	hl,_KEYJAZZ_LINE
 	ld	(replay_patpointer),hl
-;	ld	(replay_speed_timer),a
 	ld	a,2
 	ld	(replay_speed_timer),a
 	ld	(replay_mode),a
 
-;	di
-;	call	replay_play
-;	call	replay_route	
-;	ei
-	
-88:	;halt
+
+88:	
 ;	--- wait till key is released	
 	ld	a,(replay_mode)
 	and	a

@@ -38,7 +38,6 @@ replay_Tonetable:			dw CHIP_ToneTable
 
 CHIP_Instrument		equ 0	
 CHIP_Voice			equ 1
-CHIP_Waveform		equ 1
 CHIP_Command		equ 2
 CHIP_MacroPointer		equ 3	
 CHIP_Note			equ 5	
@@ -48,8 +47,8 @@ CHIP_Flags			equ 7
 	; 1 = note active
 	; 2 = 
 	; 3 = command trigger
-	; 4 = key trigger		; for fm note trigger	;'command tone add
-	; 5 = sustain		; for fm note sustain	;'instrument trigger
+	; 4 = key trigger		; for fm note trigger	; Do not use for PSG!
+	; 5 = sustain		; for fm note sustain	; Do not use for PSG!
 	; 6 = custom voice trigger
 	; 7 = PSG/SCC
 CHIP_MacroStep		equ 8			; reset after note set
@@ -126,49 +125,48 @@ AY_regEnvShape 	db	0	; Volume Env Shape (4bit)
 AY_VOLUME_TABLE   
 	incbin "..\data\voltable.bin"	
 
+FM_Registers: 	; contiains the registers values to write and value previously written
+FM_regToneA 	dw	0	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+FM_regToneAb 	dw	0	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+FM_regVOLA		db	0	; Chan A volume
+FM_regVOLAb		db	0	; Chan A volume
+FM_regToneB 	dw	0	; Tone B freq low					; Tone B freq high
+FM_regToneBb 	dw	0	; Tone B freq low					; Tone B freq high
+FM_regVOLB		db	0	; Chan B volume
+FM_regVOLBb		db	0	; Chan B volume
+FM_regToneC 	dw	0	; Tone C freq low					; Tone C freq high
+FM_regToneCb 	dw	0	; Tone C freq low					; Tone C freq high
+FM_regVOLC	 	db	0	; Chan C volume
+FM_regVOLCb	 	db	0	; Chan C volume
+FM_regToneD 	dw	0	; Tone D freq low					; Tone D freq high
+FM_regToneDb 	dw	0	; Tone D freq low					; Tone D freq high
+FM_regVOLD		db	0	; Chan D volume
+FM_regVOLDb		db	0	; Chan D volume
+FM_regToneE 	dw	0	; Tone E freq low					; Tone E freq high
+FM_regToneEb 	dw	0	; Tone E freq low					; Tone E freq high
+FM_regVOLE	  	db	0	; Chan E volume
+FM_regVOLEb	  	db	0	; Chan E volume
+FM_regToneF 	dw	0	; Tone E freq low					; Tone F freq high
+FM_regToneFb 	dw	0	; Tone E freq low					; Tone F freq high
+FM_regVOLF	  	db	0	; Chan F volume
+FM_regVOLFb	  	db	0	; Chan F volume
 
-;--- SCC SPECIFIC
-SCC_registers
-FM_registers 
-FM_regToneA
-SCC_regToneA 	dw	0	; Tone A freq low (8bit)					; Tone A freq high (1bit)
-;FM_regKeyA		db	0
-FM_regToneB
-SCC_regToneB 	dw	0	; Tone B freq low					; Tone B freq high
-;FM_regKeyB		db	0
-FM_regToneC
-SCC_regToneC 	dw	0	; Tone C freq low					; Tone C freq high
-;FM_regKeyC		db	0
-FM_regToneD
-SCC_regToneD 	dw	0	; Tone D freq low					; Tone D freq high
-;FM_regKeyD		db	0
-FM_regToneE
-SCC_regToneE 	dw	0	; Tone E freq low					; Tone E freq high
-;FM_regKeyE		db	0
-FM_regToneF
-SCC_regToneF 	dw	0	; Tone E freq low					; Tone E freq high
-
-FM_regVOLA
-SCC_regVOLA 	db	0	; Chan B volume
-FM_regVOLB
-SCC_regVOLB 	db	0	; Chan B volume
-FM_regVOLC
-SCC_regVOLC  	db	0	; Chan C volume
-FM_regVOLD
-SCC_regVOLD 	db	0	; Chan D volume
-FM_regVOLE
-SCC_regVOLE  	db	0	; Chan E volume
-FM_regVOLF
-SCC_regVOLF  	db	0	; Chan E volume
+DRUM_regToneBD	dw	0
+DRUM_regToneBDb	dw	0
+DRUM_regVolBD	db	0
+DRUM_regVolBDb	db	0
+DRUM_regToneSH	dw	0
+DRUM_regToneSHb	dw	0
+DRUM_regVolSH	db	0
+DRUM_regVolSHb	db	0
+DRUM_regToneCT	dw	0
+DRUM_regToneCTb	dw	0
+DRUM_regVolCT	db	0
+DRUM_regVolCTb	db	0
 
 FM_DRUM		db	0	; Percussion bits
+
 FM_DRUM_Flags	db	0	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
-FM_freqreg1		dw	0	; Base drum
-FM_volreg1		db	0	; Drum (low)
-FM_freqreg2		dw	0	; Snare + HiHat
-FM_volreg2		db	0	; Snare(low) Hihat(High)
-FM_freqreg3		dw	0	; Cymbal + TomTom
-FM_volreg3		db	0	; Cymbal(low) TomTom (High)
 
 FM_DRUM_LEN		db	0	; Length of drum macro
 FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
@@ -186,7 +184,7 @@ FM_softvoice_set 	db	0	; Software voice currently loaded
 ;FM_DRUM3		dw	0	; pointer to CYm_Tom macro
 
 
-SCC_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)
+FM_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)
 
 _AUDITION_LINE:
 		db	0,0,0,0

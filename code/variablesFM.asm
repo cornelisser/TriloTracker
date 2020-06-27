@@ -181,16 +181,16 @@ CHIP_Chan6:			#CHIP_REC_SIZE
 CHIP_Chan7:			#CHIP_REC_SIZE
 CHIP_Chan8:			#CHIP_REC_SIZE
 
-_KEYJAZZ_LINE:#4;db	0,0,0,0
-_KJ_PSG:	#4;db	0,0,0,0
-_KJ_PSG2:	#4;db	0,0,0,0
-_KJ_SCC:	#2;db	0,0
-_KJ_DRM1:	#4;db	0,0
-		  ;db	0,0
-_KJ_DRM2:	#14;db	0,0
-		  ;db	0,0,0,0
-		  ;db	0,0,0,0
-		  ;db	0,0,0,0
+_KEYJAZZ_LINE:	#4	;db	0,0,0,0
+_KJ_PSG:		#4	;db	0,0,0,0
+_KJ_PSG2:		#4	;db	0,0,0,0
+_KJ_SCC:		#2	;db	0,0
+_KJ_DRM1:		#4	;db	0,0
+				;db	0,0
+_KJ_DRM2:		#14	;db	0,0
+				;db	0,0,0,0
+				;db	0,0,0,0
+				;db	0,0,0,0
 
 
 
@@ -371,7 +371,8 @@ _LABEL_NOTES:	#_LABEL_NOTES_END - _LABEL_NOTES_START
 _KEY_NOTE_TABLE:	#_KEY_NOTE_TABLE_END - _KEY_NOTE_TABLE_START
 
 
-
+_VU_VALUES:		#8	;"xxxxxxxx"
+_VU_LABEL:		#8	;"xxxxxxxx"
 
 
 

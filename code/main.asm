@@ -270,7 +270,8 @@ _playback_loop:
 	cp	_SPACE
 	jr.	nz,0f
 	
-	call 	replay_init
+;	call 	replay_init
+	call	replay_stop
 ;	ld	a,(current_song)
 	call	set_songpage	
 	halt
@@ -314,7 +315,8 @@ _playback_loop:
 	cp	_ESC
 	jr.	nz,_playback_loop
 	
-	call replay_init
+;	call replay_init
+	call	replay_stop
 ;	ld	a,(current_song)
 	call	set_songpage	
 	halt

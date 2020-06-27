@@ -1,7 +1,4 @@
-_VU_VALUES:
-	db	"xxxxxxxx"
-_VU_LABEL:
-	db	"xxxxxxxx"
+
 
 draw_vu_empty:
 	ld	a,(_CONFIG_VU)
@@ -23,45 +20,40 @@ draw_vu:
 	and	a
 	ret	z
 
+	;--- Determine the channel setup
 	ld	a,(replay_chan_setup)
 	and	a
-	jp	z,26f
-35:
-	;--- copy values
-	ld	de,_VU_VALUES
-	ld	hl,AY_regVOLA
-[3]	ldi
-	ld	hl,SCC_regVOLB	
-	; copy and invert value
-	ld	b,5
-_dv_invert1:
-	ld	c,(hl)
+	jp	z,.setup26
+.setup35:
+	ld	de,_VU_VALUES+3
+	ld	hl,FM_regToneB+2	; points to key on
+	ld	b, 5	
+	jp	.loop
+
+.setup26:
+	ld	de,_VU_VALUES+2
+	ld	hl,FM_regToneA+2	; points to key on
+	ld	b, 6
+	
+.loop:	
+	bit 	4,(hl)		; keyon
+	jp	z,.off
+		
+	ld	a,(de)
+	ld	c,a
 	ld	a,15
 	sub	c
-	ld	(de),a
+	ld	(de),a	
+	
+.loop_end:	
 	inc	de
-	inc	hl
-	djnz	_dv_invert1
-	JP	1f
-26:
-	;--- copy values
-	ld	de,_VU_VALUES
-	ld	hl,AY_regVOLA
-[2]	ldi
-	ld	hl,SCC_regVOLA	
-	; copy and invert value
-	ld	b,6
-_dv_invert2:
-	ld	c,(hl)
-	ld	a,15
-	sub	c
-	ld	(de),a
-	inc	de
-	inc	hl
-	djnz	_dv_invert2
-
-
-
+	ld	a,6
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	djnz .loop
 
 1:	call	_vu_line_calc
 	ld	hl,(80*5)+48
@@ -78,8 +70,13 @@ _dv_invert2:
 	call	_vu_line_calc
 	ld	hl,(80*2)+48
 	call	draw_label_fast
-
 	ret
+
+.off:
+	xor	a
+	ld	(de),a
+	jp	.loop_end
+
 
 
 

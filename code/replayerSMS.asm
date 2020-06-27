@@ -347,17 +347,17 @@ ENDIF
 	ld	(FM_DRUM_Flags),a
 
 	ld	bc,FM_DRUM1_LEN
-	ld	de,FM_freqreg1	
+	ld	de,DRUM_regToneBD	
 	ld	hl,(FM_DRUM1)
 	call	replay_process_drum
 	ld	(FM_DRUM1),hl
 	ld	bc,FM_DRUM2_LEN
-	ld	de,FM_freqreg2
+	ld	de,DRUM_regToneSH
 	ld	hl,(FM_DRUM2)
 	call	replay_process_drum
 	ld	(FM_DRUM2),hl
 	ld	bc,FM_DRUM3_LEN
-	ld	de,FM_freqreg3
+	ld	de,DRUM_regToneCT
 	ld	hl,(FM_DRUM3)
 	call	replay_process_drum	
 	ld	(FM_DRUM3),hl
@@ -563,11 +563,11 @@ ENDIF
 ;	db	0x24
 
 	ld	a,0x00
-	ld	(FM_volreg1),a
+	ld	(DRUM_regVolBD),a
 	ld	a,0x42
-	ld	(FM_volreg2),a
+	ld	(DRUM_regVolSH),a
 	ld	a,0x24
-	ld	(FM_volreg3),a
+	ld	(DRUM_regVolCT),a
 	ld	a,00000111b
 	ld	(FM_DRUM_Flags),a	
 ;	ld	b,3
@@ -3512,7 +3512,7 @@ _tt_route_fmtone:
 	ld	d,a			; 4 cycles
 	ld	c,$36			; 7 cycles
 	ld	b,3			; 7 cycles
-	ld	hl,FM_volreg1
+	ld	hl,DRUM_regVolBD
 _drmvolloop:
 	srl	d
 	jr.	nc,0f
@@ -3533,7 +3533,7 @@ _drmvolloop:
 	ld	c,$16
 	ld	e,$26
 	ld	b,3
-	ld	hl,FM_freqreg1
+	ld	hl,DRUM_regToneBD
 _drmfreqloop:
 	srl	d
 	jr.	nc,0f

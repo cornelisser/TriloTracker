@@ -137,12 +137,12 @@ SCC_regVOLF  	db	0	; Chan E volume
 
 FM_DRUM		db	0
 FM_DRUM_Flags	db	0	; 0,1,2 = volume, 5,6,7 = freq
-FM_volreg1		db	0	; Drum (low)
-FM_volreg2		db	0	; Snare(low) Hihat(High)
-FM_volreg3		db	0	; Cymbal(low) TomTom (High)
-FM_freqreg1		dw	0	; Base drum
-FM_freqreg2		dw	0	; Snare + HiHat
-FM_freqreg3		dw	0	; Cymbal + TomTom
+DRUM_regVolBD		db	0	; Drum (low)
+DRUM_regVolSH		db	0	; Snare(low) Hihat(High)
+DRUM_regVolCT		db	0	; Cymbal(low) TomTom (High)
+DRUM_regToneBD		dw	0	; Base drum
+DRUM_regToneSH		dw	0	; Snare + HiHat
+DRUM_regToneCT		dw	0	; Cymbal + TomTom
 
 SCC_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)
 

@@ -688,7 +688,7 @@ replay_stop:
 	ld	(replay_mode),a	
 
 	ld	b,6
-	ld	hl,FM_Registers+2
+	ld	hl,FM_Registers+1
 	ld	de,6
 	xor	a
 0:

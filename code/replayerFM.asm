@@ -704,6 +704,7 @@ IFDEF TTSMS
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a
 	ld	(AY_regVOLC),a
+	ld	(SN_regVOLN),a
 
 ELSE	
 	;--- Silence the AY3 PSG chip

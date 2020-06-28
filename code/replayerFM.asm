@@ -3889,10 +3889,21 @@ replay_route_FM:
 	
 
 replay_route_mixer:
-	;==== This now only works for 3sg+5fm
+	;--- Determine the channel setup
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,.setup26
+.setup35:
 	ld	b,5
 	ld	hl,FM_regToneB+1		; contains the keyON bit
 	ld	a,(MainMixer)
+	jp	0f
+.setup26:
+	ld	b,6
+	ld	hl,FM_regToneA+1		; contains the keyON bit
+	ld	a,(MainMixer)
+	rlc	a				; setup mixer for 6 FM chans
+0:
 	ld	c,a
 .loop:
 	rrc	c

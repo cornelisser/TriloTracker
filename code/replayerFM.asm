@@ -673,12 +673,12 @@ ENDIF
 	ld	(replay_patpage),a	
 
 	;--- DRUM reset
-	push	bc
-	ld	de,FM_DRUM_Flags
-	ld	hl,DRM_DEFAULT_values
-	ld	bc,10
-	ldir
-	pop	bc
+;	push	bc
+;	ld	de,FM_DRUM_Flags
+;	ld	hl,DRM_DEFAULT_values
+;	ld	bc,10
+;	ldir
+;	pop	bc
 	
 	; end	is here
 	ret
@@ -686,8 +686,9 @@ ENDIF
 replay_stop:
 	xor	a
 	ld	(replay_mode),a	
+	ld	(FM_DRUM),a
 
-	ld	b,6
+	ld	b,9
 	ld	hl,FM_Registers+1
 	ld	de,6
 	xor	a
@@ -1796,13 +1797,14 @@ _CHIPcmdE_extended:
 	rrca
 	rrca
 	rrca	
+
 	and $1E
 	
 	ld	hl,_CHIPcmdExtended_List
 	add	a,l
 	ld	l,a
 	jp	nc,99f
-	inc	hl
+	inc	h
 99:	
 	ld	a,(hl)
 	inc	hl
@@ -2022,6 +2024,11 @@ _CHIPcmdF_speed:
 
 	ret
 
+
+
+_rpd_noDrum:
+	ld	(FM_DRUM),a		; store the percusion bits
+	ret
 ;===========================================================
 ; ---replay_process_drum
 ; Process the current drum macro
@@ -2030,24 +2037,19 @@ _CHIPcmdF_speed:
 replay_process_drum:
 	ld	a,(FM_DRUM_LEN)
 	and	a
-	ret	z		; do nothing if end of macro is reached
+	jp	z,_rpd_noDrum		; do nothing if end of macro is reached
 	dec	a
 	ld	(FM_DRUM_LEN),a
 
 	ld	bc,(FM_DRUM_MACRO)
-	ld	d,0
+
 	;--- process step
+
+
 	; drum bits
 	ld	a,(bc)
-	and	a
-	jr	z,0f			; jump if no data
-;	set 5,a			; key on for percussion
 	ld	(FM_DRUM),a		; store the percusion bits
-	set	0,d
 
-
-0:	
-	sla	d
 	inc	bc
 	; tone Basedrum
 	ld	a,(bc)
@@ -2081,7 +2083,7 @@ replay_process_drum:
 	dec	h
 	add	a,l
 	ld	l,a
-	adc a,h
+	adc 	a,h
 	sub	l
 	ld	h,a
 99:
@@ -2097,17 +2099,13 @@ replay_process_drum:
 3:
 	ld 	(DRUM_regToneBD),hl
 
-4:	set	0,d
-
+4:
 0:
-	sla	d
 	inc	bc
 	; volume Basedrum
 	ld	a,(bc)
 	and	a
-	jp	z,0f			; jump if no data
-	set	0,d
-	
+	jp	z,0f			; jump if no data	
 
 	;--- apply main volume balance
 	ld	hl,replay_mainvol
@@ -2122,11 +2120,7 @@ replay_process_drum:
 	sub	l
 	ld	(DRUM_regVolBD),a
 
-	
-	
-	
 0:
-	sla	d
 	inc	bc
 	; tone Snare Hhat
 	ld	a,(bc)
@@ -2175,17 +2169,13 @@ replay_process_drum:
 99:
 3:
 	ld 	(DRUM_regToneSH),hl
-
-4:	set	0,d
-
+4:
 0:
-	sla	d
 	inc	bc
 	; volume snare Hhat
 	ld	a,(bc)
 	and	a
 	jp	z,0f			; jump if no data
-	set	0,d
 
 	;high vol
 	and	0xf0
@@ -2235,7 +2225,6 @@ replay_process_drum:
 	ld	(DRUM_regVolSH),a
 	
 0:
-	sla	d
 	inc	bc
 	; tone Cy Tom
 	ld	a,(bc)
@@ -2285,18 +2274,14 @@ replay_process_drum:
 3:
 	ld 	(DRUM_regToneCT),hl
 
-4:	set	0,d
-
+4:	
 0:
-
-	sla	d
 	inc	bc
 	; volume Cy Tom
 	ld	a,(bc)
 	and	a
 	jp	z,0f			; jump if no data
-	set	0,d
-	;high vol
+\	;high vol
 	and	0xf0
 	jp	z,1f			; no high update
 	
@@ -2345,16 +2330,12 @@ replay_process_drum:
 	ld	(DRUM_regVolCT),a
 	
 0:
-	sla	d
 	inc	bc
 	ld	hl,FM_DRUM_MACRO
 	ld	(hl),c
 	inc	hl
 	ld	(hl),b
 	
-
-	ld	a,d
-	ld	(FM_DRUM_Flags),a
 	ret
 
 
@@ -3893,27 +3874,52 @@ replay_route_FM:
 	ld	(hl),a
 	call	load_softwarevoice
 .noVoice:
-	;--- Apply the mixer.
-	ld	hl,FM_regMIXER
+
+
+
+
 	;--- do not	apply	mmainmixer when in  mode 2
 ;	ld	a,(keyjazz)
 ;	and	a
 ;;	jr.	nz,99f
 	ld	a,(replay_mode)
 	cp	2
-	jr.	z,99f
-;fmmixer:
+	jr.	z,0f
+	
+
+replay_route_mixer:
+	;==== This now only works for 3sg+5fm
+	ld	b,5
+	ld	hl,FM_regToneB+1		; contains the keyON bit
 	ld	a,(MainMixer)
-	and	(hl)	; set	to 0 to silence
-	ld	(hl),a
+	ld	c,a
+.loop:
+	rrc	c
+	jp	c,99f		; if flag wat set skip silencing the channel
+	res	4,(hl)
 99:
+	ld	a,6	;--- point to next channel reg
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	djnz	.loop
+
+
+0:
+
+	call	_route_FM_drum_update
+
+
+
 	;------------------------------------------
 	;---- Update the tone and drum registers
 	;------------------------------------------
 	ld 	hl,FM_Registers
 	ld	de,CHIP_Chan3+CHIP_Flags
 	ld	a,$10		; Register $10
-	ld	b,6;9		; 6 channels to update
+	ld	b,9		; 6(tone)+3(drum) channels to update
 
 .channel_loop:	
 	; Tone low
@@ -3950,41 +3956,26 @@ replay_route_FM:
 	inc	hl
 	add	a,-$1F	; Register# = channel + $10
 	djnz	.channel_loop
-
 	ret
 
-;	;-----------------
-;	; Update drum registers
-;	;-----------------
-;;	ld	a,(DrumMixer)
-;;	and	a
-;;	ret	z	; skip drums if disabled
-;
-;	ld	a,(FM_DRUM_Flags)
-;	ld	d,a		
-;
-;	;; just for debug purposes
-;	and	a
-;	ret	z
-;
-;
-;	rl	d
-;	jp	nc,route_FM_Tone1
-;	;---- Percusion bits
+_route_FM_drum_update:
+	ld	a,(DrumMixer)
+	and	a
+	ret	z		; Drums on mute
 
-route_FM_Rythm:	
+	ld	a,(FM_DRUM)
+	and	00011111b		; erase bit 5
+	ret	z			; no drums to play
+	
+	ld	b,a
 	ld	a,0x0e
 	;-- load the new values
 	out	(FM_WRITE),a	; Select rythm register
 	
-	ld	a,(FM_DRUM)		; 7 cycles
-	and	011111b		; erase bit 5 to enable retrigger drum
+	ld	a,b
 	out	(FM_DATA),a		
-	
-	ld	a,(DrumMixer)
-	ld	b,a
-	ld	a,(FM_DRUM)		; 7 cycles
-	or	b			; Mask with drum mixer (bit 5 is set)
+
+	or	100000b		; set the percussion bit
 	out	(FM_DATA),a
 	
 	ret

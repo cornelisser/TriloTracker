@@ -166,7 +166,6 @@ DRUM_regVolCTb	db	0
 
 FM_DRUM		db	0	; Percussion bits
 
-FM_DRUM_Flags	db	0	; 7, percusion, 6,4,2 = tone update, 5,3,1 = vol update
 
 FM_DRUM_LEN		db	0	; Length of drum macro
 FM_DRUM_MACRO	dw	0	; Pointer to drum macro data

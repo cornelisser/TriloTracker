@@ -26,17 +26,17 @@ draw_vu:
 	jp	z,.setup26
 .setup35:
 	ld	de,_VU_VALUES+3
-	ld	hl,FM_regToneB+2	; points to key on
+	ld	hl,CHIP_Chan4+CHIP_Flags   
 	ld	b, 5	
 	jp	.loop
 
 .setup26:
 	ld	de,_VU_VALUES+2
-	ld	hl,FM_regToneA+2	; points to key on
+	ld	hl,CHIP_Chan3+CHIP_Flags  	
 	ld	b, 6
 	
 .loop:	
-	bit 	4,(hl)		; keyon
+	bit 	1,(hl)		; keyon
 	jp	z,.off
 		
 	ld	a,(de)
@@ -47,7 +47,7 @@ draw_vu:
 	
 .loop_end:	
 	inc	de
-	ld	a,6
+	ld	a,CHIP_REC_SIZE
 	add	a,l
 	ld	l,a
 	jp	nc,99f

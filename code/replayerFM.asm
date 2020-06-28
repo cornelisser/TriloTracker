@@ -3940,6 +3940,11 @@ replay_route_mixer:
 	add	a,$10	; Register# $20
 
 	ex	af,af'
+
+	ld	a,b	;-- Only do this check for first 6 chans. Other are drum
+	cp	4
+	jp	c,0f
+
 	;-- Check if we need to toggle key to start a new note
 	ld	a,(de)
 	bit	0,a
@@ -3956,6 +3961,7 @@ replay_route_mixer:
 	jp	nc,99f
 	inc	d
 99:	
+0:
 	ex	af,af'
 	
 	; Tone High + key & sustain
@@ -4407,7 +4413,6 @@ draw_SCCdebug:
 	ld	de,_TEMPSCC
 	ld	b,39;44
 	call	draw_label_fast					
-
 
 	ret
 

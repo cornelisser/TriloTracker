@@ -142,7 +142,7 @@ _LABEL_PATTERNHEADER2:
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"
 	include 	".\code\cursor.asm"
-	
+
 	
 SWAP_ELEMENTSTART:		
 	; temporary start up code and data!!! Will be over written after init
@@ -173,8 +173,8 @@ font_data:
 	include 	".\code\screen.asm"	
 	include 	".\code\clipboard.asm"
 	include 	".\code\song.asm"		
-
-	include 	".\code\keyboard.asm"	
+	include 	".\code\keyboard.asm"
+	include	".\code\musickeyboard.asm"	
 	include 	".\code\isr.asm"	; This cannot be before this address!!!!
 	include 	".\code\mapper.asm"	
 	include 	".\code\disk.asm"

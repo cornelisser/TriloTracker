@@ -117,7 +117,8 @@ PAL:                             ; execute the PSG and ayFX core
 ;	out	(0x99),a
 
 
-
+	;--- read_musickb (Music module)
+	call	read_musickb
 
 	; --- mouse 
 ;	call	read_mouse
@@ -127,6 +128,9 @@ PAL:                             ; execute the PSG and ayFX core
 	call	key_handler
 	call	read_functionkeys
 	
+	
+
+	
 	;-- Cursor blink
 	ld	hl,cursor_timer
 	inc	(hl)	
@@ -134,6 +138,10 @@ PAL:                             ; execute the PSG and ayFX core
 
 	pop	af
 	call	PUT_P2
+
+
+
+
 
 	ret
 

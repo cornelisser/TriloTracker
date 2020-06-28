@@ -122,12 +122,12 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\filedialogRAM.asm"
 	include 	".\code\elements\psgsampleeditor.asm"
 	include 	".\code\elements\psgsampleboxFM.asm"
-
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	
+
 
 	
 	
@@ -158,8 +158,8 @@ font_data:
 	include 	".\code\screen.asm"	
 	include 	".\code\clipboard.asm"
 	include 	".\code\song.asm"		
-
 	include 	".\code\keyboard.asm"	
+	include	".\code\musickeyboard.asm"
 	include 	".\code\isr.asm"	; This cannot be before this address!!!!
 	include 	".\code\mapper.asm"	
 	include 	".\code\disk.asm"

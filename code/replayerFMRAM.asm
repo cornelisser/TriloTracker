@@ -363,7 +363,7 @@ ELSE
 ENDIF	
 	
 	
-	call	replay_route
+	;call	replay_route
 	ret
 
 

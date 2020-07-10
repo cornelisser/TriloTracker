@@ -62,6 +62,7 @@ start_init:
 	ld	a,3
 	ld	(keyjazz_chip),a	
 
+	call	replay_stop
 
 	call	clear_clipboard	
 	call	reset_selection	

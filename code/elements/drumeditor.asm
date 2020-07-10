@@ -90,14 +90,7 @@ init_drumeditor:
 ; 
 ;===========================================================	
 processkey_drumeditor:
-	;--- check for filedialog
-;	ld	a,(key)
-;	cp	5
-;	jr.	nz,0f
-	;--- start filedialog
-;	ld	a,5
-;	call	swap_loadblock
-;	jr.	init_ins_filedialog
+
 
 0:
 	;--- check [CTRL] combinations

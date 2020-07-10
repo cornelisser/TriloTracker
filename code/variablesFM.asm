@@ -236,7 +236,7 @@ FM_DRUM		#1	; Percussion bits
 
 
 MainMixer:				#1
-DrumMixer:			#1
+DrumMixer:				#1
 mainPSGvol:				#1
 mainSCCvol:				#1
 _REPLAY_START:			#0

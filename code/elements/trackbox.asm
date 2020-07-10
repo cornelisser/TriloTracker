@@ -436,8 +436,6 @@ process_key_trackbox:
 
 	jr.	_process_key_trackbox_END
 
-
-
 0:
 	;--- General trackbox keys
 	;--- check [CTRL] combinations
@@ -456,13 +454,7 @@ process_key_trackbox:
 		call	selection_note_up
 		jr.	update_patterneditor
 		
-		
 0:		
-	
-	
-	
-	
-	
 		;--- DOWN
 		cp	_KEY_DOWN
 		jr.	nz,0f
@@ -531,7 +523,6 @@ process_key_trackbox:
 		jr.	3b
 		
 0:	
-
 		;--- OCTAVE UP
 		cp	">"+128
 		jr.	nz,0f
@@ -539,7 +530,6 @@ process_key_trackbox:
 		; Octave up on selection
 		call	selection_octave_up
 		jr.	update_patterneditor
-		
 		
 0:	
 		;--- OCTAVE DOWN
@@ -549,10 +539,8 @@ process_key_trackbox:
 		; Octave down on selection
 		call	selection_octave_down
 		jr.	update_patterneditor
-		
 			
 0:	
-
 		;--- NOTE DOWN
 		cp	","+128
 		jr.	nz,0f
@@ -561,10 +549,6 @@ process_key_trackbox:
 		call	selection_note_down
 		jr.	update_patterneditor		
 		
-		
-		
-
-
 
 0:
 76:
@@ -574,7 +558,41 @@ process_key_trackbox:
 _process_key_trackbox_END:
 	ret
 
-		
+;===========================================================
+; --- process_key_trackbox_musickb
+;
+; Process the input for the pattern. 
+; There are 2 version for compact and full view
+; 
+;===========================================================
+process_key_trackbox_musickb:
+	ld	a,(music_key)
+	and	a
+	ret	z				; stop if no key found
+
+	call	get_chanrecord_location	; Get current track row pointer
+	
+	ex	af,af'			; Store note
+	ld	a,(tmp_cur_instrument)
+	and	a
+	jr.	z,.noIns	;-store without instrument
+
+	ex	af,af'			; Restore note
+	call	store_log_note
+	jr.	.end
+
+.noIns:	
+	ex	af,af'			; Restore note
+	call	store_log_byte
+	
+.end:
+	call	set_songpage
+	call	update_trackbox	
+	
+	jr.	_process_key_trackbox_compact_END_sound
+	
+
+	
 ;===========================================================
 ; --- process_key_trackbox_compact
 ;
@@ -588,7 +606,7 @@ process_key_trackbox_compact:
 	and	a
 	ret	z
 
-
+0:
 	;--- ESC return to start of pattern
 	cp	_ESC
 	jr.	nz,0f
@@ -1112,53 +1130,6 @@ _pktc_kright_loop:
 	jr.	nc,_process_key_trackbox_compact_END
 	
 77:
-
-;	;!!!! add not setting instrument 0 on delete or 'k'
-;	
-;	
-;	cp	_DEL
-;	jr.	nz,99f
-;	ld	a,'k'
-;99:	
-;	;--- Check if the key pressed is in the note range
-;	cp	0x21	; first key mapped to a note
-;	jr.	c,0f	
-;	cp	0x7f	; last key mapped to a note
-;	jr.	nc,0f
-;
-;	;--- Get the note value of the key pressed
-;	ld	hl,_KEY_NOTE_TABLE-0x21
-;	add	a,l
-;	ld	l,a
-;	jr.	nc,99f
-;	inc	h
-;99:
-;
-;	;--- Get the octave
-;	ld	a,(song_octave)
-;	ld	b,a
-;	
-;	ld	a,(hl)
-;	;inc	a
-;	;--- Only process values != 255
-;	cp	255
-;	jr.	z,_process_key_trackbox_compact_END
-;	
-;	;--- Add the octave
-;	; but not for these;
-;	cp	97
-;	jr.	nc,77f
-;	and	a
-;	jr.	z,77f
-;	sub	12
-;88:
-;	add	12
-;	djnz	88b
-;	;--- Check if we are not outside the 8th ocatave
-;	cp	97
-;	jr.	nc,_process_key_trackbox_compact_END
-;	
-;77:	
 	call	get_chanrecord_location
 	;ld	(hl),a
 	ex	af,af'			;'
@@ -1549,24 +1520,8 @@ _process_key_trackbox_compact_END_sound:
 
 	;--- sound the pattern line
 	call	replay_init
-;	ld	a,(song_pattern)
-;	ld	b,a
-;	call	set_patternpage	
-;;	inc	hl
-;	ld	a,(current_song)
 	call	set_songpage_safe
-;	ld	a,(song_pattern_line)
-;	and	a
-;	jr.	z,9f
-;	ld	de,SONG_PATLNSIZE
-;
-;	;--- Set patternline offset
-;99:
-;	add	hl,de
-;	dec	a	
-;	jr.	nz,99b
-;9:
-;	ld	(replay_patpointer),hl
+
 	ld	a,(key_value)
 	ld	(replay_key),a	
 	ld	a,3

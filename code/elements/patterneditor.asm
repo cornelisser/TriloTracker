@@ -116,9 +116,10 @@ init_patterneditor:
 ;===========================================================	
 processkey_patterneditor:
 
+	call	process_key_trackbox_musickb
+
 	;--- general keys for patterneditor
 	ld	a,(key)
-
 	and	a
 	ret	z
 

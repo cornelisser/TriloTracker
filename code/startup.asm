@@ -4,7 +4,9 @@
 	; Checks are done and this part may be overwritten after init.
 start_init:
 	di
+	
 	call	check_extendedBIOS	; exteded BIOS is needed
+
 
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
 	and	2
@@ -19,16 +21,9 @@ start_init:
 	call	init_vdp		; set the vdp registers (mouse/colors/width80)
 	call	init_font		; set the new font
 
-;	call	setpalette		; loads the custom palette colors.
 
-
-;	xor	a
-;	ld	(current_song),a
-
-	;--- init the window pnt's
-;	call	set_vdpwindow
+	;--- clear screen
 	call	clear_screen
-
 
 	;--- copy window messages to VRAM
 	; do this before initing SONG variables as the code to be loaded to VRAM is a tsame RAM address.
@@ -58,8 +53,6 @@ start_init:
 	ld	(mainSCCvol),a
 	ld	(instrument_select_status),a	
 	ld	(waveform_select_status),a
-	
-
 
 	ld	a,100000b
 	ld	(DrumMixer),a	; FM drums on	
@@ -68,7 +61,8 @@ start_init:
 
 	ld	a,3
 	ld	(keyjazz_chip),a	
-		
+
+
 	call	clear_clipboard	
 	call	reset_selection	
 	
@@ -131,6 +125,7 @@ config:
 	call	init_keyboard
 	call	set_vsf
 	call	set_textcolor		; Adjust the colors to the current song.
+
 
 	ret
 

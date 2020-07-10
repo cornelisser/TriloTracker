@@ -4,45 +4,16 @@
 ; Persistent RAM unswappable
 ;
 ;================================
-_SP_Storage	dw	0	; to store the SP
-
-replay_key				db 0			; key to test for stopping sound
-replay_line				db 0			; local playing line to sync visual playback
-replay_speed 			db 2			; speed to replay (get from song)
-replay_speed_subtimer 		db 0			; counter for finer speed
-replay_speed_timer 		db 0 			; counter for speed
-replay_mode: 			db 0			; Replayer status
-; mode 0  = no sound output
-; mode 1  = replay song 
-; mode 2  = instrument key jazz
-; mode 4  = pattern keyjazz
-; mode 5  = replay song step based  
-replay_chan_setup			db 1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
-
-replay_patpointer 		dw 0			; pointer to the data
-replay_patpage 			db 0 			; the current page
-replay_previous_note		db 0			; previousnote played
-replay_mainvol			db 0			; the volume correction.
-
 ;replay_vib_table:			dw 0			; pointer to the vibrato table
 replay_Tonetable:			dw CHIP_ToneTable
 
-
-
-
-
-
-
-
-
-
-CHIP_Instrument		equ 0	
-CHIP_Voice			equ 1
-CHIP_Command		equ 2
-CHIP_MacroPointer		equ 3	
-CHIP_Note			equ 5	
-CHIP_Volume			equ 6	
-CHIP_Flags			equ 7	
+CHIP_Instrument			equ 0	
+CHIP_Voice				equ 1
+CHIP_Command			equ 2
+CHIP_MacroPointer			equ 3	
+CHIP_Note				equ 5		
+CHIP_Volume				equ 6		
+CHIP_Flags				equ 7	
 	; 0 = note trigger
 	; 1 = note active
 	; 2 = 
@@ -51,35 +22,35 @@ CHIP_Flags			equ 7
 	; 5 = sustain		; for fm note sustain	; Do not use for PSG!
 	; 6 = custom voice trigger
 	; 7 = PSG/SCC
-CHIP_MacroStep		equ 8			; reset after note set
-CHIP_ToneAdd		equ 9			; reset after note set
-CHIP_VolumeAdd		equ 11		; reset after note set
-CHIP_Noise			equ 12		; reset after note set
+CHIP_MacroStep			equ 8			; reset after note set
+CHIP_ToneAdd			equ 9			; reset after note set
+CHIP_VolumeAdd			equ 11		; reset after note set
+CHIP_Noise				equ 12		; reset after note set
 
 
-CHIP_cmd_ToneSlideAdd	equ 13		; reset after note set
+CHIP_cmd_ToneSlideAdd		equ 13		; reset after note set
 ;CHIP_cmd_VolumeSlideAdd	equ 15		; reset after note set
-CHIP_cmd_NoteAdd		equ 15		; reset after note set
-CHIP_cmd_ToneAdd		equ 16		; reset after note set
-CHIP_cmd_VolumeAdd	equ 18		; reset after note set
-CHIP_cmd_0			equ 19
-CHIP_cmd_1			equ 20
-CHIP_cmd_2			equ 21
-CHIP_cmd_3			equ 22
-CHIP_cmd_4_depth		equ 23	; pointer to the sine table
-CHIP_cmd_4_step		equ 25
-;CHIP_cmd_6			equ 26
-CHIP_cmd_detune		equ 26
+CHIP_cmd_NoteAdd			equ 15		; reset after note set
+CHIP_cmd_ToneAdd			equ 16		; reset after note set
+CHIP_cmd_VolumeAdd		equ 18		; reset after note set
+CHIP_cmd_0				equ 19
+CHIP_cmd_1				equ 20
+CHIP_cmd_2				equ 21
+CHIP_cmd_3				equ 22
+CHIP_cmd_4_depth			equ 23	; pointer to the sine table
+CHIP_cmd_4_step			equ 25
+;CHIP_cmd_6				equ 26
+CHIP_cmd_detune			equ 26
 
-CHIP_cmd_9			equ 28
-CHIP_cmd_A			equ 29		
-CHIP_cmd_B			equ 30		
-CHIP_cmd_E			equ 31
-;CHIP_cmd_F			equ 31
-CHIP_Timer			equ 32		; used for timing by all cmd's
-CHIP_Step			equ 33		; only for VIBRATO???
+CHIP_cmd_9				equ 28
+CHIP_cmd_A				equ 29		
+CHIP_cmd_B				equ 30		
+CHIP_cmd_E				equ 31
+;CHIP_cmd_F				equ 31
+CHIP_Timer				equ 32		; used for timing by all cmd's
+CHIP_Step				equ 33		; only for VIBRATO???
 
-CHIP_REC_SIZE		equ 34
+CHIP_REC_SIZE			equ 34
 
 ; Moved to RAM > $c000 to free space for replayer code.
 ;CHIP_Chan1			ds	CHIP_REC_SIZE
@@ -124,48 +95,6 @@ AY_regEnvH 		db	0	; Volume Env Freq high (4bit)
 AY_regEnvShape 	db	0	; Volume Env Shape (4bit)
 AY_VOLUME_TABLE   
 	incbin "..\data\voltable.bin"	
-
-FM_Registers: 	; contiains the registers values to write and value previously written
-FM_regToneA 	dw	0	; Tone A freq low (8bit)			; Tone A freq high (1bit)
-FM_regToneAb 	dw	0	; Tone A freq low (8bit)			; Tone A freq high (1bit)
-FM_regVOLA		db	0	; Chan A volume
-FM_regVOLAb		db	0	; Chan A volume
-FM_regToneB 	dw	0	; Tone B freq low					; Tone B freq high
-FM_regToneBb 	dw	0	; Tone B freq low					; Tone B freq high
-FM_regVOLB		db	0	; Chan B volume
-FM_regVOLBb		db	0	; Chan B volume
-FM_regToneC 	dw	0	; Tone C freq low					; Tone C freq high
-FM_regToneCb 	dw	0	; Tone C freq low					; Tone C freq high
-FM_regVOLC	 	db	0	; Chan C volume
-FM_regVOLCb	 	db	0	; Chan C volume
-FM_regToneD 	dw	0	; Tone D freq low					; Tone D freq high
-FM_regToneDb 	dw	0	; Tone D freq low					; Tone D freq high
-FM_regVOLD		db	0	; Chan D volume
-FM_regVOLDb		db	0	; Chan D volume
-FM_regToneE 	dw	0	; Tone E freq low					; Tone E freq high
-FM_regToneEb 	dw	0	; Tone E freq low					; Tone E freq high
-FM_regVOLE	  	db	0	; Chan E volume
-FM_regVOLEb	  	db	0	; Chan E volume
-FM_regToneF 	dw	0	; Tone E freq low					; Tone F freq high
-FM_regToneFb 	dw	0	; Tone E freq low					; Tone F freq high
-FM_regVOLF	  	db	0	; Chan F volume
-FM_regVOLFb	  	db	0	; Chan F volume
-
-DRUM_regToneBD	dw	0
-DRUM_regToneBDb	dw	0
-DRUM_regVolBD	db	0
-DRUM_regVolBDb	db	0
-DRUM_regToneSH	dw	0
-DRUM_regToneSHb	dw	0
-DRUM_regVolSH	db	0
-DRUM_regVolSHb	db	0
-DRUM_regToneCT	dw	0
-DRUM_regToneCTb	dw	0
-DRUM_regVolCT	db	0
-DRUM_regVolCTb	db	0
-
-FM_DRUM		db	0	; Percussion bits
-
 
 FM_DRUM_LEN		db	0	; Length of drum macro
 FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
@@ -397,9 +326,45 @@ replay_init:
 	call	swap_loadblock
 	
 	jp	replay_init_cont				
-	
-;_WAVESSCC			
-;_FM_drumfreqtable:	ds	32	; the drum frequency values
-;_FM_drumfreqedit:		ds	32 	; the values use din the drumfreq editor		
 
-;_rest_WAVESCC:	;	ds	32*30	
+;===========================================================
+; ---	replay_stop
+; Silence all channels
+; 
+; 
+;===========================================================
+replay_stop:
+	xor	a
+	ld	(replay_mode),a	
+	ld	(FM_DRUM),a
+
+	ld	b,9
+	ld	hl,FM_Registers+1
+	ld	de,6
+	xor	a
+0:
+;	res	4,(hl)
+	ld	(hl),a
+	add	hl,de
+	djnz	0b
+	
+IFDEF TTSMS
+	;--- Silence the SN7 PSG
+	xor	a
+	ld	(AY_regVOLA),a
+	ld	(AY_regVOLB),a
+	ld	(AY_regVOLC),a
+	ld	(SN_regVOLN),a
+
+ELSE	
+	;--- Silence the AY3 PSG chip
+	ld	a,0x3f
+	ld	(AY_regMIXER),a
+ENDIF	
+	
+	
+	call	replay_route
+	ret
+
+
+

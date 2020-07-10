@@ -126,6 +126,18 @@ _rpm2_3:
 	ld	a,0x0f
 	ld	(KH_timer),a		; F3F7 REPCNT  Delay until the auto-repeat of the key	begins	
 	
+	;-- test if musickb is pressed
+	ld	a,(music_key_on)
+	and	a
+	jp	z,.testkb
+	ld	a,(music_key)
+	ld	c,a
+	ld	a,(music_buf_key)
+	cp	c
+	;--- just keep playing empty lines.
+	jr.	z,replay_decodedata_NO
+	
+.testkb:
 	;--- test if key is still pressed.
 	ld	a,(replay_key)
 	ld	c,a		; calculate the row
@@ -682,40 +694,6 @@ ENDIF
 	
 	; end	is here
 	ret
-
-replay_stop:
-	xor	a
-	ld	(replay_mode),a	
-	ld	(FM_DRUM),a
-
-	ld	b,9
-	ld	hl,FM_Registers+1
-	ld	de,6
-	xor	a
-0:
-;	res	4,(hl)
-	ld	(hl),a
-	add	hl,de
-	djnz	0b
-	
-IFDEF TTSMS
-	;--- Silence the SN7 PSG
-	xor	a
-	ld	(AY_regVOLA),a
-	ld	(AY_regVOLB),a
-	ld	(AY_regVOLC),a
-	ld	(SN_regVOLN),a
-
-ELSE	
-	;--- Silence the AY3 PSG chip
-	ld	a,0x3f
-	ld	(AY_regMIXER),a
-ENDIF	
-	
-	
-	call	replay_route
-	ret
-
 
 
 
@@ -2044,144 +2022,126 @@ replay_process_drum:
 
 	ld	bc,(FM_DRUM_MACRO)
 
-	;--- process step
-
-
 	; drum bits
 	ld	a,(bc)
 	ld	(FM_DRUM),a		; store the percusion bits
-
 	inc	bc
-	; tone Basedrum
-	ld	a,(bc)
-	and	a
-	jp	z,0f			; jump if no data
-	bit	7,a
-	jp	nz,1f			; tone deviation
+	;- Bass drum
+	ld	hl,DRUM_regToneBD
+	call	replay_process_drum_tone
+	ld	de,DRUM_regVolBD
+	call	replay_process_drum_volume_BD
+	;- Snare Hihat
+	ld	hl,DRUM_regToneSH
+	call	replay_process_drum_tone	
+	ld	de,DRUM_regVolSH
+	call	replay_process_drum_volume
+	;- Cymbal Tom
+	ld	hl,DRUM_regToneCT
+	call	replay_process_drum_tone	
+	ld	de,DRUM_regVolCT
+	call	replay_process_drum_volume	
+	
+	ld	(FM_DRUM_MACRO),bc
+	ret
 
-	; Note
-	ld	hl,(replay_Tonetable)
+;==================================================
+; replay_process_drum_tone
+;
+; Process the data [BC] into drumreg [HL]
+;==================================================
+replay_process_drum_tone:
+	; tone 
+	ld	a,(bc)
+	inc	bc
+	and	a
+	ret	z			; return if no data
+	
+	bit	7,a
+	jp	nz,.deviation	; tone deviation
+
+.note:				; Note
+	ld	de,(replay_Tonetable)
 	add	a
-	add	a,l
-	ld	l,a
+	add	a,e
+	ld	e,a
 	jp	nc,99f
-	inc	h
+	inc	d
 99:
-	ld	a,(hl)
-	ld	(DRUM_regToneBD),a
+	ld	a,(de)
+	ld	(hl),a
 	inc	hl
-	ld	a,(hl)
-	ld	(DRUM_regToneBD+1),a	
-	jr.	4f				; continue
-1:
+	inc	de
+	ld	a,(de)
+	ld	(hl),a	
+	ret				; end
+.deviation:
 	; Tone deviation
 	bit	6,a
-	jp	z,2f 			; positive
+	jp	z,.positive 			; positive
 	;negative
+.negative:
 	and	00111111b
 	neg
-	ld	hl,(DRUM_regToneBD)
-	dec	h
-	add	a,l
-	ld	l,a
-	adc 	a,h
-	sub	l
-	ld	h,a
-99:
-	jr.	3f
-2:	
-	;positive
-	ld	hl,(DRUM_regToneBD)
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-3:
-	ld 	(DRUM_regToneBD),hl
-
-4:
-0:
-	inc	bc
-	; volume Basedrum
-	ld	a,(bc)
-	and	a
-	jp	z,0f			; jump if no data	
-
-	;--- apply main volume balance
-	ld	hl,replay_mainvol
-	CP	(HL)
-	jr.	C,88F
-	sub	(hl)
-	jr.	99f
-88:	xor	a
-99:	
-	ld	l,a
-	ld	a,0x0f
-	sub	l
-	ld	(DRUM_regVolBD),a
-
-0:
-	inc	bc
-	; tone Snare Hhat
-	ld	a,(bc)
-	and	a
-	jp	z,0f			; jump if no data
-	bit	7,a
-	jp	nz,1f			; tone deviation
-
-	; Note
-	ld	hl,(replay_Tonetable)
-	add	a
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	ld	a,(hl)
-	ld	(DRUM_regToneSH),a
+	ld	e,(hl)		; get current tone value
 	inc	hl
-	ld	a,(hl)
-	ld	(DRUM_regToneSH+1),a	
-	jr.	4f				; continue
-1:
-	; Tone deviation
-	bit	6,a
-	jp	z,2f 			; positive
-	;negative
-	and	00111111b
-	neg
-	ld	hl,(DRUM_regToneBD)
-	dec	h
-	add	a,l
-	ld	l,a
-	adc a,h
-	sub	l
-	ld	h,a
-99:
-	jr.	3f
-2:	
-	;positive
-	ld	hl,(DRUM_regToneSH)
-	add	a,l
-	ld	l,a
+	ld	d,(hl)
+	
+	dec	d			; subtract a from de
+	add	a,e
+	ld	e,a
+	adc 	a,d
+	sub	e
+	ld	d,a
+.cont:
+	ld	(hl),d		; store the new value
+	dec	hl
+	ld	(hl),e
+	ret
+
+.positive:	
+	ld	e,(hl)		; get current tone value
+	inc	hl
+	ld	d,(hl)
+	
+	add	a,e			; add value a to de
+	ld	e,a
 	jp	nc,99f
-	inc	h
+	inc	d
 99:
-3:
-	ld 	(DRUM_regToneSH),hl
-4:
-0:
-	inc	bc
-	; volume snare Hhat
+	jp	.cont			; store the value 
+;------- END ---------
+
+
+;==================================================
+; replay_process_drum_volume_BD
+;
+; Process the data [BC] into drumreg [de]
+;==================================================
+replay_process_drum_volume_BD
 	ld	a,(bc)
+	inc	bc
 	and	a
-	jp	z,0f			; jump if no data
+	ret	z			; return if no data
+	jp	replay_process_drum_volume.cont	; jmp
+;==================================================
+; replay_process_drum_volume
+;
+; Process the data [BC] into drumreg [de]
+;==================================================
+replay_process_drum_volume:
+	ld	a,(bc)
+	ex	af,af'		; store for low
+	ld	a,(bc)		; load  for high
+	inc	bc
+	and	a
+	ret	z			; return if no data
 
 	;high vol
 	and	0xf0
-	jp	z,1f			; no high update
+	jp	z,.low		; no high update
 	
+.high:
 [4]	srl	a			; move high to low
 	;--- apply main volume balance
 	ld	hl,replay_mainvol
@@ -2189,23 +2149,24 @@ replay_process_drum:
 	jr.	C,88F
 	sub	(hl)
 	jr.	99f
-
 88:	xor	a
 99:	
 	ld	l,a
-	ld	a,(DRUM_regVolSH)
+	ld	a,(de)		; get current volume
 	and	0x0f
 	ld	h,a
 	ld	a,0x0f
 	sub	l
 [4]	sla	a
 	or	h
-	ld	(DRUM_regVolSH),a
+	ld	(de),a		; store new volume
 
-1:	;- low vol	
-	ld	a,(bc)
+.low:
+	;- low vol	
+	ex	af,af'		; restore the value loaded
+.cont:
 	and	0x0f
-	jp	z,0f			; no low update
+	ret	z			; no low update
 
 	;--- apply main volume balance
 	ld	hl,replay_mainvol
@@ -2213,203 +2174,20 @@ replay_process_drum:
 	jr.	C,88F
 	sub	(hl)
 	jr.	99f
-
 88:	xor	a
 99:	
 	ld	l,a
-	ld	a,(DRUM_regVolSH)
+	ld	a,(de)
 	and	0xf0
 	ld	h,a
 	ld	a,0x0f
 	sub	l
 	or	h
-	ld	(DRUM_regVolSH),a
-	
-0:
-	inc	bc
-	; tone Cy Tom
-	ld	a,(bc)
-	and	a
-	jp	z,0f			; jump if no data
-	bit	7,a
-	jp	nz,1f			; tone deviation
-
-	; Note
-	ld	hl,(replay_Tonetable)
-	add	a
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	ld	a,(hl)
-	ld	(DRUM_regToneCT),a
-	inc	hl
-	ld	a,(hl)
-	ld	(DRUM_regToneCT+1),a	
-	jr.	4f				; continue
-1:
-	; Tone deviation
-	bit	6,a
-	jp	z,2f 			; positive
-	;negative
-	and	00111111b
-	neg
-	ld	hl,(DRUM_regToneBD)
-	dec	h
-	add	a,l
-	ld	l,a
-	adc a,h
-	sub	l
-	ld	h,a
-99:
-	jr.	3f
-2:	
-	;positive
-	ld	hl,(DRUM_regToneCT)
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-3:
-	ld 	(DRUM_regToneCT),hl
-
-4:	
-0:
-	inc	bc
-	; volume Cy Tom
-	ld	a,(bc)
-	and	a
-	jp	z,0f			; jump if no data
-\	;high vol
-	and	0xf0
-	jp	z,1f			; no high update
-	
-[4]	srl	a			; move high to low
-	;--- apply main volume balance
-	ld	hl,replay_mainvol
-	CP	(HL)
-	jr.	C,88F
-	sub	(hl)
-	jr.	99f
-
-88:	xor	a
-99:	
-	ld	l,a
-	ld	a,(DRUM_regVolCT)
-	and	0x0f
-	ld	h,a
-	ld	a,0x0f
-	sub	l
-[4]	sla	a
-	or	h
-	ld	(DRUM_regVolCT),a	
-
-
-1:	;- low vol	
-	ld	a,(bc)
-	and	0x0f
-	jp	z,0f			; no low update
-
-	;--- apply main volume balance
-	ld	hl,replay_mainvol
-	CP	(HL)
-	jr.	C,88F
-	sub	(hl)
-	jr.	99f
-
-88:	xor	a
-99:	
-	ld	l,a
-	ld	a,(DRUM_regVolCT)
-	and	0xf0
-	ld	h,a
-	ld	a,0x0f
-	sub	l
-	or	h
-	ld	(DRUM_regVolCT),a
-	
-0:
-	inc	bc
-	ld	hl,FM_DRUM_MACRO
-	ld	(hl),c
-	inc	hl
-	ld	(hl),b
-	
+	ld	(de),a
 	ret
-
-
-;	;--- set FRM FLAGs in C (and set to next drum channel)
-;	ld	a,(FM_DRUM_Flags)
-;	srl	a
-;	ld	c,a
-;	;--- apply drum mask
-;	ld	b,(hl)
-;	ld	a,(FM_DRUM)
-;	or	b
-;	ld	(FM_DRUM),a
-;	inc	hl
-;	
-;	;--- apply tone value
-;	ld	b,(hl)
-;	inc	hl
-;	ld	a,(hl)
-;	inc	hl
-;	or	b
-;	jp	z,_rpd_no_tone
-;	xor	b
-;	set	5,c			; set tone update flag
-;_rpd_no_tone:	
-;	ld	(de),a
-;	inc	de
-;	ld	a,b
-;	ld	(de),a
-;	inc	de
-;	
-;	ld	a,(hl)
-;	inc	hl
-;	and	a
-;	jp	z,_rpd_no_vol
-;	set	2,c			; set the volume flag
-;_rpd_no_vol:
-;	ld	b,a
-;	ld	a,c
-;	ld	(FM_DRUM_Flags),a
-;	
-;	;--- low volume
-;	ld	a,b
-;	and	0x0f
-;	jp	z,0f
-;		ld	c,a
-;
-;		ld	a,0x0f	;- invert volume
-;		sub	c
-;		ld	c,a
-;		
-;		ld	a,(de)
-;		and 0xf0
-;		or	c
-;		ld	(de),a
-;0:	;--- high volume
-;	ld	a,b
-;	and	0xf0
-;	jp	z,0f
-;		ld	c,a
-;		
-;		ld	a,0xf0	;- invert volume
-;		sub	c
-;		ld	c,a
-;		
-;		ld	a,(de)
-;		and 0x0f
-;		or	c
-;		ld	(de),a	
-;
-;0:	
-;	ret
-;	;end
 	
+;------- END ---------	
+
 	
 	
 ;===========================================================
@@ -3885,7 +3663,7 @@ replay_route_FM:
 ;;	jr.	nz,99f
 	ld	a,(replay_mode)
 	cp	2
-	jr.	z,0f
+	jr.	z,_skipMixer
 	
 
 replay_route_mixer:
@@ -3907,7 +3685,7 @@ replay_route_mixer:
 	ld	c,a
 .loop:
 	rrc	c
-	jp	c,99f		; if flag wat set skip silencing the channel
+	jp	c,99f		; if flag was set skip silencing the channel
 	res	4,(hl)
 99:
 	ld	a,6	;--- point to next channel reg
@@ -3919,8 +3697,7 @@ replay_route_mixer:
 	djnz	.loop
 
 
-0:
-
+_skipMixer:
 	call	_route_FM_drum_update
 
 

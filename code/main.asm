@@ -13,6 +13,7 @@ MAIN_LOOP:
 	halt
 	call	show_cursor
 	call	read_key
+	call	musickb_readkey
 
 	; --- Dispatch input checks	
 	ld	a,(editmode)

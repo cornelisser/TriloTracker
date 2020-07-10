@@ -118,11 +118,9 @@ PAL:                             ; execute the PSG and ayFX core
 
 
 	;--- read_musickb (Music module)
-	call	read_musickb
+	call	musickb_handler
 
-	; --- mouse 
-;	call	read_mouse
-	
+
 	;--- Keyboard
 
 	call	key_handler

@@ -193,7 +193,45 @@ _KJ_DRM2:		#14	;db	0,0
 				;db	0,0,0,0
 
 
+FM_Registers: 	#0; contiains the registers values to write and value previously written
+FM_regToneA 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+FM_regToneAb 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+FM_regVOLA		#1	; Chan A volume
+FM_regVOLAb		#1	; Chan A volume
+FM_regToneB 	#2	; Tone B freq low					; Tone B freq high
+FM_regToneBb 	#2	; Tone B freq low					; Tone B freq high
+FM_regVOLB		#1	; Chan B volume
+FM_regVOLBb		#1	; Chan B volume
+FM_regToneC 	#2	; Tone C freq low					; Tone C freq high
+FM_regToneCb 	#2	; Tone C freq low					; Tone C freq high
+FM_regVOLC	 	#1	; Chan C volume
+FM_regVOLCb	 	#1	; Chan C volume
+FM_regToneD 	#2	; Tone D freq low					; Tone D freq high
+FM_regToneDb 	#2	; Tone D freq low					; Tone D freq high
+FM_regVOLD		#1	; Chan D volume
+FM_regVOLDb		#1	; Chan D volume
+FM_regToneE 	#2	; Tone E freq low					; Tone E freq high
+FM_regToneEb 	#2	; Tone E freq low					; Tone E freq high
+FM_regVOLE	  	#1	; Chan E volume
+FM_regVOLEb	  	#1	; Chan E volume
+FM_regToneF 	#2	; Tone E freq low					; Tone F freq high
+FM_regToneFb 	#2	; Tone E freq low					; Tone F freq high
+FM_regVOLF	  	#1	; Chan F volume
+FM_regVOLFb	  	#1	; Chan F volume
 
+DRUM_regToneBD	#2
+DRUM_regToneBDb	#2
+DRUM_regVolBD	#1
+DRUM_regVolBDb	#1
+DRUM_regToneSH	#2
+DRUM_regToneSHb	#2
+DRUM_regVolSH	#1
+DRUM_regVolSHb	#1
+DRUM_regToneCT	#2
+DRUM_regToneCTb	#2
+DRUM_regVolCT	#1
+DRUM_regVolCTb	#1
+FM_DRUM		#1	; Percussion bits
 
 
 
@@ -203,74 +241,25 @@ mainPSGvol:				#1
 mainSCCvol:				#1
 _REPLAY_START:			#0
 ;---------- REPLAYER VARS
-;replay_key				#1			; key	to test for	stopping sound
-;replay_line				#1			; local playing line to	sync visual	playback
-;replay_speed			#1			; speed to replay	(get from song)
-;replay_speed_subtimer		#1			; counter for finer speed
-;replay_speed_timer		#1			; counter for speed
-;replay_mode				#1			; Replayer status
-;; mode 0  =	no sound output
-;; mode 1  =	replay song	
+_SP_Storage				#2			; to store the SP
 
-;replay_patpointer			#2			; pointer to the data
-;replay_patpage			#1			; the	current page
-;replay_previous_note		#1			; previousnote played
-;replay_mainvol			#1			; the	volume correction.
+replay_key				#1			; key to test for stopping sound
+replay_line				#1			; local playing line to sync visual playback
+replay_speed 			#1 ;2			; speed to replay (get from song)
+replay_speed_subtimer 		#1			; counter for finer speed
+replay_speed_timer 		#1 			; counter for speed
+replay_mode: 			#1			; Replayer status
+; mode 0  = no sound output
+; mode 1  = replay song 
+; mode 2  = instrument key jazz
+; mode 4  = pattern keyjazz
+; mode 5  = replay song step based  
+replay_chan_setup			#1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
 
-;replay_vib_table:			#2			; pointer to the vibrato table
-
-;CHIP_Chan1				#CHIP_REC_SIZE
-;CHIP_Chan2				#CHIP_REC_SIZE
-;CHIP_Chan3				#CHIP_REC_SIZE
-;CHIP_Chan4				#CHIP_REC_SIZE
-;CHIP_Chan5				#CHIP_REC_SIZE
-;CHIP_Chan6				#CHIP_REC_SIZE
-;CHIP_Chan7				#CHIP_REC_SIZE
-;CHIP_Chan8				#CHIP_REC_SIZE
-;--- AY SPECIFIC
-;AY_registers: 		#0
-;AY_regToneA:		#2	; Tone A freq low	(8bit)
-					; Tone A freq high (4bit)
-;AY_regToneB:		#2	; Tone B freq low
-					; Tone B freq high
-;AY_regToneC:		#2	; Tone C freq low
-					; Tone C freq high
-;AY_regNOISE:		#1	; Noise freq (5bit)
-;AY_regMIXER:		#1	;x3f	; Mixer control (1 = off, 0 =	on)
-;AY_regVOLA:		#1	; Chan A volume
-;AY_regVOLB:		#1	; Chan B volume
-;AY_regVOLC:		#1	; Chan C volume
-;AY_regEnv:		#1	; Volume Env Freq	low (8bit)	
-;AY_regC:		#1	; Volume Env Freq	high (4bit)
-;AY_regENVSHAPE:	#1	; Volume Env Shape (4bit)
-;--- SCC SPECIFIC
-;SCC_registers 
-;SCC_regToneA	#2	; Tone A freq low	(8bit)
-					; Tone A freq high (4bit)
-;SCC_regToneB	#2	; Tone B freq low
-					; Tone B freq high
-;SCC_regToneC	#2	; Tone C freq low
-					; Tone C freq high
-;SCC_regToneD	#2	; Tone D freq low
-					; Tone D freq high
-;SCC_regToneE	#2	; Tone E freq low
-					; Tone E freq high
-;SCC_regVOLA		#1	; Chan A volume
-;SCC_regVOLB		#1	; Chan B volume
-;SCC_regVOLC		#1	; Chan C volume
-;SCC_regVOLD		#1	; Chan D volume
-;SCC_regVOLE		#1	; Chan E volume
-;SCC_regMIXER	#1	; x3f	; Mixer control (1 = off, 0 =	on)
-
-;AY_VOLUME_TABLE:	#256
-;SCC_VOLUME_TABLE:	#256
-;
-;CHIP_ToneTable:		#CHIP_ToneTable_END-CHIP_ToneTable_START
-;CHIP_Vibrato_sine:	#CHIP_Vibrato_sine_END-CHIP_Vibrato_sine_START
-;CHIP_Vibrato_triangle:	#CHIP_Vibrato_triangle_END-CHIP_Vibrato_triangle_START
-;CHIP_Vibrato_pulse:	#CHIP_Vibrato_pulse_END-CHIP_Vibrato_pulse_START
-;
-;_REPLAY_END:	#0
+replay_patpointer 		#2			; pointer to the data
+replay_patpage 			#1 			; the current page
+replay_previous_note		#1			; previousnote played
+replay_mainvol			#1			; the volume correction.
 
 
 
@@ -280,6 +269,13 @@ fkey:			#1
 skey:			#1
 keyjazz:		#1
 keyjazz_chip:	#1
+
+;-- Music module keyboard
+music_key			#1
+music_buf_key		#1
+music_buf_key_old		#1
+music_key_on		#1
+
 
 ; clipboard variables:
 clipb_status:		#1	; 0 = nothing here,1= copy, 2=cut

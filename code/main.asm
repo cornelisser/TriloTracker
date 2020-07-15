@@ -47,7 +47,7 @@ ENDIF
 0:	dec	a
 	;--- 4: Track manager
 	jr.	nz,0f
-		call	processkey_trackmanager
+;		call	processkey_trackmanager
 		jr.	_main_dispatch_END
 	;--- 5: File dialog
 0:	dec	a

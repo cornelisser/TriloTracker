@@ -67,18 +67,18 @@ draw_filedialog:
 	ld	hl,0x3a0a
 	ld	de,0x1504
 	call	erase_colorbox		
-	ld	hl,(80*10)+0x3b	
-	ld	de,_LABEL_DISKIMP
-	call	draw_label
-	inc	de
-	ld	hl,(80*11)+0x3b
-	call	draw_label
-	inc	de	
-	ld	hl,(80*12)+0x3b
-	call	draw_label
-	inc	de	
-	ld	hl,(80*13)+0x3b
-	call	draw_label	
+;	ld	hl,(80*10)+0x3b	
+;	ld	de,_LABEL_DISKIMP
+;	call	draw_label
+;	inc	de
+;	ld	hl,(80*11)+0x3b
+;	call	draw_label
+;	inc	de	
+;	ld	hl,(80*12)+0x3b
+;	call	draw_label
+;	inc	de	
+;	ld	hl,(80*13)+0x3b
+;	call	draw_label	
 	
 	
 	;drive name
@@ -112,11 +112,11 @@ _LABEL_DISKSONG:
 	db	"Save Song",0
 	db	"Load Backup",0
 	db	"Delete Song",0
-_LABEL_DISKIMP:
-	db	"Import FastTracker2",0
-	db	"Import MB1.4",0
-	db	"---",0
-	db	"---",0		
+;_LABEL_DISKIMP:
+;	db	"Import FastTracker2",0
+;	db	"Import MB1.4",0
+;	db	"---",0
+;	db	"---",0		
 
 _LABEL_DISKDRIVE:
 	db	"Drive:  :",0	
@@ -531,6 +531,12 @@ processkey_filedialog_menu:
 		and	a
 		jr.	z,processkey_filedialog_menu_END	; no update
 		dec	a
+		cp	5
+		jp	c,99f
+		cp	9 
+		jp	nc,99f
+		sub	4
+99:		
 		ld	(menu_selection),a
 		;--- erase the menu selection	
 777:		call	reset_cursor_filedialog
@@ -540,9 +546,9 @@ processkey_filedialog_menu:
 		ld	hl,0x3a05
 		ld	de,0x1504
 		call	erase_colorbox	
-		ld	hl,0x3a0a
-		ld	de,0x1504
-		call	erase_colorbox			
+;		ld	hl,0x3a0a
+;		ld	de,0x1504
+;		call	erase_colorbox			
 		ld	hl,0x3a0f
 		ld	de,0x1501
 		call	erase_colorbox	
@@ -559,6 +565,12 @@ processkey_filedialog_menu:
 		cp	10
 		jr.	nc,processkey_filedialog_menu_END	; no update
 		inc	a
+		cp	5 
+		jp	c,99f
+		cp	8
+		jp	nc,99f
+		add	4
+99:
 		ld	(menu_selection),a
 		jr.	777b
 0:
@@ -671,9 +683,9 @@ _fd_drive_check:
 	dec	a
 	jr.	z,4f
 	dec	a
-	jr.	z,5f		; import XM
+;	jr.	z,5f		; import XM
 	dec	a
-	jr.	z,6f		; import mb1.4
+;	jr.	z,6f		; import mb1.4
 	dec	a
 	dec	a
 	dec	a
@@ -781,55 +793,55 @@ _fd_drive_check:
 	call	update_filedialog	
 	jr.	update_filedailog_fileselection
 	
-5:	;--- 5 = import xm
-	ld	a,4
-	ld	(editsubmode),a	
-	call	reset_cursor_filedialog
-	
-	ld	a,2
-	call	swap_loadblock
-	
-	
-	;	; fill buffer with information
-	ld	de,_XM_WILDCARD
-	call	set_wildcard
-	ld	de,_FILMES_retrieve
-	call	message_filedialog
-	xor	a
-	ld	(window_shown),a
-	call	get_dir
-	ld	a,(window_shown)
-	and	a
-		call	nz,restore_filedialog
-	ld	de,_FILMES_select_open
-	call	message_filedialog
-	
-	call	update_filedialog	
-	jr.	update_filedailog_fileselection	
+;5:	;--- 5 = import xm
+;	ld	a,4
+;	ld	(editsubmode),a	
+;	call	reset_cursor_filedialog
+;	
+;	ld	a,2
+;	call	swap_loadblock
+;	
+;	
+;	;	; fill buffer with information
+;	ld	de,_XM_WILDCARD
+;	call	set_wildcard
+;	ld	de,_FILMES_retrieve
+;	call	message_filedialog
+;	xor	a
+;	ld	(window_shown),a
+;	call	get_dir
+;	ld	a,(window_shown)
+;	and	a
+;		call	nz,restore_filedialog
+;	ld	de,_FILMES_select_open
+;	call	message_filedialog
+;	
+;	call	update_filedialog	
+;	jr.	update_filedailog_fileselection	
 
-6:	;--- 6 = import mbm
-	ld	a,5
-	ld	(editsubmode),a
-	call	reset_cursor_filedialog
-	
-	ld	a,1
-	call	swap_loadblock
-	;--- fill buffer with files
-	ld	de,_MBM_WILDCARD
-	call	set_wildcard
-	ld	de,_FILMES_retrieve
-	call	message_filedialog
-	xor	a
-	ld	(window_shown),a
-	call	get_dir
-	ld	a,(window_shown)
-	and	a
-		call	nz,restore_filedialog
-	ld	de,_FILMES_select_open
-	call	message_filedialog
-	
-	call	update_filedialog	
-	jr.	update_filedailog_fileselection
+;6:	;--- 6 = import mbm
+;	ld	a,5
+;	ld	(editsubmode),a
+;	call	reset_cursor_filedialog
+;	
+;	ld	a,1
+;	call	swap_loadblock
+;	;--- fill buffer with files
+;	ld	de,_MBM_WILDCARD
+;	call	set_wildcard
+;	ld	de,_FILMES_retrieve
+;	call	message_filedialog
+;	xor	a
+;	ld	(window_shown),a
+;	call	get_dir
+;	ld	a,(window_shown)
+;	and	a
+;		call	nz,restore_filedialog
+;	ld	de,_FILMES_select_open
+;	call	message_filedialog
+;	
+;	call	update_filedialog	
+;	jr.	update_filedailog_fileselection
 
 	; return to dos
 8:	
@@ -1019,10 +1031,10 @@ _pfd_eloop:
 	jr.	z,_pfd_SAVE
 	dec	a
 	jr.	z,_pfd_DELETE
-	dec	a
-	jr.	z,_pfd_IMPORTXM
-	dec	a
-	jr.	z,_pfd_IMPORTMBM
+;	dec	a
+;	jr.	z,_pfd_IMPORTXM
+;	dec	a
+;	jr.	z,_pfd_IMPORTMBM
 	;--- Add more actions here
 	
 _pfd_LOAD:	
@@ -1066,71 +1078,71 @@ _pfd_SAVE:
 
 	jr.	restore_filedialog
 
-_pfd_IMPORTXM:	
-	xor	a
-	ld	(window_shown),a
-	;--- IMPORT XM SONG
-	push	hl
-;	ld	a,(current_song)
-	;-- only erase patterns (save current instruments
-	;	as we do not import any form the XM)
-	call	clear_patterns
-;	call 	new_song
-	ld	a,5
-	ld	(editmode),a
-	pop	hl
-
-	ld	de,_FILMES_loading
-	call	message_filedialog
-	call	open_xmfile		; hl needs to point to the filename 
-
-;	ld	a,(current_song)
-	call	set_songpage	
-;	call	clear_clipboard	
-	;--- go to the start of the song.
-	xor	a
-	ld	(song_order_pos),a
-	call	reset_cursor_trackbox		
-	
-	;--- if loading was succesfull return to pattern editor
-	ld	a,(window_shown)
-	and	a
-	jp	nz,restore_filedialog
-
-	;-- just go to patern editor on success
-	call	cursorstack_init
-	jr.	init_patterneditor
-
-	
+;_pfd_IMPORTXM:	
+;	xor	a
+;	ld	(window_shown),a
+;	;--- IMPORT XM SONG
+;	push	hl
+;;	ld	a,(current_song)
+;	;-- only erase patterns (save current instruments
+;	;	as we do not import any form the XM)
+;	call	clear_patterns
+;;	call 	new_song
+;	ld	a,5
+;	ld	(editmode),a
+;	pop	hl
+;
+;	ld	de,_FILMES_loading
+;	call	message_filedialog
+;	call	open_xmfile		; hl needs to point to the filename 
+;
+;;	ld	a,(current_song)
+;	call	set_songpage	
+;;	call	clear_clipboard	
+;	;--- go to the start of the song.
+;	xor	a
+;	ld	(song_order_pos),a
+;	call	reset_cursor_trackbox		
+;	
+;	;--- if loading was succesfull return to pattern editor
+;	ld	a,(window_shown)
+;	and	a
+;	jp	nz,restore_filedialog
+;
+;	;-- just go to patern editor on success
+;	call	cursorstack_init
+;	jr.	init_patterneditor
+;
+;	
+;;	jr.	restore_patterneditor
+;
+;_pfd_IMPORTMBM:	
+;	;--- IMPORT MBM SONG
+;	push	hl
+;;	ld	a,(current_song)
+;	;-- only erase patterns (save current instruments
+;	;	as we do not import any form the XM)
+;	call	clear_patterns
+;;	call 	new_song
+;	ld	a,5
+;	ld	(editmode),a
+;	pop	hl
+;
+;	ld	de,_FILMES_loading
+;	call	message_filedialog
+;	call	open_mbmfile		; hl needs to point to the filename 
+;
+;;	ld	a,(current_song)
+;	call	set_songpage	
+;;	call	clear_clipboard	
+;	
+;	;--- go to the start of the song.
+;	xor	a
+;	ld	(song_order_pos),a
+;	call	reset_cursor_trackbox	
+;	
 ;	jr.	restore_patterneditor
-
-_pfd_IMPORTMBM:	
-	;--- IMPORT MBM SONG
-	push	hl
-;	ld	a,(current_song)
-	;-- only erase patterns (save current instruments
-	;	as we do not import any form the XM)
-	call	clear_patterns
-;	call 	new_song
-	ld	a,5
-	ld	(editmode),a
-	pop	hl
-
-	ld	de,_FILMES_loading
-	call	message_filedialog
-	call	open_mbmfile		; hl needs to point to the filename 
-
-;	ld	a,(current_song)
-	call	set_songpage	
-;	call	clear_clipboard	
-	
-	;--- go to the start of the song.
-	xor	a
-	ld	(song_order_pos),a
-	call	reset_cursor_trackbox	
-	
-	jr.	restore_patterneditor
-
+;
 
 	
 _pfd_DELETE:

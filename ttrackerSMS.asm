@@ -178,7 +178,7 @@ font_data:
 	include 	".\code\isr.asm"	; This cannot be before this address!!!!
 	include 	".\code\mapper.asm"	
 	include 	".\code\disk.asm"
-	include 	".\code\import\import.asm"	
+;	include 	".\code\import\import.asm"	
 	include 	".\code\compression2.asm"
 	include 	".\code\editlog.asm"
 	include	".\code\vram_swapper.asm"
@@ -214,7 +214,7 @@ SWAP_REPLAY_END:
 	; --------------------------------------------------
 	org	SWAP_RAMSTART
 SWAP_MBM_IMP:
-	include ".\code\import\importMBM.asm"
+;	include ".\code\import\importMBM.asm"
 SWAP_MBM_IMP_END:		
 
 	; XM importer swappable code block
@@ -246,7 +246,7 @@ SWAP_CONFIG_END:
 	org	SWAP_RAMSTART
 SWAP_TRACK:
 
-	include	".\code\elements\trackmanager.asm"
+	;include	".\code\elements\trackmanager.asm"
 SWAP_TRACK_END:
 
 	; Instrument file dialog swappable code block

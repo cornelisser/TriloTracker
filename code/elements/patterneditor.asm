@@ -166,7 +166,8 @@ ENDIF
 	jr.	nz,0f
 		ld	a,4
 		call	swap_loadblock
-		jr.	init_trackmanager
+		ret
+;		jr.	init_trackmanager
 
 0:	;--- F5
 	dec	a

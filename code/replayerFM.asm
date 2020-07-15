@@ -3652,15 +3652,8 @@ replay_route_FM:
 	
 	ld	(hl),a
 	call	load_softwarevoice
+
 .noVoice:
-
-
-
-
-	;--- do not	apply	mmainmixer when in  mode 2
-;	ld	a,(keyjazz)
-;	and	a
-;;	jr.	nz,99f
 	ld	a,(replay_mode)
 	cp	2
 	jr.	z,_skipMixer
@@ -3767,8 +3760,14 @@ _route_FM_drum_update:
 	;-- load the new values
 	out	(FM_WRITE),a	; Select rythm register
 	
-	ld	a,b
+	ld	a,b			; 5 cycles
+	ld	a,b			; 5 cycles	; dummy code for delay
 	out	(FM_DATA),a		
+
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles
+	rld				; 20 cycles
+	rrd				; 20 cycles
 
 	or	100000b		; set the percussion bit
 	out	(FM_DATA),a
@@ -4016,7 +4015,7 @@ load_softwarevoice:
 _tt_voice_fmloop:
 	out	(FM_WRITE),a
 	inc	a			; 4 cycles
-	ex	af,af'		; 4 cycles	'
+	ex	af,af'		;'4 cycles	
 	ld	a,(hl)		; 7 cycles    the low byte
 	out	(FM_DATA),a
 	

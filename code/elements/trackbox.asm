@@ -1060,7 +1060,7 @@ _pktc_kright_loop:
 	cp	_KEY_CTRL
 	jr.	z,_process_key_trackbox_compact_END	
 
-
+_note:
 	;===================
 	; INPUT is NOTES
 	;
@@ -1078,7 +1078,7 @@ _pktc_kright_loop:
 	cp	_DEL
 	jr.	nz,99f
 	xor	a
-	jr.	77f
+	jr.	.store_notevalue
 
 99:	
 	ld	a,(key_value)
@@ -1118,9 +1118,21 @@ _pktc_kright_loop:
 	;--- Add the octave
 	; but not for these;
 	cp	97
-	jr.	nc,77f
+	jr.	c,99f
+	;-- check if '-R-' or '-S-'
+	ex	af,af'
+	ld	a,(skey)
+	cp	1		; -- shift pressed
+	jp	z,.shift
+	ex	af,af'
+	jp	.store_notevalue
+.shift:
+	ex	af,af'
+	xor	00000011b	; swap -R- <-> -S-
+	jp	.store_notevalue
+99:
 	and	a
-	jr.	z,77f
+	jr.	z,.store_notevalue
 	sub	12
 88:
 	add	12
@@ -1129,7 +1141,7 @@ _pktc_kright_loop:
 	cp	97
 	jr.	nc,_process_key_trackbox_compact_END
 	
-77:
+.store_notevalue:
 	call	get_chanrecord_location
 	;ld	(hl),a
 	ex	af,af'			;'

@@ -570,6 +570,12 @@ process_key_trackbox_musickb:
 	and	a
 	ret	z				; stop if no key found
 
+	;--- check for keyjazz
+	ex	af,af'	
+	ld	a,(keyjazz)
+	and	a
+	jr.	nz,process_key_keyjazz
+
 	call	get_chanrecord_location	; Get current track row pointer
 	
 	ex	af,af'			; Store note

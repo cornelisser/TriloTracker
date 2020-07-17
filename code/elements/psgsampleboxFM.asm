@@ -852,6 +852,27 @@ _get_instrument_start:
 99:
 	pop	bc
 	ret
+	
+	
+;===========================================================
+; --- process_key_psgsamplebox_musickb
+;
+; Process the input for the pattern. 
+; There are 2 version for compact and full view
+; 
+;===========================================================
+process_key_psgsamplebox_musickb:
+	ld	a,(music_key)
+	and	a
+	ret	z				; stop if no key found
+
+	;--- check for keyjazz
+	;ex	af,af'	
+	ld	a,(keyjazz)
+	and	a
+	jr.	nz,process_key_keyjazz
+	ret
+	
 ;===========================================================
 ; --- process_key_psgsamplebox
 ;
@@ -861,7 +882,8 @@ _get_instrument_start:
 ;===========================================================
 process_key_psgsamplebox:
 
-
+	call	process_key_psgsamplebox_musickb
+	
 	ld	a,(key)
 	and	a
 	ret	z

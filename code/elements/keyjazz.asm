@@ -5,12 +5,20 @@ IFDEF TTSCC
 ELSE					
 process_key_drumjazz:
 	call	set_songpage
+	
+	;--- Check MusicKeyboard input
+	ld	a,(music_key)
+	and	a
+	jp	z,.noMKB_Key			
+	jp	.continue	
+	
+.noMKB_Key:	
 	ld	a,(key_value)
 	ld	(replay_key),a
 	
 	and	a
 	jp	z,_process_key_drumjazz_END
-	
+.continue:	
 	;--- erase notes
 	ld	hl,_KJ_SCC
 	ld	(hl),97		
@@ -26,12 +34,12 @@ process_key_drumjazz:
 	ld	(hl),a		; drum entry
 	
 	call	replay_init
-	ld	a,0x00
-	ld	b,3
-	ld	hl,DRUM_regVolBD
-33:	ld	(hl),a
-	inc	hl
-	djnz	33b
+;	ld	a,0x00
+;	ld	b,3
+;	ld	hl,DRUM_regVolBD
+;33:	ld	(hl),a
+;	inc	hl
+;	djnz	33b
 ;	ld	a,00000111b
 ;	ld	(FM_DRUM_Flags),a		
 ;	call	replay_route
@@ -44,10 +52,10 @@ process_key_drumjazz:
 	ld	(replay_mode),a
 
 
-	di
-	call	replay_play
-	call	replay_route	
-	ei
+;	di
+;	call	replay_play
+;	call	replay_route	
+;	ei
 
 88:
 	halt
@@ -75,6 +83,14 @@ ENDIF
 process_key_keyjazz:
 	call	set_songpage
 	
+	;--- Check MusicKeyboard input
+	ld	a,(music_key)
+	and	a
+	jp	z,.noMKB_Key			
+	
+	jp	.continue
+	
+.noMKB_Key:	
 	;--- Check if valid key pressed
 	ld	a,(key_value)
 	ld	(replay_key),a
@@ -91,7 +107,6 @@ process_key_keyjazz:
 	;- Note under this keys?
 	cp	48			
 	jr.	nc,_keyjazz_END	
-	
 	
 	
 	;--- Get the note value of the key pressed
@@ -126,7 +141,8 @@ process_key_keyjazz:
 	cp	97
 	jr.	nc,_keyjazz_END
 	
-77:		
+77:	
+.continue:	
 	push	af
 	call	replay_init
 	call	set_songpage	
@@ -144,7 +160,33 @@ ENDIF
 	ld	hl,_KJ_PSG
 88:	ld	(hl),97
 
+	;- When in patternmode determine the chip for location to set values	
+	ld	a,(editmode)
+	and	a
+	jr.	nz,.keyjazzchip
+
+	ld	a,(replay_chan_setup)
+	and 	a
+	ld	b,22
+	jp	z,.chan26
+.chan35:
+	ld	b,31
+.chan26:
+	ld	a,(cursor_x)
+	cp	b
+	jp	c,.psg
+.fm:
+	ld	a,2
+	jp	100f
+.psg:
+	ld	a,1
+	jp	100f
+
+
+.keyjazzchip:
 	ld	a,(keyjazz_chip)
+100:
+	ld	ixl,a
 	and	1
 	jr.	z,_ky_noPSG
 ; set PSG playback values
@@ -159,7 +201,7 @@ ENDIF
 	ld	(hl),a
 
 _ky_noPSG:
-	ld	a,(keyjazz_chip)
+	ld	a,ixl
 	and	2
 	jr.	z,99f
 	ld	hl,_KJ_SCC

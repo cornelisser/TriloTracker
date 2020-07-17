@@ -250,9 +250,28 @@ processkey_drumeditor:
 		jr.	processkey_drumeditor_END	
 	
 
-		
+;===========================================================
+; --- process_key_drumeditor_musickb
+;
+; Process the input for the pattern. 
+; There are 2 version for compact and full view
+; 
+;===========================================================
+process_key_drumeditor_musickb:
+	ld	a,(music_key)
+	and	a
+	ret	z				; stop if no key found
+
+	;--- check for keyjazz
+	;ex	af,af'	
+	ld	a,(keyjazz)
+	and	a
+	jr.	nz,process_key_drumjazz
+	ret		
 	
 processkey_drumeditor_normal:	
+
+	call	process_key_drumeditor_musickb
 
 	;--- set octave using numpad
 	ld	a,(key_value)

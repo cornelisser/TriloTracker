@@ -264,10 +264,11 @@ process_key_drumeditor_musickb:
 
 	;--- check for keyjazz
 	;ex	af,af'	
-	ld	a,(keyjazz)
-	and	a
-	jr.	nz,process_key_drumjazz
-	ret		
+;	ld	a,(keyjazz)
+;	and	a
+;	jr.	nz,process_key_drumjazz
+	jr. 	process_key_drumjazz
+;	ret		
 	
 processkey_drumeditor_normal:	
 

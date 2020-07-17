@@ -9,8 +9,8 @@ process_key_drumjazz:
 	;--- Check MusicKeyboard input
 	ld	a,(music_key)
 	and	a
-	jp	z,.noMKB_Key			
-	jp	.continue	
+	jp	nz,.continue
+	
 	
 .noMKB_Key:	
 	ld	a,(key_value)
@@ -66,8 +66,10 @@ process_key_drumjazz:
 	ld	hl,_KJ_DRM1
 	ld	(hl),0
 	inc	hl
-	ld	(hl),0	
-
+	ld	(hl),0
+	xor	a
+	ld	(music_key),a
+debug:
 	ret
 
 

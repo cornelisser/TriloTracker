@@ -868,11 +868,11 @@ process_key_psgsamplebox_musickb:
 
 	;--- check for keyjazz
 	;ex	af,af'	
-	ld	a,(keyjazz)
-	and	a
-	jr.	nz,process_key_keyjazz
-	ret
-	
+;	ld	a,(keyjazz)
+;	and	a
+;	jr.	nz,process_key_keyjazz
+;	ret
+	jr.	process_key_keyjazz
 ;===========================================================
 ; --- process_key_psgsamplebox
 ;

@@ -1362,8 +1362,8 @@ _CHIPcmdB_scc_commands:
 	jp	z,_CHIPcmdB_pwm
 	cp	0x20	; waveform cut
 	jp	z,_CHIPcmdB_cut
-	cp	0x40	; waveform compress
-	jp	z,_CHIPcmdB_compress
+;	cp	0x40	; waveform compress
+;	jp	z,_CHIPcmdB_compress
 	cp	0xB0	; set	waveform
 	jp	z,_CHIPcmdB_setwave
 	cp	0xC0	; set	waveform2
@@ -1414,14 +1414,6 @@ _CHIPcmdB_cut:
 	ld	(ix+TRACK_Command),0x22	; set	the command#
 	jp	1b
 
-	
-	jp	1b		
-_CHIPcmdB_compress:	
-	ld	(ix+TRACK_Command),0x24	; set	the command#
-	ld	a,d
-	and	0x07
-	jp	2b	
-	
 _CHIPcmdB_setwave:
 	;--- Set a new waveform
 	ld	a,d
@@ -2756,70 +2748,13 @@ _wsc_l:
 	
 	jp	_pcAY_commandEND
 	
-_pcAY_cmd23:	
+_pcAY_cmd23:
+_pcAY_cmd24:	
+_pcAY_cmd25:
 	jp	_pcAY_commandEND	
-_pcAY_cmd24:
-	;=================
-	; Waveform Compress
-	;=================
-	res	3,(ix+TRACK_Flags)	; reset command
-	res	6,(ix+TRACK_Flags)	; reset normal wave update
 
-	;get the waveform	start	in [DE]
-	ld	de,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
-	add	a,e
-	ld	e,a
-	jp	nc,99f
-	inc	d
-99:
-	ld	a,(ix+TRACK_Waveform)
-	add	a,a
-	add	a,a
-	add	a,a	
 
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,_WAVESSCC
-	add	  hl,bc
-
-	ld	a,(ix+TRACK_cmd_B)
-	ld	bc,0x0040
-	rrca	; x32
-	rrca
-	rrca
-	add	31
-	ld	iyl,a		; fraction
-	xor	a	
-_wcomp_loop:
-	ldi			
-	dec	c
-	jp	z,1f
-	add	iyl
-	jp	nc,_wcomp_loop
-	inc	hl
-	inc	b
-	dec	c
-	dec	c
-	jp	nz,_wcomp_loop
 	
-	;--- remaining data
-1:
-	dec	hl
-	ld	a,(hl)
-2:	ld	(de),a
-	inc	de
-	djnz	2b
-	jp	_pcAY_commandEND	
-
-
-_pcAY_cmd25:	
 
 
 

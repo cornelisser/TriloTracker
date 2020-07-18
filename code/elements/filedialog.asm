@@ -698,8 +698,9 @@ _fd_drive_check:
 	call	new_song
 	ld	a,5			; trick mode as it is set to 0 by new_song
 	ld	(editmode),a
-	call	restore_patterneditor
-	jr.	reset_cursor_trackbox
+	call	reset_cursor_trackbox
+	jr.	restore_patterneditor
+	
 	
 1:	;--- 1 = load file
 	ld	a,1

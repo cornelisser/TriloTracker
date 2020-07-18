@@ -1756,8 +1756,7 @@ _pkt_gloop_not_empty:
 ;===========================================================
 reset_cursor_trackbox:
 	call	flush_cursor
-	
-	
+	call	cursorstack_init		; cancel any previous sub edit modes.
 	
 	ld	a,10
 	ld	(cursor_y),a

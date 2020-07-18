@@ -1372,7 +1372,7 @@ _CHIPcmdB_scc_commands:
 ;	jp	z,_CHIPcmdB_morphset
 ;	cp	0xF0
 ;	jp	z,_CHIPcmdB_morphoption
-	
+
 	ret
 
 ;_CHIPcmdB_morphset:

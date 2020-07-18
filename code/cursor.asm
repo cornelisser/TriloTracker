@@ -176,6 +176,8 @@ save_cursor:
 restore_cursor:
 
 	ld	a,(cursorstack_depth)
+	and	a
+	ret	z
 	dec	a
 	ld	(cursorstack_depth),a
 ;	call	cursor_debug

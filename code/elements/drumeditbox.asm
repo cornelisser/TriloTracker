@@ -1168,7 +1168,7 @@ _drum_note:
 ;	and	0x01
 ;	or	d
 	ld	(hl),d
-	call	_drum_jr._to_vol			; set cursor at (first) volume entry
+;	call	_drum_jr._to_vol			; set cursor at (first) volume entry
 	jr.	update_drumeditbox		
 
 0:

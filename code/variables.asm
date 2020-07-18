@@ -1,4 +1,3 @@
-
 MIN_SONG_SEGSIZE	equ 6			; minimal segment size of a song.
 MAX_SONG_SEGSIZE	equ 32		; maximum segment size of a song
 SONG_PATLNSIZE	equ (4*8);(5*8)+2		; size of a pattern line
@@ -258,6 +257,15 @@ fkey:			#1
 skey:			#1
 keyjazz:		#1
 keyjazz_chip:	#1
+
+;-- Music module keyboard
+music_key			#1
+music_buf_key		#1
+music_buf_key_old		#1
+music_key_on		#1
+
+
+
 
 ; clipboard variables:
 clipb_status:		#1	; 0 = nothing here,1= copy, 2=cut

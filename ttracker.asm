@@ -147,6 +147,7 @@ font_data:
 	include ".\code\song.asm"		
 
 	include ".\code\keyboard.asm"	
+	include	".\code\musickeyboard.asm"
 	include ".\code\isr.asm"	; This cannot be before this address!!!!
 ;	include ".\code\replayerFM.asm"
 ;	include ".\code\sound\AY.asm"	;AY3-8910.asm"

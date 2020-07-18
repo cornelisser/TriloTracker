@@ -166,7 +166,9 @@ ENDIF
 	ld	a,(editmode)
 	and	a
 	jr.	nz,.keyjazzchip
-
+IFDEF TTSCC
+	ld	a,31
+ELSE
 	ld	a,(replay_chan_setup)
 	and 	a
 	ld	b,22
@@ -174,6 +176,7 @@ ENDIF
 .chan35:
 	ld	b,31
 .chan26:
+ENDIF
 	ld	a,(cursor_x)
 	cp	b
 	jp	c,.psg

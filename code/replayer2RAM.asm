@@ -203,3 +203,26 @@ replay_init:
 	call	swap_loadblock
 	
 	jp	replay_init_cont
+	
+	
+;===========================================================
+; ---	replay_stop
+; Silence all channels
+; 
+; 
+;===========================================================
+replay_stop:
+	xor	a
+	ld	(replay_mode),a	
+	
+	;--- Silence the SCC chip
+	ld	(SCC_regMIXER),a
+
+	;--- Silence the AY3 PSG chip
+	ld	a,0x3f
+	ld	(AY_regMIXER),a
+
+
+
+	ret	
+	

@@ -145,9 +145,6 @@ clear_waveforms:
 	ldir
 ENDIF
 	
-IFDEF TTSCC
-	ret
-ELSE
 	;clear audition line
 	ld hl,_KEYJAZZ_LINE
 	ld	b,32
@@ -155,6 +152,10 @@ ELSE
 	ld 	(hl),0
 	inc	hl
 	djnz 	0b
+
+IFDEF TTSCC
+	ret
+ELSE
 
 clear_drummacros:
 	; Clear Drum macro values

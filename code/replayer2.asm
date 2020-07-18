@@ -136,12 +136,30 @@ replay_mode2:
 	;--- mode 2	- Replay the line	in 'replay_patpointer'
 	ld	a,(replay_speed_timer)
 	and	a
-	jr.	nz,1f
+	jr.	z,_rpm2_3
+	
+	;-- decode data only once. Timer is never updated again.
+	xor	a
+	ld	(replay_speed_timer),a
+	jr.	replay_decodedata	
+	
 	;--- test if key is still pressed.
 _rpm2_3:
 	ld	a,0x0f
 	ld	(KH_timer),a		; F3F7 REPCNT  Delay until the auto-repeat of the key	begins	
 	
+	;-- test if musickb is pressed
+	ld	a,(music_key_on)
+	and	a
+	jp	z,.testkb
+	ld	a,(music_key)
+	ld	c,a
+	ld	a,(music_buf_key)
+	cp	c
+	;--- just keep playing empty lines.
+	jr.	z,replay_decodedata_NO
+	
+.testkb:
 	;--- test if key is still pressed.
 	ld	a,(replay_key)
 	ld	c,a		; calculate the row
@@ -151,7 +169,7 @@ _rpm2_3:
 	and	0x07		; calculate the bit
 	ld	b,a
 	ld	a,1
-	jp	z,99f
+	jr.	z,99f
 88:
 	sla	a
 	djnz	88b
@@ -160,16 +178,11 @@ _rpm2_3:
 	add	hl,bc
 	and	(hl)			; bit is unset?
 	;--- just keep playing empty lines.
-	jp	z,replay_decodedata_NO
+	jr.	z,replay_decodedata_NO
 	
 	;--- stop playing.
-	call	replay_init
+	call	replay_stop
 	ret
-1:
-	xor	a
-	ld	(replay_speed_timer),a
-	
-	jp	replay_decodedata
 ;-- end
 
 replay_mode3:

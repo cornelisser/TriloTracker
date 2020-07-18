@@ -361,9 +361,6 @@ ELSE
 	ld	a,0x3f
 	ld	(AY_regMIXER),a
 ENDIF	
-	
-	
-	;call	replay_route
 	ret
 
 

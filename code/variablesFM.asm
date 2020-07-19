@@ -255,6 +255,7 @@ replay_mode: 			#1			; Replayer status
 ; mode 4  = pattern keyjazz
 ; mode 5  = replay song step based  
 replay_chan_setup			#1			; 0 = 2 psg+ 6 fm, 1 = 3psg + 5 fm
+replay_arp_speed			#1			; counter for arp speed
 
 replay_patpointer 		#2			; pointer to the data
 replay_patpage 			#1 			; the current page

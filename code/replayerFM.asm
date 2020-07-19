@@ -584,9 +584,10 @@ ENDIF
 	dec	a
 	ld	(replay_speed_subtimer),a
 	ld	(replay_mode),a	
+	ld	(replay_arp_speed),a
 
 	;--- Erase channel data	in RAM
-	xor	a
+;	xor	a
 	ld	bc,(CHIP_REC_SIZE*8)-1
 	ld	hl,CHIP_Chan1
 	ld	de,CHIP_Chan1+1
@@ -1339,22 +1340,13 @@ _CHIPcmd0_arpeggio:
 
 	;--- check for empty params (000 = no cmd	code)
 	and	a
-	jr.	nz,_CHIPcmd0_trig
-;	ld	(ix+CHIP_cmd_ToneAdd+1),0
-;	ld	a,(ix+CHIP_cmd_detune)
-	ld	(ix+CHIP_cmd_NoteAdd),0		
-	;res	3,(ix+CHIP_Flags)
-;	ld	(ix+CHIP_cmd_ToneAdd),a
-;	cp	16
-;	ret	nc
-;	ld	(ix+CHIP_cmd_ToneAdd+1),0
-	ret	
+	ret	z
 
 _CHIPcmd0_trig:
 	;--- Init values
 	ld	(ix+CHIP_cmd_0),a
 	set	3,(ix+CHIP_Flags)
-;	xor	a
+	ld	(ix+CHIP_Step),2
 	ld	(ix+CHIP_Timer),0
 
 	ret
@@ -1792,7 +1784,7 @@ _CHIPcmdE_extended:
 	jp	hl
 
 _CHIPcmdExtended_List:
-	dw	_CHIPcmdE_none		;0
+	dw	_CHIPcmdE_arpspeed	;0
 	dw	_CHIPcmdE_fineup		;1
 	dw	_CHIPcmdE_finedown	;2
 	dw	_CHIPcmdE_none		;3
@@ -1888,6 +1880,12 @@ _CHIPcmdE_tonepanning:
 ENDIF
 
 
+
+_CHIPcmdE_arpspeed:
+	ld	a,d
+	and	$0f
+	ld	(replay_arp_speed),a
+	ret
 
 _CHIPcmdE_notecut:
 	set	3,(ix+CHIP_Flags)
@@ -2199,7 +2197,6 @@ replay_process_drum_volume:
 replay_process_chan_AY:
 	push	hl
 
-	
 	;-- set the	mixer	right
 	ld	hl,FM_regMIXER
 	rrc	(hl)
@@ -2219,6 +2216,8 @@ replay_process_chan_AY:
 	;=====
 	; COMMAND
 	;=====
+	ld	(ix+CHIP_cmd_NoteAdd),0			; reset ARP. Make sure to do this outside the
+								; equalization skip
 	bit	3,(ix+CHIP_Flags)
 	jr.	z,_pcAY_noCommand
 	
@@ -2290,7 +2289,6 @@ _pcAY_noNoteTrigger:
 	ld	a,(ix+CHIP_Note)
 	add	a,(ix+CHIP_cmd_NoteAdd)
 	add	a
-	ld	(ix+CHIP_cmd_NoteAdd),0	
 	ex	af,af'			;'store the	note offset
 
 	;==============
@@ -2889,39 +2887,69 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmd24
 			
 _pcAY_cmd0:
-	ld	a,(ix+CHIP_Timer)
-	bit	0,a
-	jr.	z,99f
+	ld	a,(IX+CHIP_Timer)
+	and	a
+	jp	z,.nextNote
+
+	dec	a
+	ld	(IX+CHIP_Timer),a
+	ld	a,(ix+CHIP_Step)
+	and	a
+	jp	z,99f
+	ld	a,(IX+CHIP_cmd_0)
+	and	$0f
+	ld	(ix+CHIP_cmd_NoteAdd),a	
+	jr.	_pcAY_commandEND
+99:
+	ld	(ix+CHIP_cmd_NoteAdd),0	
+	jr.	_pcAY_commandEND
+
+
+.nextNote:
+	; re-init the speed.
+	ld	a,(replay_arp_speed)
+	ld	(IX+CHIP_Timer),a
+	
+	ld	a,(ix+CHIP_Step)
+	and	a
+	jr.	nz,99f
 
 	;--- set x
-		ld	(ix+CHIP_Timer),2
-		xor	a
+		ld	(ix+CHIP_Step),1
 		ld	a,(ix+CHIP_cmd_0)
-		and	0xf0
-		rra
-		rra
-		rra
-		rra
-		ld	(ix+CHIP_cmd_NoteAdd),a		
+		rlca
+		rlca
+		rlca
+		rlca		
+		ld	(ix+CHIP_cmd_0),a	
+		and	$0f
+		ld	(ix+CHIP_cmd_NoteAdd),a
 		jr.	_pcAY_commandEND
-
 	
 99:
-	bit	1,a
-	jr.	z,99f
+	dec	a
+	jr.	nz,99f
 
 	;--- set y
-		ld	(ix+CHIP_Timer),0
+		ld	(ix+CHIP_Step),2
 		ld	a,(ix+CHIP_cmd_0)
+		rlca
+		rlca
+		rlca
+		rlca		
+		ld	(ix+CHIP_cmd_0),a			
 		and	0x0f
-		jp	z,99f
-		ld	(ix+CHIP_cmd_NoteAdd),a		
+		jp	nz,0f
+		;--- if zero then skip this note and set step to start
+		ld	(ix+CHIP_Step),0
+0:		
+		ld	(ix+CHIP_cmd_NoteAdd),a	
 		jr.	_pcAY_commandEND
 	
 99:
 	;--- set none
-	ld	(ix+CHIP_Timer),1
-;	ld	(ix+CHIP_cmd_NoteAdd),0		
+	ld	(ix+CHIP_Step),0
+	ld	(ix+CHIP_cmd_NoteAdd),0		
 	jr.	_pcAY_commandEND
 		
 	
@@ -3138,20 +3166,14 @@ _pcAY_cmdd:
 	res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 	
+_pcAY_cmd10:
 _pcAY_cmde:
 	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 _pcAY_cmdf:
 	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
-;--- SHORT ARP
-_pcAY_cmd10:
-	dec	(ix+CHIP_Timer)
-	bit	0,(ix+CHIP_Timer)
-	jr.	z,_pcAY_commandEND
-	ld	a,(ix+CHIP_cmd_E)
-	ld	(ix+CHIP_cmd_NoteAdd),a		
-	jr.	_pcAY_commandEND
+
 	
 _pcAY_cmd11:
 ;	dec	(ix+CHIP_Timer)

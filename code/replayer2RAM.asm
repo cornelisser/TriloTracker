@@ -34,7 +34,7 @@ replay_morph_speed		db 0
 replay_morph_counter		db 0			; counter till end morph
 replay_morph_buffer		ds 64,0		; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform		db 0 			; waveform we are morphin to.
-
+replay_arp_speed			db 0			; counter for arp speed
 
 TRACK_Instrument		equ 0	
 TRACK_Waveform		equ 1

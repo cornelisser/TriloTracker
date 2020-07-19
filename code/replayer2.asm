@@ -914,7 +914,9 @@ _dc_noVolume:
 	jp	z,noCMDchange
 	xor 	a
 99:	    
-	ld	(ix+TRACK_Command),a
+;	ld	(ix+TRACK_Command),a
+	ld	d,a			; Store command in d for later
+	
 	;--- Hack to disable commands > $f Otherwise it could crash
 	cp	$10
 	jp	c,99f
@@ -923,18 +925,21 @@ _dc_noVolume:
 	;--- calculate cmd address
 	add	a
 	ld	hl,_CHIPcmdlist
-	ld	d,0
-	ld	e,a
-	add	hl,de
-	ld	e,(hl)
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
 	inc	hl
-	ld	d,(hl)
-	ex	de,hl
+	ld	h,(hl)
+	ld	l,a
 	inc	bc
 	ld	a,(bc)		; get	parameter(s)
 	inc	bc
 	jp	hl			; jump to the command
 	; END
+
 noCMDchange:
 	; check for command 3 to continue
 	ld	d,(IX+TRACK_Flags)
@@ -1009,25 +1014,16 @@ _CHIPcmd0_arpeggio:
 
 	;--- check for empty params (000 = no cmd	code)
 	and	a
-	jp	nz,_CHIPcmd0_trig
-;	ld	(ix+TRACK_cmd_ToneAdd+1),0
-;	ld	a,(ix+TRACK_cmd_detune)
-;	ld	(ix+TRACK_cmd_NoteAdd),0		
-	res	3,(ix+TRACK_Flags)
-;	ld	(ix+TRACK_cmd_ToneAdd),a
-;	cp	16
-;	ret	nc
-;	ld	(ix+TRACK_cmd_ToneAdd+1),0
-	ret	
-
-_CHIPcmd0_trig:
+	ret	z
 	;--- Init values
+	ld	(ix+TRACK_Command),d
 	ld	(ix+TRACK_cmd_0),a
 	set	3,(ix+TRACK_Flags)
-;	xor	a
+	ld	(ix+TRACK_Step),2
 	ld	(ix+TRACK_Timer),0
 
 	ret
+
 
 _CHIPcmd1_portUp:
 	; in:	[A] contains the paramvalue
@@ -1040,6 +1036,7 @@ _CHIPcmd1_portUp:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+TRACK_Command),d
 	ld	(ix+TRACK_cmd_1),a
 	set	3,(ix+TRACK_Flags)
 	ret
@@ -1057,6 +1054,7 @@ _CHIPcmd2_portDown:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jp	z,_CHIPcmd_end
+	ld	(ix+TRACK_Command),d
 	ld	(ix+TRACK_cmd_2),a	
 	set	3,(ix+TRACK_Flags)
 
@@ -1081,6 +1079,7 @@ _CHIPcmd3_portTone:
 	set	1,(ix+TRACK_Flags)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+TRACK_Command),d
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
 		
@@ -1173,6 +1172,7 @@ _CHIPcmd4_vibrato:
 	;--- Init values
 	and	a
 	jr.	z,_CHIPcmd_end  ; <--- make this end effect
+	ld	(ix+TRACK_Command),d
 	rrca
 	rrca
 	rrca
@@ -1282,8 +1282,9 @@ _CHIPcmd5:
 	and	a
 	jp	z,_CHIPcmd_end
 	
+	ld	(ix+TRACK_Command),d
 	bit 	0,(ix+TRACK_Flags)
-	jp	z,_CHIPcmdA_volSlide
+	jp	z,_CHIPcmdA_volSlide_cont
 	
 	set	4,(ix+TRACK_Flags)		; FM notelink bit
 	res	0,(ix+TRACK_Flags)
@@ -1293,7 +1294,7 @@ _CHIPcmd5:
 	call	_CHPcmd3_newNote
 
 	ld	a,iyh
-	jp 	_CHIPcmdA_volSlide
+	jp 	_CHIPcmdA_volSlide_cont
  
 _CHIPcmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
@@ -1312,7 +1313,10 @@ _CHIPcmdA_volSlide:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+TRACK_Command),d
 ;	ld	(ix+CHIP_cmd_1),a
+
+_CHIPcmdA_volSlide_cont:
 
 	;--- neg or	pos
 	cp	16
@@ -1547,7 +1551,7 @@ _CHIPcmdE_extended:
 	jp	hl
 
 _CHIPcmdExtended_List:
-	dw	_CHIPcmdE_none		;0
+	dw	_CHIPcmdE_arpspeed		;0
 	dw	_CHIPcmdE_fineup		;1
 	dw	_CHIPcmdE_finedown	;2
 	dw	_CHIPcmdE_none		;3
@@ -1565,45 +1569,16 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_envelope	;E
 	dw	_CHIPcmdE_none		;F
 	
-;	jp	z,_CHIPcmdE_shortarp
-;	cp	0x60	; track detune
-;	jp	z,_CHIPcmdE_trackdetune
-;	cp	0xe0
-;	jp	z,_CHIPcmdE_envelope
-;	cp	0x10	
-;	jp	z,_CHIPcmdE_fineup
-;	cp	0x20
-;	jp	z,_CHIPcmdE_finedown
-;	cp	0xd0	; delay cmd?
-;	jp	z,_CHIPcmdE_delay
-;	cp	$40	; set	vibrato
-;	jp	z,_CHIPcmdE_vibrato
-;	cp	0xc0	; note_cut
-;	jp	z,_CHIPcmdE_notecut
-;	cp	0x50	; note_link
-;	jr.	z,_CHIPcmdE_notelink
-;;	cp	$50
-;;	jp	z,_CHIPcmdE_noiseAND
-;;	cp	$70
-;;	jp	z,_CHIPE_noiseOR
-;;	cp	$30
-;;	jp	z,_CHIPcmdE_psgmode
-;;	cp	$a0
-;;	jp	z,_CHIPcmdE_duty1
-;;	cp	$b0
-;;	jp	z,_CHIPcmdE_duty2
-;;	cp	$c0
-;;	jp	z,_CHIPcmdE_duty3
-;	
-;	cp	0x80	; global transpose
-;	jp	z,_CHIPcmdE_transpose
-;	ret
 
 _CHIPcmdE_none:
 	ret
 	
 	
-	
+_CHIPcmdE_arpspeed:
+	ld	a,d
+	and	$0f
+	ld	(replay_arp_speed),a
+	ret	
 	
 	
 _CHIPE_noiseOR:
@@ -1817,7 +1792,6 @@ _CHIPcmdF_speed:
 replay_process_chan_AY:
 	push	hl
 
-	
 	;-- set the	mixer	right
 	ld	hl,SCC_regMIXER
 	srl	(hl)
@@ -1836,6 +1810,8 @@ replay_process_chan_AY:
 	;=====
 	; COMMAND
 	;=====
+	ld	(ix+TRACK_cmd_NoteAdd),0			; reset ARP. Make sure to do this outside the
+								; equalization skip	
 	bit	3,(ix+TRACK_Flags)
 	jp	z,_pcAY_noCommand
 	
@@ -1907,8 +1883,7 @@ _pcAY_noNoteTrigger:
 	ld	a,(ix+TRACK_Note)
 	add	a,(ix+TRACK_cmd_NoteAdd)
 	add	a
-	ex	af,af'			;'store the	note offset
-	ld	(ix+TRACK_cmd_NoteAdd),0	
+	ex	af,af'			;'store the	note offset	
 	
 
 	;==============
@@ -2222,41 +2197,70 @@ _pcAY_cmdlist:
 ;	dw	_pcAY_cmd25
 			
 _pcAY_cmd0:
-	ld	a,(ix+TRACK_Timer)
-	bit	0,a
+	ld	a,(IX+TRACK_Timer)
+	and	a
+	jp	z,.nextNote
+
+	dec	a
+	ld	(IX+TRACK_Timer),a
+	ld	a,(ix+TRACK_Step)
+	and	a
 	jp	z,99f
+	ld	a,(IX+TRACK_cmd_0)
+	and	$0f
+	ld	(ix+TRACK_cmd_NoteAdd),a	
+	jr.	_pcAY_commandEND
+99:
+	ld	(ix+TRACK_cmd_NoteAdd),0	
+	jr.	_pcAY_commandEND
+
+
+.nextNote:
+	; re-init the speed.
+	ld	a,(replay_arp_speed)
+	ld	(IX+TRACK_Timer),a
+	
+	ld	a,(ix+TRACK_Step)
+	and	a
+	jr.	nz,99f
 
 	;--- set x
-		ld	(ix+TRACK_Timer),2
-		xor	a
+		ld	(ix+TRACK_Step),1
 		ld	a,(ix+TRACK_cmd_0)
-		and	0xf0
-		rra
-		rra
-		rra
-		rra
-		ld	(ix+TRACK_cmd_NoteAdd),a		
-		jp	_pcAY_commandEND
-
+		rlca
+		rlca
+		rlca
+		rlca		
+		ld	(ix+TRACK_cmd_0),a	
+		and	$0f
+		ld	(ix+TRACK_cmd_NoteAdd),a
+		jr.	_pcAY_commandEND
 	
 99:
-	bit	1,a
-	jp	z,99f
+	dec	a
+	jr.	nz,99f
 
 	;--- set y
-		ld	(ix+TRACK_Timer),0
+		ld	(ix+TRACK_Step),2
 		ld	a,(ix+TRACK_cmd_0)
+		rlca
+		rlca
+		rlca
+		rlca		
+		ld	(ix+TRACK_cmd_0),a			
 		and	0x0f
-		jp	z,99f	    
-		ld	(ix+TRACK_cmd_NoteAdd),a		
-		jp	_pcAY_commandEND
+		jp	nz,0f
+		;--- if zero then skip this note and set step to start
+		ld	(ix+TRACK_Step),0
+0:		
+		ld	(ix+TRACK_cmd_NoteAdd),a	
+		jr.	_pcAY_commandEND
 	
 99:
 	;--- set none
-	ld	(ix+TRACK_Timer),1
-;	ld	(ix+TRACK_cmd_NoteAdd),0		
-	jp	_pcAY_commandEND
-	
+	ld	(ix+TRACK_Step),0
+	ld	(ix+TRACK_cmd_NoteAdd),0		
+	jr.	_pcAY_commandEND
 	
 	
 	

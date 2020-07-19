@@ -1231,7 +1231,8 @@ _dc_noVolume:
 	ld	a,2	
 	
 99:	
-	ld	(ix+CHIP_Command),a
+;	ld	(ix+CHIP_Command),a
+	ld	d,a			; Store command in d for later
 
 	;--- Hack to disable commands > $f Otherwise it could crash
 	cp	$10
@@ -1242,13 +1243,15 @@ _dc_noVolume:
 
 	add	a
 	ld	hl,_CHIPcmdlist
-	ld	d,0
-	ld	e,a
-	add	hl,de
-	ld	e,(hl)
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
 	inc	hl
-	ld	d,(hl)
-	ex	de,hl
+	ld	h,(hl)
+	ld	l,a
 	inc	bc
 	ld	a,(bc)		; get	parameter(s)
 	inc	bc
@@ -1341,9 +1344,8 @@ _CHIPcmd0_arpeggio:
 	;--- check for empty params (000 = no cmd	code)
 	and	a
 	ret	z
-
-_CHIPcmd0_trig:
-	;--- Init values
+	;--- Init value
+	ld	(ix+CHIP_Command),d
 	ld	(ix+CHIP_cmd_0),a
 	set	3,(ix+CHIP_Flags)
 	ld	(ix+CHIP_Step),2
@@ -1362,6 +1364,7 @@ _CHIPcmd1_portUp:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+CHIP_Command),d
 	ld	(ix+CHIP_cmd_1),a
 	set	3,(ix+CHIP_Flags)
 	ret	
@@ -1379,6 +1382,7 @@ _CHIPcmd2_portDown:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+CHIP_Command),d
 	ld	(ix+CHIP_cmd_2),a	
 
 	set	3,(ix+CHIP_Flags)
@@ -1403,6 +1407,7 @@ _CHIPcmd3_portTone:
 	set	1,(ix+CHIP_Flags)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+CHIP_Command),d
 	ld	(ix+CHIP_cmd_3),a
 	ld	(ix+CHIP_Timer),2
 ;		
@@ -1486,6 +1491,7 @@ _CHIPcmd7_tremelo:
 	; with a sine wave.
 	cp	$10
 	jp	c,_CHIPcmd_end
+;	ld	(ix+CHIP_Command),d
 	
 _CHIPcmd4_vibrato:
 	; in:	[A] contains the paramvalue
@@ -1498,6 +1504,7 @@ _CHIPcmd4_vibrato:
 	;--- Init values
 	and	a
 	jr.	z,_CHIPcmd_end  ; <--- make this end effect
+	ld	(ix+CHIP_Command),d
 	rrca
 	rrca
 	rrca
@@ -1607,8 +1614,9 @@ _CHIPcmd5:
 	and	a
 	jp	z,_CHIPcmd_end
 	
+	ld	(ix+CHIP_Command),d
 	bit 	0,(ix+CHIP_Flags)
-	jp	z,_CHIPcmdA_volSlide
+	jp	z,_CHIPcmdA_volSlide_cont
 	
 	set	4,(ix+CHIP_Flags)		; FM notelink bit
 	res	0,(ix+CHIP_Flags)
@@ -1618,7 +1626,7 @@ _CHIPcmd5:
 	call	_CHPcmd3_newNote
 
 	ld	a,iyh
-	jp 	_CHIPcmdA_volSlide
+	jp 	_CHIPcmdA_volSlide_cont
 	
 _CHIPcmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
@@ -1637,7 +1645,10 @@ _CHIPcmdA_volSlide:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jr.	z,_CHIPcmd_end
-;	ld	(ix+CHIP_cmd_1),a
+	
+	
+_CHIPcmdA_volSlide_cont:	
+	ld	(ix+CHIP_Command),d
 
 	;--- neg or	pos
 	cp	16

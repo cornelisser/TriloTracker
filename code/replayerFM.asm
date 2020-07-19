@@ -1583,15 +1583,15 @@ _CHIPcmd9_macro_offset:
 	; (instead of position 0). If	xx is	00 (900), the 
 	; previous value will be used.
 
-	;--- Init values
-	and	a
-	jr.	z,_CHIPcmd_end
-	ld	(ix+CHIP_cmd_9),a
-;_CHIPcmd9_retrig:	
-	set	3,(ix+CHIP_Flags)
-	ld	(ix+CHIP_Timer),2		; timer is set as	we process cmd
-						; before new notes.
-	
+;	;--- Init values
+;	and	a
+;	jr.	z,_CHIPcmd_end
+;	ld	(ix+CHIP_cmd_9),a
+;;_CHIPcmd9_retrig:	
+;	set	3,(ix+CHIP_Flags)
+;	ld	(ix+CHIP_Timer),2		; timer is set as	we process cmd
+;						; before new notes.
+;	
 	ret
 	
 
@@ -1751,7 +1751,9 @@ _CHIPcmdD_patBreak:
 	; This command will stop playing the current 
 	; pattern and will jump	to the next	one in the 
 	; order list (pattern sequence). 
-	set	3,(ix+CHIP_Flags)
+	;set	3,(ix+CHIP_Flags)
+	ld	a,64
+	ld	(replay_line),a
 	ret	
 	
 	
@@ -3158,12 +3160,12 @@ _pcAY_cmdasub:
 
 _pcAY_cmdb:
 _pcAY_cmdc:	
-	jr.	_pcAY_commandEND
+;	jr.	_pcAY_commandEND
 _pcAY_cmdd:
-	;call	replay_setnextpattern
-	ld	a,64
-	ld	(replay_line),a
-	res	3,(ix+CHIP_Flags)
+;	;call	replay_setnextpattern
+;	ld	a,64
+;	ld	(replay_line),a
+;	res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND
 	
 _pcAY_cmd10:

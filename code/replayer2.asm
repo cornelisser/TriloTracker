@@ -1514,7 +1514,8 @@ _CHIPcmdD_patBreak:
 	; This command will stop playing the current 
 	; pattern and will jump	to the next	one in the 
 	; order list (pattern sequence). 
-	set	3,(ix+TRACK_Flags)
+	ld	a,64
+	ld	(replay_line),a
 	ret	
 	
 	
@@ -2519,15 +2520,15 @@ _pcAY_cmdasub
 
 _pcAY_cmdb:
 	
-	jp	_pcAY_commandEND
+;	jp	_pcAY_commandEND
 _pcAY_cmdc:
-	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+;	res	3,(ix+TRACK_Flags)
+;	jp	_pcAY_commandEND
 _pcAY_cmdd:
-	;call	replay_setnextpattern
-	ld	a,64
-	ld	(replay_line),a
-	res	3,(ix+TRACK_Flags)
+;	;call	replay_setnextpattern
+;	ld	a,64
+;	ld	(replay_line),a
+;	res	3,(ix+TRACK_Flags)
 	jp	_pcAY_commandEND
 	
 _pcAY_cmde:

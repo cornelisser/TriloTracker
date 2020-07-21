@@ -1645,10 +1645,10 @@ _CHIPcmdA_volSlide:
 	;--- test for retrigger	(do not update values)
 	and	a
 	jr.	z,_CHIPcmd_end
+	ld	(ix+CHIP_Command),d
 	
 	
 _CHIPcmdA_volSlide_cont:	
-	ld	(ix+CHIP_Command),d
 
 	;--- neg or	pos
 	cp	16

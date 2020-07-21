@@ -628,7 +628,7 @@ replay_init_pre:
 	push	af					; store for	later
 
 
-	;--- Get the insturments from	the first line of	the song
+	;--- Get the instruments from	the first line of	the song
 	ld	hl,song_order
 	ld	a,(hl)
 	ld	b,a
@@ -947,11 +947,18 @@ noCMDchange:
 	jp	z,99f
 	bit 	3,d			; effect active
 	jp	z,99f
+	
 	ld	a,(ix+TRACK_Command)	; active effect is 3?
 	cp	3				; tone portamento?
 	jp	z,.trigger
 	cp 	5
-	jp	nz,99f			; tone portamento + fade?
+	jp	z,.trigger		; tone portamento + fade?
+99:
+	inc	bc
+	inc	bc
+	ret
+
+
 .trigger:	
 	;--- start new note but keep sliding to this new note
 	res	0,d	; reset note trigger
@@ -964,10 +971,7 @@ noCMDchange:
 	jp	_CHPcmd3_newNote
 	
 	
-99:
-	inc	bc
-	inc	bc
-	ret
+
 
 ;-------------------
 ; Rest the note

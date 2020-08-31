@@ -2548,7 +2548,7 @@ _pcAY_noNoise:
 	;relative volume
 	ld	c,a		; store current volume add
 	ld	a,b		
-	and	0x0f		; get	low 3	bits for volume deviation
+	and	0x0f		; get	low 4	bits for volume deviation
 	
 	bit	4,b		; bit	6 set	= subtract?
 	ld	b,a		; set	deviation in b

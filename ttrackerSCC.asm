@@ -128,9 +128,9 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\editlog.asm"
 SWAP_ELEMENTSTART:
 font_data:
-	incbin  ".\data\fontpat.bin"
-	include ".\code\startup.asm"
-	include ".\code\elements\keynotetable.asm"
+	incbin 	".\data\fontpat.bin"
+	include	".\code\startup.asm"
+	include	".\code\elements\keynotetable.asm"
 
 			
 	; --- PAGE 1
@@ -140,28 +140,28 @@ font_data:
 	;
 	; --------------------------------------------------
 	page 1
-	include ".\code\cursor.asm"
-	include ".\code\vdp.asm"
-	include ".\code\screen.asm"	
-	include ".\code\clipboard.asm"
-	include ".\code\song.asm"		
+	include 	".\code\cursor.asm"
+	include 	".\code\vdp.asm"
+	include 	".\code\screen.asm"	
+	include 	".\code\clipboard.asm"
+	include 	".\code\song.asm"		
 
-	include ".\code\keyboard.asm"	
+	include 	".\code\keyboard.asm"	
 	include	".\code\musickeyboard.asm"
-	include ".\code\isr.asm"	; This cannot be before this address!!!!
+	include 	".\code\isr.asm"	; This cannot be before this address!!!!
 ;	include ".\code\replayerFM.asm"
 ;	include ".\code\sound\AY.asm"	;AY3-8910.asm"
 ;	include ".\code\sound\SCC.asm"
-	include ".\code\mapper.asm"
+	include 	".\code\mapper.asm"
 ;	include	".\code\slotselect.asm"	
-	include ".\code\disk.asm"
+	include	".\code\disk.asm"
 
 
 ;	include 	".\code\import\import.asm"	
 	include 	".\code\compression2.asm"
 
 	include	".\code\vram_swapper.asm"
-	include ".\code\replayer2RAM.asm"	
+	include	".\code\replayerSCCRAM.asm"	
 	include 	".\code\window.asm"
 ;	include 	".\code\configuration.asm"
 
@@ -183,7 +183,7 @@ SWAP_INIT_START:
 	; Replayer swappable code block
 	; --------------------------------------------------
 SWAP_REPLAY:
-	include ".\code\replayer2.asm" ;replayer.asm"
+	include ".\code\replayerSCC.asm" ;replayer.asm"
 SWAP_REPLAY_END:	
 	
 	; MBM import swappable code block

@@ -1195,8 +1195,8 @@ _CHIPcmd4_vibrato:
 	;-- set the depth
 	ld	a,e
 	and	$f0
-	jp	nz,99f	; set depth when 0 only when command was not active.
-	bit 	3,(ix+TRACK_Flags)	
+	jp	z,.end	; set depth when 0 only when command was not active.
+;	bit 	3,(ix+TRACK_Flags)	
 	ld	a,16
 
 99:	cp	$D0		; max 1-12

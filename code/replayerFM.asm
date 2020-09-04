@@ -2202,9 +2202,8 @@ replay_process_drum_volume:
 	
 	
 ;===========================================================
-; ---replay_route
-; Output the data	to the CHIP	registers
-; 
+; ---replay_process_chan_AY
+; Process the cmd/instrument/note and vol data 
 ; in HL is the current tone freq
 ;===========================================================
 replay_process_chan_AY:

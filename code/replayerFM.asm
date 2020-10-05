@@ -20,7 +20,7 @@ DRM_DEFAULT_values:
 	db	0x11			; vol
 	
 
-; Sine table used for tremelo and vibrato
+; Sine table used for tremolo and vibrato
 CHIP_Vibrato_sine:
       db 	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00		      ; depth 	1
       db 	$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00		      ; depth 	2
@@ -1305,7 +1305,7 @@ _dc_restNote:
 	res	4,(ix+CHIP_Flags)	; release key
 	res	5,(ix+CHIP_Flags)	; sustain
 99:	
-	xor	a
+;	xor	a
 	ld	a,(replay_previous_note)
 	ld	(ix+CHIP_Note),a
 	jr.	_dc_noNote
@@ -1318,7 +1318,7 @@ _CHIPcmdlist:
 	dw	_CHIPcmd4_vibrato
 	dw	_CHIPcmd5
 	dw	_CHIPcmd6_vibrato_vol
-	dw	_CHIPcmd7_tremelo
+	dw	_CHIPcmd7_tremolo
 	dw	_CHIPcmd8_env_mul
 	dw	_CHIPcmd9_macro_offset
 	dw	_CHIPcmdA_volSlide
@@ -1481,7 +1481,7 @@ _CHIPcmd_end:
 	res	3,(ix+CHIP_Flags)
 	ret	
 
-_CHIPcmd7_tremelo:
+_CHIPcmd7_tremolo:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -2510,7 +2510,7 @@ ELSE
 	ld	a,(replay_mainvol)
 	ld	d,a
 	ld	a,c
-	and 	$0f
+	and $0f
 	or	(ix+CHIP_Volume)
 	cp	d
 	jr.	c,88F

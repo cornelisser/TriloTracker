@@ -22,13 +22,13 @@ MSXMusic_Detect:
     ld 	hl,MSXMusic_MatchExternalID
     call 	Memory_SearchSlots
     ld 	b,0
-    
+  
+.end:  
     ;--- restore the page before returning
 	ld	a,(mapper_slot)				; Recuperamos el slot
 	ld	h,0x80
 	call enaslt
-.end
-  
+  	ret
 
 ; a = slot id
 ; f <- c: found

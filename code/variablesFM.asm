@@ -172,14 +172,14 @@ equalization_flag:	#1	; flag indicating if only instruments need to be processed
 
 
 
-CHIP_Chan1:			#CHIP_REC_SIZE
-CHIP_Chan2:			#CHIP_REC_SIZE
-CHIP_Chan3:			#CHIP_REC_SIZE
-CHIP_Chan4:			#CHIP_REC_SIZE
-CHIP_Chan5:			#CHIP_REC_SIZE
-CHIP_Chan6:			#CHIP_REC_SIZE
-CHIP_Chan7:			#CHIP_REC_SIZE
-CHIP_Chan8:			#CHIP_REC_SIZE
+;CHIP_Chan1:			#CHIP_REC_SIZE
+;CHIP_Chan2:			#CHIP_REC_SIZE
+;CHIP_Chan3:			#CHIP_REC_SIZE
+;CHIP_Chan4:			#CHIP_REC_SIZE
+;CHIP_Chan5:			#CHIP_REC_SIZE
+;CHIP_Chan6:			#CHIP_REC_SIZE
+;CHIP_Chan7:			#CHIP_REC_SIZE
+;CHIP_Chan8:			#CHIP_REC_SIZE
 
 _KEYJAZZ_LINE:	#4	;db	0,0,0,0
 _KJ_PSG:		#4	;db	0,0,0,0
@@ -193,7 +193,7 @@ _KJ_DRM2:		#14	;db	0,0
 				;db	0,0,0,0
 
 
-FM_Registers: 	#0; contains the registers values to write and value previously written
+FM_Registers: 	#0	; contains the registers values to write and value previously written
 FM_regToneA 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
 FM_regToneAb 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)
 FM_regVOLA		#1	; Chan A volume

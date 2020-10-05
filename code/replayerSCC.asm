@@ -45,7 +45,7 @@ TRACK_ToneTable:
 	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
 
 
-; Sine table used for tremelo and vibrato
+; Sine table used for tremolo and vibrato
 CHIP_Vibrato_sine:
       db 	$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00		      ; depth 	1
       db 	$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00,$00,$00		      ; depth 	2
@@ -993,7 +993,7 @@ _CHIPcmdlist:
 	dw	_CHIPcmd4_vibrato
 	dw	_CHIPcmd5
 	dw	_CHIPcmd6_vibrato_vol
-	dw	_CHIPcmd7_tremelo
+	dw	_CHIPcmd7_tremolo
 	dw	_CHIPcmd8_env_mul
 	dw	_CHIPcmd9_macro_offset
 	dw	_CHIPcmdA_volSlide
@@ -1154,7 +1154,7 @@ _CHIPcmd_end:
 	res	3,(ix+TRACK_Flags)
 	ret	
 
-_CHIPcmd7_tremelo:
+_CHIPcmd7_tremolo:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer

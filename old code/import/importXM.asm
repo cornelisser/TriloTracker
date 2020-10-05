@@ -881,8 +881,8 @@ _lxpc5:	; tone portamento + vol slide
 	jr.	_lxpc_continue	; nothing needed
 _lxpc6:	; vibrato + vol slide
 	jr.	_lxpc_continue	; nothing needed
-_lxpc7:	; tremelo
-	jr.	_lxpc_clear		; tremelo is not implemented
+_lxpc7:	; tremolo
+	jr.	_lxpc_clear		; tremolo is not implemented
 _lxpc8:	; panning
 	jr.	_lxpc_clear		; panning is not implemented
 _lxpc9:	; sample offset

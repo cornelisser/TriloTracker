@@ -53,14 +53,14 @@ CHIP_Step				equ 33		; only for VIBRATO???
 CHIP_REC_SIZE			equ 34
 
 ; Moved to RAM > $c000 to free space for replayer code.
-;CHIP_Chan1			ds	CHIP_REC_SIZE
-;CHIP_Chan2			ds	CHIP_REC_SIZE
-;CHIP_Chan3			ds	CHIP_REC_SIZE
-;CHIP_Chan4			ds	CHIP_REC_SIZE
-;CHIP_Chan5			ds	CHIP_REC_SIZE
-;CHIP_Chan6			ds	CHIP_REC_SIZE
-;CHIP_Chan7			ds	CHIP_REC_SIZE
-;CHIP_Chan8			ds	CHIP_REC_SIZE
+CHIP_Chan1			ds	CHIP_REC_SIZE
+CHIP_Chan2			ds	CHIP_REC_SIZE
+CHIP_Chan3			ds	CHIP_REC_SIZE
+CHIP_Chan4			ds	CHIP_REC_SIZE
+CHIP_Chan5			ds	CHIP_REC_SIZE
+CHIP_Chan6			ds	CHIP_REC_SIZE
+CHIP_Chan7			ds	CHIP_REC_SIZE
+CHIP_Chan8			ds	CHIP_REC_SIZE
 
 
 ;--- AY SPECIFIC
@@ -101,6 +101,59 @@ FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
 
 FM_softvoice_req	db	0	; Software voice requested
 FM_softvoice_set 	db	0	; Software voice currently loaded
+
+
+;_KEYJAZZ_LINE:	db	0,0,0,0
+;_KJ_PSG:		db	0,0,0,0
+;_KJ_PSG2:		db	0,0,0,0
+;_KJ_SCC:		db	0,0
+;_KJ_DRM1:		db	0,0
+;			db	0,0
+;_KJ_DRM2:		db	0,0
+;			db	0,0,0,0
+;			db	0,0,0,0
+;			db	0,0,0,0
+
+
+;FM_Registers: 		; contains the registers values to write and value previously written
+;FM_regToneA 	dw 0	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+;FM_regToneAb 	dw 0	; Tone A freq low (8bit)			; Tone A freq high (1bit)
+;FM_regVOLA		db 0	; Chan A volume
+;FM_regVOLAb		db 0	; Chan A volume
+;FM_regToneB 	dw 0	; Tone B freq low					; Tone B freq high
+;FM_regToneBb 	dw 0	; Tone B freq low					; Tone B freq high
+;FM_regVOLB		db 0	; Chan B volume
+;FM_regVOLBb		db 0	; Chan B volume
+;FM_regToneC 	dw 0	; Tone C freq low					; Tone C freq high
+;FM_regToneCb 	dw 0	; Tone C freq low					; Tone C freq high
+;FM_regVOLC	 	db 0	; Chan C volume
+;FM_regVOLCb	 	db 0	; Chan C volume
+;FM_regToneD 	dw 0	; Tone D freq low					; Tone D freq high
+;FM_regToneDb 	dw 0	; Tone D freq low					; Tone D freq high
+;FM_regVOLD		db 0	; Chan D volume
+;FM_regVOLDb		db 0	; Chan D volume
+;FM_regToneE 	dw 0	; Tone E freq low					; Tone E freq high
+;FM_regToneEb 	dw 0	; Tone E freq low					; Tone E freq high
+;FM_regVOLE	  	db 0	; Chan E volume
+;FM_regVOLEb	  	db 0	; Chan E volume
+;FM_regToneF 	dw 0	; Tone E freq low					; Tone F freq high
+;FM_regToneFb 	dw 0	; Tone E freq low					; Tone F freq high
+;FM_regVOLF	  	db 0	; Chan F volume
+;FM_regVOLFb	  	db 0	; Chan F volume
+
+;DRUM_regToneBD	dw 0
+;DRUM_regToneBDb	dw 0
+;DRUM_regVolBD	db 0
+;DRUM_regVolBDb	db 0
+;DRUM_regToneSH	dw 0
+;DRUM_regToneSHb	dw 0
+;DRUM_regVolSH	db 0
+;DRUM_regVolSHb	db 0
+;DRUM_regToneCT	dw 0
+;DRUM_regToneCTb	dw 0
+;DRUM_regVolCT	db 0
+;DRUM_regVolCTb	db 0
+;FM_DRUM		db 0	; Percussion bits
 
 
 

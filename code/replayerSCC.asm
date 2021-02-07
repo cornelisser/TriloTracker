@@ -3197,8 +3197,8 @@ loop:
 ; Data is not written to SCC but into RAM	shadow registers.
 ;==================
 _write_SCC_wave:
-	bit	4,(hl)
-	jp	nz,_write_SCC_special
+;	bit	4,(hl)
+;	jp	nz,_write_SCC_special
 	add	a,a
 	add	a,a
 	add	a,a	

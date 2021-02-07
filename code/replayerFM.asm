@@ -2510,7 +2510,7 @@ ELSE
 	ld	a,(replay_mainvol)
 	ld	d,a
 	ld	a,c
-	and $0f
+	and 	$0f
 	or	(ix+CHIP_Volume)
 	cp	d
 	jr.	c,88F
@@ -2534,8 +2534,6 @@ ENDIF
 
 _pcAY_noNoise:
 	;volume
-
-
 	ld	a,(ix+CHIP_VolumeAdd)
 	bit	5,b
 	jr.	nz,0f

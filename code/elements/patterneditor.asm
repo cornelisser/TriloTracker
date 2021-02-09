@@ -608,11 +608,18 @@ _mixer_mask:
 	
 check_channel_mute:
 	ld	a,(fkey)
+	and	a
+	jp	z,99f			; Hack for no CTRL or ALT
 	cp	6
-	ret	nz
-
+	ret	nz			; Check if CTRL is used.
+	;-- CTRL
 	ld	a,(key)
 	sub	a,"0"+128
+	jp	88f
+99:
+	ld	a,(key)
+	sub	a,"0"	
+88:
 	and	a
 	jp	z,.drum
 	cp	9

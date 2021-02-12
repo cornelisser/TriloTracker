@@ -2152,14 +2152,27 @@ _pcAY_noCMDToneAdd:
 	inc	hl
 	ld	(hl),d
 		
+
+	;--- prevent SCC and noise
+	bit	7,(ix+TRACK_Flags)
+;	jp	nz,_pcAY_noNoise
+	jp	z,_pcAY_Noise
+_pcAY_Waveform:
+	ld	a,01100000b
+	and	c
+	cp	00100000b
+	jp	nz,_pcAY_noNoise
+	ld	a,0x1f
+	and	c
+	ld	(ix+TRACK_Waveform),a
+	set	_TRG_WAV,(ix+TRACK_Flags)
+	jp	_pcAY_noNoise
+
+_pcAY_Noise:
 	;-- Test for noise
 	bit	7,c
 	jp	z,_pcAY_noNoise
-	
 	; noise
-	;--- prevent SCC and noise
-	bit	7,(ix+TRACK_Flags)
-	jp	nz,_pcAY_noNoise
 
 	;--- Set the mixer for noise
 	ld	a,(SCC_regMIXER)

@@ -128,7 +128,7 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\editlog.asm"
 SWAP_ELEMENTSTART:
 font_data:
-	incbin 	".\data\fontpat.bin"
+	incbin 	".\data\fontpatSCC.bin"
 	include	".\code\startup.asm"
 	include	".\code\elements\keynotetable.asm"
 

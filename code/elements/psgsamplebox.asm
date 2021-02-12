@@ -305,6 +305,16 @@ _ups_lineloop:
 1:
 	ld	(de),a
 	inc	de	
+
+	;--- Waveform indicator
+	ld	a,01100000b
+	and	b
+	cp	00100000b
+	ld	a,_NOISE_ON_SIGN+5
+	jp	z,1f
+	ld	a,_NOISE_ON_SIGN+4
+1:
+	ld	(de),a
 	inc	de
 
 	;---- tone deviation
@@ -1080,8 +1090,27 @@ _psgsamright:
 	ld	(hl),a
 	call	update_psgsamplebox
 	jr.	process_key_psgsamplebox_END
-
-
+0:
+	;===================
+	;
+	; Waveform ena/dis 
+	;
+	;===================
+	;--- Check if the key pressed is w or W
+	cp	"w"	
+	jr.	z,1f
+	cp	"W"
+	jr.	nz,0f
+	;--- get the location in RAM
+1:	call	get_psgsample_location	
+	
+			; 1st byte has N
+	ld	a,(hl)
+	xor	00100000b		; set waveform bits
+	and	00111111b		; erase noise bit
+	ld	(hl),a
+	call	update_psgsamplebox
+	jr.	process_key_psgsamplebox_END
 
 0:
 	;=====================

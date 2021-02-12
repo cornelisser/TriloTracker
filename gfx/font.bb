@@ -35,7 +35,7 @@ For x=0 To 255
 	PokeByte selectionBank,x,0
 Next
 
-load_tileset("font_20200607")
+load_tileset("font_20210212_SCC")
 show()
 
 ;For port = 9938 To 9958
@@ -118,7 +118,7 @@ End
 
 Function load_tileset(file$)
 	;If file$ = ""
-		file$ = "font_20200607.bmp"
+		file$ = "font_20210212_SCC.bmp"
 	;EndIf	
 	
 	If file$<>""	

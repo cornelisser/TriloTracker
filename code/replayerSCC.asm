@@ -350,6 +350,7 @@ replay_decodedata:
 	ld	hl,TRACK_ToneTable
 	ld	(replay_Tonetable),hl
 	
+	ld	iyh,$00
 	ld	ix,TRACK_Chan1
 	call	replay_decode_chan
 	ld	ix,TRACK_Chan2
@@ -358,10 +359,13 @@ replay_decodedata:
 	call	replay_decode_chan
 	ld	ix,TRACK_Chan4
 	call	replay_decode_chan
+	ld	iyh,$20
 	ld	ix,TRACK_Chan5
 	call	replay_decode_chan
+	ld	iyh,$40
 	ld	ix,TRACK_Chan6
 	call	replay_decode_chan
+	ld	iyh,$60
 	ld	ix,TRACK_Chan7
 	call	replay_decode_chan
 	ld	ix,TRACK_Chan8
@@ -678,31 +682,6 @@ replay_init_cont:
 	ret
 
 
-;_PRE_pat:	db	0
-;_PRE_order:	db	0
-;_PRE_line:	db	0
-
-;_PRE_dummy_pat:
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...	
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...
-;	db	$00,$01,$f0,$00	; ---1F...	
-;	db	$00,$01,$fD,$00	; ---1FD00
-	
-;_PREPROCESS_LENGTH	equ	1
-
-
 
 ;--- Very basic pre-scan. Old	one was WAY	too slow.
 replay_init_pre:
@@ -923,7 +902,7 @@ replay_decode_chan:
 	ld	(ix+TRACK_Note),a
 	
 	set	0,(ix+TRACK_Flags)	; set note trigger
-	res	4,(ix+TRACK_Flags)	; reset morph slave mode
+;	res	4,(ix+TRACK_Flags)	; reset morph slave mode
 
 _dc_noNote:	
 	inc	bc
@@ -934,7 +913,7 @@ _dc_noNote:
 	and	a
 	jp	z,_dc_noInstr
 	;--- check current instrument
-	res	4,(ix+TRACK_Flags)	; reset morph slave mode
+;	res	4,(ix+TRACK_Flags)	; reset morph slave mode
 	
 	cp	(ix+TRACK_Instrument)
 	jp	z,_dc_noInstr
@@ -967,7 +946,8 @@ _dc_noNote:
 	
 	;--- this is a new waveform
 	ld	(ix+TRACK_Waveform),a
-	set	6,(ix+TRACK_Flags)
+	set	_TRG_WAV,(ix+TRACK_Flags)
+	res	4,(ix+TRACK_Flags)	; reset morph slave mode if waveform changes
 	
 _dc_noNewWaveform:	
 	call	set_patternpage_safe
@@ -1087,7 +1067,7 @@ _CHIPcmdlist:
 	dw	_CHIPcmd9_macro_offset
 	dw	_CHIPcmdA_volSlide
 	dw	_CHIPcmdB_scc_commands
-	dw	_CHIPcmdC
+	dw	_CHIPcmdC_scc_morph
 	dw	_CHIPcmdD_patBreak
 	dw	_CHIPcmdE_extended
 	dw	_CHIPcmdF_speed
@@ -1181,7 +1161,6 @@ _CHIPcmd3_portTone:
 	bit	0,(ix+TRACK_Flags)
 	ret	z
 	
-	set	4,(ix+TRACK_Flags)		; FM notelink bit
 	res	0,(ix+TRACK_Flags)
 _CHPcmd3_newNote:
 ;	ld	a,(ix+CHIP_cmd_3)
@@ -1379,7 +1358,6 @@ _CHIPcmd5:
 	bit 	0,(ix+TRACK_Flags)
 	jp	z,_CHIPcmdA_volSlide_cont
 	
-	set	4,(ix+TRACK_Flags)		; FM notelink bit
 	res	0,(ix+TRACK_Flags)
 
 	ld	iyh,a
@@ -1453,24 +1431,59 @@ _CHIPcmdB_scc_commands:
 	; 
 	ld	d,a	
 	and	0xf0	; get	the extended comand
-			; reset
-	jp	z,_CHIPcmdB_reset	
-	cp	0x10	; duty cycle
-	jp	z,_CHIPcmdB_pwm
-	cp	0x20	; waveform cut
-	jp	z,_CHIPcmdB_cut
-;	cp	0x40	; waveform compress
-;	jp	z,_CHIPcmdB_compress
-	cp	0xB0	; set	waveform
-	jp	z,_CHIPcmdB_setwave
-	cp	0xC0	; set	waveform2
-	jp	z,_CHIPcmdB_setwave2
-	cp	0xe0
-;	jp	z,_CHIPcmdB_morphset
-;	cp	0xF0
-;	jp	z,_CHIPcmdB_morphoption
 
+	cp	0x20
+	jp	c,_CHIPcmdB_setwave			; B0y - B1y is waveform set
+;	jp	z,_CHIPcmdB_cut				; waveform cut
+	cp	0x30
+	jp	z,_CHIPcmdB_pwm				; Duty cycle waveform
+;	cp	0x40
+;	jp	z,_CHIPcmdB_compress			; Compress waveform
+	cp	0x50	
+	jp	z,_CHIPcmdB_soften			; soften waveform
+	cp	0xe0
+	jp	z,_CHIPcmdB_reset				; reset to instrument waveform
 	ret
+
+
+_CHIPcmdB_soften:
+	;=================
+	; Waveform Soften
+	;=================
+	res	_TRG_WAV,(ix+TRACK_Flags)			; Waveform update
+	res	_ACT_MOR,(ix+TRACK_Flags)			; Morph copy off
+
+	;get the waveform	start	in [hl]
+	ld	a,(ix+TRACK_Waveform)
+	add	a,a
+	add	a,a
+	add	a,a	
+
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	add	hl,hl
+	ld	de,_WAVESSCC
+	add	hl,de	
+
+	;get the waveform destination address in [DE]
+	ld	de,_0x9800
+	ld	a,iyh		;ixh contains chan#
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	iyl,32
+.softloop:	
+	ld	a,(hl)
+	sra	a
+	ld	(de),a
+	dec	iyl
+	ret	z
+	inc	hl
+	inc	de
+	jp	.softloop
 
 ;_CHIPcmdB_morphset:
 ;	;--- Set morph destination and init
@@ -1491,78 +1504,120 @@ _CHIPcmdB_scc_commands:
 	
 _CHIPcmdB_reset:
 	;--- retrigger the original waveform
-	set	6,(ix+TRACK_Flags)
-	res	4,(ix+TRACK_Flags)
+	set	_TRG_WAV,(ix+TRACK_Flags)			; Waveform update
+	res	_ACT_MOR,(ix+TRACK_Flags)			; Morph copy off
+
+	;--- Look up the waveform form the instrument.
+	ld	l,(ix+TRACK_MacroPointer)
+	ld	h,(ix+TRACK_MacroPointer+1)
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	ld	(ix+TRACK_Waveform),a
 	ret
-	
 	
 _CHIPcmdB_pwm:	
-	ld	(ix+TRACK_Command),0x21	; set	the command#
+	;=================
+	; Waveform PWM / Duty Cycle
+	;=================
+	res	_TRG_WAV,(ix+TRACK_Flags)	; reset normal wave update
+	res	_ACT_MOR,(ix+TRACK_Flags)
+	;get the waveform	start	in [DE]
+	ld	hl,_0x9800
+	ld	a,iyh		;ixh contains chan#
+;	rrca			; a mac value is 4 so
+;	rrca			; 3 times rrca is	X32
+;	rrca			; max	result is 128.
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
 
-1:	ld	a,d
+	ld	e,$77	
+	ld	a,d
 	and	0x0f
-
-2:	ld	(ix+TRACK_cmd_B),a
-	set	3,(ix+TRACK_Flags)
-	res	4,(ix+TRACK_Flags)
+	inc	a
+	ld	d,a
+	ld	a,32
+	sub	d
+_wspw_loop_h:
+	ld	(hl),e
+	inc	hl
+	dec	d
+	jp	nz,_wspw_loop_h
+	
+;	and	a
+;	ret	z
+	
+	ld	e,$87
+	ld	d,a
+_wspw_loop_l:
+	ld	(hl),e
+	inc	hl
+	dec	d
+	jp	nz,_wspw_loop_l
 	ret
 
+
+
+
+
 _CHIPcmdB_cut:	
-	ld	(ix+TRACK_Command),0x22	; set	the command#
-	jp	1b
+	ret
+
+
 
 _CHIPcmdB_setwave:
 	;--- Set a new waveform
 	ld	a,d
-	and	0xf
+	and	0x1f
 4:	ld	(ix+TRACK_Waveform),a
-	set	6,(ix+TRACK_Flags)
-	res	4,(ix+TRACK_Flags)
+	set	_TRG_WAV,(ix+TRACK_Flags)
+	res	_ACT_MOR,(ix+TRACK_Flags)
 	ret	
 
-_CHIPcmdB_setwave2:
-	;--- Set a new waveform
-	ld	a,d
-	and	0xf
-	add	16
-	jp	4b
 
 	
-_CHIPcmdC:
+_CHIPcmdC_scc_morph:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	;
-	and	a
-	jp	z,_CHIPcmdC_setslave
-
-	ld	d,a
-	;---- init new morph
-	and	0xf0	
-	ld	(replay_morph_waveform),a	; store dest form offset
+	cp	0x20
+	jp	c,.morph_init
 	
+	cp	0xC0
+	jp	z,.morph_slave
+
+	cp	0xF0
+	jp	nc,.morph_speed
+	ret
+
+
+.morph_slave:
+	set	4,(ix+TRACK_Flags)
+	ret
+
+.morph_speed:
+	and 	0x0f
+	inc	a
+	ld	(replay_morph_speed),a
+	ret
+
+.morph_init:
+	;---- init new morph
+	add	a
+	add	a
+	add	a
+	ld	(replay_morph_waveform),a	; store dest form offset
 	xor	a
 	ld	(replay_morph_counter),a
 	inc	a
 	ld	(replay_morph_timer),a
 	
-	ld	a,d
-	;--- set speed
-	and	0x0f
-	jp	z,_morph_cont	; don't load waveform in buffer
-	
-	;---- set new timer
-;	ld	hl,_morph_timer_table-1
-;	add	a,l
-;	ld	l,a
-;	jp	nc,99f
-;	inc	h
-;99:
-;	ld	a,(hl)
-	ld	(replay_morph_speed),a
-	
-	;--- load the waveformbuffer
+	;--- Get the  the waveform address
 	ld	a,(ix+TRACK_Waveform)
 	add	a,a
 	add	a,a
@@ -1582,26 +1637,22 @@ _CHIPcmdC:
 44:
 	ex	af,af'	;'
 	ld	a,(hl)
-	ld	(de),a		; copy value to both wave and delta pos
-	inc	de
-	ld	(de),a
+;	ld	(de),a
+	inc	de		; copy to value (skip delta value byte)
+	ld	(de),a	
 	inc	hl
 	inc	de
 	ex	af,af'	;'
 	dec	a
 	jp	nz,44b
-	
-	
-	
+
 	;--- calculate the delta's	
-_morph_cont:
 	ld	a,255				; 255 triggers calc init
 	ld	(replay_morph_active),a		
-	
-	
-_CHIPcmdC_setslave:
 	set	4,(ix+TRACK_Flags)
 	ret
+	
+
 	
 _CHIPcmdD_patBreak:
 	; in:	[A] contains the paramvalue
@@ -2276,13 +2327,13 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmd1b
 	dw	_pcAY_cmd1c	
 	dw	_pcAY_cmd1d		
-	dw	_pcAY_cmd1e
-	dw	_pcAY_cmd1f	
-	dw	_pcAY_cmd20
-	dw	_pcAY_cmd21
-	dw	_pcAY_cmd22
-	dw	_pcAY_cmd23
-	dw	_pcAY_cmd24
+;	dw	_pcAY_cmd1e
+;	dw	_pcAY_cmd1f	
+;	dw	_pcAY_cmd20
+;	dw	0			;_pcAY_cmd21
+;	dw	_pcAY_cmd22
+;	dw	_pcAY_cmd23
+;	dw	_pcAY_cmd24
 ;	dw	_pcAY_cmd25
 			
 _pcAY_cmd0:
@@ -2739,113 +2790,74 @@ _pcAY_cmd1d:
 ;	res	3,(ix+TRACK_Flags)		; reset tiggger cmd flag
 	
 	jp	_pcAY_commandEND	
-_pcAY_cmd1e:
-;	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
-_pcAY_cmd1f:
-;	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
-_pcAY_cmd20:
-;	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
-	
-_pcAY_cmd21:
-	;=================
-	; Waveform PWM / Duty Cycle
-	;=================
-	res	3,(ix+TRACK_Flags)	; reset command
-	res	6,(ix+TRACK_Flags)	; reset normal wave update
+;_pcAY_cmd1e:
+;;	res	3,(ix+TRACK_Flags)
+;	jp	_pcAY_commandEND	
+;_pcAY_cmd1f:
+;;	res	3,(ix+TRACK_Flags)
+;	jp	_pcAY_commandEND	
+;_pcAY_cmd20:
+;;	res	3,(ix+TRACK_Flags)
+;	jp	_pcAY_commandEND	
+;	
 
-	;get the waveform	start	in [DE]
-	ld	hl,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
-	ld	b,(ix+TRACK_cmd_B)
-	inc	b
-
-	ld	c,77	
-	ld	a,32
-	sub	b
-_wspw_loop_h:
-	ld	(hl),c
-	inc	hl
-	djnz	_wspw_loop_h
 	
-	and	a
-	jp	z,_pcAY_commandEND
-	
-	ld	c,-78
-	ld	b,a
-_wspw_loop_l:
-	ld	(hl),c
-	inc	hl
-	djnz	_wspw_loop_l
-
-	jp	_pcAY_commandEND
-	
-_pcAY_cmd22:
-	;=================
-	; Waveform Cut
-	;=================
-
-	res	3,(ix+TRACK_Flags)	; reset command
-	res	6,(ix+TRACK_Flags)	; reset normal wave update
-
-	;get the waveform	start	in [DE]
-	ld	de,_0x9800
-	ld	a,iyh		;ixh contains chan#
-	rrca			; a mac value is 4 so
-	rrca			; 3 times rrca is	X32
-	rrca			; max	result is 128.
-	add	a,e
-	ld	e,a
-	jp	nc,99f
-	inc	d
-99:
-	ld	a,(ix+TRACK_Waveform)
-	add	a,a
-	add	a,a
-	add	a,a	
-
-	ld	l,a
-	ld	h,0
-	add	hl,hl
-	add	hl,hl
-		
-	ld	  bc,_WAVESSCC
-	add	  hl,bc
-
-	ld	a,(ix+TRACK_cmd_B)
-	inc	a
-	add	a
-	ld	c,a
-	ld	b,0
-	ldir
-	
-	sub	32
-	neg	
-	jp	z,_pcAY_commandEND	
-	
-	ld	b,a
-	xor	a
-_wsc_l:
-	ld	(de),a
-	inc	de
-	djnz	_wsc_l
-	
-	jp	_pcAY_commandEND
-	
-_pcAY_cmd23:
-_pcAY_cmd24:	
-_pcAY_cmd25:
-	jp	_pcAY_commandEND	
+;_pcAY_cmd22:
+;	;=================
+;	; Waveform Cut
+;	;=================
+;
+;	res	3,(ix+TRACK_Flags)	; reset command
+;	res	_TRG_WAV,(ix+TRACK_Flags)	; reset normal wave update
+;
+;	;get the waveform	start	in [DE]
+;	ld	de,_0x9800
+;	ld	a,iyh		;ixh contains chan#
+;	rrca			; a mac value is 4 so
+;	rrca			; 3 times rrca is	X32
+;	rrca			; max	result is 128.
+;	add	a,e
+;	ld	e,a
+;	jp	nc,99f
+;	inc	d
+;99:
+;	ld	a,(ix+TRACK_Waveform)
+;	add	a,a
+;	add	a,a
+;	add	a,a	
+;
+;	ld	l,a
+;	ld	h,0
+;	add	hl,hl
+;	add	hl,hl
+;		
+;	ld	  bc,_WAVESSCC
+;	add	  hl,bc
+;
+;	ld	a,(ix+TRACK_cmd_B)
+;	inc	a
+;	add	a
+;	ld	c,a
+;	ld	b,0
+;	ldir
+;	
+;	sub	32
+;	neg	
+;	jp	z,_pcAY_commandEND	
+;	
+;	ld	b,a
+;	xor	a
+;_wsc_l:
+;	ld	(de),a
+;	inc	de
+;	djnz	_wsc_l
+;	
+;	jp	_pcAY_commandEND
+;	
+;_pcAY_cmd23:
+;_pcAY_cmd24:	
+;_pcAY_cmd25:
+;	jp	_pcAY_commandEND	
 
 
 	
@@ -3185,37 +3197,37 @@ scc_route:
 99:
 	;--- Set the waveforms
 	ld	hl,TRACK_Chan4+TRACK_Flags
-	bit	6,(hl)
+	bit	_TRG_WAV,(hl)
 	jp	z,0f
 	;--- set wave form
-	res	6,(hl)
+	res	_TRG_WAV,(hl)
 	ld	a,(TRACK_Chan4+TRACK_Waveform)
 	ld	de,_0x9800
 	call	_write_SCC_wave
 0:
 	ld	hl,TRACK_Chan5+TRACK_Flags
-	bit	6,(hl)
+	bit	_TRG_WAV,(hl)
 	jp	z,0f
 	;--- set wave form
-	res	6,(hl)
+	res	_TRG_WAV,(hl)
 	ld	a,(TRACK_Chan5+TRACK_Waveform)
 	ld	de,_0x9820
 	call	_write_SCC_wave
 0:
 	ld	hl,TRACK_Chan6+TRACK_Flags
-	bit	6,(hl)
+	bit	_TRG_WAV,(hl)
 	jp	z,0f
 	;--- set wave form
-	res	6,(hl)
+	res	_TRG_WAV,(hl)
 	ld	a,(TRACK_Chan6+TRACK_Waveform)
 	ld	de,_0x9840
 	call	_write_SCC_wave
 0:
 	ld	hl,TRACK_Chan7+TRACK_Flags
-	bit	6,(hl)
+	bit	_TRG_WAV,(hl)
 	jp	z,0f
 	;--- set wave form
-	res	6,(hl)
+	res	_TRG_WAV,(hl)
 	ld	a,(TRACK_Chan7+TRACK_Waveform)
 	ld	de,_0x9860
 	call	_write_SCC_wave
@@ -3282,8 +3294,8 @@ loop:
 ; Data is not written to SCC but into RAM	shadow registers.
 ;==================
 _write_SCC_wave:
-;	bit	4,(hl)
-;	jp	nz,_write_SCC_special
+	bit	4,(hl)
+	jp	nz,_write_SCC_special
 	add	a,a
 	add	a,a
 	add	a,a	
@@ -3316,7 +3328,7 @@ _wss_l:
 	ret
 ;	bit	7,a
 ;	jp	nz,_write_SCC_PW_wave
-;	bit	6,a
+;	res	_TRG_WAV,a
 ;	jp	nz,_write_SCC_cut
 ;	ret
 
@@ -3443,7 +3455,7 @@ replay_process_morph:
 10:	
 	bit 	4,(hl)
 	jp	z,99f
-	set	6,(hl)
+	set	_TRG_WAV,(hl)
 99:
 	add	hl,de
 	djnz	10b	
@@ -3463,35 +3475,33 @@ replay_process_morph:
 	
 
 	;--- calculate the delta's
-	ld	de,replay_morph_buffer
-	ld	hl,_WAVESSCC
+	ld	de,_WAVESSCC
 	ld	a,(replay_morph_waveform)
-	add	a
-	jp	nc,99f
-	inc	h
-99:	add	a,l
 	ld	l,a
-	jp	nc,99f
-	inc	h
-99:	
+	ld	h,0	
+	add	hl,hl
+	add	hl,hl	
+	add	hl,de
+	ld	de,replay_morph_buffer
+
 	;---- start calculating
 	ld	b,32		; 32 values
 _rpm_loop:	
 	inc	de
 	ld	a,(de)
 	dec	de
-	add	a,128
+	add	a,128					; Make all values negative for easier calculations
 	ld	c,a
 	ld	a,(hl)
-	add	a,128
+	add	a,128					; Make all values negative for easier calculations
 	cp	c
-	jp	c,_rpm_smaller		; dest is smaller
+	jp	c,_rpm_smaller			; dest is smaller
 
 	
 _rpm_larger:
-	sub	c
-	rrca
-	rrca
+	sub	c					; calculate the difference
+	rrca						; Rotate to get in lower bits the value to add/sub eacht set_patternpage_safe
+	rrca						; and in upper 3 bits when to add/sub extra in relation to replay_morph_counter
 	rrca
 	rrca
 	and	$ef		; reset bit 5
@@ -3534,7 +3544,7 @@ _rpm_next_step:
 	ld	(replay_morph_active),a
 
 99:
-	dec c
+	dec 	c
 	ld	hl,replay_morph_buffer
 	ld	b,32
 _rpm_ns_loop:	

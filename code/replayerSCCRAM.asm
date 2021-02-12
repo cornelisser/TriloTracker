@@ -44,14 +44,14 @@ TRACK_MacroPointer	equ 3
 TRACK_Note			equ 5	
 TRACK_Volume		equ 6	
 TRACK_Flags			equ 7	
-	; 0 = note trigger
-	; 1 = note active
+_TRG_NOT:		equ	0		; 0 = note trigger
+_ACT_NOT:		equ	1		; 1 = note active
 	; 2 = morph active		;-< for SCC when 1 then waveform is followin morph buffer
 	; 3 = command trigger
-	; 4 = envelope trigger
+_ACT_MOR:		equ 	4		; 4 = Morph follow active
 	; 5 = instrument trigger
-	; 6 = waveform trigger
-	; 7 = PSG/SCC
+_TRG_WAV:		equ	6		; 6 = waveform trigger
+_PSG_SCC:		equ   7		; 7 = PSG/SCC
 TRACK_MacroStep		equ 8			; reset after note set
 TRACK_ToneAdd		equ 9			; reset after note set
 TRACK_VolumeAdd		equ 11		; reset after note set

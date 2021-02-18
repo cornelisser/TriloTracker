@@ -111,7 +111,11 @@ _LABEL_DISKSONG:
 	db	"Load Song",0
 	db	"Save Song",0
 	db	"Load Backup",0
+IFDEF TTSCC
+	db	"Load Pak",0
+ELSE
 	db	"Delete Song",0
+ENDIF
 ;_LABEL_DISKIMP:
 ;	db	"Import FastTracker2",0
 ;	db	"Import MB1.4",0
@@ -777,6 +781,24 @@ _fd_drive_check:
 	ld	(editsubmode),a	
 	call	reset_cursor_filedialog
 	
+IFDEF	TTSCC
+	;	; fill buffer with information
+	ld	de,_PAK_WILDCARD
+	call	set_wildcard
+	ld	de,_FILMES_retrieve
+	call	message_filedialog
+	xor	a
+	ld	(window_shown),a
+	call	get_dir
+	ld	a,(window_shown)
+	and	a
+		call	nz,restore_filedialog
+	ld	de,_FILMES_select_delete
+	call	message_filedialog
+	
+	call	update_filedialog	
+	jr.	update_filedailog_fileselection
+ELSE
 	;	; fill buffer with information
 	ld	de,_DEL_WILDCARD
 	call	set_wildcard
@@ -793,7 +815,8 @@ _fd_drive_check:
 	
 	call	update_filedialog	
 	jr.	update_filedailog_fileselection
-	
+ENDIF
+
 ;5:	;--- 5 = import xm
 ;	ld	a,4
 ;	ld	(editsubmode),a	
@@ -1147,6 +1170,12 @@ _pfd_SAVE:
 
 	
 _pfd_DELETE:
+IFDEF TTSCC
+	call	open_pakfile
+	call	set_songpage
+
+	jr.	restore_patterneditor
+ELSE
 	ld	de,_FILMES_deleting
 	call	message_filedialog
 	call	delete_tmufile		; hl points to filename
@@ -1154,7 +1183,7 @@ _pfd_DELETE:
 	call	set_songpage
 
 	jr.	restore_patterneditor
-
+ENDIF
 
 _pfd_sf_DIR:
 	call	open_directory

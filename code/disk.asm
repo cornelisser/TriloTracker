@@ -924,7 +924,7 @@ _stmu_samplsub:				; calculate the number of bytes
 IFDEF	TTSCC			
 	;--- Write the SCC waveform data;
 	ld	de,_WAVESSCC
-	ld	hl,1024
+	ld	hl,32*MAX_WAVEFORM
 	call	write_file
 	call	nz,catch_diskerror
 ELSE
@@ -1286,7 +1286,7 @@ IFDEF	TTSCC
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
-	ld	de,32*32
+	ld	de,32*MAX_WAVEFORM
 	ex	de,hl
 	call	write_file	 
 	call	nz,catch_diskerror
@@ -1803,7 +1803,7 @@ _create_was_continue:
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
 	ld	hl,_WAVESSCC
-	ld	de,32*32
+	ld	de,32*MAX_WAVEFORM
 	ex	de,hl
 	call	write_file	 
 	call	nz,catch_diskerror
@@ -1814,6 +1814,15 @@ _create_was_continue:
 	ret
 
 ENDIF
+
+
+open_samplepak:
+	call	reset_hook
+	ld	(_catch_stackpointer),sp
+
+
+	ld	a,00000001b		; NO write
+	call	open_file	
 
 ;===========================================================
 ; --- open_tmufile
@@ -2740,7 +2749,46 @@ open_mafile:
 	
 	call	set_hook
 	ret
+
+
+;===========================================================
+; --- open_pakfile
+;
+; Open a pak file. In hihgest segment
+; Data is loaded into the current song
+;===========================================================
+open_pakfile:
+	call	reset_hook
+	ld	(_catch_stackpointer),sp
+	ld	a,00000001b		; NO write
+	call	open_file
 	
+	;--- Check for errors
+	and	a
+	call	nz,catch_diskerror
+	
+	ld	a,b
+	ld	(disk_handle),a
+	
+	;--- Set the highest segment
+	ld	a,(max_pattern)
+	sub	7
+	ld	b,a
+	call	set_patternpage
+;
+;
+;	;--- Read type
+	ld	de,$8000
+1:	ld	hl,1*1024
+	call	read_file
+	call	nz,catch_diskerror
+	jp	1b	
+	;catch error here
+
+	call	close_file
+	
+	call	set_hook
+	ret
 
 ;===========================================================
 ; --- open_masfile
@@ -2939,8 +2987,13 @@ _TMU_WILDCARD:
 	db	"*.TMU",0
 _TM_WILDCARD:
 	db	"*.TM_",0
+
 _DEL_WILDCARD:
 	db	"*.TM*",0
+
+_PAK_WILDCARD:
+	db	"*.PAK",0
+
 
 
 _INS_WILDCARD:

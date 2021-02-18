@@ -28,13 +28,19 @@ replay_mainvol			db 0			; the volume correction.
 replay_Tonetable			dw TRACK_ToneTable
 
 replay_morph_active		db 0			; flag to indicate morphing is active
-;replay_morph_update		db 0			; flag to indicate a new waveform is ready
+replay_morph_type			db 0			; 0 = from start from currenr waveform. 1= continue from waveform in SCC Register
 replay_morph_timer		db 0			; step timer between morphs
 replay_morph_speed		db 0 
 replay_morph_counter		db 0			; counter till end morph
 replay_morph_buffer		ds 64,0		; interleaved buffer with morphed waveform and morph delta values
 replay_morph_waveform		db 0 			; waveform we are morphin to.
 replay_arp_speed			db 0			; counter for arp speed
+
+;replay_sample_num			db 0 			; Current sample deeing played 
+;replay_sample_active		db 0			; 0 = inactive, 1 update, -1 init
+;replay_sample_waveoffset	db 0			; Offset for the waveform beeing used.
+;replay_sample_period		dw 0			; Pointer to the period data
+;replay_sample_data		dw 0			; Pointer to the waveform data
 
 TRACK_Instrument		equ 0	
 TRACK_Waveform		equ 1
@@ -47,7 +53,7 @@ TRACK_Flags			equ 7
 _TRG_NOT:		equ	0		; 0 = note trigger
 _ACT_NOT:		equ	1		; 1 = note active
 	; 2 = morph active		;-< for SCC when 1 then waveform is followin morph buffer
-	; 3 = command trigger
+_TRG_CMD:		equ	3	; 3 = command trigger
 _ACT_MOR:		equ 	4		; 4 = Morph follow active
 	; 5 = instrument trigger
 _TRG_WAV:		equ	6		; 6 = waveform trigger
@@ -91,12 +97,12 @@ TRACK_Chan7			ds	TRACK_REC_SIZE
 TRACK_Chan8			ds	TRACK_REC_SIZE
 
 
-AY_duty1		db	0
-AY_duty2		db	0
-AY_duty3		db	0
-psgmode		db	0
-AY_NoiseOR		db	0
-AY_NoiseAND		db	0
+;AY_duty1		db	0
+;AY_duty2		db	0
+;AY_duty3		db	0
+;psgmode		db	0
+;AY_NoiseOR		db	0
+;AY_NoiseAND		db	0
 
 
 DrumMixer
@@ -137,7 +143,7 @@ SCC_regVOLD 	db	0	; Chan D volume
 SCC_regVOLE  	db	0	; Chan E volume
 SCC_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)
 
-_WAVESSCC: 			ds	32*32
+_WAVESSCC: 			ds	32*MAX_WAVEFORM
 
 _AUDITION_LINE:
 		db	0,0,0,0

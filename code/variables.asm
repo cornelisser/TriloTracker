@@ -8,7 +8,7 @@ SONG_PATINSONG	equ (8*1024)/SONG_PATSIZE; number of pats that fit IN song data
 SONG_SEQSIZE	equ 200;128			; size of the order list
 INSTRUMENT_LEN	equ 32		; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3		; size of 1 instrument macro
-MAX_WAVEFORM	equ	32
+MAX_WAVEFORM	equ 32
 MAX_DRUMS		equ 20				; max number of drum macros
 
 
@@ -62,10 +62,7 @@ song_order_pos			#1
 song_order_offset			#1
 song_order_update			#1
 	
-;-- track
-song_pattern		#1
-song_pattern_offset	#1		; offset to draw
-song_pattern_line		#1		; line to edit
+
 
 ; track column ????
 song_octave			#1
@@ -173,7 +170,10 @@ _KJ_DRM2:		#14	;db	0,0
 				;db	0,0,0,0
 
 
-
+;-- track
+song_pattern		#1
+song_pattern_offset	#1		; offset to draw
+song_pattern_line		#1		; line to edit
 
 MainMixer:				#1
 mainPSGvol:				#1

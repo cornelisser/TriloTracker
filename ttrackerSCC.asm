@@ -74,8 +74,6 @@ MAIN:
 	call	nz,load_instruments
 
 
-
-
 	ld	a,10
 	ld	(editmode),a
 	call	init_patterneditor

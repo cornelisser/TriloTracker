@@ -46,24 +46,6 @@ AY_VOLUME_TABLE
 	db $01,$01,$02,$03,$04,$05,$06,$07,$07,$08,$09,$0A,$0B,$0C,$0D,$0E
 	db $01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F
 
-	; Tail mode (2)
-;	db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-;	db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-;	db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02
-;	db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$03,$03,$03
-;	db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$03,$03,$03,$03,$04,$04
-;	db $02,$02,$02,$02,$02,$02,$02,$02,$03,$03,$03,$04,$04,$04,$05,$05
-;	db $02,$02,$02,$02,$02,$02,$02,$03,$03,$04,$04,$04,$05,$05,$06,$06
-;	db $02,$02,$02,$02,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07,$07
-;	db $02,$02,$02,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07,$07,$08
-;	db $02,$02,$02,$02,$02,$03,$04,$04,$05,$05,$06,$07,$07,$08,$08,$09
-;	db $02,$02,$02,$02,$03,$03,$04,$05,$05,$06,$07,$07,$08,$09,$09,$0A
-;	db $02,$02,$02,$02,$03,$04,$04,$05,$06,$07,$07,$08,$09,$0A,$0A,$0B
-;	db $02,$02,$02,$02,$03,$04,$05,$06,$06,$07,$08,$09,$0A,$0A,$0B,$0C
-;	db $02,$02,$02,$03,$03,$04,$05,$06,$07,$08,$09,$0A,$0A,$0B,$0C,$0D
-;	db $02,$02,$02,$03,$04,$05,$06,$07,$07,$08,$09,$0A,$0B,$0C,$0D,$0E
-;	db $02,$02,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F
-
 SCC_VOLUME_TABLE 
 	; Tail mode off
 ;	db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -99,10 +81,6 @@ SCC_VOLUME_TABLE
 	db $01,$01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D
 	db $01,$01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E
 	db $01,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F	
-
-
-
-
 
 
 ;Konami values found in	nemesis 2 replayer.
@@ -146,32 +124,6 @@ CHIP_Vibrato_sine:
       db 	$00,$01,$01,$02,$04,$05,$07,$09,$0B,$0E,$10,$13,$16,$19,$1C,$1F,$1F,$1C,$19,$16,$13,$10,$0E,$0B,$09,$07,$05,$04,$02,$01,$01,$00		      ; depth 	A
       db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
       db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
-;TRACK_Vibrato_sine:
-;	db	 0*2,	2*2, 4*2, 7;*2,11*2,16*2,22*2,28*2,35*2,43*2,51*2,59*2,68*2,77*2,87*2,96*2
-;	db	96*2,86*2,77*2,68*2,59*2,51*2,43*2,35*2,28*2,22*2,16*2,11*2, 7*2,	4*2, 2*2, 0*2
-
-;TRACK_Vibrato_triangle:
-;	db	 0, 6,12,18,24,30,36,42,48,54,60,66,72,78,84,90
-;	db	96,90,84,78,72,66,60,54,48,42,36,30,24,18,12, 6
-
-;TRACK_Vibrato_pulse:
-;	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-;;	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-;	db      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	
-	
-;_morph_timer_table:
-;	db	2,3,4,5,6,12,25,50,60,70,90,100,112,125,125,150,175,200,225,250
-
-;PT3:
-;	dw 0x0D10,0x0C55,0x0BA4,0x0AFC,0x0A5F,0x09CA,0x093D,0x08B8,0x083B,0x07C5,0x0755,0x06EC
-;	dw 0x0688,0x062A,0x05D2,0x057E,0x052F,0x04E5,0x049E,0x045C,0x041D,0x03E2,0x03AB,0x0376
-;	dw 0x0344,0x0315,0x02E9,0x02BF,0x0298,0x0272,0x024F,0x022E,0x020F,0x01F1,0x01D5,0x01BB
-;	dw 0x01A2,0x018B,0x0174,0x0160,0x014C,0x0139,0x0128,0x0117,0x0107,0x00F9,0x00EB,0x00DD
-;	dw 0x00D1,0x00C5,0x00BA,0x00B0,0x00A6,0x009D,0x0094,0x008C,0x0084,0x007C,0x0075,0x006F
-;	dw 0x0069,0x0063,0x005D,0x0058,0x0053,0x004E,0x004A,0x0046,0x0042,0x003E,0x003B,0x0037
-;	dw 0x0034,0x0031,0x002F,0x002C,0x0029,0x0027,0x0025,0x0023,0x0021,0x001F,0x001D,0x001C
-;	dw 0x001A,0x0019,0x0017,0x0016,0x0015,0x0014,0x0012,0x0011,0x0010,0x000F,0x000E,0x000D
-
 
 			
 ;--- Replay	music stepped
@@ -1583,16 +1535,103 @@ _CHIPcmdC_scc_morph:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	;
+	;-----------/---------------------------------------
+	ld	d,a
+	and	0xf0
 	cp	0x20
 	jp	c,.morph_init
 	
 	cp	0xC0
 	jp	z,.morph_slave
 
+	cp	0xa0
+	jp	z,.sample
+
+	cp	0xE0
+	jp	z,.morph_type
+
 	cp	0xF0
 	jp	nc,.morph_speed
+	ret
+
+.sample:
+	; Store sample number * 4
+	ld	a,d
+	and	0x0f
+	add	a						; Times 4 as sample pointer table record is 8 bytes
+	add	a
+	add	a
+
+	;--- store this data as it is changed by set_patternpage
+	push	bc
+	ex	af,af'
+
+	;--- Select sample data
+	ld	a,(max_pattern)
+	sub	7
+	ld	b,a
+	call	set_patternpage
+
+	;--- pointer to the sample data init
+	ex	af,af'
+	ld	h,$80
+	add	4
+	ld	l,a
+	
+	;--- store the values (now a quick hack into other cmd vars)
+	ld	a,(hl)
+	ld	(ix+TRACK_cmd_0),a
+	inc	hl
+	ld	a,(hl)
+	ld	(ix+TRACK_cmd_1),a
+	inc	hl
+
+	;--- store base tone
+	ld	a,(hl)
+	ld	(ix+TRACK_cmd_4_depth),a
+	inc	hl
+	ld	a,(hl)
+	ld	(ix+TRACK_cmd_4_depth+1),a
+	inc	hl
+
+	inc	hl		; skip restart data
+	inc	hl
+	
+
+
+	;--- store waveform pointer
+	ld	a,(hl)
+	ld	(ix+TRACK_cmd_2),a
+	inc	hl
+	ld	a,(hl)
+	ld	(ix+TRACK_cmd_3),a
+;	inc	hl
+
+	;--- reset tone offset
+	xor	a
+	ld	(ix+TRACK_cmd_ToneAdd),a
+	ld	(ix+TRACK_cmd_ToneAdd+1),a
+
+	;--- restore set_patternpage
+	call	set_patternpage_safe
+	pop	bc					; restore pointer
+
+	; Reset Morph/note trig/active
+;	res	_TRG_NOT,(ix+TRACK_Flags)
+	res	_ACT_MOR,(ix+TRACK_Flags)
+	set	_ACT_NOT,(ix+TRACK_Flags)
+	set   _TRG_CMD,(ix+TRACK_Flags)
+
+	ld	(ix+TRACK_Command),$1e
+	ld	a,iyh
+	ld	(ix+TRACK_Timer),a		; SCC waveform offset
+	
+	ret	
+
+.morph_type:
+	ld	a,d
+	and	1
+	ld	(replay_morph_type),a
 	ret
 
 
@@ -1601,6 +1640,7 @@ _CHIPcmdC_scc_morph:
 	ret
 
 .morph_speed:
+	ld	a,d
 	and 	0x0f
 	inc	a
 	ld	(replay_morph_speed),a
@@ -1608,6 +1648,7 @@ _CHIPcmdC_scc_morph:
 
 .morph_init:
 	;---- init new morph
+	ld	a,d
 	add	a
 	add	a
 	add	a
@@ -1617,6 +1658,19 @@ _CHIPcmdC_scc_morph:
 	inc	a
 	ld	(replay_morph_timer),a
 	
+	ld	a,(replay_morph_type)
+	and	a
+	jp	z,.morph_continue
+.morph_start
+	ld	hl,_0x9800
+	ld	a,iyh
+	add	a,l
+	ld	l,a
+	jp	nc,.morph_copy
+	inc	h
+	jr.	.morph_copy
+
+.morph_continue:
 	;--- Get the  the waveform address
 	ld	a,(ix+TRACK_Waveform)
 	add	a,a
@@ -1632,6 +1686,7 @@ _CHIPcmdC_scc_morph:
 	add	hl,de
 ;	push	hl
 
+.morph_copy:
 	ld	de,replay_morph_buffer
 	ld	a,32
 44:
@@ -1651,8 +1706,6 @@ _CHIPcmdC_scc_morph:
 	ld	(replay_morph_active),a		
 	set	4,(ix+TRACK_Flags)
 	ret
-	
-
 	
 _CHIPcmdD_patBreak:
 	; in:	[A] contains the paramvalue
@@ -1725,39 +1778,39 @@ _CHIPcmdE_arpspeed:
 	ret	
 	
 	
-_CHIPE_noiseOR:
-	ld	a,d
-	ld	(AY_NoiseOR),a
-	ret
-_CHIPcmdE_noiseAND:
-	ld	a,d
-	ld	(AY_NoiseAND),a
-	ret
-
-_CHIPE_noiseAND:
-
-
-_CHIPcmdE_psgmode:
-	ld	a,d
-	and	1
-	ld	(psgmode),a
-	ret
-
-_CHIPcmdE_duty1:
-	ld	a,d
-	and	15
-	ld	(AY_duty1),a
-	ret
-_CHIPcmdE_duty2:
-	ld	a,d
-	and	15
-	ld	(AY_duty2),a
-	ret
-_CHIPcmdE_duty3:
-	ld	a,d
-	and	15
-	ld	(AY_duty3),a
-	ret
+;_CHIPE_noiseOR:
+;	ld	a,d
+;	ld	(AY_NoiseOR),a
+;	ret
+;_CHIPcmdE_noiseAND:
+;	ld	a,d
+;	ld	(AY_NoiseAND),a
+;	ret
+;
+;_CHIPE_noiseAND:
+;
+;
+;_CHIPcmdE_psgmode:
+;	ld	a,d
+;	and	1
+;	ld	(psgmode),a
+;	ret
+;
+;_CHIPcmdE_duty1:
+;	ld	a,d
+;	and	15
+;	ld	(AY_duty1),a
+;	ret
+;_CHIPcmdE_duty2:
+;	ld	a,d
+;	and	15
+;	ld	(AY_duty2),a
+;	ret
+;_CHIPcmdE_duty3:
+;	ld	a,d
+;	and	15
+;	ld	(AY_duty3),a
+;	ret
 
 
 
@@ -2340,7 +2393,7 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmd1b
 	dw	_pcAY_cmd1c	
 	dw	_pcAY_cmd1d		
-;	dw	_pcAY_cmd1e
+	dw	_pcAY_cmd1e_sample
 ;	dw	_pcAY_cmd1f	
 ;	dw	_pcAY_cmd20
 ;	dw	0			;_pcAY_cmd21
@@ -2803,7 +2856,124 @@ _pcAY_cmd1d:
 ;	res	3,(ix+TRACK_Flags)		; reset tiggger cmd flag
 	
 	jp	_pcAY_commandEND	
-;_pcAY_cmd1e:
+
+
+;----------------------------------
+; Play sample
+;----------------------------------
+_pcAY_cmd1e_sample:
+	;---- Test for release
+	bit 	_ACT_NOT,(ix+TRACK_Flags)
+	jp	z,.stop
+
+	;--- Select Sample data bank
+	ld	a,(max_pattern)
+	sub	7
+	ld	b,a
+	call	set_patternpage
+
+	;---- Test for note
+	bit	_TRG_NOT,(ix+TRACK_Flags)
+	jp	z,.skipnote
+.note:
+	;--- get current note value
+	ld	hl,TRACK_ToneTable		; transpose not working for samples
+	ld	a,(ix+TRACK_Note)
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ld	l,(ix+TRACK_cmd_4_depth)
+	ld	h,(ix+TRACK_cmd_4_depth+1)	
+	xor	a
+	ex	de,hl
+	sbc	hl,de
+	ld	(ix+TRACK_cmd_ToneAdd),l
+	ld	(ix+TRACK_cmd_ToneAdd+1),h
+	ex	de,hl
+	jr.	.cont
+
+.skipnote:
+	ld	e,(ix+TRACK_cmd_ToneAdd)
+	ld	d,(ix+TRACK_cmd_ToneAdd+1)	
+.cont:
+	;--- Period update
+	ld	l,(ix+TRACK_cmd_0)
+	ld	h,(ix+TRACK_cmd_1)
+	ld	c,(hl)
+	inc	hl
+	ld	b,(hl)
+	ld	a,$ff
+	cp	b
+	jp	z,.stop
+
+	inc	hl
+	ld	(ix+TRACK_cmd_0),l
+	ld	(ix+TRACK_cmd_1),h
+	push	bc
+	pop	hl
+	add	hl,de
+
+	pop	de			; tone address is still on stack
+	ex	de,hl
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+	;--- Volume
+	; Use track volume as reference.
+	ld	a,(ix+TRACK_Volume)
+	and	0xf0
+	or	a,$0f
+	ld	de,SCC_VOLUME_TABLE
+	ld	l,a
+	ld	h,0
+	add	hl,de
+	ld	a,(hl)	
+	ld	(SCC_regVOLE),a
+
+	;-- enable tone output
+	ld	a,(SCC_regMIXER)
+	or	16
+	ld	(SCC_regMIXER),a
+	
+
+	;--- Waveform update
+	ld	l,(ix+TRACK_cmd_2)
+	ld	h,(ix+TRACK_cmd_3)
+	ld	de,_0x9800	
+	ld	a,(ix+TRACK_Timer)
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	bc,32
+	ldir
+	ld	(ix+TRACK_cmd_2),l
+	ld	(ix+TRACK_cmd_3),h	
+
+	call	set_patternpage_safe
+	ret	
+
+.stop:
+	;--- End found
+	res	_TRG_CMD,(ix+TRACK_Flags)
+	set	_TRG_WAV,(ix+TRACK_Flags)		; to restore the old waveform
+	ld	(SCC_regVOLE),a		; A is still 0
+	call	set_patternpage_safe
+	pop	hl					; tone address was still on stack.
+	ret
+	
+
+
+
+
+
 ;;	res	3,(ix+TRACK_Flags)
 ;	jp	_pcAY_commandEND	
 ;_pcAY_cmd1f:

@@ -450,7 +450,7 @@ _ups_lineloop:
 		
 	ld	de,_LABEL_SAMPLETEXT2+16
 	ld	a,(instrument_waveform)
-	call	draw_decimal		
+	call	draw_hex2		
 	
 	ld	de,_LABEL_SAMPLETEXT2+16+22
 	ld	a,(song_octave)

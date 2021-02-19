@@ -542,6 +542,8 @@ replay_init_cont:
 	;--- Get the start speed.
 	ld	a,(song_speed)
 	ld	(replay_speed),a
+	ld	(replay_morph_speed),a
+	ld	(replay_morph_type),a
 	ld	a,1
 	ld	(replay_speed_timer),a
 	ld	(replay_morph_timer),a

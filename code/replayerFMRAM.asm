@@ -390,7 +390,7 @@ replay_play:
 	dec	a
 	jr.	z,replay_mode4	; [ENTER] looped play
 	dec	a
-	jr.	z,replay_mode5	; [ENTER] looped play
+	jr.	z,replay_mode5	; stepped playback
 	;--- DEBUG
 	XOR	A
 	LD	(replay_mode),A

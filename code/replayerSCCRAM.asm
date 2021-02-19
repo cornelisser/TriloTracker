@@ -187,6 +187,8 @@ replay_play:
 	jp	z,replay_mode3	; note audition
 	dec	a
 	jp	z,replay_mode4	; [ENTER] looped play
+	dec	a
+	jr.	z,replay_mode5	;  Stepped playback
 	;--- DEBUG
 	XOR	A
 	LD	(replay_mode),A

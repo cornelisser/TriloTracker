@@ -326,6 +326,8 @@ _ppp_orderlist:
 1:
 	;--- CTRL + I - Instruments
 	cp	_CTRL_I
+	jr. 	z,_ppp_instruments
+	cp	_KEY_TAB
 	jr.	nz,1f
 _ppp_instruments:	
 		ld	a,(editsubmode)

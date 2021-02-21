@@ -1254,7 +1254,16 @@ _CHIPcmd4_vibrato:
 	; This command set the envelope frequency using a
 	; multiplier value (00-ff)
 _CHIPcmd8_env_mul:
-;	ld	d,a
+	ld	l,a
+	ld	h,0
+	add	hl,hl  ;2
+	add	hl,hl  ;4
+	add	hl,hl  ;8
+;	add	hl,hl  ;16	
+;	add	hl,hl  ;32	
+;	add	hl,hl	 ;64
+;	add	hl,hl	 ;128
+;	add	hl,hl	 ;256
 ;	xor	a
 ;	srl	d
 ;	rra	
@@ -1265,9 +1274,9 @@ _CHIPcmd8_env_mul:
 ;	srl	d
 ;	rra	
 ;	or	1	; set envelope update flag
-	ld	(AY_regEnvL),a
+	ld	(AY_regEnvL),hl
 ;	ld	a,d
-;	ld	(AY_regEnvH),a
+;	ld	(AY_regEnvH),h
 	ret	
 
 
@@ -3132,21 +3141,26 @@ _ptAY_loop:
 	outi
 	dec	c
 	inc	a
-	cp	11
+	cp	13
 	jr	nz,_ptAY_loop
 
 	;--- envelope freq update?
+	; check for updates
 
-	ld	a,(hl)
-	and	a
-	jp	z,99f		; if bit 0 is not set no update
+		; need to check for envelope active?
 
-	ld	b,11
-	out 	(c),b
-	inc	c
-	out	(c),a
-	dec	c
-	ld	(hl),0	
+
+;	ld	a,(hl)
+;	and	a
+;	jp	z,99f		; if bit 0 is not set no update
+
+;	ld	b,11
+;	out 	(c),b
+;	inc	c
+;	out	(c),a
+;	dec	c
+;	ld	(hl),0
+
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a

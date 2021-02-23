@@ -7,41 +7,12 @@
 ; placed in the buffer.
 ; ==========================================================	
 copy_to_buffer:
-	;be sure to het the right info from song page
-;	ld	a,(current_song)
 	call	set_songpage
-
 
 	ld	a,(selection_status)
 	and	a
 	ret	z
-;	jr.	nz,1f
-;
-;	;--- single char copy
-;	inc	a
-;	ld	(selection_status),a
-;	
-;	
-;	ld	a,(cursor_x)
-;	ld	(selection_x1),a
-;	ld	(selection_x2),a
-;	ld	a,(song_pattern_offset)
-;	ld	b,a
-;	ld	a,(cursor_y)
-;	add	b
-;	ld	(selection_y1),a
-;	ld	(selection_y2),a
-;	ld	a,(cursor_type)
-;	dec	a
-;	ld	(selection_type1),a
-;	ld	(selection_type2),a
-;	ld	a,(cursor_input)
-;	ld	(selection_column1),a
-;	ld	(selection_column2),a
-;	
-;	call	selection_show
-;
-;1:
+
 	ld	a,1
 	ld	(clipb_status),a
 	;---Set the source pattern
@@ -674,6 +645,50 @@ _ctpssv_end
 	ret
 
 
+;============================================================
+; --- selection_to_bottom
+;
+; Selects all date below current selection_show
+;
+;============================================================
+selection_to_bottom:
+	;--- Start new selection?
+	ld	a,(selection_status)
+	and	a
+	jr.	nz,.extend
+	
+	;--- Init the new selection
+	ld	a,1
+	ld	(selection_status),a
+	
+	;--- Set the x2 and y2 of the selection window
+.new:
+	ld	a,(song_pattern_offset)
+	ld	b,a
+	ld	a,(cursor_x)
+	ld	(selection_x1),a	
+	ld	(selection_x2),a
+	ld	a,(cursor_y)
+	add	b
+	ld	(selection_y1),a	
+	ld	(selection_y2),a	
+	ld	a,(cursor_type)
+	dec	a
+	ld	(selection_type1),a	
+	ld	(selection_type2),a
+	ld	a,(cursor_input)
+	ld	(selection_column1),a
+	ld	(selection_column2),a
+.extend:	
+	ld	a,73
+	ld	(selection_y1),a
+	ret
+
+
+
+
+
+
 ; ==========================================================	
 ; --- selection_process
 ; 
@@ -710,7 +725,6 @@ _sp_setselection_xy2
 	ld	(selection_type2),a
 	ld	a,(cursor_input)
 	ld	(selection_column2),a
-	
 	ret
 
 reset_selection:

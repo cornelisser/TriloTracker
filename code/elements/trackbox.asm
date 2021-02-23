@@ -417,7 +417,6 @@ draw_channel:
 ;===========================================================	
 process_key_trackbox:
 
-
 	;--- Special numkey check for setting octave.
 ;	call	read_numkeys
 	ld	a,(key_value)
@@ -551,6 +550,16 @@ process_key_trackbox:
 		
 
 0:
+		cp	"q"+128
+		jr	nz,0f
+
+		call	selection_to_bottom
+		call	flush_cursor
+		call	update_trackbox
+		call	show_cursor
+		ret	
+0:
+
 76:
 	;--- Need to add different views
 	call	process_key_trackbox_compact

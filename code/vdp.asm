@@ -183,9 +183,9 @@ _theme4a:
 	db	$00,$0
 _theme5a:
 	db 	$00,$0		;backgrnd
-	db 	$20,$7		;text
-	db	$00,$2		; back blink
-	db	$00,$0		
+	db 	$67,$7		;text
+	db	$02,$1		; back blink
+	db	$37,$7		
 _theme6a:
 	db 	$00,$0		;backgrnd
 	db 	$75,$6		;text

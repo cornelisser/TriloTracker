@@ -1668,7 +1668,7 @@ save_vofile:
 ;	jr.	nz,catch_diskerror ;<- replace with restore
 	call	nz,catch_diskerror
 	
-_create_va_continue:
+;_create_va_continue:
 	ld	a,b
 	ld	(disk_handle),a
 
@@ -1710,6 +1710,61 @@ _create_va_continue:
 
 	call	set_hook
 	ret
+
+
+;===========================================================
+; --- save_vosfile
+;
+; save a vosfile. HL needs to point to the file
+; 
+;===========================================================	
+save_vosfile:
+	ld	(_catch_stackpointer),sp
+	call	reset_hook
+
+;	call	backup_file
+
+	ld	a,00000000b
+	ld	b,00000000b		; required attributes. 0=overwrite
+	call	create_file
+
+	;--- Check for errors
+	; if error then restore backup
+	and	a
+;	jr.	nz,catch_diskerror ;<- replace with restore
+	call	nz,catch_diskerror
+	
+;_create_va_continue:
+	ld	a,b
+	ld	(disk_handle),a
+
+;	ld	a,(current_song)
+	call	set_songpage
+
+	
+	;--- Write header
+	ld	de,disk_wildcard+2
+	ld	hl,3
+	call	write_file
+	call	nz,catch_diskerror
+
+
+	;--- Write voices
+	ld	de,_VOICES
+	ld	hl,8*MAX_WAVEFORM
+	call	write_file	
+	call	nz,catch_diskerror
+ 
+	
+	call	close_file
+	call	nz,catch_diskerror
+
+	call	set_hook
+	ret
+
+
+
+
 
 ENDIF
 
@@ -2626,6 +2681,42 @@ open_vofile:
 	
 	call	set_hook
 	ret	
+
+;===========================================================
+; --- open_vosfile
+;
+; Open a vos file. HL needs to point to the file
+; Data is loaded into the current song
+;===========================================================	
+open_vosfile:
+	call	reset_hook
+	ld	(_catch_stackpointer),sp
+	ld	a,00000001b		; NO write
+	call	open_file
+	
+	;--- Check for errors
+	and	a
+	call	nz,catch_diskerror
+	
+	ld	a,b
+	ld	(disk_handle),a
+	
+	;--- Read type
+	ld	de,buffer
+	ld	hl,3
+	call	read_file
+	call	nz,catch_diskerror
+			
+	;--- Read waveforms
+	ld	de,_VOICES
+	ld	hl,8*MAX_WAVEFORM
+	call	read_file	
+	call	nz,catch_diskerror
+	call	close_file
+	
+	call	set_hook
+	ret
+
 ENDIF
 	
 

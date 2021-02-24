@@ -1,3 +1,5 @@
+<a href="trilotracker.md">< back</a>
+
 # Controls
 
 <!-- vscode-markdown-toc -->

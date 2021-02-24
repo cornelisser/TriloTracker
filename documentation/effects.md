@@ -1,3 +1,4 @@
+<a href="trilotracker.md">< back</a>
 # Effect commands
 
 <!-- vscode-markdown-toc -->
@@ -20,7 +21,7 @@
    * [BE0 - Reset](#be0---reset)
 * [Bxy - FM commands](#bxy---fm-commands)
    * [B0y - Change channel setup](#b0y---change-channel-setup)
-      * [Cxy - SCC morph](#cxy---scc-morph)
+* [Cxy - SCC morph](#cxy---scc-morph)
    * [C0y-C1y Morph](#c0y-c1y-morph)
    * [CAy - LoFi Sample](#cay---lofi-sample)
    * [CC0 - Morph Carbon Copy](#cc0---morph-carbon-copy)

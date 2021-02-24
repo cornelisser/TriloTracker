@@ -1,3 +1,4 @@
+<a href="trilotracker.md">< back</a>
 # Instrument Editor
 ## TTSCC (AY-3-8910 + SCC)
 ## TTFM (AY-3-8910 + YM2413)

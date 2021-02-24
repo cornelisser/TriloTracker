@@ -8,11 +8,25 @@ Documentation will be updated over time.
 
 -------------------------------
 </pre>
+<img src="img/titlelogo.png" width="50%">
 
-# Trilotracker
+Version 10.0<br>
+# TriloTracker
+This tracker is available in 3 separate versions:
+* TTSCC (AY-3-8910 + SCC)
+* TTFM (AY-3-8910 + YM2413)
+* TTSMS (SN76489 + YM2413)
+
 
 <a href="controls.md">Controls</a>  
 <a href="effects.md">Effects</a>  
 
-<a href="instrument_editor.md">Instrument Editor</a>  
-<a href="drum_editor.md">Drum Editor</a>  
+
+Pattern editor<br>
+<a href="instrument_editor.md">Instrument editor</a>  
+<a href="drum_editor.md">Drum editor</a>  
+Sample editor<br>
+File menu<br>
+Configuration<br>
+
+Re-player and Compiler<br>

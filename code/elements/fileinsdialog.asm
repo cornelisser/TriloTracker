@@ -94,7 +94,7 @@ ELSE
 	ld	a,(instrument_waveform)
 	cp	192-15
 	jp	c,99f
-	;-- only draw is current instrument has custom voice
+	;-- only draw if current instrument has custom voice
 	ld	hl,(80*13)+0x3b		
 	ld	de,_LABEL_DISKWAVE
 	call	draw_label
@@ -820,8 +820,18 @@ _ipfd_LOAD_VOI:
 	
 	
 _ipfd_LOAD_VOISET:
-_ipfd_SAVE_VOISET:
+	ld	de,_FILMES_loading
+	call	message_filedialog
+	call	open_vosfile		; hl needs to point to the filename 
 	jr.	restore_insfiledialog
+
+_ipfd_SAVE_VOISET:
+	;--- SAVE a voice set
+	ld	de,_FILMES_saving
+	call	message_filedialog
+	call	save_vosfile		; hl needs to point to the filename 
+	jr.	restore_insfiledialog
+
 
 
 _ipfd_SAVE_VOI:

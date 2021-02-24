@@ -662,7 +662,7 @@ _LABEL_CONFIG_THEME:
 	db	_ARROWLEFT,"MSX blues    ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"SchismTracker",_ARROWRIGHT,0
 	db	_ARROWLEFT,"ZX Spectrum  ",_ARROWRIGHT,0
-	db	_ARROWLEFT,"MSX-Musixx   ",_ARROWRIGHT,0
+	db	_ARROWLEFT,"Icy dark     ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"Beatrix      ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"Jungle       ",_ARROWRIGHT,0	
 	db	_ARROWLEFT,"Purple Haze  ",_ARROWRIGHT,0

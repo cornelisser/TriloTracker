@@ -90,8 +90,6 @@ init_drumeditor:
 ; 
 ;===========================================================	
 processkey_drumeditor:
-
-
 0:
 	;--- check [CTRL] combinations
 	ld	a,(fkey)
@@ -145,20 +143,20 @@ processkey_drumeditor:
 		call	reset_cursor_drumeditbox
 		jr.	processkey_drumeditor_END		
 0:
-	;--- CTRL_T - type
-	cp	_CTRL_T
-	jr.	nz,0f
-		ld	a,(editsubmode)
-		and	a
-		jr.	nz,79f
-		call	save_cursor
-79:
-		ld	a,3
-		ld	(editsubmode),a
-		call	reset_cursor_drumeditbox
-		jr.	processkey_drumeditor_END		
-
-0:
+;	;--- CTRL_T - type
+;	cp	_CTRL_T
+;	jr.	nz,0f
+;		ld	a,(editsubmode)
+;		and	a
+;		jr.	nz,79f
+;		call	save_cursor
+;79:
+;		ld	a,3
+;		ld	(editsubmode),a
+;		call	reset_cursor_drumeditbox
+;		jr.	processkey_drumeditor_END		
+;
+;0:
 	;--- CTRL_O - Octave
 	cp	_CTRL_O
 	jr.	nz,0f

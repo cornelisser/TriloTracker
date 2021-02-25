@@ -8,7 +8,7 @@ Documentation will be updated over time.
 
 -------------------------------
 </pre>
-<img src="img/titlelogo.png" width="50%">
+<img src="img/TitleLogo.png" >
 
 Version 10.0<br>
 # TriloTracker

@@ -24,7 +24,8 @@ process_key_drumjazz:
 	ld	(hl),97		
 	ld	hl,_KJ_PSG
 	ld	(hl),97
-
+	ld	hl,_KJ_PSG2
+	ld	(hl),97
 	;--- store drum cmd
 	ld	hl,_KJ_DRM1
 	ld	(hl),$0C		; drum effect

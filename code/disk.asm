@@ -832,7 +832,7 @@ _create_tmu_continue:
 
 	
 	;--- Write header
-	ld	a,8				; Increased to 8 for new FM drum macro version 
+	ld	a,9				; Increased to 8 for new FM drum macro version 
 	or	CHIPSET_CODE
 	ld	(song_version),a
 	
@@ -930,7 +930,7 @@ IFDEF	TTSCC
 ELSE
 
 _save_tmufile_customvoices:	
-	ld	de,_VOICES+((192-16)*8)
+	ld	de,_VOICES+((192-31)*8)
 	ld	hl,8*16
 	call	write_file
 	call	nz,catch_diskerror
@@ -939,7 +939,7 @@ _save_tmufile_customvoices:
 _save_tmufile_drumnames:
 	;--- write drum names.	
 	ld	de,song_drum_list
-	ld	hl,MAX_DRUMS*16
+	ld	hl,(MAX_DRUMS-1)*16
 	call	write_file
 	call	nz,catch_diskerror
 
@@ -949,7 +949,17 @@ _save_tmufile_drumnames:
 _stmu_drumloop:
 	push	bc
 	push	de
-	ld  	hl,1
+
+	;--- Savegueard for lengths above 16
+	ld	a,(de)
+	cp	17
+	jp	c,99f
+	ld	a,16
+	ld	(de),a
+99:
+	;--- end Saveguard
+
+	ld  	hl,1					; Write the sample length
 	call	write_file
 	call	nz,catch_diskerror
 	
@@ -958,7 +968,6 @@ _stmu_drumloop:
 	inc	de
 	ld	b,a
 	xor	a
-
 
 _stmu_drumsub:					; calculate the number of bytes
 	add	a,7					; 7 bytes per line
@@ -2098,7 +2107,7 @@ ELSE
 	jr.	_otmu_patterns
 	
 _open_tmufile_customvoices:
-	ld	de,_VOICES+((192-16)*8)
+	ld	de,_VOICES+((192-31)*8)
 	ld	hl,8*16
 	call	read_file
 	jr.	nz,catch_diskerror
@@ -2197,10 +2206,13 @@ _otmu_drumsub_SKIP:				; calculate the number of bytes
 	
 ; NEW Drum macro format loading.
 _open_tmufile_drumnames_NEW:	
+	ld	hl,MAX_DRUMS*16
+	cp	9
+	jp	c,99f
+	ld	hl,(MAX_DRUMS-1)*16
+99:
  	;--- load drum names.
 	ld	de,song_drum_list
-	ld	hl,MAX_DRUMS*16
-	
 	call	read_file	
 	jr.	nz,catch_diskerror
 
@@ -2228,8 +2240,7 @@ _otmu_drumsub_NEW:				; calculate the number of bytes
 	ld	h,0
 	ld	l,a
 	call	read_file
-	jr.	nz,catch_diskerror	
-	
+	jr.	nz,catch_diskerror		
 	pop	hl
 	ld	de,DRUMMACRO_SIZE
 	add	hl,de

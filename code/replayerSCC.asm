@@ -2403,7 +2403,7 @@ _pcAY_cmdlist:
 	dw	_pcAY_cmd1a		
 	dw	_pcAY_cmd1b
 	dw	_pcAY_cmd1c	
-	dw	_pcAY_cmd1d		
+	dw	_pcAY_cmd1d_delay		
 	dw	_pcAY_cmd1e_sample
 ;	dw	_pcAY_cmd1f	
 ;	dw	_pcAY_cmd20
@@ -2853,9 +2853,9 @@ _pcAY_cmd1c:
 	
 	; stop note
 	res	1,(ix+TRACK_Flags)	; set	note bit to	0
-;	res	3,(ix+TRACK_Flags)
+	res	3,(ix+TRACK_Flags)
 	jp	_pcAY_commandEND	
-_pcAY_cmd1d:
+_pcAY_cmd1d_delay:
 	; note delay
 	dec	(ix+TRACK_Timer)
 	jp	nz,_pcAY_commandEND	; no delay yet
@@ -2864,7 +2864,7 @@ _pcAY_cmd1d:
 	ld	a,(ix+TRACK_cmd_E)		
 	ld	(ix+TRACK_Note),a		; set	the note val
 	set	0,(ix+TRACK_Flags)		; set	trigger note flag
-;	res	3,(ix+TRACK_Flags)		; reset tiggger cmd flag
+	res	3,(ix+TRACK_Flags)		; reset tiggger cmd flag
 	
 	jp	_pcAY_commandEND	
 

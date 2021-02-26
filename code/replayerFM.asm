@@ -3300,7 +3300,7 @@ _pcAY_cmd1c:
 	
 	; stop note
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
-	;res	3,(ix+CHIP_Flags)
+	res	3,(ix+CHIP_Flags)
 	jp	_pcAY_commandEND	
 _pcAY_cmd1d:
 	; note delay
@@ -3311,7 +3311,7 @@ _pcAY_cmd1d:
 	ld	a,(ix+CHIP_cmd_E)		
 	ld	(ix+CHIP_Note),a		; set	the note val
 	set	0,(ix+CHIP_Flags)		; set	trigger note flag
-	;res	3,(ix+CHIP_Flags)		; reset tiggger cmd flag
+	res	3,(ix+CHIP_Flags)		; reset tiggger cmd flag
 	
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1e:

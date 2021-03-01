@@ -30,3 +30,5 @@ File menu<br>
 Configuration<br>
 
 Re-player and Compiler<br>
+
+<a href="memory_layout.md">Memory layout<a>

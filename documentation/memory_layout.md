@@ -34,14 +34,14 @@ Generic code | Main code | Main swap code | Element swap code
 ---------|----------|---------|----
  main.asm| cursor.asm | replayerSCC.asm | sampleeditor.asm
  configurationRAM.asm | vdp.asm | configeditor.asm | samplebox.asm
- patternbox.asm | screen.asm |  configbox.asm | filedialog.asm
- trackbox.asm | clipboard.asm |  fileinsdialog.asm |
- sequencebox.asm| song.asm |filesamdialog.asm  | 
+ patternbox.asm | screen.asm |  configbox.asm | 
+ trackbox.asm | clipboard.asm |  fileinsdialog.asm | macrobox.asm 
+ sequencebox.asm| song.asm |filesamdialog.asm  | macroeditor.asm
  songbox.asm| keyboard.asm| | 
  patterneditor.asm | musickeyboard.asm| | 
  filedialogRAM.asm | isr.asm| | 
- macroeditor.asm | mapper.asm| | 
- macrobox.asm | disk.asm| | 
+ filedialog.asm | mapper.asm| | 
+ sccwavebox.asm | disk.asm| | 
  sccdetect.asm | compression2.asm| | 
  keyjazz.asm | vram_swapper.asm| | 
  instrumentbox.asm | replayerSCCRAM.asm| | 

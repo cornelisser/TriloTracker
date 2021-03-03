@@ -417,9 +417,9 @@ process_key_instrumentbox_END:
 ;	ld	(tmp_cur_instrument),a
 
 ;99:	
-	call	update_psgsamplebox
+	call	update_macrobox
 	call	update_instrumentbox
 ;	call	flush_cursor
-;	jr.	reset_cursor_psgsamplebox
+;	jr.	reset_cursor_macrobox
 
 	ret

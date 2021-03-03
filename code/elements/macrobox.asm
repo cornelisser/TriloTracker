@@ -3,7 +3,7 @@
 ; Display the  area.  Without actual values 
 ; 
 ;===========================================================
-draw_psgsamplebox:
+draw_macrobox:
 
 	;--- Display the keyjazz chip
 	ld	hl,_LABEL_keyjazz
@@ -185,11 +185,11 @@ _PSG_VOLD:	db 245,245,245,245,247
 _PSG_VOLE:	db 245,245,245,245,246
 _PSG_VOLF:	db 245,245,245,245,245
 ;===========================================================
-; --- update_psgsamplebox
+; --- update_macrobox
 ; Display the values
 ; 
 ;===========================================================
-update_psgsamplebox:
+update_macrobox:
 	;--- Make sure the cursor is inside the macro
 	ld	a,(instrument_len)
 	ld	b,a
@@ -199,7 +199,7 @@ update_psgsamplebox:
 ;	add	c
 	cp	b
 	jr.	c,99f
-	call	reset_cursor_psgsamplebox	
+	call	reset_cursor_macrobox	
 99:
 	;--- Get the current sample
 	ld	a,(instrument_macro_offset)
@@ -664,13 +664,13 @@ _get_instrument_start:
 	ret
 
 ;===========================================================
-; --- process_key_psgsamplebox_musickb
+; --- process_key_macrobox_musickb
 ;
 ; Process the input for the pattern. 
 ; There are 2 version for compact and full view
 ; 
 ;===========================================================
-process_key_psgsamplebox_musickb:
+process_key_macrobox_musickb:
 	ld	a,(music_key)
 	and	a
 	ret	z				; stop if no key found
@@ -685,15 +685,15 @@ process_key_psgsamplebox_musickb:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox
+; --- process_key_macrobox
 ;
 ; Process the input for the PSG sample. 
 ; 
 ; 
 ;===========================================================
-process_key_psgsamplebox:
+process_key_macrobox:
 
-	call	process_key_psgsamplebox_musickb
+	call	process_key_macrobox_musickb
 	
 	ld	a,(key)
 	and	a
@@ -705,7 +705,7 @@ process_key_psgsamplebox:
 	jr.	nz,0f
 	ld	a,(instrument_line)
 	cp	31			; check if we are at last line
-	jr.	nc,process_key_psgsamplebox_END
+	jr.	nc,process_key_macrobox_END
 	;--- increase len
 	
 	;--- get the location in RAM
@@ -750,8 +750,8 @@ process_key_psgsamplebox:
 ;	cp	ixh
 ;	jr.	nc,.line_loop
 ;88:	
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END	
+	call	update_macrobox
+	jr.	process_key_macrobox_END	
 
 0:	
 	;--- DEL key to delete macro line
@@ -765,7 +765,7 @@ process_key_psgsamplebox:
 	jr.	nz,1f
 	
 	cp	1	
-	jr.	z,process_key_psgsamplebox_END
+	jr.	z,process_key_macrobox_END
 	
 	call	_get_instrument_start
 	ld	a,(hl)
@@ -790,8 +790,8 @@ process_key_psgsamplebox:
 	ld	(cursor_y),a
 	
 	
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END	
+	call	update_macrobox
+	jr.	process_key_macrobox_END	
 	
 	;--- decrease len
 1:	
@@ -866,8 +866,8 @@ process_key_psgsamplebox:
 ;	jr.	z,88f
 ;	jr.	.line_loopdel
 88:	
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END	
+	call	update_macrobox
+	jr.	process_key_macrobox_END	
 	
 				
 0:	
@@ -875,7 +875,7 @@ process_key_psgsamplebox:
 	cp	_KEY_LEFT
 	jr.	nz,0f
 	; column left
-	ld	hl,_COLTAB_PSGSAMPLE
+	ld	hl,_COLTAB_MACRO
 	ld	a,(cursor_column)
 	add	a
 	add	a,l
@@ -887,7 +887,7 @@ process_key_psgsamplebox:
 	dec	hl
 	ld	a,(hl)
 	cp	255
-	jr.	z,process_key_psgsamplebox_END
+	jr.	z,process_key_macrobox_END
 	
 	; get the displacement)
 	ld	b,a
@@ -903,14 +903,14 @@ process_key_psgsamplebox:
 	ld	hl,cursor_column
 	dec	(hl)
 	
-	jr.	process_key_psgsamplebox_END			
+	jr.	process_key_macrobox_END			
 0:		
 	;--- key right
 	cp	_KEY_RIGHT
 	jr.	nz,0f
 	; column right
 _psgsamright:
-	ld	hl,_COLTAB_PSGSAMPLE
+	ld	hl,_COLTAB_MACRO
 	ld	a,(cursor_column)
 	add	a
 	add	a,l
@@ -944,8 +944,8 @@ _psgsamright:
 	ld	hl,cursor_column
 	inc	(hl)
 44:	
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END			
+	call	update_macrobox
+	jr.	process_key_macrobox_END			
 0:		
 
 	;--- key down
@@ -957,7 +957,7 @@ _psgsamright:
 	ld	a,(instrument_line)
 	inc	a
 	cp	b
-	jr.	nc,process_key_psgsamplebox_END
+	jr.	nc,process_key_macrobox_END
 	
 	ld	(instrument_line),a
 	call	flush_cursor
@@ -970,8 +970,8 @@ _psgsamright:
 88:	ld	a,(instrument_macro_offset)
 	inc	a
 	ld	(instrument_macro_offset),a
-77:	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END		
+77:	call	update_macrobox
+	jr.	process_key_macrobox_END		
 99:	;-- see if we need to go to the next column
 	ld	a,(instrument_line)	
 	cp	16
@@ -982,8 +982,8 @@ _psgsamright:
 	ld	a,(cursor_x)
 	add 	40
 	ld	(cursor_x),a
-88:	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END	
+88:	call	update_macrobox
+	jr.	process_key_macrobox_END	
 	
 0:		
 	;--- key up
@@ -992,7 +992,7 @@ _psgsamright:
 	; row up
 	ld	a,(instrument_line)
 	and	a
-	jr.	z,process_key_psgsamplebox_END
+	jr.	z,process_key_macrobox_END
 	
 	dec	a
 	ld	(instrument_line),a
@@ -1006,8 +1006,8 @@ _psgsamright:
 88:	ld	a,(instrument_macro_offset)
 	dec	a
 	ld	(instrument_macro_offset),a
-77:	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END						
+77:	call	update_macrobox
+	jr.	process_key_macrobox_END						
 99:	;-- see if we need to go to the next column
 	ld	a,(instrument_line)	
 	cp	15
@@ -1018,8 +1018,8 @@ _psgsamright:
 	ld	a,(cursor_x)
 	sub 	40
 	ld	(cursor_x),a
-88:	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END		
+88:	call	update_macrobox
+	jr.	process_key_macrobox_END		
 
 
 
@@ -1045,8 +1045,8 @@ _psgsamright:
 
 	ld	a,(instrument_line)
 	ld	(hl),a
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END		
+	call	update_macrobox
+	jr.	process_key_macrobox_END		
 0:
 
 
@@ -1061,14 +1061,14 @@ _psgsamright:
 	cp	"T"
 	jr.	nz,0f
 	;--- get the location in RAM
-1:	call	get_psgsample_location
+1:	call	get_macro_location
 	
 	inc	hl		; 2nd byte has T
 	ld	a,(hl)
 	xor	128
 	ld	(hl),a
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END
+	call	update_macrobox
+	jr.	process_key_macrobox_END
 
 0:	
 	;===================
@@ -1082,14 +1082,14 @@ _psgsamright:
 	cp	"N"
 	jr.	nz,0f
 	;--- get the location in RAM
-1:	call	get_psgsample_location	
+1:	call	get_macro_location	
 	
 			; 1st byte has N
 	ld	a,(hl)
 	xor	128
 	ld	(hl),a
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END
+	call	update_macrobox
+	jr.	process_key_macrobox_END
 0:
 	;===================
 	;
@@ -1102,15 +1102,15 @@ _psgsamright:
 	cp	"W"
 	jr.	nz,0f
 	;--- get the location in RAM
-1:	call	get_psgsample_location	
+1:	call	get_macro_location	
 	
 			; 1st byte has N
 	ld	a,(hl)
 	xor	00100000b		; set waveform bits
 	and	00111111b		; erase noise bit
 	ld	(hl),a
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END
+	call	update_macrobox
+	jr.	process_key_macrobox_END
 
 0:
 	;=====================
@@ -1130,7 +1130,7 @@ _psgsamright:
 
 	; save the key
 1:	ld	d,a
-	call	get_psgsample_location
+	call	get_macro_location
 	;--- what are we editing
 	ld	a,(cursor_input)
 	cp	9
@@ -1162,7 +1162,7 @@ _pkp_vol:
 2:
 	ld	(hl),e
 
-	jr.	update_psgsamplebox
+	jr.	update_macrobox
 	;end
 	
 	;-- set freq deviation	
@@ -1203,7 +1203,7 @@ _pkp_noise:
 	or	e
 	ld	(hl),a
 
-	jr.	update_psgsamplebox
+	jr.	update_macrobox
 	;end
 
 0:
@@ -1245,7 +1245,7 @@ _pkp_noise:
 	ld	d,a	
 
 	; get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 	inc	hl
 	inc	hl
 	ld	c,(hl)	
@@ -1261,8 +1261,8 @@ _pkp_noise:
 
 	ld	(hl),a
 	jr.	_psgsamright
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END		
+	call	update_macrobox
+	jr.	process_key_macrobox_END		
 
 	
 0:
@@ -1309,7 +1309,7 @@ _pkp_noise:
 	ld	d,a	
 
 	; get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 	inc	hl
 	inc	hl
 	ld	c,(hl)
@@ -1325,8 +1325,8 @@ _pkp_noise:
 	dec	hl
 	ld	(hl),a
 	jr.	_psgsamright
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END			
+	call	update_macrobox
+	jr.	process_key_macrobox_END			
 	
 	
 	
@@ -1369,7 +1369,7 @@ _pkp_noise:
 	ld	d,a	
 
 	; get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 	inc	hl
 	inc	hl
 	ld	c,(hl)
@@ -1385,8 +1385,8 @@ _pkp_noise:
 	dec	hl
 	ld	(hl),a
 ;	jr.	_psgsamright
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END			
+	call	update_macrobox
+	jr.	process_key_macrobox_END			
 	
 	
 	
@@ -1418,7 +1418,7 @@ _pkp_noise:
 	ld	d,a	
 
 	; get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 
 	ld	a,(hl)
 	and	0xef
@@ -1426,8 +1426,8 @@ _pkp_noise:
 
 	ld	(hl),a
 99:	jr.	_psgsamright
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END			
+	call	update_macrobox
+	jr.	process_key_macrobox_END			
 	
 0:
 	;===================
@@ -1468,15 +1468,15 @@ _pkp_noise:
 	ld	d,a	
 
 	; get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 
 	ld	a,(hl)
 	and	0xf0
 	or	d
 	ld	(hl),a
 ;	jr.	_psgsamright
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END			
+	call	update_macrobox
+	jr.	process_key_macrobox_END			
 	
 	
 	
@@ -1524,15 +1524,15 @@ _psgvolfound:
 	ld	d,a
 	
 	;--- get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 
 	inc	hl		;(2nd byte)
 	ld	a,(hl)
 	and	0xf0
 	or	d
 	ld	(hl),a
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END
+	call	update_macrobox
+	jr.	process_key_macrobox_END
 	
 0:
 	;===================
@@ -1553,7 +1553,7 @@ _psgvolfound:
 	jr.	nz,0f
 	
 	;--- get the location in RAM
-	call	get_psgsample_location
+	call	get_macro_location
 	
 	inc	hl
 	ld	a,(hl)
@@ -1568,25 +1568,25 @@ _psgvolfound:
 	and	0xe7	
 	or	b
 	ld	(hl),a
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_END	
+	call	update_macrobox
+	jr.	process_key_macrobox_END	
 0:
 
 
 
 
-process_key_psgsamplebox_END:
+process_key_macrobox_END:
 	ret
 
 
 
 ;===========================================================
-; --- get_psgsample_location:
+; --- get_macro_location:
 ;
 ; returns in hl the start ofthe current sample line.
 ; Changes: A, HL and BC
 ;===========================================================
-get_psgsample_location:
+get_macro_location:
 	;--- get the location in RAM
 	call	_get_instrument_start
 	
@@ -1610,11 +1610,11 @@ get_psgsample_location:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox_waveform
+; --- process_key_macrobox_waveform
 ;
 ;
 ;===========================================================
-process_key_psgsamplebox_waveform:
+process_key_macrobox_waveform:
 	;--- get the location in RAM
 	call	_get_instrument_start
 	
@@ -1641,7 +1641,7 @@ process_key_psgsamplebox_waveform:
 		dec	a
 		ld	(instrument_waveform),a
 		ld	(hl),a
-		jr.	update_psgsamplebox
+		jr.	update_macrobox
 0:
 	cp	_KEY_RIGHT
 	jr.	nz,0f
@@ -1652,17 +1652,17 @@ process_key_psgsamplebox_waveform:
 		inc	a
 		ld	(hl),a
 		ld	(instrument_waveform),a
-		jr.	update_psgsamplebox
+		jr.	update_macrobox
 
 0:	ret
 
 
 ;===========================================================
-; --- process_key_psgsamplebox_octave
+; --- process_key_macrobox_octave
 ;
 ;
 ;===========================================================
-process_key_psgsamplebox_octave:
+process_key_macrobox_octave:
 	ld	a,(song_octave)
 	ld	c,a
 	ld	a,(key)
@@ -1674,7 +1674,7 @@ process_key_psgsamplebox_octave:
 	jr.	nz,0f
 44:		call	restore_cursor
 		;call	reset_cursor_trackbox
-		jr.	process_key_psgsamplebox_octave_END
+		jr.	process_key_macrobox_octave_END
 0:		
 	;--- Key_up - Pattern down	
 	cp	_KEY_DOWN
@@ -1683,10 +1683,10 @@ process_key_psgsamplebox_octave:
 	jr.	nz,0f
 44:		dec	c
 		ld	a,c
-		jr.	z,process_key_psgsamplebox_octave_END
+		jr.	z,process_key_macrobox_octave_END
 88:		ld	(song_octave),a
-		call	update_psgsamplebox
-		jr.	process_key_psgsamplebox_octave_END	
+		call	update_macrobox
+		jr.	process_key_macrobox_octave_END	
 0:
 	;--- Key_down - Pattern up	
 	cp	_KEY_UP
@@ -1695,7 +1695,7 @@ process_key_psgsamplebox_octave:
 	jr.	nz,0f
 44:		ld	a,c
 		cp	7
-		jr.	nc,process_key_psgsamplebox_octave_END
+		jr.	nc,process_key_macrobox_octave_END
 		inc	a
 		jr.	88b	
 0:
@@ -1708,13 +1708,13 @@ process_key_psgsamplebox_octave:
 		sub	48
 		ld	(song_octave),a
 		call	restore_cursor
-		call	update_psgsamplebox
-		jr.	process_key_psgsamplebox_octave_END
+		call	update_macrobox
+		jr.	process_key_macrobox_octave_END
 		
 	
 
 0:	
-process_key_psgsamplebox_octave_END:
+process_key_macrobox_octave_END:
 	ret
 
 
@@ -1723,11 +1723,11 @@ process_key_psgsamplebox_octave_END:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox_len
+; --- process_key_macrobox_len
 ;
 ;
 ;===========================================================
-process_key_psgsamplebox_len:
+process_key_macrobox_len:
 	;--- get the location in RAM
 	call	_get_instrument_start
 	
@@ -1746,7 +1746,7 @@ process_key_psgsamplebox_len:
 	jr.	nz,0f
 44:		
 	call	restore_cursor
-	jr.	update_psgsamplebox
+	jr.	update_macrobox
 	
 0:	
 	cp	_KEY_DOWN
@@ -1760,11 +1760,11 @@ process_key_psgsamplebox_len:
 		dec	a
 		ld	(hl),a
 		cp	b
-		jr.	nc,update_psgsamplebox
+		jr.	nc,update_macrobox
 		dec	a
 		inc	hl
 		ld	(hl),a
-		jr.	update_psgsamplebox		
+		jr.	update_macrobox		
 		
 0:
 	cp	_KEY_UP
@@ -1777,16 +1777,16 @@ process_key_psgsamplebox_len:
 		ret	nc
 		inc	a
 		ld	(hl),a
-		jr.	update_psgsamplebox
+		jr.	update_macrobox
 
 0:	ret
 
 ;===========================================================
-; --- process_key_psgsamplebox_loop
+; --- process_key_macrobox_loop
 ;
 ;
 ;===========================================================
-process_key_psgsamplebox_loop:
+process_key_macrobox_loop:
 	;--- get the location in RAM
 	call	_get_instrument_start	
 	inc	hl
@@ -1815,7 +1815,7 @@ process_key_psgsamplebox_loop:
 		dec	a
 		cp	c
 		ld	(hl),a
-		jr.	update_psgsamplebox
+		jr.	update_macrobox
 0:
 	cp	_KEY_UP
 	jr.	z,44f
@@ -1829,7 +1829,7 @@ process_key_psgsamplebox_loop:
 		cp	b
 		jr.	nc,0f
 		ld	(hl),a
-		jr.	update_psgsamplebox
+		jr.	update_macrobox
 
 0:	ret
 
@@ -1839,7 +1839,7 @@ process_key_psgsamplebox_loop:
 ; Process the song name input
 ; 
 ;===========================================================
-process_key_psgsamplebox_description:
+process_key_macrobox_description:
 	
 	;--- Set the start of the instrument name.
 	ld	a,(song_cur_instrument)
@@ -1864,8 +1864,8 @@ process_key_psgsamplebox_description:
 44:		;ld	a,0
 		;ld	(editsubmode),a
 		call	restore_cursor
-		;call	reset_cursor_psgsamplebox
-		jr.	process_key_psgsamplebox_description_END
+		;call	reset_cursor_macrobox
+		jr.	process_key_macrobox_description_END
 
 0:
 	;--- Check for RIGHT
@@ -1873,11 +1873,11 @@ process_key_psgsamplebox_description:
 	jr.	nz,99f
 		ld	a,(cursor_x)
 		cp	30+15
-		jr.	nc,process_key_psgsamplebox_description_END
+		jr.	nc,process_key_macrobox_description_END
 		call	flush_cursor
 		inc	a
 		ld	(cursor_x),a
-		jr.	process_key_psgsamplebox_description_END			
+		jr.	process_key_macrobox_description_END			
 99:	
 	
 	;--- Check for LEFT
@@ -1885,11 +1885,11 @@ process_key_psgsamplebox_description:
 	jr.	nz,99f
 		ld	a,(cursor_x)
 		cp	31
-		jr.	c,process_key_psgsamplebox_description_END
+		jr.	c,process_key_macrobox_description_END
 		call	flush_cursor
 		dec	a
 		ld	(cursor_x),a
-		jr.	process_key_psgsamplebox_description_END
+		jr.	process_key_macrobox_description_END
 99:
 	;--- Backspace
 	cp	_BACKSPACE
@@ -1911,8 +1911,8 @@ process_key_psgsamplebox_description:
 		ld	(cursor_x),a
 77:		
 		ld	(hl),32
-		call	update_psgsamplebox
-		jr.	process_key_psgsamplebox_description_END
+		call	update_macrobox
+		jr.	process_key_macrobox_description_END
 
 99:
 	;--- Delete
@@ -1926,15 +1926,15 @@ process_key_psgsamplebox_description:
 		inc	h	
 88:	
 		ld	(hl)," "
-		call	update_psgsamplebox
-		jr.	process_key_psgsamplebox_description_END	
+		call	update_macrobox
+		jr.	process_key_macrobox_description_END	
 
 99:
 	;--- All other (normal) keys
 	cp	32
-	jr.	c,process_key_psgsamplebox_description_END
+	jr.	c,process_key_macrobox_description_END
 	cp	128
-	jr.	nc,process_key_psgsamplebox_description_END
+	jr.	nc,process_key_macrobox_description_END
 	
 	ld	b,a
 	ld	a,(cursor_x)
@@ -1951,11 +1951,11 @@ process_key_psgsamplebox_description:
 		inc	a
 		ld	(cursor_x),a
 99:	ld	(hl),b
-	call	update_psgsamplebox
-	jr.	process_key_psgsamplebox_description_END
+	call	update_macrobox
+	jr.	process_key_macrobox_description_END
 		
 			
-process_key_psgsamplebox_description_END
+process_key_macrobox_description_END
 	call	build_instrument_list
 	ret
 
@@ -1964,12 +1964,12 @@ process_key_psgsamplebox_description_END
 
 
 ;===========================================================
-; --- reset_cursor_psgsamplebox
+; --- reset_cursor_macrobox
 ;
 ; Reset the cursor to the top left of the pattern.
 ; To be used when switching patterns, after loadinging and etc
 ;===========================================================
-reset_cursor_psgsamplebox:
+reset_cursor_macrobox:
 	call	flush_cursor
 	
 	ld	a,(editsubmode)
@@ -2058,7 +2058,7 @@ reset_cursor_psgsamplebox:
 	ret
 
 	db	255	;end
-_COLTAB_PSGSAMPLE:
+_COLTAB_MACRO:
 ;	db	0,1	; 0 = ena/dis tone
 ;	db	1,2	; 1 = ena/dis noise
 ;	db	2,2	; 2 = ena/dis envelope

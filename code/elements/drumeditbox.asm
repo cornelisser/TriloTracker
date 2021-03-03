@@ -1463,7 +1463,7 @@ get_drumsample_location:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox_octave
+; --- process_key_macrobox_octave
 ;
 ;  
 ;===========================================================
@@ -1521,7 +1521,7 @@ process_key_drumeditbox_octave_END:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox_len
+; --- process_key_macrobox_len
 ;
 ;
 ;===========================================================
@@ -1567,7 +1567,7 @@ process_key_drumeditbox_len:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox_type
+; --- process_key_macrobox_type
 ;
 ;
 ;===========================================================
@@ -1648,7 +1648,7 @@ process_key_drumeditbox_description:
 44:		;ld	a,0
 		;ld	(editsubmode),a
 		call	restore_cursor
-		;call	reset_cursor_psgsamplebox
+		;call	reset_cursor_macrobox
 		jr.	process_key_drumeditbox_description_END
 
 0:
@@ -1746,7 +1746,7 @@ process_key_drumeditbox_description_END
 
 
 ;===========================================================
-; --- reset_cursor_psgsamplebox
+; --- reset_cursor_macrobox
 ;
 ; Reset the cursor to the top left of the pattern.
 ; To be used when switching patterns, after loadinging and etc

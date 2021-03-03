@@ -30,7 +30,7 @@ update_configeditor:
 	call	update_orderbox
 	call	update_songbox
 	call	update_patternbox	
-;	call	update_psgsamplebox
+;	call	update_macrobox
 	call	update_instrumentbox
 	call	update_configbox
 	ret
@@ -64,7 +64,7 @@ init_configeditor:
 	ld	(editmode),a
 	ld	a,0
 	ld	(editsubmode),a	
-;	call	reset_cursor_psgsamplebox
+;	call	reset_cursor_macrobox
 
 	call	reset_cursor_configbox
 
@@ -76,7 +76,7 @@ init_configeditor:
 	
 	
 ;===========================================================
-; --- processkey_psgsampleeditor
+; --- processkey_macroeditor
 ; Specific controls 
 ; 
 ;===========================================================	

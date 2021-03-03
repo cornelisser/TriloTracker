@@ -2,7 +2,21 @@
 
 		
 IFDEF TTSCC
-ELSE					
+;=================================
+;
+; Key jazz for sample playback
+;
+;=================================
+process_key_samplejazz:
+	
+	ret
+
+
+
+
+
+ELSE		
+
 process_key_drumjazz:
 	call	set_songpage
 	

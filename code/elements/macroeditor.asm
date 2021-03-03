@@ -4,14 +4,14 @@
 ; Display the psg sample editor.  Without actual values 
 ; 
 ;===========================================================
-draw_psgsampleeditor:
+draw_macroeditor:
 
 	ld	a,255
 	ld	(song_order_update),a
 	call	clear_screen
 	call	draw_orderbox
 	call	draw_songbox
-	call	draw_psgsamplebox
+	call	draw_macrobox
 	call	draw_instrumentbox
 	
 
@@ -25,16 +25,16 @@ draw_psgsampleeditor:
 ; Display the psg sample editor values. 
 ; 
 ;===========================================================
-update_psgsampleeditor:
+update_macroeditor:
 
 	call	update_orderbox
 	call	update_songbox
-	call	update_psgsamplebox
+	call	update_macrobox
 	call	update_instrumentbox
 	call	update_sccwave
 	ret
 
-restore_psgsampleeditor:
+restore_macroeditor:
 
 IFDEF TTSCC
 ELSE
@@ -54,19 +54,19 @@ ENDIF
 	call	restore_cursor
 	
 99:	; --- show the screen
-	call	draw_psgsampleeditor
-	call	update_psgsampleeditor
+	call	draw_macroeditor
+	call	update_macroeditor
 	
 	ret
 
 
 ;===========================================================
-; --- init_psgsampleeditor
+; --- init_macroeditor
 ;
 ; initialise the psg sample editor screen
 ; 
 ;===========================================================	
-init_psgsampleeditor:
+init_macroeditor:
 	ld	a,(editmode)
 	cp	1
 	ret	z
@@ -86,21 +86,21 @@ init_psgsampleeditor:
 	ld	(editmode),a
 	ld	a,0
 	ld	(editsubmode),a	
-	call	reset_cursor_psgsamplebox
+	call	reset_cursor_macrobox
 
 	; --- show the screen
-	call	draw_psgsampleeditor
-	call	update_psgsampleeditor
+	call	draw_macroeditor
+	call	update_macroeditor
 	
 	ret	
 	
 	
 ;===========================================================
-; --- processkey_psgsampleeditor
+; --- processkey_macroeditor
 ; Specific controls 
 ; 
 ;===========================================================	
-processkey_psgsampleeditor:
+processkey_macroeditor:
 	;--- check for filedialog
 	ld	a,(key)
 	cp	5
@@ -109,8 +109,8 @@ processkey_psgsampleeditor:
 	ld	a,5
 	call	swap_loadblock
 	;--- load generic filedialog
-	ld    a,6
-	call  swap_loadelementblock	
+;	ld    a,6
+;	call  swap_loadelementblock	
 	
 	jr.	init_ins_filedialog
 
@@ -118,7 +118,7 @@ processkey_psgsampleeditor:
 	;--- check [CTRL] combinations
 	ld	a,(fkey)
 	cp	_KEY_CTRL
-	jr.	nz,processkey_psgsampleeditor_normal
+	jr.	nz,processkey_macroeditor_normal
 		
 	;--- check 2nd key combo
 	ld	a,(key)
@@ -134,10 +134,10 @@ processkey_psgsampleeditor:
 		ld	(song_cur_instrument),a
 ;		ld	(tmp_cur_instrument),a
 		
-		call	reset_cursor_psgsamplebox
-		call	update_psgsampleeditor
+		call	reset_cursor_macrobox
+		call	update_macroeditor
 		call	update_sccwave
-		jr.	processkey_psgsampleeditor_END
+		jr.	processkey_macroeditor_END
 0:
 		;--- UP
 		cp	_KEY_UP
@@ -150,10 +150,10 @@ processkey_psgsampleeditor:
 		ld	(song_cur_instrument),a
 ;		ld	(tmp_cur_instrument),a
 				
-		call	reset_cursor_psgsamplebox
-		call	update_psgsampleeditor
+		call	reset_cursor_macrobox
+		call	update_macroeditor
 		call	update_sccwave
-		jr.	processkey_psgsampleeditor_END	
+		jr.	processkey_macroeditor_END	
 0:
 		;--- get the location in RAM
 		ld	d,a	; store key
@@ -189,7 +189,7 @@ ENDIF
 			ld	(instrument_waveform),a
 			ld	(hl),a
 			call	update_sccwave
-			jr.	update_psgsamplebox		
+			jr.	update_macrobox		
 
 0:
 		;--- Right
@@ -211,7 +211,7 @@ ENDIF
 			ld	(hl),a
 			ld	(instrument_waveform),a
 			call	update_sccwave
-			jr.	update_psgsamplebox
+			jr.	update_macrobox
 
 0:
 	;--- CTRL_T- keyjazz chip type
@@ -256,7 +256,7 @@ ENDIF
 		jr.	99f
 
 99:
-		jr.	update_psgsamplebox		
+		jr.	update_macrobox		
 
 0:
 	;--- CTRL_W- waveform number
@@ -274,9 +274,9 @@ ELSEIFDEF TTSMS
 ELSE
 		ld	a,1
 		ld	(editsubmode),a
-		call	reset_cursor_psgsamplebox
+		call	reset_cursor_macrobox
 ENDIF
-		jr.	processkey_psgsampleeditor_END			
+		jr.	processkey_macroeditor_END			
 
 0:
 	;--- CTRL_L - sample length
@@ -290,8 +290,8 @@ ENDIF
 		ld	a,2
 		ld	(editsubmode),a
 			
-		call	reset_cursor_psgsamplebox
-		jr.	processkey_psgsampleeditor_END		
+		call	reset_cursor_macrobox
+		jr.	processkey_macroeditor_END		
 0:
 	;--- CTRL_R - Sample restart
 	cp	_CTRL_R
@@ -303,8 +303,8 @@ ENDIF
 79:
 		ld	a,3
 		ld	(editsubmode),a
-		call	reset_cursor_psgsamplebox
-		jr.	processkey_psgsampleeditor_END		
+		call	reset_cursor_macrobox
+		jr.	processkey_macroeditor_END		
 
 0:
 	;--- CTRL_O - Octave
@@ -317,8 +317,8 @@ ENDIF
 79:
 		ld	a,4
 		ld	(editsubmode),a
-		call	reset_cursor_psgsamplebox
-		jr.	processkey_psgsampleeditor_END	
+		call	reset_cursor_macrobox
+		jr.	processkey_macroeditor_END	
 0:
 	;--- CTRL_F - Wave form edit
 	cp	_CTRL_F
@@ -336,8 +336,8 @@ ENDIF
 79:
 		ld	a,5
 		ld	(editsubmode),a
-		call	reset_cursor_psgsamplebox
-		jr.	processkey_psgsampleeditor_END	
+		call	reset_cursor_macrobox
+		jr.	processkey_macroeditor_END	
 0:	
 	;--- CTRL_D - Instrument description
 	cp	_CTRL_D
@@ -349,8 +349,8 @@ ENDIF
 79:
 		ld	a,6
 		ld	(editsubmode),a
-		call	reset_cursor_psgsamplebox
-		jr.	processkey_psgsampleeditor_END	
+		call	reset_cursor_macrobox
+		jr.	processkey_macroeditor_END	
 0:	
 	;--- CTRL_C - Instrument copy
 	cp	_CTRL_C
@@ -380,7 +380,7 @@ IFDEF TTSCC
 		ld	de,waveform_buffer
 		ld	bc,32
 		ldir
-		jr.	processkey_psgsampleeditor_END	
+		jr.	processkey_macroeditor_END	
 ENDIF
 
 
@@ -404,7 +404,7 @@ _pkps_instr:		;-- we are copying an instrument
 		ld	bc,INSTRUMENT_SIZE
 		ldir
 
-		jr.	processkey_psgsampleeditor_END	
+		jr.	processkey_macroeditor_END	
 0:	
 	;--- CTRL_V - Instrument paste
 	cp	_CTRL_V
@@ -419,7 +419,7 @@ IFDEF TTSCC
 		;--- paste a waveform
 		ld	a,(waveform_select_status)
 		and	a	
-		jr.	z,processkey_psgsampleeditor_END
+		jr.	z,processkey_macroeditor_END
 
 		;--- calculate the current wave pos in RAM
 		ld	a,(instrument_waveform)	; get the current waveform
@@ -437,16 +437,16 @@ IFDEF TTSCC
 		ex	de,hl
 		ld	bc,32
 		ldir
-		call	update_psgsamplebox
+		call	update_macrobox
 
-		jr.	processkey_psgsampleeditor_END	
+		jr.	processkey_macroeditor_END	
 ENDIF
 		
 _pkpse_instr:		
 		;-- we are copying an instrument
 		ld	a,(instrument_select_status)	
 		and	a
-		jr.	z,processkey_psgsampleeditor_END
+		jr.	z,processkey_macroeditor_END
 
 		;--- get the location in RAM
 		ld	hl,instrument_macros
@@ -464,9 +464,9 @@ _pkpse_instr:
 		ld	hl,instrument_buffer
 		ld	bc,INSTRUMENT_SIZE
 		ldir
-		call	update_psgsamplebox
+		call	update_macrobox
 
-		jr.	processkey_psgsampleeditor_END	
+		jr.	processkey_macroeditor_END	
 0:	
 	;--- CTRL + I - Instruments
 	cp	_CTRL_I
@@ -485,7 +485,7 @@ _pppp_instruments:
 0:
 		
 	
-processkey_psgsampleeditor_normal:	
+processkey_macroeditor_normal:	
 
 	;--- set octave using numpad
 	ld	a,(key_value)
@@ -500,9 +500,9 @@ processkey_psgsampleeditor_normal:
 	ld	(song_octave),a
 	xor	a
 	ld	(key),a
-	call	update_psgsampleeditor
+	call	update_macroeditor
 
-	jr.	processkey_psgsampleeditor_END
+	jr.	processkey_macroeditor_END
 
 0:
 	;--- insturment editor?
@@ -536,7 +536,7 @@ processkey_psgsampleeditor_normal:
 	jr.	nz,0f
 
 		call	restore_patterneditor
-		jr.	processkey_psgsampleeditor_END
+		jr.	processkey_macroeditor_END
 	
 
 0:
@@ -554,19 +554,19 @@ processkey_psgsampleeditor_normal:
 	
 	ld	a,(editsubmode)
 	and	a	
-	jr.	z,process_key_psgsamplebox
+	jr.	z,process_key_macrobox
 	
 	dec	a
-	jr.	z,process_key_psgsamplebox_waveform
+	jr.	z,process_key_macrobox_waveform
 
 	dec	a
-	jr.	z,process_key_psgsamplebox_len		
+	jr.	z,process_key_macrobox_len		
 
 	dec	a
-	jr.	z,process_key_psgsamplebox_loop
+	jr.	z,process_key_macrobox_loop
 	
 	dec	a
-	jr.	z,process_key_psgsamplebox_octave			
+	jr.	z,process_key_macrobox_octave			
 
 	dec	a
 IFDEF	TTSCC	
@@ -575,8 +575,8 @@ ELSE
 	jr.	z,process_key_voicebox_edit
 ENDIF
 	dec	a
-	jr.	z,process_key_psgsamplebox_description
+	jr.	z,process_key_macrobox_description
 	
-processkey_psgsampleeditor_END:
+processkey_macroeditor_END:
 
 	ret

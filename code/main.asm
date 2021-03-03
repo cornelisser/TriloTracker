@@ -25,7 +25,7 @@ MAIN_LOOP:
 0:	dec	a
 	jr.	nz,0f		
 	;--- 1:PSG sampleeditor
-		call	processkey_psgsampleeditor
+		call	processkey_macroeditor
 		jr.	_main_dispatch_END
 0:	dec	a
 	jr.	nz,0f
@@ -35,7 +35,10 @@ MAIN_LOOP:
 
 IFDEF TTSCC
 0:	dec	a
-	;--- 3: 
+	;--- 3: Sample editor
+	jr.	nz,0f
+		call	processkey_sampleeditor
+		jr.	_main_dispatch_END
 ELSE
 0:	dec	a
 	;--- 3: Drum macro editor
@@ -60,13 +63,15 @@ ENDIF
 		call	processkey_ins_filedialog
 		jr.	_main_dispatch_END
 
-IFDEF TTFM
+IFDEF TTSCC
 0:	dec	a
-	;--- 7: Instrument Voice manager
+	;--- 7: Sample file dialog
 	jr.	nz,0f
-		call	processkey_voicemanager
+		call	processkey_sam_filedialog
 		jr.	_main_dispatch_END
-ELSEIFDEF TTSMS
+
+
+ELSE 
 0:	dec	a
 	;--- 7: Instrument Voice manager
 	jr.	nz,0f

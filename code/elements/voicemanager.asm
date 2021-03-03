@@ -327,9 +327,9 @@ processkey_voicemanager:
 	cp	_ESC
 	jr.	nz,0f
 
-22:	;call	update_psgsampleeditor
+22:	;call	update_macroeditor
 	;jr.	restore_instrumenteditor
-	jr. restore_psgsampleeditor
+	jr. restore_macroeditor
 
 0:		
 	cp	_SPACE

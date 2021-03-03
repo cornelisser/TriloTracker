@@ -1569,9 +1569,8 @@ _CHIPcmdC_scc_morph:
 	; Store sample number * 4
 	ld	a,d
 	and	0x0f
-	add	a						; Times 4 as sample pointer table record is 8 bytes
-	add	a
-	add	a
+[2]	add	a						; Times 4 as sample pointer table record is 8 bytes
+
 
 	;--- store this data as it is changed by set_patternpage
 	push	bc
@@ -1586,16 +1585,7 @@ _CHIPcmdC_scc_morph:
 	;--- pointer to the sample data init
 	ex	af,af'
 	ld	h,$80
-	add	4
 	ld	l,a
-	
-	;--- store the values (now a quick hack into other cmd vars)
-	ld	a,(hl)
-	ld	(ix+TRACK_cmd_0),a
-	inc	hl
-	ld	a,(hl)
-	ld	(ix+TRACK_cmd_1),a
-	inc	hl
 
 	;--- store base tone
 	ld	a,(hl)
@@ -1604,11 +1594,6 @@ _CHIPcmdC_scc_morph:
 	ld	a,(hl)
 	ld	(ix+TRACK_cmd_4_depth+1),a
 	inc	hl
-
-	inc	hl		; skip restart data
-	inc	hl
-	
-
 
 	;--- store waveform pointer
 	ld	a,(hl)
@@ -2011,9 +1996,9 @@ replay_process_chan_AY:
 	;===== 
 	; Speed equalization check
 	;=====
-	ld	a,(equalization_flag)			; check for speed equalization
-	and	a
-	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+;	ld	a,(equalization_flag)			; check for speed equalization
+;	and	a
+;	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
 
 	;=====
 	; COMMAND
@@ -2914,8 +2899,8 @@ _pcAY_cmd1e_sample:
 	ld	d,(ix+TRACK_cmd_ToneAdd+1)	
 .cont:
 	;--- Period update
-	ld	l,(ix+TRACK_cmd_0)
-	ld	h,(ix+TRACK_cmd_1)
+	ld	l,(ix+TRACK_cmd_2)
+	ld	h,(ix+TRACK_cmd_3)
 	ld	c,(hl)
 	inc	hl
 	ld	b,(hl)
@@ -2924,8 +2909,8 @@ _pcAY_cmd1e_sample:
 	jp	z,.stop
 
 	inc	hl
-	ld	(ix+TRACK_cmd_0),l
-	ld	(ix+TRACK_cmd_1),h
+	ld	(ix+TRACK_cmd_2),l
+	ld	(ix+TRACK_cmd_3),h
 	push	bc
 	pop	hl
 	add	hl,de

@@ -286,7 +286,7 @@ processkey_ins_filedialog_menu:
 	cp	_ESC
 	jr.	nz,0f
 	; escape 
-		call	restore_psgsampleeditor
+		call	restore_macroeditor
 		jr.	processkey_ins_filedialog_fileselect_END
 0:
 	; - UP
@@ -815,7 +815,7 @@ _ipfd_LOAD_VOI:
 	call	open_vofile		; hl needs to point to the filename 
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog	
 	
 	
@@ -858,7 +858,7 @@ _ipfd_LOAD_INS:
 	call	open_infile		; hl needs to point to the filename 
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog
 
 _ipfd_LOAD_INSSET:
@@ -870,7 +870,7 @@ _ipfd_LOAD_INSSET:
 	call	open_insfile		; hl needs to point to the filename 
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog
 
 
@@ -898,7 +898,7 @@ _ipfd_LOAD_MAC:
 ;	call	restore_cursor
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog
 
 _ipfd_LOAD_MACSET:
@@ -911,7 +911,7 @@ _ipfd_LOAD_MACSET:
 ;	call	restore_cursor
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog
 
 
@@ -939,7 +939,7 @@ _ipfd_LOAD_WAV:
 	call	open_wafile		; hl needs to point to the filename 
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog
 ENDIF
 
@@ -953,7 +953,7 @@ _ipfd_LOAD_WAVSET:
 	call	open_wasfile		; hl needs to point to the filename 
 	ld	a,(window_shown)
 	and	a
-	jr.	z,restore_psgsampleeditor
+	jr.	z,restore_macroeditor
 	jr.	restore_insfiledialog
 ENDIF
 

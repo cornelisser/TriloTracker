@@ -86,7 +86,7 @@ NTSC:
 
 	ld	a,(replay_mode)
 	and	a
-	call	NZ,replay_decodedata_NO	
+;	call	NZ,replay_decodedata_NO	
 	xor	a
 	ld	(equalization_flag),a
       jr. 	8f                     ; skip sound processing

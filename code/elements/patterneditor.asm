@@ -140,16 +140,21 @@ processkey_patterneditor:
 0:	dec	a		;--- F2 = Instrument editor
 	jr.	nz,0f
 IFDEF TTSCC
+		ld	a,4	
 ELSE
 		ld	a,7
-		call	swap_loadelementblock
 ENDIF
-		jr.	init_psgsampleeditor
+		call	swap_loadelementblock
+		jr.	init_macroeditor
 		;jr.	processkey_patterneditor_END
 
 IFDEF TTSCC		
 0:	;--- F3
 	dec	a
+	jr.	nz,0f
+		ld	a,1
+		call	swap_loadelementblock
+		jr.	init_sampleeditor
 	
 ELSE
 0:	;--- F3 Drum macro editor
@@ -176,8 +181,8 @@ ENDIF
 		cp	1	
 		jr.	z,44f	;init_configeditor	
 	
-		ld    a,6
-		call    swap_loadelementblock
+;		ld    a,6
+;		call    swap_loadelementblock
     
 		jr.    init_filedialog
 		;jr.    processkey_patterneditor_END    
@@ -194,7 +199,7 @@ ENDIF
 ;	jr.	z,0f
 ;	cp	'S'
 ;	jr.	nz,1f	
-;0:	call	init_psgsampleeditor
+;0:	call	init_macroeditor
 ;	jr.	processkey_patterneditor_END
 1:
 ;	;--- escape this for GRAPH/ALT

@@ -66,7 +66,20 @@ ENDIF
 	ld	(song_order_len),a
 	ld	(song_order_pos_old),a
 
-		
+IFDEF TTSCC
+	;--- sample init
+	xor	a
+	ld	(sample_current),a
+	ld	(sample_enabled),a
+	ld	hl,$8040		; (16 times 4 bytes; base tone, pointer)
+	ld	(sample_end),hl
+ENDIF	
+
+
+
+
+
+
 	;--- Cursor init
 	call	reset_cursor_patternbox
 	

@@ -217,7 +217,7 @@ _LABEL_CONFIG_SAVE:
 
 
 ;===========================================================
-; --- update_psgsamplebox
+; --- update_macrobox
 ; Display the values
 ; 
 ;===========================================================
@@ -739,7 +739,7 @@ _CONFIG_MENU_XY:
 
 
 ;===========================================================
-; --- process_key_psgsamplebox
+; --- process_key_macrobox
 ;
 ; Process the input for the PSG sample. 
 ; 
@@ -1435,7 +1435,7 @@ pk_config_instruments:
 
 
 ;===========================================================
-; --- reset_cursor_psgsamplebox
+; --- reset_cursor_macrobox
 ;
 ; Reset the cursor to the top left of the pattern.
 ; To be used when switching patterns, after loadinging and etc

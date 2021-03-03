@@ -120,8 +120,8 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
 	include 	".\code\elements\filedialogRAM.asm"
-	include 	".\code\elements\psgsampleeditor.asm"
-	include 	".\code\elements\psgsampleboxFM.asm"
+	include 	".\code\elements\macroeditor.asm"
+	include 	".\code\elements\macroboxFM.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
@@ -199,22 +199,17 @@ SWAP_REPLAY_END:
 	; MBM import swappable code block
 	; --------------------------------------------------
 	org	SWAP_RAMSTART
-SWAP_MBM_IMP:
+SWAP_SAMPLE:
 ;	include ".\code\import\importMBM.asm"
-SWAP_MBM_IMP_END:		
+SWAP_SAMPLE_END:		
 
 	; XM importer swappable code block
 	; --------------------------------------------------
 	org	SWAP_RAMSTART
-SWAP_XM_IMP:	
-;	include ".\code\import\importXM.asm"
-_XM_WILDCARD:
-	db	0
-open_xmfile:
-	ret
+SWAP_SAMFILE:	
 
 
-SWAP_XM_IMP_END:	
+SWAP_SAMFILE_END:	
 	
 
 	; XM importer swappable code block

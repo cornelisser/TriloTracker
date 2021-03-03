@@ -1540,6 +1540,28 @@ _create_mas_continue:
 	call	set_hook
 	ret
 
+;===========================================================
+; --- save_masfile
+;
+; save a masfile. HL needs to point to the file
+; 
+;===========================================================	
+save_samfile:
+	ret
+;===========================================================
+; --- save_masfile
+;
+; save a masfile. HL needs to point to the file
+; 
+;===========================================================	
+save_pakfile:
+	ret
+
+
+
+
+
+
 
 ;===========================================================
 ; --- create_wafile
@@ -1759,8 +1781,8 @@ save_vosfile:
 
 
 	;--- Write voices
-	ld	de,_VOICES
-	ld	hl,8*MAX_WAVEFORM
+	ld	de,_VOICES+((192-31)*8)
+	ld	hl,8*16
 	call	write_file	
 	call	nz,catch_diskerror
  
@@ -2719,8 +2741,8 @@ open_vosfile:
 	call	nz,catch_diskerror
 			
 	;--- Read waveforms
-	ld	de,_VOICES
-	ld	hl,8*MAX_WAVEFORM
+	ld	de,_VOICES+((192-31)*8)
+	ld	hl,8*16
 	call	read_file	
 	call	nz,catch_diskerror
 	call	close_file
@@ -2852,6 +2874,155 @@ open_mafile:
 	call	set_hook
 	ret
 
+;===========================================================
+; --- open_pakfile
+;
+; Open a pak file. In hihgest segment
+; Data is loaded into the current song
+;===========================================================
+open_samfile:
+	call	reset_hook
+	ld	(_catch_stackpointer),sp
+
+	;--- store the name of the sample_current
+	push	hl
+	ld	a,(sample_current)
+[3]	add	a	; times 8
+	ld	de,sample_names
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	b,8
+.nameloop:
+	ld	a,(hl)
+	cp	'.'		; stop if extension starts
+	jp	z,0f
+	ldi				; p is reset if  bc = 0
+	jp	p,.nameloop
+
+0:
+	pop	hl
+
+
+
+	ld	a,00000001b		; NO write
+	call	open_file
+	
+	;--- Check for errors
+	and	a
+	call	nz,catch_diskerror
+	
+	ld	a,b
+	ld	(disk_handle),a
+	
+	;--- Set the highest segment
+	ld	a,(max_pattern)
+	sub	7
+	ld	b,a
+	call	set_patternpage
+
+
+	;--- Read header + version (skipped for now)
+	ld	de,buffer
+	ld	hl,4
+	call	read_file
+	call	nz,catch_diskerror
+
+	;---- Delete the current used space and move all data up.
+
+
+	;--- Read base tone
+	ld	de,$8000		
+	ld	a,(sample_current)
+[2]	add	a
+	add	a,e
+	ld	e,a
+
+	ld	hl,2
+	call	read_file
+	call	nz,catch_diskerror
+
+	;--- somehow init the start address of the data
+	ld	a,(sample_end)		; Get start of free sample RAM
+	ld	(de),a
+	inc	de
+	ld	a,(sample_end+1)
+	ld	(de),a
+
+	ld	de,(sample_end)
+.read_frame:
+	;--- read period/end delimiter
+	ld	hl,2	
+	call	read_file
+	call	nz,catch_diskerror	
+
+	;--- Check for end delimitor
+	dec	de
+	ld	a,(de)
+	cp	$ff
+	jp	nz,.read_wav
+	ld	b,a
+	dec	de
+	ld	a,(de)
+	cp	b
+	jp	z,.read_end
+	inc	de
+	;--- read wave data
+.read_wav:
+	inc	de
+	;--- Check if memory limit is reached ($bfff - frame (34) - loop offset (2)) -> $BFDB
+	ld	a,$bf
+	cp	a,d
+	jp	nc,.no_end
+	ld	a,$db
+	cp	a,e
+	jp	nc,.no_end
+
+	;--- manual end to the sample
+	dec	de
+	dec	de
+	ld	a,$ff
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	xor	a
+	ld	(de),a
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	jr.	.end
+	
+
+.no_end:
+	ld	hl,32	
+	call	read_file
+	call	nz,catch_diskerror	
+	jr.	.read_frame
+
+
+
+	;--- read the loop offset
+.read_end:
+	ld	hl,1	
+	call	read_file
+	call	nz,catch_diskerror	
+
+	;-- work around
+	inc	de
+.end:
+	;-- Store the new pointer to free RAM
+	ld	(sample_end),de
+
+
+	call	close_file
+	;--- restore set_patternpage
+	call	set_songpage_safe
+	call	set_hook
+	ret
 
 ;===========================================================
 ; --- open_pakfile
@@ -3093,10 +3264,12 @@ _TM_WILDCARD:
 _DEL_WILDCARD:
 	db	"*.TM*",0
 
+IFDEF TTSCC
+_SAM_WILDCARD:
+	db	"*.SAM",0
 _PAK_WILDCARD:
 	db	"*.PAK",0
-
-
+ENDIF
 
 _INS_WILDCARD:
 	db	"*.IN",0
@@ -3149,6 +3322,9 @@ catch_diskerror:
 
 	ld	sp,(_catch_stackpointer)
 	
+	;--- restore set_patternpage
+	call	set_songpage_safe
+
 	ret
 ;_LABEL_ERROR:
 ;	db	"ERROR:  -",0

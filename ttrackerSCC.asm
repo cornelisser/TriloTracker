@@ -115,8 +115,6 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
 	include 	".\code\elements\filedialogRAM.asm"
-	include 	".\code\elements\psgsampleeditor.asm"
-	include 	".\code\elements\psgsamplebox.asm"
 	include 	".\code\elements\sccwavebox.asm"
 	include 	".\code\sound\sccdetect.asm"
 	include 	".\code\elements\keyjazz.asm"
@@ -124,6 +122,7 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\vu.asm"
 	include 	".\code\loadinstruments.asm"		
 	include 	".\code\editlog.asm"
+	include    ".\code\elements\filedialog.asm"
 SWAP_ELEMENTSTART:
 font_data:
 	incbin 	".\data\fontpatSCC.bin"
@@ -184,19 +183,20 @@ SWAP_REPLAY:
 	include ".\code\replayerSCC.asm" ;replayer.asm"
 SWAP_REPLAY_END:	
 	
-	; MBM import swappable code block
+	; Sample editor
 	; --------------------------------------------------
-	org	SWAP_RAMSTART
-SWAP_MBM_IMP:
-;	include ".\code\import\importMBM.asm"
-SWAP_MBM_IMP_END:		
+	org	SWAP_ELEMENTSTART
+SWAP_SAMPLE:
+	include ".\code\elements\sampleeditor.asm"
+	include ".\code\elements\samplebox.asm"
+SWAP_SAMPLE_END:		
 
 	; XM importer swappable code block
 	; --------------------------------------------------
 	org	SWAP_RAMSTART
-SWAP_XM_IMP:	
-;	include ".\code\import\importXM.asm"
-SWAP_XM_IMP_END:	
+SWAP_SAMFILE:	
+	include	".\code\elements\filesamdialog.asm"
+SWAP_SAMFILE_END:	
 	
 
 	; XM importer swappable code block
@@ -209,13 +209,13 @@ SWAP_CONFIG:
 SWAP_CONFIG_END:
 		
 
-	; Track manager swappable code block
+	; Macro editor swappable code block
 	; --------------------------------------------------
-	org	SWAP_RAMSTART
-SWAP_TRACK:
-
-;	include	".\code\elements\trackmanager.asm"
-SWAP_TRACK_END:
+	org	SWAP_ELEMENTSTART
+SWAP_MACRO:
+	include 	".\code\elements\macroeditor.asm"
+	include 	".\code\elements\macrobox.asm"
+SWAP_MACRO_END:
 
 	; Instrument file dialog swappable code block
 	; --------------------------------------------------
@@ -231,11 +231,11 @@ SWAP_INSFILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_FILE:
  
-     include    ".\code\elements\filedialog.asm"
+ ;    include    ".\code\elements\filedialog.asm"
 SWAP_FILE_END:
  
 	
 	
 	
-	include ".\code\variables.asm"
+	include ".\code\variablesSCC.asm"
 

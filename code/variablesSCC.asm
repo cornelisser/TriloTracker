@@ -10,7 +10,7 @@ INSTRUMENT_LEN	equ 32		; max lines of data for macro
 INSTRUMENT_SIZE	equ (INSTRUMENT_LEN*4)+3		; size of 1 instrument macro
 MAX_WAVEFORM	equ 32
 MAX_DRUMS		equ 20				; max number of drum macros
-
+MAX_SAMPLES		equ 16
 
 
 DOS			equ 5			; DOS function call entrance
@@ -86,8 +86,8 @@ instrument_loop		#1
 instrument_macros		#(INSTRUMENT_SIZE)*32
 ;psg_sample_line:	
 instrument_line:		#1
+;waveform_datasize:	#1	;# of waveforms (16,32,48 or 64 waveforms)
 
-waveform_datasize:	#1	;# of waveforms (16,32,48 or 64 waveforms)
 
 ; 2nd part contains MOAM waveforms
 
@@ -174,6 +174,17 @@ _KJ_DRM2:		#14	;db	0,0
 song_pattern		#1
 song_pattern_offset	#1		; offset to draw
 song_pattern_line		#1		; line to edit
+
+;--- Lofi samples
+sample_current		#1	; Current sample number
+sample_enabled		#1	; Set if samples are loaded (this results in last 8 pages to be lost)
+sample_end			#2	; pointer to free address space.
+
+sample_names		#8*16
+sample_offsets		#4*16		; start offset, end offset, loop offset, 1 free byte
+
+
+
 
 MainMixer:				#1
 mainPSGvol:				#1

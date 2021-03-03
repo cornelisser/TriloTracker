@@ -13,6 +13,7 @@ draw_drumeditor:
 	call	draw_songbox
 	call	draw_drumeditbox
 	call	draw_instrumentbox
+;	call update_samplebox
 	ret
 
 		

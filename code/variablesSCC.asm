@@ -179,9 +179,8 @@ song_pattern_line		#1		; line to edit
 sample_current		#1	; Current sample number
 sample_enabled		#1	; Set if samples are loaded (this results in last 8 pages to be lost)
 sample_end			#2	; pointer to free address space.
-
 sample_names		#8*16
-sample_offsets		#4*16		; start offset, end offset, loop offset, 1 free byte
+sample_offsets		#4*16		; note, start offset, end offset, loop offset
 
 
 

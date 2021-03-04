@@ -624,6 +624,10 @@ _spfd_LOAD_SAM:
 	ld	de,_FILMES_loading
 	call	message_filedialog
 	call	open_samfile		; hl needs to point to the filename 
+
+	ld	a,(sample_current)
+	call	sample_get_note
+
 	ld	a,(window_shown)
 	and	a
 	jr.	z,restore_macroeditor

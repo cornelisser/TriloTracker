@@ -2255,9 +2255,9 @@ replay_process_chan_AY:
 	;===== 
 	; Speed equalization check
 	;=====
-	ld	a,(equalization_flag)			; check for speed equalization
-	and	a
-	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+;	ld	a,(equalization_flag)			; check for speed equalization
+;	and	a
+;	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
 	
 	;=====
 	; COMMAND

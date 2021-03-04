@@ -84,7 +84,7 @@ draw_samplebox:
 _LABEL_SAPMPLEBOX:
 	db	"Sample edit:",0
 _LABEL_SAPMPLEMACRO:
-	db	"Sample:",$81,"Base",$81,"Start",$81,"End",$81,$81,$81,"Loop",$81,$81,"Description",0
+	db	"Sample:",0
 
 _LABEL_SAPMPLETEXT:
 	db	"Sam:                Description:     Oct:",0
@@ -92,6 +92,11 @@ _LABEL_SAMPLE_NR:
 	db	_ARROWLEFT,"0x",_ARROWRIGHT,0
 _LABEL_SAMPLE_OCT:
 	db	_ARROWLEFT,"xx",_ARROWRIGHT,0
+_LABEL_SAMPLE_MEMORY:
+	db	"Memory:[                               ]",0
+_LABEL_SAMPLE_NOTE: 
+	db	"Base note: x-x",0
+
 
 
 _sample_SAMPLESTRING:
@@ -135,6 +140,125 @@ update_samplebox:
 	ld	de,_LABEL_SAMPLE_OCT
 	ld	b,4
 	call	draw_label_fast
+
+	;-- Draw memory usage
+	ld	hl,_LABEL_SAMPLE_MEMORY+8
+	ld	a,(sample_end+1)  			; high byte
+	sub	$80
+	srl	a	
+	ld	b,31
+	ld	c,173
+.memory_loop:
+	and	a
+	jp	nz,99f
+	ld	c,'-'
+	inc	a
+99:
+	ld	(hl),c
+	inc	hl
+	dec	a
+	djnz	.memory_loop
+
+
+	;--- Draw sample names
+	ld	de,sample_names
+	ld	hl,(80*10)+50
+	xor	a
+	ld	ixh,a
+.name_loop:
+	push	hl
+	ld	b,8
+	call	draw_label_fast	
+	pop	hl
+	ld	a,80
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	inc	ixh
+	ld	a,ixh
+	cp	16
+	jp	nz,.name_loop
+
+
+	;---- Draw sample base notes
+	ld	ixh,16
+	ld	bc,sample_offsets
+	ld	hl,(80*10)+60
+
+.note_loop:
+	ld	a,(bc)
+	push	bc
+	push	hl
+	ld	de,_LABEL_SAMPLE_NOTE+11
+	ld	hl,_LABEL_NOTES
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+	;--- copy note label to [DE]
+[3]	ldi
+
+	ld	de,_LABEL_SAMPLE_NOTE+11
+	pop	hl
+	push	hl
+	ld	b,3
+	call	draw_label_fast
+	pop	hl
+	pop	bc
+	;--- output to next line
+	ld	a,80
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	;--- next tone value
+	inc	bc
+	inc	bc
+	inc	bc
+	inc	bc
+
+
+	dec	ixh
+	jp	nz,.note_loop
+
+
+
+	;draw memory usage
+	ld	hl,(80*24)+2
+	ld	de,_LABEL_SAMPLE_MEMORY
+	call	draw_label
+
+	;--- tone - note
+	ld	de,sample_offsets
+	ld	a,(sample_current)
+[2]	add	a			; times 4
+	add	a,e
+	ld 	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	a,(de)
+	ld	de,_LABEL_SAMPLE_NOTE+11
+	ld	hl,_LABEL_NOTES
+	ld	b,0
+	ld	c,a
+	add	hl,bc
+	add	hl,bc
+	add	hl,bc
+
+	;--- copy note label to [DE]
+[3]	ldi
+
+	ld	de,_LABEL_SAMPLE_NOTE
+	ld	hl,(80*12)+1+8	
+	call	draw_label
+
+
+
 
 
 	ret
@@ -254,3 +378,76 @@ reset_cursor_samplebox:
 
 	ret
 
+
+
+;--------------------------------------------
+; sample_get_note
+; Determines the base note using the tone value in the sample data
+; in [A] sample nr
+; out: stores the value at the correct address
+;--------------------------------------------
+sample_get_note:
+	ld	de, $8000
+[2]	add	a			; times 4
+	add	a,e
+	ld 	e,a
+	jp	nc,99f
+	inc	d
+99:
+	inc	de
+	
+	push	de
+	;--- Set the highest segment
+	ld	a,(max_pattern)
+	sub	7
+	ld	b,a
+	call	set_patternpage
+
+	pop	de
+	;--- find matching note
+	ld	b,2
+	ld	hl,TRACK_ToneTable+3
+.loop_high:
+	ld	a,(de)
+
+	cp	(hl)
+	jp	c,.nomatch_high
+	jp	nz,.match_end_high
+
+	dec	de
+	dec	hl
+.loop_low:
+	ld	a,(de)
+	cp	(hl)
+	jp	c,.nomatch_low
+	jp	.match_end_low
+
+.nomatch_low:
+	inc	b
+	inc	hl
+	inc	hl
+	jp	.loop_low	
+
+.nomatch_high:
+	inc	b
+	inc	hl
+	inc	hl
+	jp	.loop_high
+
+
+.match_end_low:
+.match_end_high:
+	ld	a,(sample_current)
+	add	a
+	add	a
+	ld	hl,sample_offsets
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	(hl),b
+
+	call	set_songpage
+
+	ret

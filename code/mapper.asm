@@ -104,7 +104,7 @@ set_patternpage:
 ;
 ; Input: none
 ;
-; Changed af,de,hl
+; Changed none
 ;===========================================================
 set_patternpage_safe:
 	push	af

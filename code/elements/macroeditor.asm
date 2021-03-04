@@ -39,8 +39,8 @@ restore_macroeditor:
 IFDEF TTSCC
 ELSE
 	; restore voicemanager and Wave/Voice code.
-	ld	a,7
-	call	swap_loadelementblock
+;	ld	a,7
+;	call	swap_loadelementblock
 ENDIF
 
 

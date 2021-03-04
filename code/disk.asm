@@ -1540,6 +1540,8 @@ _create_mas_continue:
 	call	set_hook
 	ret
 
+
+IFDEF TTSCC
 ;===========================================================
 ; --- save_masfile
 ;
@@ -1556,7 +1558,7 @@ save_samfile:
 ;===========================================================	
 save_pakfile:
 	ret
-
+ENDIF
 
 
 
@@ -2874,6 +2876,8 @@ open_mafile:
 	call	set_hook
 	ret
 
+
+IFDEF TTSCC
 ;===========================================================
 ; --- open_pakfile
 ;
@@ -2944,6 +2948,7 @@ open_samfile:
 	call	read_file
 	call	nz,catch_diskerror
 
+
 	;--- somehow init the start address of the data
 	ld	a,(sample_end)		; Get start of free sample RAM
 	ld	(de),a
@@ -2966,17 +2971,18 @@ open_samfile:
 	ld	b,a
 	dec	de
 	ld	a,(de)
+	inc	de	
 	cp	b
 	jp	z,.read_end
-	inc	de
+
 	;--- read wave data
 .read_wav:
 	inc	de
 	;--- Check if memory limit is reached ($bfff - frame (34) - loop offset (2)) -> $BFDB
-	ld	a,$bf
+	ld	a,$be
 	cp	a,d
 	jp	nc,.no_end
-	ld	a,$db
+	ld	a,$da
 	cp	a,e
 	jp	nc,.no_end
 
@@ -3007,6 +3013,7 @@ open_samfile:
 
 	;--- read the loop offset
 .read_end:
+	inc	de
 	ld	hl,1	
 	call	read_file
 	call	nz,catch_diskerror	
@@ -3023,6 +3030,7 @@ open_samfile:
 	call	set_songpage_safe
 	call	set_hook
 	ret
+
 
 ;===========================================================
 ; --- open_pakfile
@@ -3062,7 +3070,7 @@ open_pakfile:
 	
 	call	set_hook
 	ret
-
+ENDIF
 ;===========================================================
 ; --- open_masfile
 ;

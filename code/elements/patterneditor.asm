@@ -139,11 +139,7 @@ processkey_patterneditor:
 
 0:	dec	a		;--- F2 = Instrument editor
 	jr.	nz,0f
-IFDEF TTSCC
 		ld	a,4	
-ELSE
-		ld	a,7
-ENDIF
 		call	swap_loadelementblock
 		jr.	init_macroeditor
 		;jr.	processkey_patterneditor_END

@@ -71,6 +71,18 @@ IFDEF TTSCC
 	xor	a
 	ld	(sample_current),a
 	ld	(sample_enabled),a
+
+	ld	hl,sample_names
+	ld	(hl),0
+	ld	de,sample_names+1
+	ld	bc, 8*16-1
+	ldir
+	ld	hl,sample_offsets
+	ld	(hl),0
+	ld	de,sample_offsets+1
+	ld	bc, 4*16-1
+	ldir
+
 	ld	hl,$8040		; (16 times 4 bytes; base tone, pointer)
 	ld	(sample_end),hl
 ENDIF	

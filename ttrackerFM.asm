@@ -120,8 +120,8 @@ _LABEL_PATTERNHEADER:
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
 	include 	".\code\elements\filedialogRAM.asm"
-	include 	".\code\elements\macroeditor.asm"
-	include 	".\code\elements\macroboxFM.asm"
+;	include 	".\code\elements\macroeditor.asm"
+;	include 	".\code\elements\macroboxFM.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
@@ -222,13 +222,13 @@ SWAP_CONFIG:
 SWAP_CONFIG_END:
 
 
-	; Track manager swappable code block
+	; Macro editor swappable code block
 	; --------------------------------------------------
-	org	SWAP_RAMSTART
-SWAP_TRACK:
-
-;	include	".\code\elements\trackmanager.asm"
-SWAP_TRACK_END:
+	org	SWAP_ELEMENTSTART
+SWAP_MACRO:
+	include 	".\code\elements\macroeditor.asm"
+	include 	".\code\elements\macroboxFM.asm"
+SWAP_MACRO_END:
 
 	; Instrument file dialog swappable code block
 	; --------------------------------------------------

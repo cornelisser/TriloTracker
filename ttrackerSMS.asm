@@ -133,16 +133,18 @@ _LABEL_PATTERNHEADER2:
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
 	include 	".\code\elements\filedialogRAM.asm"
-	include 	".\code\elements\macroeditor.asm"
-	include 	".\code\elements\macroboxFM.asm"
-;	include 	".\code\elements\FMvoicebox.asm"
+;	include 	".\code\elements\macroeditor.asm"
+;	include 	".\code\elements\macroboxFM.asm"
+	include    ".\code\elements\voicemanager.asm"
+      include 	".\code\elements\FMvoicebox.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"
-	include 	".\code\cursor.asm"
 
+	include 	".\code\cursor.asm"
+	include    ".\code\elements\filedialog.asm"
 	
 SWAP_ELEMENTSTART:		
 	; temporary start up code and data!!! Will be over written after init
@@ -236,13 +238,14 @@ SWAP_CONFIG:
 SWAP_CONFIG_END:
 
 
-	; Track manager swappable code block
+	; Macro editor swappable code block
 	; --------------------------------------------------
-	org	SWAP_RAMSTART
-SWAP_TRACK:
+	org	SWAP_ELEMENTSTART
+SWAP_MACRO:
+	include 	".\code\elements\macroeditor.asm"
+	include 	".\code\elements\macroboxFM.asm"
 
-	;include	".\code\elements\trackmanager.asm"
-SWAP_TRACK_END:
+SWAP_MACRO_END:
 
 	; Instrument file dialog swappable code block
 	; --------------------------------------------------
@@ -257,15 +260,14 @@ SWAP_INSFILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_FILE:
  
-     include    ".\code\elements\filedialog.asm"
+  ;   include    ".\code\elements\filedialog.asm"
 SWAP_FILE_END:
  
      ; Voice manager swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
 SWAP_VOICEMAN:
-     include    ".\code\elements\voicemanager.asm"
-     include 	".\code\elements\FMvoicebox.asm"
+
 SWAP_VOICEMAN_END:
 
      ; Voice manager swappable code block

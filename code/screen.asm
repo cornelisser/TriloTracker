@@ -142,7 +142,8 @@ draw_label_fast:
 	ld	c,0x98
 	
 	otir
-		
+	ex	de,hl
+
 	ei
 	ret
 

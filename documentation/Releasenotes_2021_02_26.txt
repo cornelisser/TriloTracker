@@ -1,0 +1,27 @@
+Release notes 26-02-2021:
+- Fixed a bug in the Vibrato where 4x0 would reset the depth.
+- Fixed bug in muting drums with CTRL+0 [TTSMS][TTFM]
+- Fixed bug in loading/saving configuration. [TTSCC]
+- Fixed CTRL+TAB not working (short-cut to instruments)
+- Fixed stepped playback (SHIFT+F1) not working [TTSCC]
+- Fixed envelope bug [TTSCC]
+- fixed removed CTRL+ in the drum editor [TTFM][TTSMS]
+- fixed Key-jazz in drum editor also plays PSG [TTFM][TTSMS]
+- fixed Note Cut (ECy) and Note Delay (EDy) bug. 
+- fixed DrumMacro save bug. Length of macro length delimited to 16.
+- Added Markdown documentation to the project (based on the work of GOMF)
+- Swapped Release and Sustain keys (just could not get used to it)
+- Swapped SCC-Musixx theme with Icy Dark theme.
+- Implemented tail mode. Volumes never get to 0 in instruments or effects. Only a sustain or release will mute the sound. This to prevent sound cut off.
+- Implemented the SCC Bxy commands. Remove compress and cut. Added softening of waveform [TTSCC]
+- Implemented ability to change waveform in instrument macro's. [TTSCC]
+- Implemented playback of LoFi samples for testing purposes [TTSCC]
+- Implemented CTRL+Q (Quick select) to extend the selection to the end of the pattern.
+- Implemented loading/saving of voice/voiceset. Some bug still left [TTFM][TTSMS]
+
+Known bugs:
+- When entering a filename for saving BACKSPACE sometimes gives strange results.
+
+
+
+

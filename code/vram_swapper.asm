@@ -18,7 +18,7 @@ swap_block_list:
 		;-- block 3 - Config
 		dw SWAP_VRAMSTART+(SWAP_REPLAY_END-SWAP_REPLAY)+(SWAP_SAMPLE_END-SWAP_SAMPLE)+(SWAP_SAMFILE_END-SWAP_SAMFILE)	; source
 		dw SWAP_CONFIG_END-SWAP_CONFIG		
-		;-- block 4 - Track manager
+		;-- block 4 - Macro (Instrument) editor
 		dw SWAP_VRAMSTART+(SWAP_REPLAY_END-SWAP_REPLAY)+(SWAP_SAMPLE_END-SWAP_SAMPLE)+(SWAP_SAMFILE_END-SWAP_SAMFILE)+(SWAP_CONFIG_END-SWAP_CONFIG)	; source
 		dw SWAP_MACRO_END-SWAP_MACRO		; size
 		;-- block 5 - Instrument dialog

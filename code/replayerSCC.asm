@@ -1553,10 +1553,7 @@ _CHIPcmdC_scc_morph:
 	ex	af,af'
 
 	;--- Select sample data
-	ld	a,(max_pattern)
-	sub	7
-	ld	b,a
-	call	set_patternpage
+	call	set_samplepage
 
 	;--- pointer to the sample data init
 	ex	af,af'

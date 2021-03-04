@@ -397,11 +397,7 @@ sample_get_note:
 	inc	de
 	
 	push	de
-	;--- Set the highest segment
-	ld	a,(max_pattern)
-	sub	7
-	ld	b,a
-	call	set_patternpage
+	call	set_samplepage
 
 	pop	de
 	;--- find matching note
@@ -447,6 +443,127 @@ sample_get_note:
 	inc	h
 99:
 	ld	(hl),b
+
+	call	set_songpage
+
+	ret
+
+
+temp_start:	dw	0
+temp_end:		dw	0
+temp_len:		dw	0
+;--------------------------------------------
+; sample_remove :
+; Removes the sample from RAM and moves other 
+; samples into it's place. Moking room ath the 
+; end of RAM
+; in: [A] has sample nr
+;---------------------------------------------
+sample_remove:
+	call	set_samplepage
+	add	a
+	add	a	; times 4
+	ld	h,$80
+	ld	l,a
+
+	;--- Erase the base note
+	ld	(hl),0
+	inc	hl
+	ld	(hl),0
+	inc	hl
+
+	;--- Get the start address and erase 
+	ld	e,(hl)
+	ld	(hl),0
+	inc	hl
+	ld	d,(hl)
+	ld	(hl),0
+
+	;--- check for empty slot
+	ld	a,e
+	or	d
+	ret	z
+
+	ld	(temp_start),de
+	;--- get the end of the sample
+	ex	de,hl
+	ld	a,$FF
+	ld	bc,34
+.frame_loop:
+	cp	(hl)
+	jp	nz,.no_end_low
+	inc	hl
+	cp	(hl)
+	jp	z,.end_found
+	dec	hl
+.no_end_low:
+	add	hl,bc
+	jr.	.frame_loop
+
+
+.end_found:
+	;--- skip loop bytes + low byte delimiter
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	(temp_end),hl	; sample end
+
+	;--- calculate the length
+	ld	de,(temp_start)
+	xor	a		; reset carry
+	sbc	hl,de		; calculate the length of the sample
+	ld	(temp_len),hl
+
+	;--- move data up
+	ld	de,(temp_start)
+	ld	hl,(temp_end)
+	ld	bc,(temp_len)
+	ldir
+
+	;--- update sample start pointers.
+	ld	de,$8002			; start of first pointer
+
+
+.pointer_loop:
+	ld	a,(de)		; get the pointer
+	ld	l,a
+	inc	de
+	ld	a,(de)
+	ld	h,a
+	inc	de
+
+	ld	bc,(temp_start)					; pointer > sample_start
+	cp	b
+	jp	c,.before_start
+	ld	a,l
+	cp	c
+	jp	c,.before_start
+	;---- update this pointer
+	xor	a
+	ld	bc,(temp_len)
+	sbc	hl,bc
+	ex	de,hl
+	dec	hl
+	dec	hl
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
+	inc	de
+	ex	de,hl
+.before_start:
+	;-- skip period 
+	inc	de
+	inc	de
+	ld	a,$40			; test is we are done with period/pointer data (16 sampels * 4 bytes)
+	cp	l
+	jp	c,.pointer_loop
+
+
+	;--- set new sample_end
+	ld	hl,(sample_end)
+	ld	bc,(temp_len)
+	sbc	hl,bc
+	ld	(sample_end),hl
 
 	call	set_songpage
 

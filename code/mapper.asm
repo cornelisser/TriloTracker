@@ -122,3 +122,20 @@ set_patternpage_safe:
 	pop	af
 	
 	ret
+
+
+IFDEF TTSCC
+;--------------------------------
+; set_samplepage
+; Set the page with sample date.
+; Changes all registers
+;---------------------------------
+set_samplepage:
+	;--- Set the highest segment
+	ld	a,(max_pattern)
+	sub	7
+	ld	b,a
+	call	set_patternpage
+	
+	ret
+ENDIF

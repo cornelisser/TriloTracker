@@ -623,6 +623,10 @@ _spfd_LOAD_SAM:
 	;--- LOAD An instrument (macro+waveform)
 	ld	de,_FILMES_loading
 	call	message_filedialog
+	push	hl
+	ld	a,(sample_current)
+	call	sample_remove		; clear memory before loading a new sample
+	pop	hl
 	call	open_samfile		; hl needs to point to the filename 
 
 	ld	a,(sample_current)

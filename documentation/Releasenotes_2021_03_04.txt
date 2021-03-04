@@ -1,4 +1,4 @@
-Release notes 26-02-2021:
+Release notes 04-03-2021:
 - Fixed a bug in the Vibrato where 4x0 would reset the depth.
 - Fixed bug in muting drums with CTRL+0 [TTSMS][TTFM]
 - Fixed bug in loading/saving configuration. [TTSCC]
@@ -15,9 +15,9 @@ Release notes 26-02-2021:
 - Implemented tail mode. Volumes never get to 0 in instruments or effects. Only a sustain or release will mute the sound. This to prevent sound cut off.
 - Implemented the SCC Bxy commands. Remove compress and cut. Added softening of waveform [TTSCC]
 - Implemented ability to change waveform in instrument macro's. [TTSCC]
-- Implemented playback of LoFi samples for testing purposes [TTSCC]
+- Implemented loading+ playback of LoFi samples for testing purposes [TTSCC]
 - Implemented CTRL+Q (Quick select) to extend the selection to the end of the pattern.
-- Implemented loading/saving of voice/voiceset. Some bug still left [TTFM][TTSMS]
+- Implemented loading/saving of voice/voice set. Some bug still left [TTFM][TTSMS]
 
 Known bugs:
 - When entering a filename for saving BACKSPACE sometimes gives strange results.

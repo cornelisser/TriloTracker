@@ -33,12 +33,12 @@ Key(s) | Function
  `[CTRL]`+`[HOME]` | Jump to beginning (order step 0) of song
  `[ENTER]` | Play pattern and loop
  `[F1]` | Play song from current pattern/order
- `[F1]`+`[SHIFT]` or `[F6]` | Play song in step-mode from current pattern/order
+ `[F1]`+`[SHIFT]` | Play song in step-mode from current pattern/order
  `[F2]` | Open instrument editor
  `[F3]` | Open drum editor
  `[F4]` | Open track manager
  `[F5]` | Open file dialog
- `[F5]`+`[SHIFT]` or `[F10]` | Open the configuration editor
+ `[F5]`+`[SHIFT]` | Open the configuration editor
  `[CTRL]`+`[D]` | Edit order
  `[CTRL]`+`[N]` | Edit song name
  `[CTRL]`+`[B]` | Edit song author
@@ -142,13 +142,11 @@ Key(s) | Function
 
 
 ## <a name='instrument-editor'></a>Instrument Editor
-
-
 Key(s) | Function
 ------- | -------
  `[ESC]` | Exit instrument editor
  `[F5]` | Open instrument file dialog
- `[TAB]` or `[CTRL]`+`[I]` | "<b>`[Duplicate]`</b> Go to the instrument selection menu
+ `[TAB]` or `[CTRL]`+`[I]` | <b>`[Duplicate]`</b> Go to the instrument selection menu
  `[CTRL]`+`[L]` | Set macro length
  `[CTRL]`+`[R]` | Set macro restart/loop position
  `[CTRL]`+`[D]` | Set instrument name
@@ -156,19 +154,17 @@ Key(s) | Function
  `[CTRL]`+`[UP]` | Select next instrument
  `[CTRL]`+`[DOWN]` | Select previous instrument
  `[CTRL]`+`[T]` | Select playback chip (key-jazz mode)
- `[CTRL]`+`[F]` | Jump to waveform editor" **[SCC]**
- `[CTRL]`+`[W]` | Set waveform" **[SCC]**
- `[CTRL]`+`[LEFT]` | Select previous waveform" **[SCC]**
- `[CTRL]`+`[RIGHT]` | Select next waveform" **[SCC]**
- `[CTRL]`+`[F]` | Jump to FM instrument editor" **[FM]**
- `[CTRL]`+`[W]` | Open FM instrument dialog" **[FM]**
- `[CTRL]`+`[LEFT]` | Select previous FM instrument" **[FM]**
- `[CTRL]`+`[RIGHT]` | Select next FM instrument" **[FM]**
+ `[CTRL]`+`[F]` | Jump to waveform editor **[SCC]**
+ `[CTRL]`+`[W]` | Set waveform **[SCC]**
+ `[CTRL]`+`[LEFT]` | Select previous waveform **[SCC]**
+ `[CTRL]`+`[RIGHT]` | Select next waveform **[SCC]**
+ `[CTRL]`+`[F]` | Jump to FM instrument editor **[FM]**
+ `[CTRL]`+`[W]` | Open FM instrument dialog **[FM]**
+ `[CTRL]`+`[LEFT]` | Select previous FM instrument **[FM]**
+ `[CTRL]`+`[RIGHT]` | Select next FM instrument **[FM]**
 
 
 ### <a name='macro-editor'></a>Macro Editor
-
-
 Key(s) | Function
 ------- | -------
  `[CTRL]`+`[C]` | Copy instrument
@@ -184,7 +180,6 @@ Key(s) | Function
 
 
 ### <a name='waveform-editor'></a>Waveform Editor
-
 Key(s) | Function
 ------- | -------
  `[ESC]` | Exit waveform editor

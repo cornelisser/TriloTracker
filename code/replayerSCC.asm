@@ -2836,10 +2836,7 @@ _pcAY_cmd1e_sample:
 	jp	z,.stop
 
 	;--- Select Sample data bank
-	ld	a,(max_pattern)
-	sub	7
-	ld	b,a
-	call	set_patternpage
+	call	set_samplepage
 
 	;---- Test for note
 	bit	_TRG_NOT,(ix+TRACK_Flags)

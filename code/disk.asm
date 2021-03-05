@@ -2922,10 +2922,7 @@ open_samfile:
 	ld	(disk_handle),a
 	
 	;--- Set the highest segment
-	ld	a,(max_pattern)
-	sub	7
-	ld	b,a
-	call	set_patternpage
+	call	set_samplepage
 
 
 	;--- Read header + version (skipped for now)
@@ -3052,10 +3049,7 @@ open_pakfile:
 	ld	(disk_handle),a
 	
 	;--- Set the highest segment
-	ld	a,(max_pattern)
-	sub	7
-	ld	b,a
-	call	set_patternpage
+	call	set_samplepage
 ;
 ;
 ;	;--- Read type

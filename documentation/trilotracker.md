@@ -22,7 +22,7 @@ This tracker is available in 3 separate versions:
 <a href="effects.md">Effects</a>  
 
 
-Pattern editor<br>
+<a href="pattern_editor.md">Pattern editor</a> 
 <a href="instrument_editor.md">Instrument editor</a>  
 <a href="drum_editor.md">Drum editor</a>  
 Sample editor<br>

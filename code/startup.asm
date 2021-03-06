@@ -62,6 +62,11 @@ start_init:
 	ld	a,3
 	ld	(keyjazz_chip),a	
 
+IFDEF	TTSCC
+ELSE
+	call	replay_set_rhythmmode
+ENDIF
+
 	call	replay_stop
 
 	call	clear_clipboard	

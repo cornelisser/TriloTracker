@@ -45,7 +45,7 @@ SCC_VOLUME_TABLE
 
 
 DRM_DEFAULT_values:
-	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
+;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
 	dw	0x0520			; Base drum
 	db	0x01			; vol
 	dw	0x0550			; Snare + HiHat
@@ -398,6 +398,8 @@ _rdd_3psg_5fm:
 	;srl	a	
 	xor	0x3f
 	ld	(AY_regMIXER),a		; save the mixer
+	xor	a
+	ld	(FM_regMIXER),a
 	ld	a,(mainSCCvol)
 	ld	(replay_mainvol),a		; setup volume for FM
 

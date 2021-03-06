@@ -422,7 +422,8 @@ replay_init:
 ;===========================================================
 replay_stop:
 	xor	a
-	ld	(replay_mode),a	
+	ld	(replay_mode),a
+	ld	a,00100000b	
 	ld	(FM_DRUM),a
 
 	ld	b,6
@@ -431,10 +432,31 @@ replay_stop:
 	xor	a
 0:
 ;	res	4,(hl)
-	ld	(hl),a
+	ld	(hl),a	; reset keyon etc
 	add	hl,de
+;	ld	(hl),$8	; set volume to silence
+;	add	hl,de	
 	djnz	0b
 	
+
+IFDEF TTSCC
+ELSE
+	;--- DRUM default values
+	ld	de,DRUM_regToneBD
+	ld	hl,DRM_DEFAULT_values
+	ld	a,3
+.loop:	ldi
+	ldi
+	inc	de
+	inc	de
+	ldi
+	inc	de
+	dec	a
+	jp	nz,.loop
+ENDIF
+
+
+
 IFDEF TTSMS
 	;--- Silence the SN7 PSG
 	xor	a
@@ -450,5 +472,14 @@ ELSE
 ENDIF	
 	ret
 
+replay_set_rhythmmode:
+	ld	a,0x0e
+	;-- load the new values
+	out	(FM_WRITE),a	; Select rythm register
+	
+	ld	b,$20		; 7 cycles
+	ld	a,b			; 4 cycles	; dummy code for delay
+	out	(FM_DATA),a	
 
+	ret
 

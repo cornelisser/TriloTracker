@@ -459,14 +459,13 @@ update_drumnames:
 
 	ld	de,song_drum_list
 	ld	hl,(80*10)+40+2
-	ld	a,MAX_DRUMS
+	ld	a,MAX_DRUMS-1
 	
 _udn_loop:	
 	ld	b,16
 	push	hl
 	push	af
 	call	draw_label_fast
-	ex	de,hl
 	pop	af
 	pop	hl
 	cp	MAX_DRUMS-14	; check if we are at macro 16

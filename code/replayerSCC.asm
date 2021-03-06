@@ -350,6 +350,8 @@ replay_decodedata_NO:
 	srl	a
 	xor	0x3f
 	ld	(AY_regMIXER),a
+	xor	a
+	ld	(SCC_regMIXER),a
 	ld	a,(mainSCCvol)
 	ld	(replay_mainvol),a
 	

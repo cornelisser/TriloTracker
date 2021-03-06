@@ -15,7 +15,7 @@ enaslt:          equ #0024
 
 	; --- PAGE 0
 	;
-	; Global code (will never be swapped)
+	; Global code (wilfl never be swapped)
 	;
 	;
 	; --------------------------------------------------
@@ -122,12 +122,15 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\filedialogRAM.asm"
 ;	include 	".\code\elements\macroeditor.asm"
 ;	include 	".\code\elements\macroboxFM.asm"
+     include    ".\code\elements\voicemanager.asm"
+     include 	".\code\elements\FMvoicebox.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	
-
+	include 	".\code\cursor.asm"
+	include	 ".\code\elements\filedialog.asm"
 
 	
 	
@@ -153,7 +156,7 @@ font_data:
 	;
 	; --------------------------------------------------
 	page 1
-	include 	".\code\cursor.asm"
+;	include 	".\code\cursor.asm"
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
 	include 	".\code\clipboard.asm"
@@ -243,15 +246,15 @@ SWAP_INSFILE_END:
      org    SWAP_ELEMENTSTART
 SWAP_FILE:
  
-     include    ".\code\elements\filedialog.asm"
+ ;    include    ".\code\elements\filedialog.asm"
 SWAP_FILE_END:
  
      ; Voice manager swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
 SWAP_VOICEMAN:
-     include    ".\code\elements\voicemanager.asm"
-     include 	".\code\elements\FMvoicebox.asm"	
+;     include    ".\code\elements\voicemanager.asm"
+;     include 	".\code\elements\FMvoicebox.asm"	
 SWAP_VOICEMAN_END:
 
      ; Drum macro editor swappable code block

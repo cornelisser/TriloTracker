@@ -142,7 +142,6 @@ _LABEL_PATTERNHEADER2:
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"
-
 	include 	".\code\cursor.asm"
 	include    ".\code\elements\filedialog.asm"
 	

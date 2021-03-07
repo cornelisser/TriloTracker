@@ -232,7 +232,7 @@ ENDIF
 	
 	
 _ns_TEMP:
-	db	"                                "
+	db	"v0.9.8b                         "
 ;	db	"TriloTracker ",VERSION
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR

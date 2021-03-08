@@ -14,7 +14,7 @@
    * [Voice Editor](#voice-editor)
    * [FM Instrument Dialog](#fm-instrument-dialog)
 * [Drum Editor](#drum-editor)
-
+* [Sample Editor](#sample-editor)
 <!-- vscode-markdown-toc-config
       numbering=false
       autoSave=true
@@ -35,7 +35,8 @@ Key(s) | Function
  `[F1]` | Play song from current pattern/order
  `[F1]`+`[SHIFT]` | Play song in step-mode from current pattern/order
  `[F2]` | Open instrument editor
- `[F3]` | Open drum editor
+ `[F3]` | Open drum editor [FM]
+ `[F3]` | Open sample editor [SCC]
  `[F4]` | Open track manager
  `[F5]` | Open file dialog
  `[F5]`+`[SHIFT]` | Open the configuration editor
@@ -213,11 +214,21 @@ Key(s) | Function
 Key(s) | Function
 ------- | -------
  `[ESC]` | Exit drum editor
- `[B]` | Toggle basedrum
+ `[B]` | Toggle base drum
  `[S]` | Toggle snare
  `[T]` | Toggle tom
  `[C]` | Toggle cymbal
  `[H]` | Toggle hi-hat
  `[ENTER]` | Toggle percussion bit
+
+
+## <a name='sample-editor'></a>Sample Editor
+
+Key(s) | Function
+------- | -------
+ `[ESC]` | Exit sample editor
+ `[F5]` | Open sample file dialog
+ `[CTRL]`+`[UP]/[DOWN]` | Change sample
+
 
 

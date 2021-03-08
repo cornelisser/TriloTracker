@@ -460,7 +460,9 @@ temp_len:		dw	0
 ; in: [A] has sample nr
 ;---------------------------------------------
 sample_remove:
+	push	af
 	call	set_samplepage
+	pop	af
 	add	a
 	add	a	; times 4
 	ld	h,$80

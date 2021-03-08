@@ -28,6 +28,10 @@ Sample editor<br>
 File menu<br>
 Configuration<br>
 
+<a href="emulation_emulicious.md">Emulicious</a> (Emulation)
+
+
+
 Re-player and Compiler<br>
 
 <a href="memory_layout.md">Memory layout<a>

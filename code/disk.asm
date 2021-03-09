@@ -1925,7 +1925,6 @@ open_tmufile:
 
 	ld	a,00000001b		; NO write
 	call	open_file
-	
 	;--- Check for errors
 	and	a
 ;	jr.	nz,catch_diskerror
@@ -2067,6 +2066,11 @@ IFDEF	TTSCC
 	jr.	nz,catch_diskerror	
 	; skip the drum macro names
 	ld	hl,MAX_DRUMS*16
+	ld	a,(song_version)
+	cp	9
+	jp	c,99f
+	ld	hl,(MAX_DRUMS-1)*16
+99:
 	call	read_file	
 	jr.	nz,catch_diskerror
 	; skip the drum data
@@ -2110,6 +2114,20 @@ IFDEF	TTSCC
 88:	call	read_file
 	jr.	nz,catch_diskerror
 ELSE
+	;--- FM 
+	ld	a,(song_version)
+	and	$f0
+	cp	_CHIPSET_SCC
+	jp	nz,0f			; jump if not SCC file -> FM TMU file
+
+	;--- SKip the waveform data
+	ld	hl,32*32
+	ld	de,buffer
+	call	read_file
+	jr.	nz,catch_diskerror
+	jr. 	_otmu_patterns
+
+0:
 	ld	a,(song_version)
 	and	$0f
 	cp	6

@@ -1,23 +1,22 @@
 <pre>
---- WIP Documentation Notes ---
-This is the continuation of the work of GOMF (thank you)
-Documentation will be updated over time.
+--------------- WIP Notes ---------------
+This documentation is the continuation of
+the work done by GOMF. Thanks ;)
 
-24/02/2021 Started the new documentation on GitHub.
-
-
--------------------------------
+It is far from complete but most essential
+features are documented.
+-----------------------------------------
 </pre>
 <img src="img/TitleLogo.png" >
 
-Version 10.0<br>
+Version 0.10.0<br>
 # TriloTracker
 This tracker is available in 3 separate versions:
 * TTSCC (PSG AY-3-8910 + SCC)
 * TTFM (PSG AY-3-8910 + OPLL)
 * TTSMS (PSG SN76489 + OPLL)
 
-
+## Tracker
 <a href="controls.md">Controls</a>  
 <a href="effects.md">Effects</a>  
 
@@ -28,10 +27,13 @@ Sample editor<br>
 File menu<br>
 Configuration<br>
 
+## Emulation
 <a href="emulation_emulicious.md">Emulicious</a> (Emulation)
 
 
+## Re-player
+Compiler<br>
+Re-player <br>
 
-Re-player and Compiler<br>
-
+## Technical documentation
 <a href="memory_layout.md">Memory layout<a>

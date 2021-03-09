@@ -109,7 +109,11 @@ update_patternbox:
 	ld	de,_LABEL_PATTERNTEXT2+1
 	ld	b,43
 	call	draw_label_fast
-	
+
+
+	call	draw_pattern_header
+
+
 ;	ld	hl,song_speed
 ;	ld	de,(8*80)+3+8+5+5+5+3
 ;	call	draw_decimal	
@@ -675,7 +679,7 @@ draw_pattern_header:
 IFDEF	TTSCC
 ELSE
 	ld	a,(replay_chan_setup)
-	and 	a
+	and 	1
 	jp	z,99f
 	ld	de,_LABEL_PATTERNHEADER2	
 	jp	88f

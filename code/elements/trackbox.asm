@@ -20,7 +20,7 @@ update_trackbox:
 	call	update_orderbox
 
 
-
+	call	draw_pattern_header
 
 	;-- Display the current patterndata
 	ld	b,0				; display line number

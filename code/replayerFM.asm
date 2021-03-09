@@ -291,7 +291,7 @@ replay_decodedata:
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl
 
-	
+
 _rdd_3psg:	
 
 	ld	ix,CHIP_Chan3
@@ -1727,6 +1727,7 @@ _CHIPcmdB_scc_commands:
 	;--------------------------------------------------
 	and	1
 	ld	(replay_chan_setup),a
+	
 	jp	z,0f
 	
 	; set PSG

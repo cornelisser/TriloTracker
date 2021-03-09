@@ -238,8 +238,8 @@ processkey_sampleeditor_normal:
 	jr.	nz,process_key_samplejazz
 	
 0:	
-	ld	a,(editsubmode)
-	and	a	
+;	ld	a,(editsubmode)
+;	and	a	
 	jr.	z,process_key_samplebox
 	
 	dec	a

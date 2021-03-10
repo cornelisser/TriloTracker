@@ -110,10 +110,6 @@ update_patternbox:
 	ld	b,43
 	call	draw_label_fast
 
-
-	call	draw_pattern_header
-
-
 ;	ld	hl,song_speed
 ;	ld	de,(8*80)+3+8+5+5+5+3
 ;	call	draw_decimal	

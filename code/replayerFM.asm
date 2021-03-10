@@ -1197,7 +1197,10 @@ _dc_noNote:
 	;--- Store the macro start
 	ld	(ix+CHIP_MacroPointer),l
 	ld	(ix+CHIP_MacroPointer+1),h
-	
+
+	;-- test for PSG
+	bit	7,(ix+CHIP_Flags)
+	jp	z,.voice0	; No update for PSG
 	;--- Set the waveform  (if needed)
 	inc	hl
 	inc	hl

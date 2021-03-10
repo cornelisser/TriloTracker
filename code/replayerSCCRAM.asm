@@ -256,6 +256,17 @@ replay_stop:
 	ld	a,0x3f
 	ld	(AY_regMIXER),a
 
+	; Remove envelope
+	; Envelope could continue
+	ld	a,(AY_regVOLA)
+	and	$0f
+	ld	(AY_regVOLA),a
+	ld	a,(AY_regVOLB)
+	and	$0f
+	ld	(AY_regVOLB),a
+	ld	a,(AY_regVOLC)
+	and	$0f
+	ld	(AY_regVOLC),a
 
 
 	ret	

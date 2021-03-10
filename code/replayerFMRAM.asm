@@ -439,8 +439,6 @@ replay_stop:
 	djnz	0b
 	
 
-IFDEF TTSCC
-ELSE
 	;--- DRUM default values
 	ld	de,DRUM_regToneBD
 	ld	hl,DRM_DEFAULT_values
@@ -453,7 +451,7 @@ ELSE
 	inc	de
 	dec	a
 	jp	nz,.loop
-ENDIF
+
 
 
 
@@ -469,6 +467,21 @@ ELSE
 	;--- Silence the AY3 PSG chip
 	ld	a,0x3f
 	ld	(AY_regMIXER),a
+	; Remove envelope
+	; Envelope could continue
+	ld	a,(AY_regVOLA)
+	and	$0f
+	ld	(AY_regVOLA),a
+	ld	a,(AY_regVOLB)
+	and	$0f
+	ld	(AY_regVOLB),a
+	ld	a,(AY_regVOLC)
+	and	$0f
+	ld	(AY_regVOLC),a
+
+
+
+
 ENDIF	
 	ret
 

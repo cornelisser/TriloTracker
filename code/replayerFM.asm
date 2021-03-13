@@ -506,6 +506,11 @@ NoiseMixer:
 	;------ 
 	; Handle noise on muted channels
 	;------
+	ld	a,(replay_mode)
+	cp	2
+	ret	z
+
+
 	ld	a,(MainMixer)
 	ld	b,a
 	ld	a,(AY_regMIXER)
@@ -3709,6 +3714,7 @@ route_SN:
 
 route_gg:
 	;==== output the GG stereo panning
+
 	ld	a,(GG_panning)
 	out	($06),a
 

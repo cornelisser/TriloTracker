@@ -159,10 +159,12 @@ This effect command is no longer supported.
 ## <a name='axy---volume-slide'></a>Axy    -    Volume slide
 <sup>Primary effect</sup><br>
 
-Slide up or down the current volume.
-... .. A20    Slides up the current volume each 2 ticks by one.
-... .. A08    Slides down the current volume each 8 ticks by one.
+Slide up or down the current volume. The higher the value the faster the slide. Value can range from $1 to $F.
+```
+... .. A20    Slides up the current volume each (16-2) 14 ticks by one.
+... .. A0E    Slides down the current volume each (16-14) 2 tics by one.
 
+```
 
 ## <a name='bxy---scc-commands'></a>Bxy - SCC commands
 <sup>Secondary effect **[SCC only]**</sup><br>

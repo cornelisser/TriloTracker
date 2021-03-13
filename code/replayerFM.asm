@@ -2845,6 +2845,15 @@ _pcFM_noVoice:
 	xor	a
 4:
 	ld	(ix+CHIP_VolumeAdd),a
+
+	;--- software mixer for fm
+	bit	7,b		; tone?
+	jp	nz,99f
+	ld	a,15
+	ld	(FM_regVOLF),a
+	ret
+
+99:
 	or	(ix+CHIP_Volume)
 	ld	c,a
 	ld	a,(IX+CHIP_cmd_VolumeAdd)	

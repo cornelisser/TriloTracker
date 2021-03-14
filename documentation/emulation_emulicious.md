@@ -11,11 +11,14 @@ This requires the following ROM dumps. Which you can find <a href="https://fms.k
 * msx-dos2.rom
 * disk.rom
 
-
-
 1. Place all ROM's in the same folder as the DSK image. Placing the ROM images in another folder will not work.
 2. Set the diskROM in Emulicious (see below).
 
 <a href="img\emulicious_diskrom.png"><img src="img\emulicious_diskrom.png" width="500px"/></a>
 
+# Importing and Exporting files
+Additionally, for easily managing files you might want to select a folder for Disk B so you can export your tracked music.
+
+<a href="img\emulicious_diskb.png"><img src="img\emulicious_diskb.png" width="500px"/></a>
+<br><br><br>
 **Note:** Emulicious also supports MIDI music keyboards connected through USB for note input and keyjazz in TriloTracker.

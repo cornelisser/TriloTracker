@@ -1085,7 +1085,7 @@ _CHIPcmd7_tremolo:
 	; Tremelo with speed x and depth y.	This command 
 	; will oscillate the volume of the current note
 	; with a sine wave.
-	cp	$10
+	cp	$11
 	jp	c,_CHIPcmd_end
 	
 _CHIPcmd4_vibrato:
@@ -2201,7 +2201,7 @@ _noEnv:
 	
 	; This part is only for tremolo
 	
-	ld	a,(IX+TRACK_cmd_VolumeAdd)	
+	ld	b,(IX+TRACK_cmd_VolumeAdd)	
 ;	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
 ;	jp	c,_sub_Vadd
 ;_add_Vadd:
@@ -2211,11 +2211,11 @@ _noEnv:
 ;	or	0xf0
 ;	jp	_Vadd
 ;_sub_Vadd:
-	ld	b,a
+;	ld	b,a
 ;	xor	a
 ;	sub	b
 ;	ld	b,a
-	ld	a,c
+;	ld	a,c
 	sub	a,b
 	jp	nc,_Vadd
 	ld	a,c

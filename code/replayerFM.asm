@@ -1495,10 +1495,10 @@ _CHIPcmd7_tremolo:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; Tremelo with speed x and depth y.	This command 
+	; Tremolo with speed x and depth y.	This command 
 	; will oscillate the volume of the current note
 	; with a sine wave.
-	cp	$10
+	cp	$11
 	jp	c,_CHIPcmd_end
 ;	ld	(ix+CHIP_Command),d
 	
@@ -2597,7 +2597,7 @@ _noEnv:
 	
 		; This part is only for tremolo
 	
-	ld	a,(IX+CHIP_cmd_VolumeAdd)	
+	ld	b,(IX+CHIP_cmd_VolumeAdd)	
 ;	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
 ;	jr.	c,_sub_Vadd
 ;_add_Vadd:
@@ -2607,11 +2607,11 @@ _noEnv:
 ;	or	0xf0
 ;	jr.	_Vadd
 ;_sub_Vadd:
-	ld	b,a
+;	ld	b,a
 ;	xor	a
 ;	sub	b
 ;	ld	b,a
-	ld	a,c
+;	ld	a,c
 	sub	a,b
 	jr.	nc,_Vadd
 	ld	a,c
@@ -2824,20 +2824,20 @@ _pcFM_noVoice:
 99:
 	or	(ix+CHIP_Volume)
 	ld	c,a
-	ld	a,(IX+CHIP_cmd_VolumeAdd)	
-	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jr.	nc,_sub_FMVadd
-
-_add_FMVadd:
-	add	a,c
-	jr.	nc,_FMVadd
-	ld	a,c
-	or	0xf0
-	jr.	_FMVadd
-
-_sub_FMVadd:
-	ld	b,a
-	ld	a,c
+	ld	b,(IX+CHIP_cmd_VolumeAdd)	
+;	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
+;	jr.	nc,_sub_FMVadd
+;
+;_add_FMVadd:
+;	add	a,c
+;	jr.	nc,_FMVadd
+;	ld	a,c
+;	or	0xf0
+;	jr.	_FMVadd
+;
+;_sub_FMVadd:
+;	ld	b,a
+;	ld	a,c
 	sub	a,b
 	jr.	nc,_FMVadd
 	ld	a,c
@@ -3085,7 +3085,7 @@ _pcAY_cmd6:
 	jr.	_pcAY_cmd4		
 
 
-	;-- Tremelo
+	;-- Tremolo
 _pcAY_cmd7:
 	ld	l,(ix+CHIP_cmd_4_depth)
 	ld	h,(ix+CHIP_cmd_4_depth+1)	

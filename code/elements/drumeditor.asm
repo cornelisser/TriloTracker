@@ -328,12 +328,11 @@ processkey_drumeditor_normal:
 	ld	(keyjazz),a
 	jr.	set_textcolor		
 1:
-;	ld	a,(editsubmode)
-;	and	a
-;	jr.	z,0f
+	ld	a,(editsubmode)
+	and	a
+	jr.	nz,0f
 	ld	a,(keyjazz)
 	and	a
-;	ld	a,(key)
 	jr.	nz,process_key_drumjazz
 	
 0:	

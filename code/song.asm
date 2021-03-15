@@ -201,7 +201,7 @@ _cdm_loop2:
 	; Clear Drum macro names.
 	ld	de,song_drum_list+1
 	ld	hl,song_drum_list
-	ld	(hl),0
+	ld	(hl)," "
 	ld	bc,(MAX_DRUMS*16)-1	
 	ldir
 

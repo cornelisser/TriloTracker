@@ -84,7 +84,12 @@ ENDIF
 	ld	hl,(80*14)+2+40
 	ld	de,_LABEL_CONFIG_VDP_EQU
 	call	draw_label
-	
+	ld	hl,(80*15)+2+40
+	ld	de,_LABEL_CONFIG_VOLUME
+	call	draw_label
+
+
+
 	ld	hl,(80*16)+2+40
 	ld	de,_LABEL_CONFIG_AUDIT
 	call	draw_label
@@ -190,6 +195,9 @@ _LABEL_CONFIG_VDP_FREQ:
 	db "VDP frequency",0
 _LABEL_CONFIG_VDP_EQU:
 	db "Speed equalization",0
+
+_LABEL_CONFIG_VOLUME:
+	db "Volume limit",0
 
 _LABEL_CONFIG_VU:
 	db "VU meter",0
@@ -363,6 +371,26 @@ ENDIF
 	ld	l,14
 	ld	de,0x0601
 	call	draw_colorbox	
+
+
+
+	;-------------------
+	; Volume limit
+	;-------------------
+	ld	hl,(80*15)+2+20+40
+	ld	de,_LABEL_CONFIG_01
+	call	draw_label	
+	ld	a,(_CONFIG_VOL)
+	cp	0
+	jr.	z,99f
+	ld	a,6
+99:
+	add	0x3f
+	ld	h,a
+	ld	l,15
+	ld	de,0x0601
+	call	draw_colorbox	
+
 
 
 
@@ -621,9 +649,6 @@ _ucb_rgb:
 	call	draw_hex
 	ret	
 	
-	
-	
-	
 _LABEL_CONFIG_RGB:
 	db	"    [RBG]",0	
 
@@ -653,7 +678,8 @@ _LABEL_CONFIG_ONOFF:
 	db	"[ OFF    ON  ]",0
 _LABEL_CONFIG_VDP_FRQ:
 	db	"[ 50  60 AUTO]",0
-
+_LABEL_CONFIG_01:
+	db	"[  0      1  ]",0
 _LABEL_CONFIG_NUMBER:
 	db	_ARROWLEFT," 00 ",_ARROWRIGHT,0
 
@@ -724,9 +750,11 @@ _CONFIG_MENU_XY:
 	db	0x0c
 	db	0x0d
 	db	0x0e	
+	db	0x0f
 	db	0x10
 	db	0x11
-	db	0x12			
+	db	0x12
+;	db	0x13			
 	db	0x14
 ;	db	0x15
 	db	0x16
@@ -789,7 +817,7 @@ process_key_configbox:
 	
 	;--- Read type
 	ld	de,_CONFIG_SLOT
-	ld	hl,16
+	ld	hl,17
 	call	write_file
 
 	call	close_file
@@ -975,6 +1003,7 @@ ELSE
 ENDIF	
 	dw	pk_config_vdp
 	dw	pk_config_equalisation
+	dw	pk_config_volume
 	dw	pk_config_audition
 	dw	pk_config_debug
 	dw	pk_config_vu
@@ -1350,6 +1379,28 @@ pk_config_equalisation:
 	call	erase_colorbox
 	
 	jr.	update_configbox
+
+
+
+
+;====================================
+; change volume limit
+;====================================
+pk_config_volume:
+	ld	a,(_CONFIG_VOL)
+	inc	a
+	and	$01
+	ld	(_CONFIG_VOL),a
+
+	call	set_volumetable
+
+	ld	hl,0x3f0f
+	ld	de,0x0d01
+	call	erase_colorbox
+
+	jr. 	update_configbox
+	ret
+
 
 
 ;====================================

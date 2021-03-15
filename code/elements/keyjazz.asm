@@ -84,7 +84,6 @@ process_key_drumjazz:
 	ld	(hl),0
 	xor	a
 	ld	(music_key),a
-debug:
 	ret
 
 

@@ -439,10 +439,20 @@ load_config:
 	
 	;--- Read type
 	ld	de,_CONFIG_SLOT
-	ld	hl,16
+	ld	hl,17
 	call	read_file
 
 	call	close_file
+
+	;---- Set volume table
+	ld	a,(_CONFIG_VOL)
+	cp	1
+	jp	z,99f
+	xor	a
+	ld	(_CONFIG_VOL),a
+99:
+	call	set_volumetable
+
 
 _lcfg_error:
 	ld	a,(_CONFIG_PSGPORT)		; copy port value as this is not available in ISR

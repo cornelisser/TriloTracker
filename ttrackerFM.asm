@@ -160,7 +160,8 @@ font_data:
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
 	include 	".\code\clipboard.asm"
-	include 	".\code\song.asm"		
+	include 	".\code\song.asm"	
+	include	".\code\volumetable.asm"	
 	include 	".\code\keyboard.asm"	
 	include	".\code\musickeyboard.asm"
 	include 	".\code\isr.asm"	; This cannot be before this address!!!!

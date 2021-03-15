@@ -48,6 +48,9 @@ IFDEF TTSMS
 ELSE
 	db	0xa0		; port of the PSG	
 ENDIF
+_CONFIG_VOL:
+	db	0		; Volume limit 0 or 1
+
 _ENV_PROGRAM:
 	db	"PROGRAM",0	
 

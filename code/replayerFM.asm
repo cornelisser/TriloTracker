@@ -2573,10 +2573,8 @@ _pcAY_noNoise:
 	ld	c,a
 	
 IFDEF TTSMS
-	ld	a,(FM_regMIXER)
-	and	16
-
-	jp	nz,7f
+	bit	7,b		; do we have tone?
+	jr.	nz,7f
 	xor	a
 	ld	(FM_regVOLF),a	
 	ret

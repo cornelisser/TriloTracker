@@ -49,15 +49,15 @@ set_volumetable:
 ;---- update FM/SCC volume linmit
 	ld	a,(_CONFIG_VOL)
 	and	a
-IFDEF TTSMS
+IFDEF TTSCC
+	ld	c,0
 	jr.	z,.start
 	ld	c,1
 ELSE
-	jp	z,0f
+	ld	c,0x0f
+	jp	z,.start
 	ld	a,$0e
-	jr.	.start
-0:	
-	ld	c,$0f
+	
 ENDIF
 
 .start:

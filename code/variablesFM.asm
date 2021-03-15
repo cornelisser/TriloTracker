@@ -368,7 +368,7 @@ _LABEL_NOTES:	#_LABEL_NOTES_END - _LABEL_NOTES_START
 ; ----- Key to note mapping 
 _KEY_NOTE_TABLE:	#_KEY_NOTE_TABLE_END - _KEY_NOTE_TABLE_START
 
-
+_VU_UPDATE:		#1
 _VU_VALUES:		#8	;"xxxxxxxx"
 _VU_LABEL:		#8	;"xxxxxxxx"
 

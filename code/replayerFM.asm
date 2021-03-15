@@ -459,6 +459,10 @@ _rdd_cont:					; used for waveform updates
 
 	call	replay_process_drum
 	
+	ld	a,1
+	ld	(_VU_UPDATE),a
+
+
 	;call	processMainMixer
 	
 

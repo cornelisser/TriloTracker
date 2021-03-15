@@ -20,6 +20,13 @@ draw_vu:
 	and	a
 	ret	z
 
+	ld	a,(_VU_UPDATE)
+	and	a
+	ret	z
+	dec	a
+	ld	(_VU_UPDATE),a
+
+
 	;--- Determine the channel setup
 	ld	a,(replay_chan_setup)
 	and	a

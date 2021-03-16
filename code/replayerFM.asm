@@ -2652,21 +2652,21 @@ _pcAY_noNoteActive:
 	pop	hl
 	inc	hl
 	ld	a,(ix+CHIP_Flags)
+	bit	7,a
+	jp	z,.psg
+.fm:
 	and	16+32	; keep key and sustain flags
 	ld	b,a
 	ld	a,(hl)
 	and 	$0f
 	or 	b
 	ld	(hl),a
-;	bit	7,(ix+CHIP_Flags)
-;	jp	z,0f
-;	ld	a,$0f
-;	jp	99f
-;0:	
-	xor	a
-;99:	
+	ld	a,$0f
 	ld	(FM_regVOLF),a
-	
+	ret
+.psg:
+	xor	a
+	ld	(FM_regVOLF),a
 	ret
 	
 pcAY_FMinstr:	

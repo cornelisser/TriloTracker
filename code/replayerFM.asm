@@ -1305,7 +1305,7 @@ noCMDchange:
 ;  Sustain the note
 ;===================
 _dc_sustainNote:	
-	res	1,(ix+CHIP_Flags)	; set	note bit to	0
+;	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	4,(ix+CHIP_Flags)	; release key
 	set	5,(ix+CHIP_Flags)	; sustain
 	jp	99f

@@ -194,7 +194,7 @@ Resets the waveform to the waveform related to the current instrument.
 <sup>Secondary effect **[FM only]**</sup><br>
 
 #### <a name='b0y---change-channel-setup'></a>B0y - Change channel setup
-Set the channel set-uo used to replay the song.
+Set the channel set-uo used to replay the song. Always try to set this effect on channel 1.
 
 Example:
 ```

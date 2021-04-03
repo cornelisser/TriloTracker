@@ -3,7 +3,7 @@ MAX_SONG_SEGSIZE	equ 32				; maximun segment size of a song
 SONG_PATLNSIZE	equ (4*8);(5*8)+2			; size of a pattern line
 SONG_PATSIZE	equ ((SONG_PATLNSIZE)*64)	; patternsize in RAM
 SONG_PATINSEG	equ (16*1024)/SONG_PATSIZE	; the number of patterns in a segment
-SONG_PATINSONG	equ (10*1024)/SONG_PATSIZE	; number of pats that fit IN song data
+SONG_PATINSONG	equ (10*1024)/SONG_PATSIZE	; The number of total pattern pages not usable as it contains song data. 
 ;SONG_MAXPAT	equ (SONG_PATINSEG*(SONG_SEGSIZE-2))+SONG_PATINSONG; Max number of pattterns in memory
 SONG_SEQSIZE	equ 200;128				; size of the order list
 INSTRUMENT_LEN	equ 32				; max lines of data for macro

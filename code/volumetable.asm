@@ -56,7 +56,7 @@ IFDEF TTSCC
 ELSE
 	ld	c,0x0f
 	jp	z,.start
-	ld	a,$0e
+	ld	c,$0e
 	
 ENDIF
 

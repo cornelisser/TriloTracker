@@ -525,7 +525,7 @@ process_key_drumeditbox:
 	ret	z
 
 	cp	_INS
-	jr. nz,0f
+	jr. 	nz,0f
 	ld	a,(drum_line)
 	cp	16
 	jr.	nc,process_key_drumeditbox_END
@@ -541,7 +541,7 @@ process_key_drumeditbox:
 	;--- move data 1 line down
 	ld	a,(drum_line)
 	ld	ixh,a
-	ld	a,15
+	ld	a,14
 .line_loop:
 	call	_move_drumlineup
 	and	a
@@ -783,10 +783,10 @@ _move_drumlinedown:
 ; need to preserve [A]
 _move_drumlineup:
 	push	af
-	;-- set h; to start drum data of current instrument
+	;-- set hl to start drum data of current instrument
 	call	_get_drum_start
-	dec	hl
-	dec	hl
+;	inc	hl
+	inc	hl
 	;-- jump to line (input)
 	pop	bc
 	push	bc

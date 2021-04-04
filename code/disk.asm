@@ -832,8 +832,19 @@ _create_tmu_continue:
 
 	
 	;--- Write header
-	ld	a,9				; Increased to 8 for new FM drum macro version 
+	ld	a,9				; Increased to 9 for new FM drum macro version 
 	or	CHIPSET_CODE
+IFDEF TTSCC
+ELSE
+	;--- TTFM and TTSMS has chan_setup 
+	ld	c,a
+	ld	a,(replay_chan_setup)
+	and	a
+	jp	z,99f
+	ld	a,$80			; Set highest bit to indicate 2/6 setup.
+99:
+	or	c
+ENDIF
 	ld	(song_version),a
 	
 	ld	de,song_version
@@ -1940,6 +1951,16 @@ open_tmufile:
 ;	jr.	nz,catch_diskerror
 	call	nz,catch_diskerror
 			
+	;--- Set channel setup
+	ld	a,(song_version)
+	rlc	a
+	and	$01
+	ld	(replay_chan_setup),a
+	ld	a,(song_version)
+	and	01111111b
+	ld	(song_version),a
+
+
 	;--- Read song name
 	ld	de,song_name
 	ld	hl,32

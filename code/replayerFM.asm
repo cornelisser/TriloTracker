@@ -250,7 +250,7 @@ replay_decodedata:
 
 	;--- check if next is PSG  or FM
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	nz,_rdd_3psg
 	
 	ld	hl,CHIP_FM_ToneTable
@@ -264,7 +264,7 @@ _rdd_3psg:
 	
 	;--- check if previous was PSG  or FM
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,_rdd_2psg
 	
 	ld	hl,CHIP_FM_ToneTable
@@ -342,7 +342,7 @@ ENDIF
 	
 
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,_rdd_2psg_6fm
 
 _rdd_3psg_5fm:
@@ -647,7 +647,7 @@ ENDIF
 	
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,99f
 	xor 	a
 	ld	(CHIP_Chan3+CHIP_Flags),a	
@@ -3711,7 +3711,7 @@ replay_route_FM:
 replay_route_mixer:
 	;--- Determine the channel setup
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,.setup26
 .setup35:
 	ld	b,5

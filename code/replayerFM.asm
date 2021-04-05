@@ -3572,7 +3572,12 @@ _ptAY_noEnv:
 
 ELSE
 route_SN:
-	ld	a,(_CONFIG_PSGPORT)
+	ld	b,10010000b		; volume chan 1
+	ld	a,(replay_chan_setup)
+	and	$01
+	jp	nz,99f
+	ld	b,10110000b		;volume chan 2
+99:
 	ld	c,$3f
 99:	
 	; vol chan 1
@@ -3580,21 +3585,25 @@ route_SN:
 	inc	a
 	neg
 	and	$0f
-	or	10010000b
+	or	b
 	out	(c),a	
 	
+	ld	a,00100000b
+	add	b
+	ld	b,a
+
 	; vol chan 2
 	ld	a,(AY_regVOLB)
 	inc	a
 	neg
 	and	$0f
-	or	10110000b
+	or	b
 	out	(c),a		
 		
-;	;-- check if we need 3rd psg
-;	ld	a,10110000b
-;	cp	b
-;	jp	z,99f
+	;-- check if we need 3rd psg
+	ld	a,11010000b
+	cp	b
+	jp	z,99f
 		
 	; vol chan 3
 	ld	a,(AY_regVOLC)
@@ -3604,7 +3613,7 @@ route_SN:
 	or	11010000b 
 	out	(c),a			
 
-;99:	
+99:	
 	;--- next reg
 	; vol noise
 	ld	a,(SN_regVOLN)
@@ -3624,64 +3633,68 @@ route_SN:
 	or	11100000b
 	out	($3f),a
 0:
+	;--- check the channel to write
+	ld	b,10000000b			; chan 1 update
+	ld	a,(replay_chan_setup)
+	and	$01
+	jp	nz,99f
+	ld	b,10100000b			; chan 2 update
+99:
 	; tone chan a
-	ld	bc,(AY_regToneA)
-	ld	a,c
+	ld	hl,(AY_regToneA)
+	ld	a,l
 	and	$0f
-	or	10000000b
+	or	b
 	out	($3f),a	
-	rl	c
-	rl	b
-	rl	c
-	rl	b
-	rl	c
-	rl	b
-	rl	c
-	rl	b
+	add	hl,hl
+	add	hl,hl	
+	add	hl,hl
+	add	hl,hl	
 	ld	a,00111111b
-	and	b
+	and	h
 	out	($3f),a		
-	
+
+	; Set data mask to update next channel
+	ld	a,00100000b
+	add	b
+	ld	b,a
 	
 	; tone chan b
-	ld	bc,(AY_regToneB)
-	ld	a,c
+	ld	hl,(AY_regToneB)
+	ld	a,l
 	and	$0f
-	or	10100000b
+	or	b
 	out	($3f),a	
-	rl	c
-	rl	b
-	rl	c
-	rl	b
-	rl	c
-	rl	b
-	rl	c
-	rl	b
+	add	hl,hl
+	add	hl,hl	
+	add	hl,hl
+	add	hl,hl	
 	ld	a,00111111b
-	and	b
-	out	($3f),a	
-	
+	and	h
+	out	($3f),a
+
+	;--- test if we need to update third channel
+	ld	a,11000000b
+	cp	b
+	jp	z,route_gg
+
+
 	; tone chan c
-	ld	bc,(AY_regToneC)
-	ld	a,c
+	ld	hl,(AY_regToneC)
+	ld	a,l
 	and	$0f
 	or	11000000b
 	out	($3f),a	
-	rl	c
-	rl	b
-	rl	c
-	rl	b
-	rl	c
-	rl	b
-	rl	c
-	rl	b
+	add	hl,hl
+	add	hl,hl	
+	add	hl,hl
+	add	hl,hl	
 	ld	a,00111111b
-	and	b
+	and	h
 	out	($3f),a	
 
 route_gg:
 	;==== output the GG stereo panning
-
 	ld	a,(GG_panning)
 	out	($06),a
 

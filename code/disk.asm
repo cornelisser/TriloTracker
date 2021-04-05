@@ -839,7 +839,7 @@ ELSE
 	;--- TTFM and TTSMS has chan_setup 
 	ld	c,a
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,99f
 	ld	a,$80			; Set highest bit to indicate 2/6 setup.
 99:

@@ -1951,6 +1951,8 @@ open_tmufile:
 ;	jr.	nz,catch_diskerror
 	call	nz,catch_diskerror
 			
+IFDEF TTSCC
+ELSE
 	;--- Set channel setup
 	ld	a,(song_version)
 	rlc	a
@@ -1959,7 +1961,7 @@ open_tmufile:
 	ld	a,(song_version)
 	and	01111111b
 	ld	(song_version),a
-
+ENDIF
 
 	;--- Read song name
 	ld	de,song_name

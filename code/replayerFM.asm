@@ -1702,18 +1702,18 @@ _CHIPcmdB_scc_commands:
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	and	1
-	ld	(replay_chan_setup),a
-	
-	jp	z,0f
-	
-	; set PSG
-	res	7,(ix+CHIP_Flags)
-	jp	99f
-	
-	; set FM
-0:	set	7,(ix+CHIP_Flags)
-99:
+;	and	1
+;	ld	(replay_chan_setup),a
+;	
+;	jp	z,0f
+;	
+;	; set PSG
+;	res	7,(ix+CHIP_Flags)
+;	jp	99f
+;	
+;	; set FM
+;0:	set	7,(ix+CHIP_Flags)
+;99:
 	ret	
 	
 _CHIPcmdC_drum:

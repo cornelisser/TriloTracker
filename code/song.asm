@@ -57,11 +57,13 @@ clear_patterns:
 	ld	(song_instrument_offset),a
 	ld	(song_active_instrument),a
 	ld	(tmp_cur_instrument),a
+
 	inc	a
 	ld	(song_cur_instrument),a
 IFDEF TTSCC
 ELSE
 	ld	(song_cur_drum),a
+	ld	(replay_chan_setup),a
 ENDIF
 	ld	(song_order_len),a
 	ld	(song_order_pos_old),a

@@ -190,18 +190,6 @@ Divides the current waveform amplitudes in halve to create a waveform with lower
 Resets the waveform to the waveform related to the current instrument.
 
 
-## <a name='bxy---fm-commands'></a>Bxy - FM commands
-<sup>Secondary effect **[FM only]**</sup><br>
-
-#### <a name='b0y---change-channel-setup'></a>B0y - Change channel setup
-Set the channel set-uo used to replay the song. Always try to set this effect on channel 1.
-
-Example:
-```
- ... .. B00       Use 2 PSG and 6 FM channels
- ... .. B01       Use 3 PSG and 5 FM channels
-```
-
 ### <a name='cxy---scc-morph'></a>Cxy - SCC morph
 <sup>Secondary effect **[SCC only]**</sup><br>
 Waveform morphing will morph between 2 waveforms. The morphing is done in 16 steps using variable intervals. Only 1 morph at the same time is possible. Multiple tracks can use the same morphing waveform by using the 'Morph Carbon Copy' command.

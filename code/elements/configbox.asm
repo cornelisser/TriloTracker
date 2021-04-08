@@ -309,7 +309,7 @@ ELSE
 	ld	de,_LABEL_CONFIG_CHAN_SETUP
 	call	draw_label	
 	ld	a,(replay_chan_setup)
-	cp	0
+	and 	$01
 	jr.	z,99f
 	ld	a,7
 99:

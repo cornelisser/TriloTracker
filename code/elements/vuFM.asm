@@ -29,7 +29,7 @@ draw_vu:
 
 	;--- Determine the channel setup
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,.setup26
 .setup35:
 	ld	de,_VU_VALUES+3

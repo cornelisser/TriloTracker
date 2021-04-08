@@ -167,7 +167,7 @@ process_key_keyjazz:
 IFDEF TTSCC
 ELSE
 	ld	a,(replay_chan_setup)
-	and	a
+	and	$01
 	jp	z,99f
 	ld	hl,_KJ_PSG2
 	jp	88f
@@ -184,7 +184,7 @@ IFDEF TTSCC
 	ld	a,31
 ELSE
 	ld	a,(replay_chan_setup)
-	and 	a
+	and 	$01
 	ld	b,22
 	jp	z,.chan26
 .chan35:

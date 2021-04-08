@@ -1,4 +1,4 @@
-_VOICE_VRAM_START:	equ	$2c00
+_VOICE_VRAM_START:	equ	$3D00
 
 load_voicenames:
 	;-- get location of TT.COM

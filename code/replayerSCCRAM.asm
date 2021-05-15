@@ -36,6 +36,13 @@ replay_morph_buffer		ds 64,0		; interleaved buffer with morphed waveform and mor
 replay_morph_waveform		db 0 			; waveform we are morphin to.
 replay_arp_speed			db 0			; counter for arp speed
 
+replay_period:			db	0			; Pitch table for playback
+
+auto_env_times			db	0
+auto_env_divide			db	0
+
+
+
 ;replay_sample_num			db 0 			; Current sample deeing played 
 ;replay_sample_active		db 0			; 0 = inactive, 1 update, -1 init
 ;replay_sample_waveoffset	db 0			; Offset for the waveform beeing used.
@@ -96,7 +103,6 @@ TRACK_Chan6			ds	TRACK_REC_SIZE
 TRACK_Chan7			ds	TRACK_REC_SIZE
 TRACK_Chan8			ds	TRACK_REC_SIZE
 
-
 ;Konami values found in	nemesis 2 replayer.
 ;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
 C_PER		equ	$6a*32	
@@ -113,15 +119,25 @@ A1_PER	equ	$3b*32
 B_PER		equ	$38*32
 
 TRACK_ToneTable:	
-	dw	0	;	Dummy value (note 0)
-	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
-	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
-	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
-	dw C_PER/8	,C1_PER/8  ,D_PER/8  ,D1_PER/8  ,E_PER/8	,F_PER/8  ,F1_PER/8  ,G_PER/8	 ,G1_PER/8	,A_PER/8  ,A1_PER/8  ,B_PER/8
-	dw C_PER/16	,C1_PER/16 ,D_PER/16 ,D1_PER/16 ,E_PER/16	,F_PER/16 ,F1_PER/16 ,G_PER/16 ,G1_PER/16	,A_PER/16 ,A1_PER/16 ,B_PER/16
-	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
-	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
-	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
+      dw      $0D5C, $0C9D, $0BE7, $0B3C, $0A9B, $0A02, $0973, $08EB, $086B, $07F2, $0780, $0714
+      dw      $06AE, $064E, $05F4, $059E, $054D, $0501, $04B9, $0475, $0435, $03F9, $03C0, $038A
+      dw      $0357, $0327, $02FA, $02CF, $02A7, $0281, $025D, $023B, $021B, $01FC, $01E0, $01C5
+      dw      $01AC, $0194, $017D, $0168, $0153, $0140, $012E, $011D, $010D, $00FE, $00F0, $00E2
+      dw      $00D6, $00CA, $00BE, $00B4, $00AA, $00A0, $0097, $008F, $0087, $007F, $0078, $0071
+      dw      $006B, $0065, $005F, $005A, $0055, $0050, $004C, $0047, $0043, $0040, $003C, $0039
+      dw      $0035, $0032, $0030, $002D, $002A, $0028, $0026, $0024, $0022, $0020, $001E, $001C
+      dw      $001B, $0019, $0018, $0016, $0015, $0014, $0013, $0012, $0011, $0010, $000F, $000E
+;	dw	0	;	Dummy value (note 0)
+;	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
+;	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
+;	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
+;	dw C_PER/8	,C1_PER/8  ,D_PER/8  ,D1_PER/8  ,E_PER/8	,F_PER/8  ,F1_PER/8  ,G_PER/8	 ,G1_PER/8	,A_PER/8  ,A1_PER/8  ,B_PER/8
+;	dw C_PER/16	,C1_PER/16 ,D_PER/16 ,D1_PER/16 ,E_PER/16	,F_PER/16 ,F1_PER/16 ,G_PER/16 ,G1_PER/16	,A_PER/16 ,A1_PER/16 ,B_PER/16
+;	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
+;	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
+;	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
+;	dw C_PER/256,C1_PER/256,D_PER/256,D1_PER/256,E_PER/256,F_PER/256,F1_PER/256,G_PER/256,G1_PER/256,A_PER/256,A1_PER/256,B_PER/256
+;	dw C_PER/512,C1_PER/512,D_PER/512,D1_PER/512,E_PER/512,F_PER/512,F1_PER/512,G_PER/512,G1_PER/512,A_PER/512,A1_PER/512,B_PER/512
 
 AY_VOLUME_TABLE: 
 	; No tail

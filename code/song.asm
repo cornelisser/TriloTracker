@@ -114,6 +114,9 @@ ENDIF
 	ld	(song_speed),a
 	ld	a,(_CONFIG_ADD)
 	ld	(song_add),a
+	ld	a,(_CONFIG_PERIOD)
+	ld	(replay_period),a
+
 
 	ld	a,0
 	ld	b,SONG_SEQSIZE-1
@@ -234,7 +237,7 @@ ENDIF
 	
 	
 _ns_TEMP:
-	db	"v0.10.0b                         "
+	db	"v0.11.0b                         "
 ;	db	"TriloTracker ",VERSION
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR

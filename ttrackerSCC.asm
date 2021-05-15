@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.11.0b SCC"
+define VERSION "v0.11.1b SCC"
 define YEAR "2021"
 define CHIPSET_CODE $00
 
@@ -39,6 +39,12 @@ MAIN:
 	ld	(scc_type_check),a
 	call	find_SCC		; find SCC
 99:	
+
+	;--- init correct period tabel from config
+	ld	a,(_CONFIG_PERIOD)
+	ld	(replay_period),a
+	call	set_period_table
+
 
 
 	; new that we have the memory reserved. Switch to slot of song data
@@ -109,8 +115,8 @@ _LABEL_PATTERNHEADER:
 	db	136,162,163,167,185,188,189,186,187	; scc4	
 	db	136,162,163,168,185,188,189,186,187	; scc5
 	db	136,32,32,32,0
-	include	".\code\elements\trackbox.asm"
-;	include	".\code\elements\trackboxRAM.asm"
+;	include	".\code\elements\trackbox.asm"
+	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
@@ -139,7 +145,8 @@ font_data:
 	page 1
 	include 	".\code\cursor.asm"
 	include 	".\code\vdp.asm"
-	include 	".\code\screen.asm"	
+	include 	".\code\screen.asm"
+	include 	".\code\register_debug.asm"	
 	include 	".\code\clipboard.asm"
 	include 	".\code\song.asm"		
 	include	".\code\volumetable.asm"
@@ -229,11 +236,15 @@ SWAP_INSFILE_END:
      ; Song file dialog swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
+SWAP_TRACK:
 SWAP_FILE:
- 
- ;    include    ".\code\elements\filedialog.asm"
+	db	"trackbox swap"
+	include	".\code\elements\trackbox.asm"
+SWAP_TRACK_END:
 SWAP_FILE_END:
  
+ 	db	"End of swap data"
+SWAP_INIT_END:
 	
 	
 	

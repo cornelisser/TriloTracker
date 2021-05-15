@@ -10,8 +10,8 @@
 * [5xy - Tone Portamento + Volume Slide](#5xy---tone-portamento-+-volume-slide)
 * [6xy - Vibrato + Volume Slide](#6xy---vibrato-+-volume-slide)
 * [7xy - Tremolo](#7xy---tremolo)
-* [8xy - PSG HW Envelope Multiplier](#8xy---psg-hw-envelope-multiplier)
-* [9xy - Macro offset (depricated)](#9xy---macro-offset-(depricated))
+* [8xy - PSG HW Envelope Low](#8xy---psg-hw-envelope-low)
+* [9xy - PSG HW Envelope High](#9xy---psg-hw-envelope-high)
 * [Axy    -    Volume slide](#axy---volume-slide)
 * [Bxy - SCC commands](#bxy---scc-commands)
    * [B0y - Set waveform](#b0y---set-waveform)
@@ -19,8 +19,7 @@
    * [B3y - Duty Cycle](#b3y---duty-cycle)
    * [B50 - Soften Waveform](#b50---soften-waveform)
    * [BE0 - Reset](#be0---reset)
-* [Bxy - FM commands](#bxy---fm-commands)
-   * [B0y - Change channel setup](#b0y---change-channel-setup)
+* [Bxy - PSG Auto Envelope](#bxy---psg-auto-envelope)
 * [Cxy - SCC morph](#cxy---scc-morph)
    * [C0y-C1y Morph](#c0y-c1y-morph)
    * [CAy - LoFi Sample](#cay---lofi-sample)
@@ -145,16 +144,17 @@ Example:
 <sup>Primary effect</sup><br>
 Tremolo with speed x and depth y. This command will oscillate the volume of the current note with a sine wave. The depth value ranges from 1 to 13 ($1 - $D). Higher values are ignored. The speed x set the speed in number of tics from 1 to 15 ($1 - $F). The vibrato can be updated during the effect by using 70y (set new depth) or 7x0 (set new speed). 700 will stop the effect.
 
-## <a name='8xy---psg-hw-envelope-multiplier'></a>8xy - PSG HW Envelope Multiplier
+## <a name='8xy---psg-hw-envelope-low'></a>8xy - PSG HW Envelope Low
 <sup>Primary effect **[PSG: AY3-8910 only]**</sup><br>
 
-This command sets the frequency of the hardware envelope registers. The value of xy is multiplied with 8 to set the frequency value(0-2040). The frequency value sets the speed of the envelope. 
-The default frequency is always set to 0. Value set using this command will stay in effect until changed and/or end of playback.
+This command sets the frequency of the lower byte of the hardware envelope register. The frequency value sets the speed of the envelope will stay in effect until changed.
 
-This command only sets the envelope frequency and can be used in any track (even non-PSG tracks). To use the HW envelope playback command EEy is used.
+This command only sets the envelope frequency and can be used in any track (even non-PSG tracks). 
 
-## <a name='9xy---macro-offset-(depricated)'></a>9xy - Macro offset (depricated)
-This effect command is no longer supported.
+## <a name='9xy---psg-hw-envelope-high'></a>9xy - PSG HW Envelope High
+This command sets the frequency of the high byte of the hardware envelope register. The frequency value sets the speed of the envelope will stay in effect until changed.
+
+This command only sets the envelope frequency and can be used in any track (even non-PSG tracks). 
 
 ## <a name='axy---volume-slide'></a>Axy    -    Volume slide
 <sup>Primary effect</sup><br>
@@ -188,6 +188,16 @@ Divides the current waveform amplitudes in halve to create a waveform with lower
 
 #### <a name='be0---reset'></a>BE0 - Reset
 Resets the waveform to the waveform related to the current instrument.
+
+## <a name='bxy---psg-auto-envelope'></a>Bxy - PSG Auto Envelope
+Calculates envelope register value based on the current note on the same line. x and y can be used to: x - Multiply the tone value by x. y - divide the tone value by y.
+
+Example:
+```
+A-1 .. B23       Takes tone value of A-4 and 
+                 multiplies with 2 and divides by 3           
+```
+This effect command can be used to find specific envelope tone values. Value is shown in debug information. 
 
 
 ### <a name='cxy---scc-morph'></a>Cxy - SCC morph

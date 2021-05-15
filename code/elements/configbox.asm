@@ -201,6 +201,10 @@ _LABEL_CONFIG_VOLUME:
 
 _LABEL_CONFIG_VU:
 	db "VU meter",0
+
+_LABEL_CONFIG_PERDIOD:
+	db "Period table",0
+
 _;LABEL_CONFIG_PLUGIN_2:
 ;	db "Plug-in #2",0
 ;_LABEL_CONFIG_PLUGIN_3:
@@ -444,6 +448,32 @@ ENDIF
 	ld	l,18
 	ld	de,0x0601
 	call	draw_colorbox
+
+	;--------------------
+	; Period table
+	;----------------------
+	ld	hl,(80*19)+2+40
+	ld	de,_LABEL_CONFIG_PERDIOD
+	call	draw_label
+
+
+
+	ld	a,(replay_period)
+	add	a
+	add	a
+	add	a
+	add	a
+
+	ld	de,_LABEL_PERIOD_TABLE
+	add	a,e
+	ld	e,a
+	jp	nc,99f
+	inc	d
+99:
+	ld	hl,(80*19)+2+20+40
+	call	draw_label	
+
+
 
 	;-------------------
 	; Default ins
@@ -694,7 +724,7 @@ _LABEL_CONFIG_THEME:
 	db	_ARROWLEFT,"Purple Haze  ",_ARROWRIGHT,0
 	db	_ARROWLEFT,"CottonTracker",_ARROWRIGHT,0
 	db	_ARROWLEFT,"Custom theme ",_ARROWRIGHT,0
-	
+
 ;===========================================================
 ; --- update selection
 ;
@@ -754,7 +784,7 @@ _CONFIG_MENU_XY:
 	db	0x10
 	db	0x11
 	db	0x12
-;	db	0x13			
+	db	0x13			
 	db	0x14
 ;	db	0x15
 	db	0x16
@@ -766,6 +796,93 @@ _CONFIG_MENU_XY:
 	; E = height	
 
 
+_LABEL_PERIOD_TABLE:
+	db	_ARROWLEFT,"A440 Modern  ",_ARROWRIGHT,0
+	db	_ARROWLEFT,"A445 Konami  ",_ARROWRIGHT,0
+	db	_ARROWLEFT,"A448         ",_ARROWRIGHT,0
+	db	_ARROWLEFT,"A432 Earth   ",_ARROWRIGHT,0
+
+
+
+
+
+PERIOD_TABLES_PSG:
+	dw	PSG_A440_Modern
+	dw	PSG_A445_Konami
+	dw	PSG_A448
+	dw	PSG_A432_Earth
+
+
+PSG_A432_Earth:
+      dw      $0D9C, $0CD8, $0C20, $0B72, $0ACD, $0A32, $099F, $0915, $0893, $0817, $07A3, $0735
+      dw      $06CE, $066C, $0610, $05B9, $0567, $0519, $04D0, $048B, $0449, $040C, $03D2, $039B
+      dw      $0367, $0336, $0308, $02DC, $02B3, $028C, $0268, $0245, $0225, $0206, $01E9, $01CD
+      dw      $01B3, $019B, $0184, $016E, $015A, $0146, $0134, $0123, $0112, $0103, $00F4, $00E7
+      dw      $00DA, $00CE, $00C2, $00B7, $00AD, $00A3, $009A, $0091, $0089, $0081, $007A, $0073
+      dw      $006D, $0067, $0061, $005C, $0056, $0052, $004D, $0049, $0045, $0041, $003D, $003A
+      dw      $0036, $0033, $0030, $002E, $002B, $0029, $0026, $0024, $0022, $0020, $001F, $001D
+      dw      $001B, $001A, $0018, $0017, $0016, $0014, $0013, $0012, $0011, $0010, $000F, $000E
+ ;     dw      $000E, $000D, $000C, $000B, $000B, $000A, $000A, $0009, $0009, $0008, $0008, $0007
+  ;    dw      $0007, $0006, $0006, $0006, $0005, $0005, $0005, $0005, $0004, $0004, $0004, $0004
+
+PSG_A440_Modern:
+      dw      $0D5C, $0C9D, $0BE7, $0B3C, $0A9B, $0A02, $0973, $08EB, $086B, $07F2, $0780, $0714
+      dw      $06AE, $064E, $05F4, $059E, $054D, $0501, $04B9, $0475, $0435, $03F9, $03C0, $038A
+      dw      $0357, $0327, $02FA, $02CF, $02A7, $0281, $025D, $023B, $021B, $01FC, $01E0, $01C5
+      dw      $01AC, $0194, $017D, $0168, $0153, $0140, $012E, $011D, $010D, $00FE, $00F0, $00E2
+      dw      $00D6, $00CA, $00BE, $00B4, $00AA, $00A0, $0097, $008F, $0087, $007F, $0078, $0071
+      dw      $006B, $0065, $005F, $005A, $0055, $0050, $004C, $0047, $0043, $0040, $003C, $0039
+      dw      $0035, $0032, $0030, $002D, $002A, $0028, $0026, $0024, $0022, $0020, $001E, $001C
+      dw      $001B, $0019, $0018, $0016, $0015, $0014, $0013, $0012, $0011, $0010, $000F, $000E
+;      dw      $000D, $000D, $000C, $000B, $000B, $000A, $0009, $0009, $0008, $0008, $0007, $0007
+;      dw      $0007, $0006, $0006, $0006, $0005, $0005, $0005, $0004, $0004, $0004, $0004, $0004
+
+PSG_A445_Konami:
+      dw      $0D36, $0C78, $0BC5, $0B1C, $0A7C, $09E6, $0957, $08D1, $0853, $07DB, $076A, $0700
+      dw      $069B, $063C, $05E3, $058E, $053E, $04F3, $04AC, $0469, $0429, $03ED, $03B5, $0380
+      dw      $034E, $031E, $02F1, $02C7, $029F, $0279, $0256, $0234, $0215, $01F7, $01DB, $01C0
+      dw      $01A7, $018F, $0179, $0163, $0150, $013D, $012B, $011A, $010A, $00FB, $00ED, $00E0
+      dw      $00D3, $00C8, $00BC, $00B2, $00A8, $009E, $0095, $008D, $0085, $007E, $0077, $0070
+      dw      $006A, $0064, $005E, $0059, $0054, $004F, $004B, $0047, $0043, $003F, $003B, $0038
+      dw      $0035, $0032, $002F, $002C, $002A, $0028, $0025, $0023, $0021, $001F, $001E, $001C
+      dw      $001A, $0019, $0018, $0016, $0015, $0014, $0013, $0012, $0011, $0010, $000F, $000E
+;      dw      $000D, $000C, $000C, $000B, $000A, $000A, $0009, $0009, $0008, $0008, $0007, $0007
+;      dw      $0007, $0006, $0006, $0006, $0005, $0005, $0005, $0004, $0004, $0004, $0004, $0003
+
+PSG_A448:
+      dw      $0D1F, $0C63, $0BB1, $0B09, $0A6A, $09D5, $0947, $08C2, $0844, $07CE, $075D, $06F4
+      dw      $0690, $0631, $05D8, $0584, $0535, $04EA, $04A4, $0461, $0422, $03E7, $03AF, $037A
+      dw      $0348, $0319, $02EC, $02C2, $029B, $0275, $0252, $0231, $0211, $01F3, $01D7, $01BD
+      dw      $01A4, $018C, $0176, $0161, $014D, $013B, $0129, $0118, $0109, $00FA, $00EC, $00DE
+      dw      $00D2, $00C6, $00BB, $00B1, $00A7, $009D, $0094, $008C, $0084, $007D, $0076, $006F
+      dw      $0069, $0063, $005E, $0058, $0053, $004F, $004A, $0046, $0042, $003E, $003B, $0038
+      dw      $0034, $0032, $002F, $002C, $002A, $0027, $0025, $0023, $0021, $001F, $001D, $001C
+      dw      $001A, $0019, $0017, $0016, $0015, $0014, $0013, $0012, $0011, $0010, $000F, $000E
+ 
+IFDEF TTSCC 
+ELSE
+
+PERIOD_TABLES_FM:
+	dw	FM_A440_Modern
+	dw	FM_A445_Konami
+	dw	FM_A448
+	dw	FM_A432_Earth
+
+
+FM_A432_Earth:
+      dw      $00A8, $00B2, $00BC, $00C8, $00D4, $00E0, $00EE, $00FC, $010B, $011B, $012B, $013D
+
+FM_A440_Modern:
+      dw      $00AB, $00B5, $00C0, $00CB, $00D8, $00E4, $00F2, $0100, $0110, $0120, $0131, $0143
+
+FM_A448
+      dw      $00AE, $00B8, $00C3, $00CF, $00DB, $00E9, $00F6, $0105, $0115, $0125, $0137, $0149
+
+FM_A445_Konami:
+      dw      $00AD, $00B7, $00C2, $00CE, $00DA, $00E7, $00F5, $0103, $0113, $0123, $0134, $0147
+
+
+ENDIF
 ;===========================================================
 ; --- process_key_macrobox
 ;
@@ -799,6 +916,11 @@ process_key_configbox:
 	ldir
 
 
+	;--- Copy the custom theme to config vars
+	ld	hl,_theme10a
+	ld	de,_CONFIG_CUSTOMTHEME
+	ld	bc,8
+	ldir
 	
 	;--- open the file
 	ld	de,buffer+256 	; +2 to skip drive name
@@ -814,11 +936,13 @@ process_key_configbox:
 	;--- file is found.
 	ld	a,b
 	ld	(disk_handle),a
-	
+
+
 	;--- Read type
 	ld	de,_CONFIG_SLOT
-	ld	hl,17
+	ld	hl,18+8
 	call	write_file
+
 
 	call	close_file
 	call	set_hook
@@ -852,7 +976,7 @@ _lsav_error:
 	ld 	(cursor_input),a		; reset colorinput
 	ld	a,(editsubmode)
 	inc	a
-	cp	19
+	cp	20
 	jr.	c,99f
 	xor	a
 99:	ld	(editsubmode),a
@@ -868,7 +992,7 @@ _lsav_error:
 	dec	a
 	cp	0xff
 	jr.	nz,99f
-	ld	a,18
+	ld	a,19
 99:	ld	(editsubmode),a
 	jr.	update_config_selection
 	
@@ -897,6 +1021,11 @@ _lsav_error:
 	;-------------------
 	; color input 
 	;-------------------
+	;-- only for custom theme
+	ld	a,(_CONFIG_THEME)
+	cp	9
+	jp	nz,0f
+
 	; check if we are on color options
 	ld	a,(editsubmode)
 	cp	7
@@ -1007,8 +1136,8 @@ ENDIF
 	dw	pk_config_audition
 	dw	pk_config_debug
 	dw	pk_config_vu
+	dw	pk_config_period
 	dw	pk_config_instruments
-	dw	_pk_config_END
 	dw	_pk_config_END
 	dw	_pk_config_END
 
@@ -1449,6 +1578,144 @@ pk_config_vu:
 	call	erase_colorbox
 	
 	jr.	update_configbox
+
+;====================================
+; change period table(s)
+;====================================
+pk_config_period:
+
+	ld	a,(replay_period)
+	inc	a
+	and	3
+	ld	(_CONFIG_PERIOD),a
+	ld	(replay_period),a
+
+	call	set_period_PSG
+	ld	a,(replay_period)
+	call	set_period_FM
+
+	;-- Higlight current line
+	ld	hl,0x3f13
+	ld	de,0x0d01
+	call	erase_colorbox
+	
+	jr.	update_configbox
+
+
+set_period_PSG:
+	;---- PSG Values
+IFDEF TTSMS
+	;--- copy period table(s) to RAM
+	add	a
+	ld	de,TRACK_ToneTable+2
+	ld	bc,12*8*2
+	ld	hl,PERIOD_TABLES_PSG
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+.loop:
+	;-- filter out any value out of SN7 range
+	ldi
+	ld	a,(hl)
+	cp	$04
+	jp	c,99f
+	ld	(hl),0
+	dec	de
+	ld	a,1
+	ld	(de),a
+	inc	de
+99:
+	ldi
+	inc	c
+	dec	c
+	jp	nz,.loop
+
+ELSE
+	;--- copy period table(s) to RAM
+	add	a
+	ld	de,TRACK_ToneTable+2
+	ld	bc,12*8*2
+	ld	hl,PERIOD_TABLES_PSG
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+
+	ldir
+
+ENDIF
+	ret
+
+
+set_period_FM:
+IFDEF	TTSCC
+ELSE
+	;---- FM values
+	;--- copy period table(s) to RAM
+	add	a
+	ld	de,CHIP_FM_ToneTable+2
+	ld	bc,12*8*2
+	ld	hl,PERIOD_TABLES_FM
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+
+	ld	c,0		; octave
+.loopfm:	
+	ld	b,12		; notes
+.loopfmsub:
+	ld	a,(hl)
+	ld	(de),a
+	inc	hl
+	inc 	de
+	ld	a,(hl)
+	add	c	; add octave
+	ld	(de),a
+	inc	hl
+	inc 	de
+	djnz	.loopfmsub
+
+	;-- back to start note values
+	ld	a,l
+	sub	24
+	ld	l,a
+	jp	nc,99f
+	dec	h
+99:
+	;-- increase octave
+	ld	a,2
+	add	c
+	ld	c,a
+	cp	12
+	jp	nz,.loopfm	
+
+
+ENDIF
+	ret
+
+
+
+
+
+
+
 
 ;====================================
 ; change default instruments

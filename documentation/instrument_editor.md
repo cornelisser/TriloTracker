@@ -28,8 +28,8 @@ Column type | Description | Values
 | NN | In case of W enabled waveform link| $00-$1F 
 | N | Noise value (absolute) First 4 values sets the periodic noise and next 4 set white noise options. | $0-$7 (8 steps)
 | L | Voice link | Voice $0-$f
-| v | Volume deviation type. | '_', '+' or '-'
-| V | Volume change in addition to the previous macro step (+/-) or absolute(_).| $0-$f (16 steps)
+| v | Volume deviation type. | '_', '+', '-' or '^'
+| V | Volume change of envelope shape | $0-$f (16 steps)
 | X | Noise volume (absolute).| $0-$f (16 steps)
 
 
@@ -44,6 +44,20 @@ E.g. the volume can be used set the ADSR (Attack,Decay and Sustain, Release).
 
 The noise columns are only processed when the instrument is used in a PSG channel. Do remember that there is only 1 noise channel (the 4th PSG channel). When using multiple instruments that produce noise (noise enabled) on the same tic, only the last noise value is used.
 
+## Envelope [TTFM][TTSCC]
+The envelope shape can be set on any row. This feature is mostly used to create base drums on PSG. To continue the envelope in an instrument it is important to have an envelope value of 0. Otherwise the envelope will be reset each time the instrument macro is played. 
+
+Example (bad):
+```
+ R 00 Tn +000 _00 ^A          Every tick the envelope is reset. 
+
+```
+Example (good):
+```
+   00 Tn +000 _00 ^A 
+ R 00 Tn +000 _00 ^0          0 will not reset envelope but
+                              envelope is still active.
+```
 
 ## Waveform [TTSCC]
 The waveform is only used by the SCC. Without it the SCC will not generate sound (even if the Tone is enabled). A waveform is a 32 byte sample that is played constantly (looped). Each instrument can be linked to 1 of 32 available waveform slots.

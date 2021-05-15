@@ -1013,103 +1013,6 @@ _pe_chanloop:
 
 
 
-
-
-	
-_TEMPAY:	db "aAAA bBBB cCCC nNN mMM aVbVcVnV"
-draw_PSGdebug:		
-	; THIS IS DEBUG INFO ON	THE REGISTERS!!!!
-	ld	de,_TEMPAY+1
-	ld	hl,AY_registers
-	ld	a,(hl)
-	inc	hl
-;	add	1
-	ld	b,a
-	ld	a,(hl)
-;	adc	0
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	ld	a,(hl)
-	inc	hl
-;	add	1
-	ld	b,a
-	ld	a,(hl)
-;	adc	0
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	ld	a,(hl)
-	inc	hl
-;	add	1
-	ld	b,a
-	ld	a,(hl)
-;	adc	0
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	;inc	hl
-	ld	a,(hl)
-;	and	0x0f
-	call	draw_hex2	; noise	
-	inc	de
-
-	inc	de
-	inc	hl
-	ld	a,(hl)
-	and	0x3F
-	call	draw_hex2	; mixer 
-	inc	hl	
-	inc	de
-	inc	de
-	
-	
-	ld	a,(hl)
-	call	draw_fakehex	;vol a
-	inc	hl
-	inc	de
-	ld	a,(hl)
-	call	draw_fakehex	    ;vol b
-	inc	hl
-	inc	de
-	ld	a,(hl)
-	call	draw_fakehex	; vol	c
-	inc	hl
-	inc	de	
-	ld	a,(SN_regVOLN)
-	call	draw_fakehex	; envelope/noise	
-	
-	
-	
-	ld	hl,0
-	ld	de,_TEMPAY
-	ld	b,31;31
-	call	draw_label_fast
-	
-;	call	debug_instruments	
-	
-	
-	
-	ret				
-	
-;replay_patline:
-;	ret
-	
-
-		
-
 	
 
 ;===========================================================
@@ -1332,10 +1235,10 @@ _CHIPcmdlist:
 	dw	_CHIPcmd5
 	dw	_CHIPcmd6_vibrato_vol
 	dw	_CHIPcmd7_tremolo
-	dw	_CHIPcmd8_env_mul
-	dw	_CHIPcmd9_macro_offset
+	dw	_CHIPcmd8_env_low
+	dw	_CHIPcmd9_env_high
 	dw	_CHIPcmdA_volSlide
-	dw	_CHIPcmdB_scc_commands
+	dw	_CHIPcmdB_auto_envelope
 	dw	_CHIPcmdC_drum
 	dw	_CHIPcmdD_patBreak
 	dw	_CHIPcmdE_extended
@@ -1570,50 +1473,28 @@ _CHIPcmd4_vibrato:
 ;	ret
 	
 	
-
 	
+	
+
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
 	; This command set the envelope frequency using a
 	; multiplier value (00-ff)
-_CHIPcmd8_env_mul:
-;	ld	d,a
-;	xor	a
-;	srl	d
-;	rra	
-;	srl	d
-;	rra		
-;	srl	d
-;	rra	
+_CHIPcmd8_env_low:
 	ld	(AY_regEnvL),a
-;	ld	a,d
-;	ld	(AY_regEnvH),a
 	ret	
 
-	  
-_CHIPcmd9_macro_offset:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; This command, when used together with a	note,	
-	; will start playing the sample at the position	xx 
-	; (instead of position 0). If	xx is	00 (900), the 
-	; previous value will be used.
-
-;	;--- Init values
-;	and	a
-;	jr.	z,_CHIPcmd_end
-;	ld	(ix+CHIP_cmd_9),a
-;;_CHIPcmd9_retrig:	
-;	set	3,(ix+CHIP_Flags)
-;	ld	(ix+CHIP_Timer),2		; timer is set as	we process cmd
-;						; before new notes.
-;	
-	ret
-	
+	; This command set the envelope frequency using a
+	; multiplier value (00-ff)
+_CHIPcmd9_env_high:
+	ld	(AY_regEnvH),a
+	ret	
 
 
 _CHIPcmd5:
@@ -1696,25 +1577,81 @@ _CHIPcmdA_volSlide_cont:
 	ret
 
 
+; Taken from http://www.massmind.org/techref/zilog/z80/part4.htm
+Divide:                          ; this routine performs the operation BC=HL/A
+  ld e,a                         ; checking the divisor; returning if it is zero
+  or a                           ; from this time on the carry is cleared
+  ret z
+  ld bc,-1                       ; BC is used to accumulate the result
+  ld d,0                         ; clearing D, so DE holds the divisor
+DivLoop:                         ; subtracting DE from HL until the first overflow
+  sbc hl,de                      ; since the carry is zero, SBC works as if it was a SUB
+  inc bc                         ; note that this instruction does not alter the flags
+  jr nc,DivLoop                  ; no carry means that there was no overflow
+  ret
 
-_CHIPcmdB_scc_commands:
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-;	and	1
-;	ld	(replay_chan_setup),a
-;	
-;	jp	z,0f
-;	
-;	; set PSG
-;	res	7,(ix+CHIP_Flags)
-;	jp	99f
-;	
-;	; set FM
-;0:	set	7,(ix+CHIP_Flags)
-;99:
-	ret	
+_CHIPcmdB_auto_envelope:
+IFDEF TTFM
+	and	a
+	jp	z,.skip_parameter
+
+	ld	d,a
+	;-- set new parameters
+	and	0x0f
+	ld	(auto_env_divide),a
+	ld	a,d
+[4]	srl	a	
+	ld	(auto_env_times),a
+
+.skip_parameter:
+	ld	hl,CHIP_ToneTable+96	;-- set base to C-5
+	ld	a,(IX+CHIP_Note)
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	push	bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ld	hl,0
+	ld	a,(auto_env_times)
+	and	0x0f		; make sure it is at leas 1 or higher
+	jp	nz,99f
+	inc	a
+99:
+	;--- now we add the base tone value x times 
+.timesloop:
+	add	hl,de
+	dec	a
+	jp	nz,.timesloop
+
+	;--- now we do a divide over the result
+	ld	a,(auto_env_divide)
+	cp	2		; make sure divider is 1 minimal
+	jp	nc,99f
+	;-- 0 and 1 then no devide needed
+	ld	(AY_regEnvL),hl
+	pop	bc
+	ret
+99:
+	call	Divide
+
+	;-- correct rounding
+	xor	a
+	adc	hl,de
+	ld	a,e
+	srl	a
+	cp	l
+	jp	nc,99f
+	inc	bc
+99:
+	ld	(AY_regEnvL),bc
+	pop	bc
+	ret
+ENDIF
 	
 _CHIPcmdC_drum:
 	; in:	[A] contains the paramvalue
@@ -1825,7 +1762,7 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_none		;B
 	dw	_CHIPcmdE_notecut		;C	
 	dw	_CHIPcmdE_notedelay	;D	
-	dw	_CHIPcmdE_envelope	;E
+	dw	_CHIPcmdE_none	;E
 	dw	_CHIPcmdE_none		;F
 
 _CHIPcmdE_none:
@@ -1982,16 +1919,6 @@ _CHIPcmdE_trackdetune:
 	ret
 	
 
-_CHIPcmdE_envelope:
-	set	2,(IX+CHIP_Flags)
-	ld	a,d
-	and	$0f
-	jp	z,_CHIPcmdE_envelope_retrig
-
-	;--- store new envelope shape (anything other than 0 is written)
-	ld	(AY_regEnvShape),a
-_CHIPcmdE_envelope_retrig:
-	ret
 
 
 
@@ -2458,7 +2385,7 @@ _pcAY_noCMDToneAdd:
 	ld	(hl),e
 	inc	hl	
 	ld	(hl),d
-		
+
 	;-- Test for noise
 	bit	7,c
 	jr.	z,_pcAY_noNoise
@@ -2504,7 +2431,7 @@ ELSE
 	ld	a,(FM_regMIXER)
 	or	128
 	ld	(FM_regMIXER),a
-	
+
 	; volume
 	ld	a,c
 	rrca
@@ -2543,6 +2470,56 @@ ENDIF
 
 _pcAY_noNoise:
 	;volume
+	ld	a,b
+	and	00110000b
+	jp	z,_pcay_volbase
+	cp	00110000b
+	jp	z,_pcay_volsub
+	cp	00100000b
+	jp	z,_pcay_voladd
+
+IFDEF TTFM
+_pcay_evelope:
+	ld	a,16			; set volume to 16 == envelope
+	ld	(FM_regVOLF),a
+	ld	a,b
+	and	0x0f
+	ld	(AY_regEnvShape),a		; set the new envelope shape
+	ret						; no further processing.
+ENDIF
+
+_pcay_volbase:
+	ld	a,b
+	and	0x0f
+	jp	_pcay_volend
+
+_pcay_voladd:
+	ld	a,b
+	and	$0f
+	ld	b,a
+	ld	a,(ix+CHIP_VolumeAdd)
+	add	b
+	cp	16
+	jp	c,_pcay_volend
+	ld	a,15
+	jp	_pcay_volend
+
+_pcay_volsub:
+	ld	a,b
+	and	$0f
+	ld	b,a
+	ld	a,(ix+CHIP_VolumeAdd)
+	sub	b
+	cp	16
+	jp	c,_pcay_volend
+	xor	a
+_pcay_volend:
+	ld	(ix+CHIP_VolumeAdd),a
+	or	(ix+CHIP_Volume)
+	ld	c,a
+
+
+
 	ld	a,(ix+CHIP_VolumeAdd)
 	bit	5,b
 	jr.	nz,0f
@@ -2586,16 +2563,6 @@ IFDEF TTSMS
 7:
 	ld	a,c
 ENDIF
-	;---- envelope check
-	; is done here to be able to continue
-	; macro volume values.
-	bit	2,(IX+CHIP_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
-	ld	a,16			; set volume to 16 == envelope
-	ld	(FM_regVOLF),a
-	ret	
-	
-_noEnv:
 	or	(ix+CHIP_Volume)
 	ld	c,a
 	
@@ -3820,11 +3787,21 @@ _route_FM_drum_update:
 	ld	b,a
 	ld	a,0x0e
 	;-- load the new values
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles
+
+
 	out	(FM_WRITE),a	; Select rythm register
-	
+
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
+
 	ld	a,b			; 5 cycles
 	ld	a,b			; 5 cycles	; dummy code for delay
 	out	(FM_DATA),a		
+
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles
 
 	push	ix			; 17 cycles	dummy code to implement delay
 	pop	ix			; 17 cycles
@@ -3870,10 +3847,18 @@ _rfr_cont:
 	cp	(hl)	
 	jp	z,99f		; no change in tone low value
 	ex	af,af'	
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles
 	out	(FM_WRITE),a
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	ex	af,af'
 	ld	(hl),a
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	out	(FM_DATA),a	
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 99:	ex	af,af'
 ;	dec	hl	
 	ret
@@ -3913,11 +3898,19 @@ _rfr_cont:
 ;-----------
 _route_FM_keyOff_update:
 	ex	af,af'
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	out	(FM_WRITE),a
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	ex	af,af'		; 4 cycles	 '
 	ld	a,(hl)
 	and	11101111b	; erase keyON bit.
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	out	(FM_DATA),a	
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	inc	hl
 	inc	hl
 	ld	(hl),a		; make sure to change old value to trigger update
@@ -4074,13 +4067,20 @@ load_softwarevoice:
 	;--- copy data to FM custom voice register
 	ld	d,8
 	ld	a,$0
-_tt_voice_fmloop:
+_tt_voice_fmloop:	
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles
 	out	(FM_WRITE),a
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	inc	a			; 4 cycles
 	ex	af,af'		;'4 cycles	
 	ld	a,(hl)		; 7 cycles    the low byte
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	out	(FM_DATA),a
-	
+	push	ix			; 17 cycles	dummy code to implement delay
+	pop	ix			; 17 cycles	
 	;--- delay
 	push 	ix
 	pop	ix
@@ -4253,6 +4253,8 @@ draw_SCCdebug:
 	call	draw_label_fast					
 
 	ret
+
+
 
 REPLAY_END:
 

@@ -6,7 +6,7 @@
 ;================================
 REPLAY_START:
 
-_TEMPAY:	db "aAAA bBBB cCCC nNN mMM aVbVcV "
+_TEMPAY:	db "aAAA bBBB cCCC nNN mMM aVbVcV e eeee"
 _TEMPSCC:	db "aAAA bBBB cCCC dDDD eEEE aVbVcVdVeV mMM"
 
 ; Sine table used for tremolo and vibrato
@@ -641,94 +641,6 @@ _pe_chanloop:
 	call	set_hook		; re-enable the replayer in the ISR
 	ret
 	
-draw_PSGdebug:		
-	; THIS IS DEBUG INFO ON	THE REGISTERS!!!!
-	ld	de,_TEMPAY+1
-	ld	hl,AY_registers
-	ld	a,(hl)
-	inc	hl
-	add	1
-	ld	b,a
-	ld	a,(hl)
-	adc	0
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	ld	a,(hl)
-	inc	hl
-	add	1
-	ld	b,a
-	ld	a,(hl)
-	adc	0
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	ld	a,(hl)
-	inc	hl
-	add	1
-	ld	b,a
-	ld	a,(hl)
-	adc	0
-	call	draw_hex
-	ld	a,b
-	call	draw_hex2
-	inc	hl
-	inc	de
-	inc	de
-	
-	;inc	hl
-	ld	a,(hl)
-;	and	0x0f
-	call	draw_hex2	; noise	
-	inc	de
-
-	inc	de
-	inc	hl
-	ld	a,(hl)
-	and	0x3F
-	call	draw_hex2	; mixer 
-	inc	hl	
-	inc	de
-	inc	de
-	
-	
-	ld	a,(hl)
-	call	draw_fakehex	;vol a
-	inc	hl
-	inc	de
-	ld	a,(hl)
-	call	draw_fakehex	    ;vol b
-	inc	hl
-	inc	de
-	ld	a,(hl)
-	call	draw_fakehex	; vol	c
-	inc	hl
-;	inc	de	
-	
-	ld	hl,0
-	ld	de,_TEMPAY
-	ld	b,29;31
-	call	draw_label_fast
-	
-;	call	debug_instruments	
-	
-	
-	
-	ret				
-	
-;replay_patline:
-;	ret
-	
-
-		
 
 	
 
@@ -918,8 +830,8 @@ _CHIPcmdlist:
 	dw	_CHIPcmd5
 	dw	_CHIPcmd6_vibrato_vol
 	dw	_CHIPcmd7_tremolo
-	dw	_CHIPcmd8_env_mul
-	dw	_CHIPcmd9_macro_offset
+	dw	_CHIPcmd8_env_low
+	dw	_CHIPcmd9_env_high
 	dw	_CHIPcmdA_volSlide
 	dw	_CHIPcmdB_scc_commands
 	dw	_CHIPcmdC_scc_morph
@@ -1154,56 +1066,42 @@ _CHIPcmd4_vibrato:
 	;--------------------------------------------------
 	; This command set the envelope frequency using a
 	; multiplier value (00-ff)
-_CHIPcmd8_env_mul:
-	ld	l,a
-	ld	h,0
-	add	hl,hl  ;2
-	add	hl,hl  ;4
-	add	hl,hl  ;8
-;	add	hl,hl  ;16	
-;	add	hl,hl  ;32	
-;	add	hl,hl	 ;64
-;	add	hl,hl	 ;128
-;	add	hl,hl	 ;256
-;	xor	a
-;	srl	d
-;	rra	
-;	srl	d
-;	rra		
-;	srl	d
-;	rra	
-;	srl	d
-;	rra	
-;	or	1	; set envelope update flag
-	ld	(AY_regEnvL),hl
-;	ld	a,d
-;	ld	(AY_regEnvH),h
+_CHIPcmd8_env_low:
+	ld	(AY_regEnvL),a
 	ret	
 
-
-
-	
-	 
-_CHIPcmd9_macro_offset:
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
 	;--------------------------------------------------
-	; This command, when used together with a	note,	
-	; will start playing the sample at the position	xx 
-	; (instead of position 0). If	xx is	00 (900), the 
-	; previous value will be used.
+	; This command set the envelope frequency using a
+	; multiplier value (00-ff)
+_CHIPcmd9_env_high:
+	ld	(AY_regEnvH),a
+	ret	
 
-	;--- Init values
-	and	a
-	jr.	z,_CHIPcmd_end
-	ld	(ix+TRACK_cmd_9),a
-;_CHIPcmd9_retrig:	
-	set	3,(ix+TRACK_Flags)
-	ld	(ix+TRACK_Timer),2		; timer is set as	we process cmd
-						; before new notes.
 	
-	ret
+	 
+;_CHIPcmd9_macro_offset:
+;	; in:	[A] contains the paramvalue
+;	; 
+;	; ! do not change	[BC] this is the data pointer
+;	;--------------------------------------------------
+;	; This command, when used together with a	note,	
+;	; will start playing the sample at the position	xx 
+;	; (instead of position 0). If	xx is	00 (900), the 
+;	; previous value will be used.
+;
+;	;--- Init values
+;	and	a
+;	jr.	z,_CHIPcmd_end
+;	ld	(ix+TRACK_cmd_9),a
+;;_CHIPcmd9_retrig:	
+;	set	3,(ix+TRACK_Flags)
+;	ld	(ix+TRACK_Timer),2		; timer is set as	we process cmd
+;						; before new notes.
+;	
+;	ret
 	
 
 
@@ -1286,8 +1184,88 @@ _CHIPcmdA_volSlide_cont:
 	set	3,(ix+TRACK_Flags)
 	ret
 
+; Taken from http://www.massmind.org/techref/zilog/z80/part4.htm
+Divide:                          ; this routine performs the operation BC=HL/A
+  ld e,a                         ; checking the divisor; returning if it is zero
+  or a                           ; from this time on the carry is cleared
+  ret z
+  ld bc,-1                       ; BC is used to accumulate the result
+  ld d,0                         ; clearing D, so DE holds the divisor
+DivLoop:                         ; subtracting DE from HL until the first overflow
+  sbc hl,de                      ; since the carry is zero, SBC works as if it was a SUB
+  inc bc                         ; note that this instruction does not alter the flags
+  jr nc,DivLoop                  ; no carry means that there was no overflow
+  ret
+
+_CHIPcmdB_auto_envelope:
+
+	and	a
+	jp	z,.skip_parameter
+
+	ld	d,a
+	;-- set new parameters
+	and	0x0f
+	ld	(auto_env_divide),a
+	ld	a,d
+[4]	srl	a	
+	ld	(auto_env_times),a
+
+.skip_parameter:
+	ld	hl,TRACK_ToneTable+96	;-- set base to C-5
+	ld	a,(IX+TRACK_Note)
+	add	a
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	push	bc
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ld	hl,0
+	ld	a,(auto_env_times)
+	and	0x0f		; make sure it is at leas 1 or higher
+	jp	nz,99f
+	inc	a
+99:
+	;--- now we add the base tone value x times 
+.timesloop:
+	add	hl,de
+	dec	a
+	jp	nz,.timesloop
+
+	;--- now we do a divide over the result
+	ld	a,(auto_env_divide)
+	cp	2		; make sure divider is 1 minimal
+	jp	nc,99f
+	;-- 0 and 1 then no devide needed
+	ld	(AY_regEnvL),hl
+	pop	bc
+	ret
+99:
+	call	Divide
+
+	;-- correct rounding
+	xor	a
+	adc	hl,de
+	ld	a,e
+	srl	a
+	cp	l
+	jp	nc,99f
+	inc	bc
+99:
+	ld	(AY_regEnvL),bc
+	pop	bc
+	ret
+
+
+
 
 _CHIPcmdB_scc_commands:
+	;=== Check if this is a PSG channel.....
+	bit 	_PSG_SCC,(ix+TRACK_Flags)
+	jp	z,_CHIPcmdB_auto_envelope
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1657,7 +1635,7 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_none		;B
 	dw	_CHIPcmdE_notecut		;C	
 	dw	_CHIPcmdE_notedelay	;D	
-	dw	_CHIPcmdE_envelope	;E
+	dw	_CHIPcmdE_none		;E
 	dw	_CHIPcmdE_none		;F
 	
 
@@ -1825,16 +1803,46 @@ _CHIPcmdE_transpose:
 ;	ld	(replay_Tonetable),hl
 	ret
 
-_CHIPcmdE_envelope:
-	set	2,(IX+TRACK_Flags)
-	ld	a,d
-	and	$0f
-	jp	z,_CHIPcmdE_envelope_retrig
 
-	;--- store new envelope shape (anything other than 0 is written)
-	ld	(AY_regEnvShape),a
-_CHIPcmdE_envelope_retrig:
-	ret
+
+
+;_CHIPcmdE_envelopeauto:
+;	ld	hl,TRACK_ToneTable
+;
+;	ld	a,d
+;	and	0x07
+;	jp	z,0f
+;
+;	;--- parameter *12*2 (12 notes of 2 bytes)
+;	add	a	
+;	add	a 		; *4
+;	ld	d,a
+;	add	a 		; *8
+;	add	d		; *8+*4 = *12
+;	add	a		;  *24
+;
+;	add	a,l
+;	ld	l,a
+;	jp	nc,99f
+;	inc	h
+;99:
+;0:
+;	;--- Add current note
+;	ld	a,(ix+TRACK_Note)
+;	;inc	a
+;	add	a,a
+;	add	a,l
+;	ld	l,a
+;	jp	nc,99f
+;	inc	h
+;99:
+;	ld	a,(hl)
+;	ld	(AY_regEnvL),a
+;	inc	hl
+;	ld	a,(hl)
+;	ld	(AY_regEnvH),a
+;	ret
+
 
 
 
@@ -2086,24 +2094,20 @@ _pcAY_noTone:
 	
 	
 _pcAY_noCMDToneAdd:	
-	
-	
-	
-	
 ;_pcAY_noTone:	
 	ld	sp,(_SP_Storage)
 ;	ex	(sp),hl		; replace the last pushed value on stack
 	pop	de
 	ex	de,hl
+
+	bit	_PSG_SCC,(ix+TRACK_Flags)
+	jp	z,_pcAY_tonePSG
+_pcAY_toneSCC:
+	dec	de		; SCC tone is -1 of PSG tone
 	ld	(hl),e
 	inc	hl
 	ld	(hl),d
-		
 
-	;--- prevent SCC and noise
-	bit	7,(ix+TRACK_Flags)
-;	jp	nz,_pcAY_noNoise
-	jp	z,_pcAY_Noise
 _pcAY_Waveform:
 	ld	a,01100000b
 	and	c
@@ -2114,6 +2118,12 @@ _pcAY_Waveform:
 	ld	(ix+TRACK_Waveform),a
 	set	_TRG_WAV,(ix+TRACK_Flags)
 	jp	_pcAY_noNoise
+
+	;--- PSG only code
+_pcAY_tonePSG:
+	ld	(hl),e
+	inc	hl
+	ld	(hl),d
 
 _pcAY_Noise:
 	;-- Test for noise
@@ -2154,48 +2164,50 @@ _pcAY_Noise:
 
 _pcAY_noNoise:
 	;volume
-	ld	a,(ix+TRACK_VolumeAdd)
-	bit	5,b
-	jp	nz,0f
-	;-- base volume
 	ld	a,b
-	and	0x0f
-	jp	4f
-0:
-	;relative volume
-	ld	c,a		; store current volume add
-	ld	a,b		
-	and	0x0f		; get	low 3	bits for volume deviation
-	
-	bit	4,b		; bit	6 set	= subtract?
-	ld	b,a		; set	deviation in b
-	ld	a,c		; set	current volume add back	in c
-	jp	nz,1f
-	;--- add 
-	add	b
-	cp	16
-	jp	c,4f
-	ld	a,15
-	jp	4f
-1:
-	;--- sub 
-	sub	b
-	cp	16
-	jp	c,4f
-	xor	a
-4:
-	ld	(ix+TRACK_VolumeAdd),a
-	
-	;---- envelope check
-	; is done here to be able to continue
-	; macro volume values.
-	bit	2,(IX+TRACK_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
+	and	00110000b
+	jp	z,_pcay_volbase
+	cp	00110000b
+	jp	z,_pcay_volsub
+	cp	00100000b
+	jp	z,_pcay_voladd
+
+_pcay_evelope:
 	ld	a,16			; set volume to 16 == envelope
 	ld	(SCC_regVOLE),a
-	ret	
-	
-_noEnv:
+	ld	a,b
+	and	0x0f
+	ld	(AY_regEnvShape),a		; set the new envelope shape
+	ret				; no further processing.
+
+
+_pcay_volbase:
+	ld	a,b
+	and	0x0f
+	jp	_pcay_volend
+
+_pcay_voladd:
+	ld	a,b
+	and	$0f
+	ld	b,a
+	ld	a,(ix+TRACK_VolumeAdd)
+	add	b
+	cp	16
+	jp	c,_pcay_volend
+	ld	a,15
+	jp	_pcay_volend
+
+_pcay_volsub:
+	ld	a,b
+	and	$0f
+	ld	b,a
+	ld	a,(ix+TRACK_VolumeAdd)
+	sub	b
+	cp	16
+	jp	c,_pcay_volend
+	xor	a
+_pcay_volend:
+	ld	(ix+TRACK_VolumeAdd),a
 	or	(ix+TRACK_Volume)
 	ld	c,a
 	
@@ -2994,12 +3006,12 @@ replay_route:
 _comp_loop:	
 	out	(c),b
 	ld	a,(hl)
-	add	1
+;	add	1
 	inc	c
 	out	(c),a
 	inc	hl
 	ld	a,(hl)
-	adc	a,0
+;	adc	a,0
 	inc	b
 	dec	c
 	out	(c),b	
@@ -3217,7 +3229,7 @@ _ptAY_noEnv:
 ;	ld	c,0xa0
 ;	ld	hl,AY_registers
 ;_comp_loop:	
-;	out	(c),b
+;	out	(c),
 ;	ld	a,(hl)
 ;	add	1
 ;	out	(0xa1),a

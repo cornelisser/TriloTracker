@@ -51,9 +51,9 @@ restore_drumeditor:
 
 
 ;===========================================================
-; --- init_psgsampleeditor
+; --- init_drumeditor
 ;
-; initialise the psg sample editor screen
+; initialise the FM drum editor screen
 ; 
 ;===========================================================	
 init_drumeditor:
@@ -308,8 +308,8 @@ processkey_drumeditor_normal:
 	and	a
 	jr.	nz,0f
 
-		call	restore_patterneditor
-		jr.	processkey_drumeditor_END
+		jp	restore_patterneditor
+		;jr.	processkey_drumeditor_END
 	
 0:
 	cp	_SPACE

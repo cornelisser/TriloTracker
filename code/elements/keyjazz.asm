@@ -255,8 +255,7 @@ _ky_noPSG:
 	and	a
 	jp	z,99f
 	
-	call	draw_PSGdebug
-	call	draw_SCCdebug
+	call	draw_register_debug
 99:
 
 	halt 

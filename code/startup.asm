@@ -38,7 +38,7 @@ start_init:
 	;-- REPLAYER and imports code
 	ld	de,SWAP_VRAMSTART
 	ld	hl,SWAP_INIT_START
-	ld    bc,0+(SWAP_FILE_END-SWAP_INIT_START)
+	ld    bc,0+(SWAP_INIT_END-SWAP_INIT_START)
 	call	swap_loadvram
 
 	
@@ -437,12 +437,23 @@ load_config:
 	ld	a,b
 	ld	(disk_handle),a
 	
-	;--- Read type
+	;--- Read config file byte for byte. This to not write strange values into RAM if config file has not all data
+	ld	b,29
 	ld	de,_CONFIG_SLOT
-	ld	hl,17
+.loop:	
+	push	bc
+	;--- Read value
+	ld	hl,1
 	call	read_file
+	
+	jp	nz,.end
+	pop	bc
+	djnz	.loop
 
+.end:
+	pop	bc
 	call	close_file
+
 
 	;---- Set volume table
 	ld	a,(_CONFIG_VOL)
@@ -452,6 +463,15 @@ load_config:
 	ld	(_CONFIG_VOL),a
 99:
 	call	set_volumetable
+
+	;--- Copy the custom theme from config vars
+	ld	de,_theme10a
+	ld	hl,_CONFIG_CUSTOMTHEME
+	ld	bc,8
+	ldir
+
+
+
 
 
 _lcfg_error:

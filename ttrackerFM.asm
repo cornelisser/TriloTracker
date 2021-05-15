@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.11.0b FM"
+define VERSION "v0.11.1b FM"
 define YEAR "2021"
 define CHIPSET_CODE $10
 
@@ -40,7 +40,12 @@ MAIN:
 
 	ld	a,(_CONFIG_SLOT)
 	ld	(replay_chan_setup),a	
-					
+
+	;--- init correct period tabel from config
+	ld	a,(_CONFIG_PERIOD)
+	ld	(replay_period),a
+	call	set_period_table
+
 					
 	
 	; new that we have the memory reserved. Switch to slot of song data
@@ -115,7 +120,7 @@ _LABEL_PATTERNHEADER2:
 	db	136,170,171,168,185,188,189,186,187	; scc4	
 	db	136,170,171,169,185,188,189,186,187	; scc5
 	db	136,151,152,153,154,0
-	include	".\code\elements\trackbox.asm"
+	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
@@ -131,7 +136,7 @@ _LABEL_PATTERNHEADER2:
 	include 	".\code\loadinstruments.asm"	
 	include 	".\code\cursor.asm"
 	include	 ".\code\elements\filedialog.asm"
-
+	include 	".\code\clipboard.asm"
 	
 	
 SWAP_ELEMENTSTART:
@@ -159,7 +164,7 @@ font_data:
 ;	include 	".\code\cursor.asm"
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
-	include 	".\code\clipboard.asm"
+	include 	".\code\register_debug.asm"
 	include 	".\code\song.asm"	
 	include	".\code\volumetable.asm"	
 	include 	".\code\keyboard.asm"	
@@ -220,7 +225,7 @@ SWAP_SAMFILE_END:
 	; --------------------------------------------------
 	org	SWAP_RAMSTART
 SWAP_CONFIG:
-
+	db	"config swap"
 	include	".\code\elements\configeditor.asm"
 	include	".\code\elements\configbox.asm"
 SWAP_CONFIG_END:
@@ -230,6 +235,7 @@ SWAP_CONFIG_END:
 	; --------------------------------------------------
 	org	SWAP_ELEMENTSTART
 SWAP_MACRO:
+	db	"macro swap"
 	include 	".\code\elements\macroeditor.asm"
 	include 	".\code\elements\macroboxFM.asm"
 SWAP_MACRO_END:
@@ -238,18 +244,24 @@ SWAP_MACRO_END:
 	; --------------------------------------------------
 	org	SWAP_RAMSTART
 SWAP_INSFILE:
-
+	db	"insfile swap"
 	include	".\code\elements\fileinsdialog.asm"
 SWAP_INSFILE_END:
+
+
+
+
 
      ; Song file dialog swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
+SWAP_TRACK:
 SWAP_FILE:
- 
- ;    include    ".\code\elements\filedialog.asm"
+	db	"trackbox swap"
+	include	".\code\elements\trackbox.asm"
+SWAP_TRACK_END:
 SWAP_FILE_END:
- 
+
      ; Voice manager swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
@@ -262,10 +274,12 @@ SWAP_VOICEMAN_END:
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
 SWAP_DRUM:
+	db	"drum swap"
 	include	".\code\elements\drumeditor.asm"
 	include	".\code\elements\drumeditbox.asm"	
 SWAP_DRUM_END:
-
+	db	"End of swap data"
+SWAP_INIT_END:
 	
 	include ".\code\variablesFM.asm"	
 

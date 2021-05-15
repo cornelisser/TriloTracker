@@ -234,8 +234,7 @@ _playback_loop:
 	ld	a,(_CONFIG_DEBUG)
 	and	a
 	jp	z,99f
-	call	draw_PSGdebug
-	call	draw_SCCdebug
+	call	draw_register_debug
 
 99:
 	call	draw_vu

@@ -50,6 +50,14 @@ ELSE
 ENDIF
 _CONFIG_VOL:
 	db	0		; Volume limit 0 or 1
+_CONFIG_PERIOD:
+	db	0		; Perdiod table to use.
+_CONFIG_CUSTOMTHEME:	
+	db 	$00,$0		; backgrnd
+	db 	$77,$7		; text
+	db	$33,$3		; back blink
+	db	$66,$6	
+
 
 _ENV_PROGRAM:
 	db	"PROGRAM",0	
@@ -67,3 +75,14 @@ ELSE
 _DEFAULT_CFG:	db	"TTSCC.CFG",0	
 _DEFAULT_CFGLEN:	equ	10
 ENDIF
+
+
+	;--- set period table
+set_period_table:
+	ld	a,3
+	call	swap_loadblock
+	ld	a,(replay_period)	
+	call	set_period_PSG
+	ld	a,(replay_period)
+	call	set_period_FM
+	ret

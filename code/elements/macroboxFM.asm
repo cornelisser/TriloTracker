@@ -1,7 +1,3 @@
-
-
-
-
 ;===========================================================
 ; --- draw_samplebox
 ; Display the  area.  Without actual values 
@@ -324,7 +320,7 @@ _ups_lineloop:
 10:		ld	(de),a
 		inc	de
 		djnz	10b
-		jr.	55f
+		jr.	_ups_draw
 	;-- YES draw data!!!
 0:	
 	;--- Check if we are at loop pos
@@ -427,22 +423,109 @@ _ups_lineloop:
 	inc	de
 
 _vol_update:
+	push	bc
 	;--- Volume	
-	bit	5,c
-	jr.	nz,0f		; 1= relative, 0=absolute
-	;- base
-	ld	a,"_"
-	jr.	1f
-0:
-	bit	4,c
-	jr.	nz,99f	; 0 = add, 1=subtract
+	ld	a,c
+	and	00110000b
+	jp	z,_ups_base
+	cp	00100000b
+	jp	z,_ups_add
+	cp	00110000b
+	jp	z,_ups_sub
 
+IFDEF TTFM
+_ups_env:
+	;- Envelope
+	ld	a,"^"
+	ld	(de),a
+	inc	de
+
+	ld	a,c
+	and	0x0f
+	call	draw_hex
+
+	push	hl
+	ld	a,c
+	and	0x0f
+	jp	z,.env_no
+	cp	4
+	jp	c,.env_0
+	cp	8
+	jp	c,.env_4
+	jp	z,.env_8
+	cp	$a
+	jp	c,.env_0
+	jp	z,.env_a
+	cp	$c
+	jp	c,.env_b
+	jp	z,.env_c
+	cp	$e
+	jp	c,.env_d
+	jp	z,.env_e
+.env_4:
+	ld	hl,ENVELOPE_4567F
+	jp	.print
+.env_0:
+	ld	hl,ENVELOPE_01239
+	jp	.print
+.env_8:
+	ld	hl,ENVELOPE_8
+	jp	.print
+.env_a:
+	ld	hl,ENVELOPE_A
+	jp	.print
+.env_b:
+	ld	hl,ENVELOPE_B
+	jp	.print
+.env_c:
+	ld	hl,ENVELOPE_C
+	jp	.print
+.env_d:
+	ld	hl,ENVELOPE_D
+	jp	.print
+.env_no:
+	ld	hl,ENVELOPE_NO
+	jp	.print
+.env_e:
+	ld	hl,ENVELOPE_E
+.print	
+	inc	de
+	ld	bc,4
+	ldir
+	pop	hl
+	inc	de
+	jp	55f
+
+ENVELOPE_NO:
+	db	'    '
+ENVELOPE_01239:
+	db	$b3,$b5,$b5,$b5			;'\___'
+ENVELOPE_4567F:	
+	db	$b2,$b5,$b5,$b5			;'/___'
+ENVELOPE_8:
+	db	$b3,$b3,$b3,$b3			;'\\\\'
+ENVELOPE_A:
+	db	$b3,$b2,$b3,$b2			;'\/\/'
+ENVELOPE_B:
+	db	$b3,$b4,$b4,$b4			;'\"""'
+ENVELOPE_C:
+	db	$b2,$b2,$b2,$b2			;'////'
+ENVELOPE_D:
+	db	$b2,$b4,$b4,$b4			;'/"""'
+ENVELOPE_E:
+	db	$b2,$b3,$b2,$b3			;'/\/\'
+ENDIF
+
+_ups_base:
+	ld	a,"_"
+	jp	0f
+_ups_add:
 	;- add
 	ld	a,"+"
-	jr.	1f
-99:	;- sub			
+	jp	0f
+_ups_sub:
 	ld	a,"-"
-1:
+0:
 	ld	(de),a
 	inc	de
 
@@ -452,11 +535,13 @@ _vol_update:
 
 	ld	a,c
 	and	0x0f
-
+1:
 	inc	de
 	call	draw_volumebar
+55:
 	inc	de
-
+	pop	bc
+	
 _noise_dev:
 	; noise deviation
 IFDEF TTFM
@@ -588,7 +673,7 @@ ENDIF
 
 
 
-
+_ups_draw:
 55:	; end of line making,,,,,
 	push	hl			; store data pointer
 	ld	hl,(_ups_pntpos)	; get pnt pointer
@@ -1332,6 +1417,12 @@ _psgsamright:
 	; Addition deviation
 	;
 	;=====================
+IFDEF TTFM
+	cp	'^'
+	jr.	z,_pkp_env
+	cp	'\'
+	jr.	z,_pkp_env		
+ENDIF
 	cp	"+"
 	jr.	z,1f
 	cp	"-"
@@ -1341,6 +1432,23 @@ _psgsamright:
 	cp	"="
 	jr.	nz,0f
 	ld	a,"_"
+	jr	1f
+
+_pkp_env:
+	;--- Check if we are editing volume
+	ld	a,(cursor_input)
+	cp	13
+	jp	nz,update_macrobox
+	call	get_macro_location
+	inc	hl
+	ld	a,(hl)
+	and	11001111b
+	or	00010000b 	
+;	set	4,e
+;	res	5,e
+	ld	(hl),a
+	jr.	update_macrobox
+
 
 	; save the key
 1:	ld	d,a
@@ -1365,18 +1473,22 @@ _pkp_vol:
 	ld	a,d
 	cp	"+"
 	jr.	nz,1f
+	;- Add
 	set	5,e
 	res	4,e
 	jr.	2f
 1:
 	cp	"-"
 	jr.	nz,1f
+	;--- Subtract
 	set	5,e
 	set	4,e
 	jr.	2f	
 
 1:	
+	;--- Base
 	res	5,e
+	res	4,e
 2:
 	ld	(hl),e
 

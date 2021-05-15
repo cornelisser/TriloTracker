@@ -209,8 +209,8 @@ processkey_sampleeditor_normal:
 	and	a
 	jr.	nz,0f
 
-		call	restore_patterneditor
-		jr.	processkey_sampleeditor_END
+		jp	restore_patterneditor
+		;jr.	processkey_sampleeditor_END
 	
 0:
 	cp	_SPACE

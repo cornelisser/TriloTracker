@@ -535,8 +535,8 @@ processkey_macroeditor_normal:
 	and	a
 	jr.	nz,0f
 
-		call	restore_patterneditor
-		jr.	processkey_macroeditor_END
+		jp	restore_patterneditor
+		;jr.	processkey_macroeditor_END
 	
 
 0:

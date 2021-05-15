@@ -702,6 +702,10 @@ _fd_drive_check:
 	call	new_song
 	ld	a,5			; trick mode as it is set to 0 by new_song
 	ld	(editmode),a
+
+	;--- set period table
+	call	set_period_table
+
 	call	reset_cursor_trackbox
 	jr.	restore_patterneditor
 	
@@ -1080,6 +1084,10 @@ _pfd_LOAD:
 	ld	a,(window_shown)
 	and	a
 	jp	nz,restore_filedialog
+
+	;--- Set the correct period table 
+	call	set_period_table
+
 
 	;-- just go to patern editor on success
 	call	cursorstack_init

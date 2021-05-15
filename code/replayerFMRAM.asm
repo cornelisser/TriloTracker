@@ -7,6 +7,13 @@
 ;replay_vib_table:			dw 0			; pointer to the vibrato table
 replay_Tonetable:			dw CHIP_ToneTable
 
+replay_period:			db	0			; Pitch table for playback
+
+auto_env_times			db	0
+auto_env_divide			db	0
+
+
+
 CHIP_Instrument			equ 0	
 CHIP_Voice				equ 1
 CHIP_Command			equ 2
@@ -249,24 +256,43 @@ psgport:	db	0
 		
 CHIP_FM_ToneTable:
 	db   	0,0
-	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h	; Oct 1
-      db	0f4h,000h,003h,001h,012h,001h,022h,001h,034h,001h,046h,001h
-      db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h ; Oct 2
-      db    0f4h,002h,003h,003h,012h,003h,022h,003h,034h,003h,046h,003h
-      db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h ; Oct 3
-      db    0f4h,004h,003h,005h,012h,005h,022h,005h,034h,005h,046h,005h
-      db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h ; Oct 4
-      db    0f4h,006h,003h,007h,012h,007h,022h,007h,034h,007h,046h,007h
-      db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h ; Oct 5
-      db    0f4h,008h,003h,009h,012h,009h,022h,009h,034h,009h,046h,009h
-      db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah ; Oct 6
-      db    0f4h,00ah,003h,00bh,012h,00bh,022h,00bh,034h,00bh,046h,00bh
-      db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch ; Oct 7
-      db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
-      db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh ; Oct 8
-      db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
+	db	0ach,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h	; Oct 1
+     	db	0f4h,000h,002h,001h,012h,001h,022h,001h,033h,001h,046h,001h
+      db    0ach,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h ; Oct 2
+      db    0f4h,002h,002h,003h,012h,003h,022h,003h,033h,003h,046h,003h
+      db    0ach,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h ; Oct 3
+      db    0f4h,004h,002h,005h,012h,005h,022h,005h,033h,005h,046h,005h
+      db    0ach,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h ; Oct 4
+      db    0f4h,006h,002h,007h,012h,007h,022h,007h,033h,007h,046h,007h
+      db    0ach,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h ; Oct 5
+      db    0f4h,008h,002h,009h,012h,009h,022h,009h,033h,009h,046h,009h
+      db    0ach,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah ; Oct 6
+      db    0f4h,00ah,002h,00bh,012h,00bh,022h,00bh,033h,00bh,046h,00bh
+      db    0ach,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch ; Oct 7
+      db    0f4h,00ch,002h,00dh,012h,00dh,022h,00dh,033h,00dh,046h,00dh
+      db    0ach,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh ; Oct 8
+      db    0f4h,00eh,002h,00fh,012h,00fh,022h,00fh,033h,00fh,046h,00fh
+	
+;	db   	0,0
+;	db	0adh,000h,0b7h,000h,0c2h,000h,0cdh,000h,0d9h,000h,0e6h,000h	; Oct 1
+;     db	0f4h,000h,003h,001h,012h,001h,022h,001h,034h,001h,046h,001h
+;     db    0adh,002h,0b7h,002h,0c2h,002h,0cdh,002h,0d9h,002h,0e6h,002h ; Oct 2
+;     db    0f4h,002h,003h,003h,012h,003h,022h,003h,034h,003h,046h,003h
+;     db    0adh,004h,0b7h,004h,0c2h,004h,0cdh,004h,0d9h,004h,0e6h,004h ; Oct 3
+;     db    0f4h,004h,003h,005h,012h,005h,022h,005h,034h,005h,046h,005h
+;     db    0adh,006h,0b7h,006h,0c2h,006h,0cdh,006h,0d9h,006h,0e6h,006h ; Oct 4
+;     db    0f4h,006h,003h,007h,012h,007h,022h,007h,034h,007h,046h,007h
+;     db    0adh,008h,0b7h,008h,0c2h,008h,0cdh,008h,0d9h,008h,0e6h,008h ; Oct 5
+;     db    0f4h,008h,003h,009h,012h,009h,022h,009h,034h,009h,046h,009h
+;     db    0adh,00ah,0b7h,00ah,0c2h,00ah,0cdh,00ah,0d9h,00ah,0e6h,00ah ; Oct 6
+;     db    0f4h,00ah,003h,00bh,012h,00bh,022h,00bh,034h,00bh,046h,00bh
+;     db    0adh,00ch,0b7h,00ch,0c2h,00ch,0cdh,00ch,0d9h,00ch,0e6h,00ch ; Oct 7
+;     db    0f4h,00ch,003h,00dh,012h,00dh,022h,00dh,034h,00dh,046h,00dh
+;     db    0adh,00eh,0b7h,00eh,0c2h,00eh,0cdh,00eh,0d9h,00eh,0e6h,00eh ; Oct 8
+;     db    0f4h,00eh,003h,00fh,012h,00fh,022h,00fh,034h,00fh,046h,00fh
 
 IFDEF TTSMS
+TRACK_ToneTable:
 CHIP_ToneTable:	
 	dw	0	;	Dummy value (note 0)
 	dw $0001	     ; C1			
@@ -372,33 +398,18 @@ CHIP_ToneTable:
 
 	
 	
-ELSE	
+ELSE
+TRACK_ToneTable:	
 CHIP_ToneTable:	
 	dw	0
-	dw C_PER/1	,C1_PER/1  ,D_PER/1  ,D1_PER/1  ,E_PER/1	,F_PER/1  ,F1_PER/1  ,G_PER/1	 ,G1_PER/1	,A_PER/1  ,A1_PER/1  ,B_PER/1
-	dw C_PER/2	,C1_PER/2  ,D_PER/2  ,D1_PER/2  ,E_PER/2	,F_PER/2  ,F1_PER/2  ,G_PER/2	 ,G1_PER/2	,A_PER/2  ,A1_PER/2  ,B_PER/2
-	dw C_PER/4	,C1_PER/4  ,D_PER/4  ,D1_PER/4  ,E_PER/4	,F_PER/4  ,F1_PER/4  ,G_PER/4	 ,G1_PER/4	,A_PER/4  ,A1_PER/4  ,B_PER/4
-	dw C_PER/8	,C1_PER/8  ,D_PER/8  ,D1_PER/8  ,E_PER/8	,F_PER/8  ,F1_PER/8  ,G_PER/8	 ,G1_PER/8	,A_PER/8  ,A1_PER/8  ,B_PER/8
-	dw C_PER/16	,C1_PER/16 ,D_PER/16 ,D1_PER/16 ,E_PER/16	,F_PER/16 ,F1_PER/16 ,G_PER/16 ,G1_PER/16	,A_PER/16 ,A1_PER/16 ,B_PER/16
-	dw C_PER/32	,C1_PER/32 ,D_PER/32 ,D1_PER/32 ,E_PER/32	,F_PER/32 ,F1_PER/32 ,G_PER/32 ,G1_PER/32	,A_PER/32 ,A1_PER/32 ,B_PER/32
-	dw C_PER/64	,C1_PER/64 ,D_PER/64 ,D1_PER/64 ,E_PER/64	,F_PER/64 ,F1_PER/64 ,G_PER/64 ,G1_PER/64	,A_PER/64 ,A1_PER/64 ,B_PER/64
-	dw C_PER/128,C1_PER/128,D_PER/128,D1_PER/128,E_PER/128,F_PER/128,F1_PER/128,G_PER/128,G1_PER/128,A_PER/128,A1_PER/128,B_PER/128
-	dw C_PER/256,C1_PER/256,D_PER/256,D1_PER/256,E_PER/256,F_PER/256,F1_PER/256,G_PER/256,G1_PER/256,A_PER/256,A1_PER/256,B_PER/256
-
-;Konami values found in	nemesis 2 replayer.
-;db	0x6a,	0x64,	0x5e,	0x59,	0x54,	0x4f,	0x4a,	0x46,	0x42,	0x3f,	0x3b,	0x38,	0x35
-C_PER		equ	$6a*32	
-C1_PER	equ	$64*32
-D_PER		equ	$5e*32
-D1_PER	equ	$59*32
-E_PER		equ	$54*32
-F_PER		equ	$4f*32
-F1_PER	equ	$4a*32
-G_PER		equ	$46*32
-G1_PER	equ	$42*32
-A_PER		equ	$3f*32
-A1_PER	equ	$3b*32
-B_PER		equ	$38*32
+	dw    3420	,3229	,3047	,2876	,2715	,2562	,2419	,2283	,2155	,2034	,1920	,1812
+	dw    1710	,1614	,1524	,1438	,1357	,1281	,1209	,1141	,1077	,1017	,960	,906
+	dw    855	,807	,762	,719	,679	,641	,605	,571	,539	,508	,480	,453
+	dw    428	,404	,381	,360	,339	,320	,302	,285	,269	,254	,240	,226
+	dw    214	,202	,190	,180	,170	,160	,151	,143	,135	,127	,120	,113
+	dw    107	,101	,95	,90	,85	,80	,76	,71	,67	,64	,60	,57
+	dw    53	,50	,48	,45	,42	,40	,38	,36	,34	,32	,30	,28
+	dw    27	,25	,24	,22	,21	,20	,19	,18	,17	,16	,15	,14
 
 ENDIF
 
@@ -478,7 +489,8 @@ replay_stop:
 	ld	de,DRUM_regToneBD
 	ld	hl,DRM_DEFAULT_values
 	ld	a,3
-.loop:	ldi
+.loop:	
+	ldi
 	ldi
 	inc	de
 	inc	de

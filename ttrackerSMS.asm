@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.11.0b SMS"
+define VERSION "v0.11.1b SMS"
 define YEAR "2021"
 define CHIPSET_CODE $30
 
@@ -41,11 +41,21 @@ MAIN:
 	call mmm_srch	; This routine will find and activate SN if found
 	call	MSXMusic_Detect
 
+	;--- init correct period tabel from config
+	ld	a,(_CONFIG_PERIOD)
+	ld	(replay_period),a
+	call	set_period_table
+
+
+
 	; new that we have the memory reserved. Switch to slot of song data
 	ld	a,(mapper_slot)			; get mapper slot
 	ld	h,0x80
 	call enaslt	
 	
+
+
+
 	call	set_songpage
 	;-- now copy the voices data to songpage:
 	ld	hl,_VOICES_data
@@ -128,7 +138,8 @@ _LABEL_PATTERNHEADER2:
 	db	136,170,171,168,185,188,189,186,187	; scc4	
 	db	136,170,171,169,185,188,189,186,187	; scc5
 	db	136,151,152,153,154,0
-	include	".\code\elements\trackbox.asm"
+	include	".\code\elements\trackboxRAM.asm"
+;	include	".\code\elements\trackbox.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
@@ -155,7 +166,7 @@ font_data:
 	include ".\code\startup.asm"
 	include ".\code\loadvoicenamesFM.asm"
 	include ".\code\elements\keynotetable.asm"
-
+	include 	".\code\clipboard.asm"
 
 
 
@@ -172,7 +183,7 @@ font_data:
 
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
-	include 	".\code\clipboard.asm"
+	include	".\code\register_debug.asm"
 	include 	".\code\song.asm"	
 	include	".\code\volumetable.asm"	
 	include 	".\code\keyboard.asm"
@@ -258,9 +269,11 @@ SWAP_INSFILE_END:
      ; Song file dialog swappable code block
      ; --------------------------------------------------
      org    SWAP_ELEMENTSTART
+SWAP_TRACK:
 SWAP_FILE:
- 
-  ;   include    ".\code\elements\filedialog.asm"
+	db	"trackbox swap"
+	include	".\code\elements\trackbox.asm"
+SWAP_TRACK_END:
 SWAP_FILE_END:
  
      ; Voice manager swappable code block
@@ -277,7 +290,8 @@ SWAP_DRUM:
 	include	".\code\elements\drumeditor.asm"
 	include	".\code\elements\drumeditbox.asm"	
 SWAP_DRUM_END:
-
+	db	"End of swap data"
+SWAP_INIT_END:
 		
 	include ".\code\variablesFM.asm"	
 

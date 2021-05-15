@@ -51,16 +51,16 @@ update_patterneditor:
 	call	update_instrumentbox
 	call	update_orderbox
 
-
 	ret
 	
-
 	
 restore_patterneditor:
 	ld	a,(editmode)
 	cp	0
 	ret	z
 
+	ld	a,6
+	call	swap_loadelementblock
 
 	ld	a,0
 	ld	(editmode),a		
@@ -81,9 +81,12 @@ restore_patterneditor:
 ;===========================================================	
 init_patterneditor:
 
-	ld	a,(editmode)
-	cp	0
-	ret	z
+;	ld	a,(editmode)
+;	cp	0
+;	ret	z
+
+	ld	a,6
+	call	swap_loadelementblock
 
 	; --- File selectio pointer to the first entry			
 	xor	a
@@ -165,8 +168,8 @@ ENDIF
 0:	;--- F4
 	dec	a
 	jr.	nz,0f
-		ld	a,4
-		call	swap_loadblock
+;		ld	a,4
+;		call	swap_loadblock
 		ret
 ;		jr.	init_trackmanager
 

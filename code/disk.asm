@@ -832,7 +832,7 @@ _create_tmu_continue:
 
 	
 	;--- Write header
-	ld	a,9				; Increased to 9 for new FM drum macro version 
+	ld	a,11				; Increased to 11 for extra bytes 
 	or	CHIPSET_CODE
 IFDEF TTSCC
 ELSE
@@ -852,6 +852,22 @@ ENDIF
 	call	write_file
 	call	nz,catch_diskerror
 	
+	;---- Extra info bytes
+	ld	de,buffer
+	ld	a,1		; # of bytes data next
+	ld	(de),a
+	ld	hl,1
+	call	write_file
+	call	nz,catch_diskerror	
+
+	;--- Pitchtable
+	ld	de,replay_period	
+	ld	hl,1
+	call	write_file
+	call	nz,catch_diskerror
+
+
+
 	;--- Write song name
 	ld	de,song_name
 	ld	hl,32
@@ -1962,7 +1978,31 @@ ELSE
 	and	01111111b
 	ld	(song_version),a
 ENDIF
+	
+	;--- song version 11 and up has extra bytes info
+	and	$0f
+	cp	11
+	jp	nz,0f
 
+	ld	de,buffer
+	ld	hl,1
+	call	read_file
+	jr.	nz,catch_diskerror	
+
+	ld	de,buffer
+	ld	a,(buffer)
+	ld	h,0
+	ld	l,a
+	call	read_file
+	jr.	nz,catch_diskerror
+
+	;--- Period table
+	ld	a,(buffer)
+	ld	(replay_period),a
+
+	;----- END OF EXTRA INFO
+
+0:
 	;--- Read song name
 	ld	de,song_name
 	ld	hl,32
@@ -2431,62 +2471,49 @@ _open_tmufile_end:
 	call	close_file
 	call	set_hook
 
+IFDEF TTSMS
+ELSE
 	ld	a,(song_version)
 	and	$0f
-	cp	5
-	call	c,_translate_macros
-
+	cp	10
+	jp	c,_translate_macros_correct_basevol
+ENDIF
 	ret
-	
-_translate_macros:
+
+
+
+
+_translate_macros_correct_basevol:
+
 	ld	b,32
 	ld	de,instrument_macros
 	
-0:
-	ld	c,(32)
+.insloop:
+	ld	c,32
 	inc	de	; skip len
 	inc	de	; skip restart
 	inc	de	; skip waveform
 
-1:	
+.rowloop:	
 	inc	de	; skip noise
-	ld	a,(de)
-	ld	h,a
-	
-	;-- translate tone deviation
-	bit	5,h
-	jr.	z,10f
-	set	6,a
-	jr.	20f
-10:	res	6,a
-20:	
-	;-- translate volume deviation
-	bit	4,h
-	jr.	nz,10f
-	res	5,a	; base	
-	res	4,a	; pos
-	jr.	20f
-10:	set	5,a	; relative
-	res	3,a	; only -7..7
-	;--posneg?
-	bit	3,h
-	jr.	nz,30f
-	res	4,a	; pos
-	jr.	20f
-30:
-	set	4,a	; neg
 
-20:	
-	ld	(de),a	
-	
+	ld	a,(de)
+	bit	5,a		; check if base vol (bit5 == 0)
+	jp	nz,99f
+	and	11001111b	; reset also bit 4 for base. Bit4 is for envelope.
+	ld	(de),a
+99:
 	inc	de
 	inc	de	; skip tone value
 	inc	de	; skip tine value
 	dec	c
-	jr.	nz,1b
-	djnz	0b
-	
+	jp	nz,.rowloop
+	djnz	.insloop	
+
 	ret
+
+
+
 	
 	
 

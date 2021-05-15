@@ -83,6 +83,10 @@ MAIN:
 	ld	a,10
 	ld	(editmode),a
 	call	init_patterneditor
+	
+
+
+
 
 	; --- main loop
 	;call	set_hook

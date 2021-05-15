@@ -98,6 +98,8 @@ waveform_datasize	#1	;# of waveforms (16,32,48 or 64 waveforms)
 
 ; 2nd part contains MOAM waveforms
 
+cpu_type:			#1
+
 
 ; --- edit modes
 editmode:		#1	; 0=pattern,1=psg samp,2= ornaments, 3=scc samples, 4=scc waves, 5=file load, 6=file save

@@ -1958,7 +1958,7 @@ _CHIPcmdF_speed:
 
 
 _rpd_noDrum:
-	ld	(FM_DRUM),a		; store the percusion bits
+;	ld	(FM_DRUM),a		; store the percusion bits
 	ret
 ;===========================================================
 ; ---replay_process_drum
@@ -3672,6 +3672,13 @@ ENDIF
 ;--------------
 ; F M P A C 
 ;--------------
+	ld	a,(cpu_type)
+	and	a
+	jp	z,0f
+	xor	a
+;	call	$0180
+0:
+
 replay_route_FM:
 	ld	hl,FM_softvoice_req
 	ld	a,(hl)
@@ -3773,7 +3780,15 @@ _skipMixer:
 	inc	hl
 	add	a,-$1F	; Register# = channel + $10
 	djnz	.channel_loop
+
+	;--- restore the R800 mode
+	ld	a,(cpu_type)
+	and	a
+	jp	z,0f
+;	call	$0180
+0:
 	ret
+
 
 _route_FM_drum_update:
 	ld	a,(DrumMixer)
@@ -3787,27 +3802,20 @@ _route_FM_drum_update:
 	ld	b,a
 	ld	a,0x0e
 	;-- load the new values
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles
-
-
 	out	(FM_WRITE),a	; Select rythm register
-
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
-
 	ld	a,b			; 5 cycles
-	ld	a,b			; 5 cycles	; dummy code for delay
+	ld	a,b			; 5 cycles
+	
 	out	(FM_DATA),a		
+	push	af
+	pop	af
+	push	af
+	pop	af
 
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles
 
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles
-	rld				; 20 cycles
-	rrd				; 20 cycles
-
+	ld	a,0
+	ld	(FM_DRUM),a
+	ld	a,b
 	or	100000b		; set the percussion bit
 	out	(FM_DATA),a
 	
@@ -3847,15 +3855,9 @@ _rfr_cont:
 	cp	(hl)	
 	jp	z,99f		; no change in tone low value
 	ex	af,af'	
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles
 	out	(FM_WRITE),a
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
 	ex	af,af'
 	ld	(hl),a
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
 	out	(FM_DATA),a	
 	push	ix			; 17 cycles	dummy code to implement delay
 	pop	ix			; 17 cycles	
@@ -3898,25 +3900,22 @@ _rfr_cont:
 ;-----------
 _route_FM_keyOff_update:
 	ex	af,af'
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
 	out	(FM_WRITE),a
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
 	ex	af,af'		; 4 cycles	 '
 	ld	a,(hl)
 	and	11101111b	; erase keyON bit.
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
+
 	out	(FM_DATA),a	
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
 	inc	hl
 	inc	hl
 	ld	(hl),a		; make sure to change old value to trigger update
 	dec	hl
 	dec	hl
 	ret
+
+
+
+
 
 
 ;route_FM_toneUpdate:

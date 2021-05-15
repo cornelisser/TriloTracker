@@ -380,8 +380,19 @@ _fontloop:
 init_config:
 	call	set_vsf
 
-
-
+IFDEF TTSCC
+ELSE
+	;--- For replay opll on R800 we need to switch to z80 otherwise double drums.
+	ld	b,0
+    	ld 	a,(002DH)
+    	cp 	3		; everthing smaller than 3 is not tR
+	jp	c,0f
+    	call 	$0183		; GETCPU  ; 0183H
+	ld	b,a
+0:
+	ld	a,b
+	ld	(cpu_type),a	
+ENDIF
 	;-- get location of TT.COM
 ;	ld	c,$6b
 ;	ld	hl,_ENV_PROGRAM

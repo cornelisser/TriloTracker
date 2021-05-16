@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.11.1b SCC"
+define VERSION "v0.11.2b SCC"
 define YEAR "2021"
 define CHIPSET_CODE $00
 

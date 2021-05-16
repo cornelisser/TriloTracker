@@ -58,6 +58,7 @@ cursor_off:
 	inc	hl
 	out	(0x98),a
 	djnz	1b	
+	ei
 	ret
 
 cursor_on:
@@ -65,6 +66,7 @@ cursor_on:
 1:
 	out	(0x98),a
 	djnz	1b
+	ei
 	ret
 	
 	
@@ -110,7 +112,7 @@ _fc_loop:				; add lines to the pnt
 	inc	hl
 	out	(0x98),a
 	djnz	1b	
-
+	ei
 	
 	
 	

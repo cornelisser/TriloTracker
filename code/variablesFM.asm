@@ -96,9 +96,7 @@ instrument_line		#1
 
 waveform_datasize	#1	;# of waveforms (16,32,48 or 64 waveforms)
 
-; 2nd part contains MOAM waveforms
 
-cpu_type:			#1
 
 
 ; --- edit modes

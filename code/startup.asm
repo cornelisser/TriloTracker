@@ -8,7 +8,7 @@ start_init:
 	call	check_extendedBIOS	; exteded BIOS is needed
 
 
-	ld	a,($FFE8)	; get mirror of VDP reg# 9
+	ld	a,($FFE8)		; get mirror of VDP reg# 9
 	and	2
 	jp	z,99f
 	ld	a,-1
@@ -354,7 +354,7 @@ init_font:
 	ld	hl,0x9000
 	call	set_vdpwrite
 	
-	di
+;	di
 	ld a,8		; loop 8 times
 	ld c,0x98
 
@@ -379,49 +379,6 @@ _fontloop:
 
 init_config:
 	call	set_vsf
-
-IFDEF TTSCC
-ELSE
-	;--- For replay opll on R800 we need to switch to z80 otherwise double drums.
-	ld	b,0
-    	ld 	a,(002DH)
-    	cp 	3		; everthing smaller than 3 is not tR
-	jp	c,0f
-    	call 	$0183		; GETCPU  ; 0183H
-	ld	b,a
-0:
-	ld	a,b
-	ld	(cpu_type),a	
-ENDIF
-	;-- get location of TT.COM
-;	ld	c,$6b
-;	ld	hl,_ENV_PROGRAM
-;	ld	de,buffer
-;	ld	b,255
-;	call	DOS
-
-	;-load the config file
-	
-	
-	
-	;--- process the config values
-	
-	;-- Speed equalisation
-;	ld	a,(_FOUND_VDP)
-;	and	a
-;	jr.	z,1f		; if 60hz
-;	
-;	;--- on 50Hz always disable speed equalization
-;	ld	(vsf),a
-;	jp	0f
-;
-;	;--- on 60hz equalization is optional	
-;1:
-;	ld	a,(_CONFIG_EQU)
-;	ld	(vsf),a
-;
-;
-;0:
 	ret
 
 

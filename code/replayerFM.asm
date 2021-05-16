@@ -3672,13 +3672,6 @@ ENDIF
 ;--------------
 ; F M P A C 
 ;--------------
-	ld	a,(cpu_type)
-	and	a
-	jp	z,0f
-	xor	a
-;	call	$0180
-0:
-
 replay_route_FM:
 	ld	hl,FM_softvoice_req
 	ld	a,(hl)
@@ -3780,13 +3773,6 @@ _skipMixer:
 	inc	hl
 	add	a,-$1F	; Register# = channel + $10
 	djnz	.channel_loop
-
-	;--- restore the R800 mode
-	ld	a,(cpu_type)
-	and	a
-	jp	z,0f
-;	call	$0180
-0:
 	ret
 
 
@@ -3865,6 +3851,9 @@ _rfr_cont:
 ;	dec	hl	
 	ret
 	
+
+
+
 ;------- Writes Volume safe to the FM chip
 ; in :
 ;	[a]	Register# to write

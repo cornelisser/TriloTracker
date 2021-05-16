@@ -37,7 +37,7 @@ _sv_off:
 
 	; --- set_vdpwrite
 	; sets up the vdp address in HL to write to
-	; enables ISR and changes a
+	; disables ISR and changes a
 
 set_vdpwrite:
 	xor	a
@@ -56,9 +56,12 @@ set_vdpwrite:
 	out	(#99),a
 	ld	a,h
 	or	64
-	ei
+;	ei
 	out	(#99),a
 	ret
+
+
+
 
 
 	; --- set_vdpread

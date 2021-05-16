@@ -53,12 +53,13 @@ ENDIF
 ; [BC] - size
 
 swap_loadvram:
+	di
 	;--- set VRAM write address
 	ex	de,hl			; set dest to HL
 	call	set_vdpwrite
 	ex	de,hl
 	
-	di
+
 	ld	a,b		; store C in A this is the number of 256 bytes to loop
 	ex	af,af'	;'
 	ld	a,c

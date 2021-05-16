@@ -1968,6 +1968,7 @@ open_tmufile:
 	call	nz,catch_diskerror
 			
 IFDEF TTSCC
+	ld	a,(song_version)
 ELSE
 	;--- Set channel setup
 	ld	a,(song_version)

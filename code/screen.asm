@@ -30,7 +30,7 @@ clear_screen:
 
 	ld	e,27
 	ld	a,32
-	di
+;	di
 0:	;-- main loop
 	ld	bc,0x5098
 1:	;--- sub loop
@@ -47,7 +47,7 @@ clear_cnt:
 	
 	ld	e,27
 	ld	a,0
-	di
+;	di
 0:	;-- main loop
 	ld	bc,0x0a98
 1:	;--- sub loop
@@ -89,7 +89,7 @@ clear_files:
 	
 	pop	bc
 	djnz	0b
-
+	ei
 	ret	
 
 
@@ -588,7 +588,7 @@ _cb_copyloop:
 	
 	dec	c
 	jr.	nz,_cb_copyloop_main
-	
+	ei
 	ret
 	
 
@@ -620,7 +620,7 @@ _cp_clip_copy:
 	
 	dec	c
 	jr.	nz,_cp_clip_copy	
-	
+	ei
 	ret
 
 ; ==========================================================	
@@ -776,7 +776,7 @@ _ecb_copyloop:
 	
 	dec	c
 	jr.	nz,_ecb_copyloop_main
-	
+	ei
 	ret
 	
 
@@ -808,6 +808,6 @@ _ecb_clip_copy:
 	
 	dec	c
 	jr.	nz,_ecb_clip_copy	
-	
+	ei
 	ret
 

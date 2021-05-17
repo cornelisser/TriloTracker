@@ -41,7 +41,6 @@
    * [E9y    -     Noise panning](#e9y---noise-panning)
    * [ECy    -     Note cut delay](#ecy---note-cut-delay)
    * [EDy    -     Note delay](#edy---note-delay)
-   * [EEy    -     Envelope](#eey---envelope)
    * [EFy    -     Trigger](#efy---trigger)
 * [Fxy    -    Replay Speed](#fxy---replay-speed)
 
@@ -309,20 +308,7 @@ Sets the Game Gear Panning of the noise channel.Can be used in any PSG channel.
 #### <a name='edy---note-delay'></a>EDy    -     Note delay
 y value sets the delay in ticks to wait before starting the note.
 
-#### <a name='eey---envelope'></a>EEy    -     Envelope
-<sup>**[PSG AY-3-8910 Only]**</sup><br>
-y value sets the envelope shape to use. Value EE0 will continue the current envelope command. Values $1-$f sets the envelope shape. The envelope shape is executed in 15 steps. Step speed depends on the envelope frequency (see command 8xy). Envelope shapes are restart at every EEy command (except EE0). The following envelope shapes are available:
 
-```
- 8      \\\\\\\\\\
- 1-3,9  \_________  
- A      \/\/\/\/\/
- B      \‾‾‾‾‾‾‾‾‾  
- C      //////////
- D      /‾‾‾‾‾‾‾‾‾  
- E      /\/\/\/\/\
- 4-7,F  /_________
-```
 #### <a name='efy---trigger'></a>EFy    -     Trigger
 y value is set in the trigger variable. The trigger can be used to sync programs to the music.
 

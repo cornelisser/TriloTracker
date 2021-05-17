@@ -59,6 +59,19 @@ Example (good):
                               envelope is still active.
 ```
 
+Envelope shapes:
+```
+ 8      \\\\\\\\\\
+ 1-3,9  \_________  
+ A      \/\/\/\/\/
+ B      \‾‾‾‾‾‾‾‾‾  
+ C      //////////
+ D      /‾‾‾‾‾‾‾‾‾  
+ E      /\/\/\/\/\
+ 4-7,F  /_________
+```
+
+
 ## Waveform [TTSCC]
 The waveform is only used by the SCC. Without it the SCC will not generate sound (even if the Tone is enabled). A waveform is a 32 byte sample that is played constantly (looped). Each instrument can be linked to 1 of 32 available waveform slots.
 

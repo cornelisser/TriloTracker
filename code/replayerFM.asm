@@ -2496,9 +2496,9 @@ _pcay_volbase:
 _pcay_voladd:
 	ld	a,b
 	and	$0f
-	ld	b,a
+	ld	d,a
 	ld	a,(ix+CHIP_VolumeAdd)
-	add	b
+	add	d
 	cp	16
 	jp	c,_pcay_volend
 	ld	a,15
@@ -2507,9 +2507,9 @@ _pcay_voladd:
 _pcay_volsub:
 	ld	a,b
 	and	$0f
-	ld	b,a
+	ld	d,a
 	ld	a,(ix+CHIP_VolumeAdd)
-	sub	b
+	sub	d
 	cp	16
 	jp	c,_pcay_volend
 	xor	a
@@ -2518,40 +2518,7 @@ _pcay_volend:
 	or	(ix+CHIP_Volume)
 	ld	c,a
 
-
-
-	ld	a,(ix+CHIP_VolumeAdd)
-	bit	5,b
-	jr.	nz,0f
-	;-- base volume
-	ld	a,b
-	and	0x0f
-	jr.	4f
-0:
-	;relative volume
-	ld	c,a		; store current volume add
-	ld	a,b		
-	and	0x0f		; get	low 4	bits for volume deviation
-	
-	bit	4,b		; bit	6 set	= subtract?
-	ld	b,a		; set	deviation in b
-	ld	a,c		; set	current volume add back	in c
-	jr.	nz,1f
-	;--- add 
-	add	b
-	cp	16
-	jr.	c,4f
-	ld	a,15
-	jr.	4f
-1:
-	;--- sub 
-	sub	b
-	cp	16
-	jr.	c,4f
-	xor	a
-4:
-	ld	(ix+CHIP_VolumeAdd),a
-	ld	c,a
+	ld	d,(ix+CHIP_cmd_VolumeAdd)
 	
 IFDEF TTSMS
 	bit	7,b		; do we have tone?
@@ -2561,29 +2528,11 @@ IFDEF TTSMS
 	ret
 	
 7:
-	ld	a,c
+
 ENDIF
-	or	(ix+CHIP_Volume)
-	ld	c,a
-	
-		; This part is only for tremolo
-	
-	ld	b,(IX+CHIP_cmd_VolumeAdd)	
-;	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-;	jr.	c,_sub_Vadd
-;_add_Vadd:
-;	add	a,c
-;	jr.	nc,_Vadd
-;	ld	a,c
-;	or	0xf0
-;	jr.	_Vadd
-;_sub_Vadd:
-;	ld	b,a
-;	xor	a
-;	sub	b
-;	ld	b,a
-;	ld	a,c
-	sub	a,b
+
+
+	sub	a,d
 	jr.	nc,_Vadd
 	ld	a,c
 	and	0x0f	

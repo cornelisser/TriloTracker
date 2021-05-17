@@ -92,10 +92,9 @@ SN_regVOLNB		db 	0
 
 GG_panning		db	0
 
-
+SN_regVOLN:
 ENDIF
 
-SN_regVOLN
 AY_regEnvL 		db	0	; Volume Env Freq low (8bit)
 SN_regNOISEold	
 AY_regEnvH 		db	0	; Volume Env Freq high (4bit)

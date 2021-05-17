@@ -3505,21 +3505,21 @@ _ptAY_loop:
 	outi
 	dec	c
 	inc	a
-	cp	11
+	cp	13
 	jr	nz,_ptAY_loop
 
 	;--- envelope freq update?
 
-	ld	a,(hl)
-	and	a
-	jp	z,99f		; if bit 0 is not set no update
-
-	ld	b,11
-	out 	(c),b
-	inc	c
-	out	(c),a
-	dec	c
-	ld	(hl),0	
+;	ld	a,(hl)
+;	and	a
+;	jp	z,99f		; if bit 0 is not set no update
+;
+;	ld	b,11
+;	out 	(c),b
+;	inc	c
+;	out	(c),a
+;	dec	c
+;	ld	(hl),0	
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a

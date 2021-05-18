@@ -124,10 +124,16 @@ _swap_load_continue:
 	
 	di
 	ex	de,hl
-	ld	b,(hl)
+	ld	a,(hl)
 	inc	hl
 	ld	d,(hl)
+
+	;--- check for a == 0. 
+	and	a
+	jp	z,99f
 	inc	d	
+99:
+	ld	b,a
 
 	ld	c,0x98
 	pop	hl

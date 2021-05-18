@@ -13,7 +13,6 @@ auto_env_times			db	0
 auto_env_divide			db	0
 
 
-
 CHIP_Instrument			equ 0	
 CHIP_Voice				equ 1
 CHIP_Command			equ 2

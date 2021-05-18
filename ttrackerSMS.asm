@@ -155,6 +155,7 @@ _LABEL_PATTERNHEADER2:
 	include 	".\code\loadinstruments.asm"
 	include 	".\code\cursor.asm"
 	include    ".\code\elements\filedialog.asm"
+	include 	".\code\clipboard.asm"
 	
 SWAP_ELEMENTSTART:		
 	; temporary start up code and data!!! Will be over written after init
@@ -166,7 +167,7 @@ font_data:
 	include ".\code\startup.asm"
 	include ".\code\loadvoicenamesFM.asm"
 	include ".\code\elements\keynotetable.asm"
-	include 	".\code\clipboard.asm"
+
 
 
 

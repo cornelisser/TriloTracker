@@ -193,6 +193,8 @@ _KJ_DRM2:		#14	;db	0,0
 				;db	0,0,0,0
 				;db	0,0,0,0
 
+FM_Voicereg:	#16	;	software voice + old values
+
 
 FM_Registers: 	#0	; contains the registers values to write and value previously written
 FM_regToneA 	#2	; Tone A freq low (8bit)			; Tone A freq high (1bit)

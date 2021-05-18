@@ -47,23 +47,6 @@ CHIP_Vibrato_sine:
 ;	db	0,  4,  8, 14, 22, 32, 44, 56, 70, 86,102,118,136,154,174,192,192,174,154,136,118,102, 86, 70, 56, 44, 32, 22, 14,  8,  4,  0	; Depth 7
 
 
-
-
-
-;	db	 0*2,	2*2, 4*2, 7*2,11*2,16*2,22*2,28*2,35*2,43*2,51*2,59*2,68*2,77*2,87*2,96*2
-;	db	96*2,86*2,77*2,68*2,59*2,51*2,43*2,35*2,28*2,22*2,16*2,11*2, 7*2,	4*2, 2*2, 0*2
-;
-;CHIP_Vibrato_triangle:
-;	db	 0, 6,12,18,24,30,36,42,48,54,60,66,72,78,84,90
-;	db	96,90,84,78,72,66,60,54,48,42,36,30,24,18,12, 6
-;
-;CHIP_Vibrato_pulse:
-;	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-;;	db	255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-;	db      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	
-	
-
-
 ;--- Replay	music stepped
 replay_mode5:
 	;--- The speed timer
@@ -654,23 +637,8 @@ ENDIF
 99:
 		
 	xor	a
-;	ld	(FM_regVOLA),a
-;	ld	(FM_regVOLB),a
-;	ld	(FM_regVOLC),a
-;	ld	(FM_regVOLD),a
-;	ld	(FM_regVOLE),a
-;	ld	(FM_regVOLF),a
-	
 	ld	(FM_DRUM_LEN),a
 	ld	(FM_DRUM),a
-;	ld	(FM_DRUM2_LEN),a
-;	ld	(FM_DRUM3_LEN),a
-	
-;call FM_reg_update
-	
-;	ld	a,(mapper_slot)				; Recuperamos el slot
-;	ld	h,0x80
-;	call enaslt
 	
 	call	replay_route
 	ei
@@ -695,14 +663,6 @@ ENDIF
 	call	GET_P2
 	ld	(replay_patpage),a	
 
-	;--- DRUM reset
-;	push	bc
-;	ld	de,FM_DRUM_Flags
-;	ld	hl,DRM_DEFAULT_values
-;	ld	bc,10
-;	ldir
-;	pop	bc
-	
 	; end	is here
 	ret
 
@@ -807,212 +767,7 @@ _pe_chanloop:
 	pop	hl
 	ld	(replay_patpointer),hl
 
-;	ld	a,(replay_patpage)
-;	call	PUT_P2
-
-	;ei
 	ret
-	
-;	ld	a,(song_pattern)
-;	ld	(_PRE_pat),a
-;	ld	a,(song_pattern_line)
-;	ld	c,a
-;	ld	a,(song_order_pos)
-;	ld	b,a
-;	
-;	push	bc		; save line	and order pos
-;
-;	;--- Set the start of preprocessing
-;	cp	_PREPROCESS_LENGTH	; check if we can	go back this far
-;	jr.	nc,99f			; if we can	go back this far
-;	ld	a,_PREPROCESS_LENGTH-1
-;99:
-;	sub	_PREPROCESS_LENGTH
-;	ld	(song_order_pos),a
-;	
-;		;xor	a
-;;		ld	a,255
-;;		ld	(song_order_pos),a
-;		;-- set the	right	pattern and	page
-;	;	ld	hl,song_order
-;	;	ld	b,(hl)
-;	;	call	set_patternpage
-;		ld	hl,_PRE_dummy_pat
-;		ld	(replay_patpointer),hl
-;	
-;		call	GET_P2
-;		ld	(replay_patpage),a
-;		ld	a,1
-;		ld	(replay_line),a	
-;
-;	pop	bc		; restore line and order pos
-;
-;	;--- process all patterns till current position
-;_ri_pre_loop:
-;	ld	a,(current_song)
-;	call	set_songpage
-;	
-;	;--- Are we	already at the current line?
-;	ld	a,(replay_line)
-;	dec	a
-;	cp	c
-;	jr.	c,99f
-;	
-;	ld	a,(song_order_pos)
-;	cp	b
-;	jr.	z,_ri_pre_end
-;	
-;99:	
-;	;--- Process a line
-;	push	bc
-;
-;;	ld	a,1
-;;	ld	(replay_speed_timer),a
-;
-;	ld	a,(replay_patpage)	;--- set correct pattern page
-;	call	PUT_P2
-;	
-;	call	replay_mode1	
-;	
-;	
-;	pop	bc				;--- Restore a line
-;	jr.	_ri_pre_loop
-;
-;_ri_pre_end:
-;	;--- Restore playback/edit position
-;	ld	a,b
-;	ld	(song_order_pos),a
-;	ld	a,c
-;	ld	(song_pattern_line),a	; <--	needed? need to check
-;	ld	a,(_PRE_pat)
-;	ld	(song_pattern),a
-;
-;
-;	;--- Set the correct page if prescan on pattern	not in order
-;	call	set_patternpage
-;	ld	(replay_patpointer),hl
-;	call	GET_P2
-;	ld	(replay_patpage),a
-;
-;
-;	;ei		; important	as route will DI !!!!	
-;
-;	ret
-
-
-
-
-
-
-
-
-
-
-
-
-;replay_init_pre_old:
-;
-;	;--- !!!!!!	add check for pattern note audition	for patterns not in the	order.
-;
-;
-;
-;
-;
-;	ld	a,(current_song)
-;	call	set_songpage
-;	;----- PRE-PROCESS PREVIOUS PATTERNS/LINES
-;	;--- Get the start speed (to reset any in	pattern set	speeds).
-;	ld	a,(song_speed)
-;	ld	(replay_speed),a
-;	ld	a,1
-;	ld	(replay_speed_timer),a
-;	dec	a
-;	ld	(replay_speed_subtimer),a
-;		
-;	;--- save the current values
-;	ld	a,(song_pattern_line)
-;	ld	c,a
-;	ld	a,(song_order_pos)
-;	ld	b,a
-;
-;	;--- check if we need to skip	preprocessing
-;	and	a
-;	jr.	nz,88f
-;	cp	c
-;	ret	z;
-;88:	
-;	di
-;
-;	push	bc
-;	
-;	;--- Set the start of preprocessing
-;	cp	_PREPROCESS_LENGTH	; check if we can	go back this far
-;	jr.	nc,99f			; if we can	go back this far
-;	ld	a,_PREPROCESS_LENGTH
-;99:
-;	sub	_PREPROCESS_LENGTH
-;	ld	(song_order_pos),a
-;	
-;	;-- set the	right	pattern and	page
-;	ld	hl,song_order
-;	ld	d,0
-;	ld	e,a
-;	add	hl,de
-;	ld	b,(hl)
-;	call	set_patternpage
-;	ld	(replay_patpointer),hl
-;
-;	call	GET_P2
-;	ld	(replay_patpage),a
-;	
-;	;xor	a
-;	ld	a,1
-;	ld	(replay_line),a	
-;
-;	pop	bc
-;	; now	loop till current	position
-;;_ri_pre_loop:
-;	push	bc
-;
-;	ld	a,(replay_patpage)	;--- set correct pattern page
-;	call	PUT_P2
-;
-;	ld	a,1
-;	ld	(replay_speed_timer),a
-;	
-;	call	replay_mode1	
-;	pop	bc
-;	; check if we are	at current line?
-;	ld	a,(replay_line)
-;	dec	a
-;	cp	c
-;	jr.	nz,_ri_pre_loop
-;	
-;	
-;	ld	a,(current_song)
-;	call	set_songpage
-;	
-;	; check if we are	at current pos/pattern?
-;	ld	a,(song_order_pos)
-;	cp	b
-;	jr.	c,_ri_pre_loop
-;
-;	;--- Silence the chips
-;	ld	a,0x3f
-;	ld	(AY_regMIXER),a
-;	xor	a
-;	ld	(FM_regMIXER),a
-;
-;	ld	a,(current_song)
-;	call	set_songpage	
-;;	call	replay_route	
-;
-;	ei		; important	as route will DI !!!!	
-;
-;	ret
-
-
-
 	
 
 ;===========================================================
@@ -1465,17 +1220,6 @@ _CHIPcmd4_vibrato:
 	ret
 
 
-;_CHIP_cmd4_end:	
-;	res	3,(ix+CHIP_Flags)
-;;	xor	a
-;;	ld	(ix+CHIP_Timer),a
-	
-;	ret
-	
-	
-	
-	
-
 	; in:	[A] contains the paramvalue
 	; 
 	; ! do not change	[BC] this is the data pointer
@@ -1579,16 +1323,16 @@ _CHIPcmdA_volSlide_cont:
 
 ; Taken from http://www.massmind.org/techref/zilog/z80/part4.htm
 Divide:                          ; this routine performs the operation BC=HL/A
-  ld e,a                         ; checking the divisor; returning if it is zero
-  or a                           ; from this time on the carry is cleared
-  ret z
-  ld bc,-1                       ; BC is used to accumulate the result
-  ld d,0                         ; clearing D, so DE holds the divisor
+  	ld 	e,a                         ; checking the divisor; returning if it is zero
+  	or 	a                           ; from this time on the carry is cleared
+  	ret	z
+  	ld 	bc,-1                       ; BC is used to accumulate the result
+  	ld 	d,0                         ; clearing D, so DE holds the divisor
 DivLoop:                         ; subtracting DE from HL until the first overflow
-  sbc hl,de                      ; since the carry is zero, SBC works as if it was a SUB
-  inc bc                         ; note that this instruction does not alter the flags
-  jr nc,DivLoop                  ; no carry means that there was no overflow
-  ret
+  	sbc 	hl,de                      ; since the carry is zero, SBC works as if it was a SUB
+  	inc 	bc                         ; note that this instruction does not alter the flags
+  	jr 	nc,DivLoop                  ; no carry means that there was no overflow
+  	ret
 
 _CHIPcmdB_auto_envelope:
 IFDEF TTFM
@@ -1663,15 +1407,6 @@ _CHIPcmdC_drum:
 
 	and	a
 	ret	z			; B00 does nothing
-;	jr.	nz,0f
-;	;--- DRUM reset
-;	push	bc
-;	ld	de,FM_DRUM_Flags
-;	ld	hl,DRM_DEFAULT_values
-;	ld	bc,10
-;	ldir
-;	pop	bc
-;	ret
 
 0:	
 	;--- Set the song page
@@ -1759,7 +1494,7 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_tonepanning	;8
 	dw	_CHIPcmdE_noisepanning	;9
 	dw	_CHIPcmdE_none		;A
-	dw	_CHIPcmdE_none		;B
+	dw	_CHIPcmdE_brightness	;B
 	dw	_CHIPcmdE_notecut		;C	
 	dw	_CHIPcmdE_notedelay	;D	
 	dw	_CHIPcmdE_none	;E
@@ -1850,6 +1585,58 @@ _CHIPcmdE_arpspeed:
 	and	$0f
 	ld	(replay_arp_speed),a
 	ret
+
+_CHIPcmdE_brightness:
+	ld	a,d
+	; This comment sets the	detune of the track.
+	and	0x07		; low	4 bits is value
+	ret	z		;jp	z,.set
+	bit	3,d		; Center around 8
+	jr.	z,.add
+.sub:
+	ld	d,a
+	ld	a,(FM_Voicereg+4)
+	ld	e,a
+	and	00111111b
+	sub	d
+	and	00111111b
+	jr.	.set
+.add:
+	ld	d,a
+	ld	a,(FM_Voicereg+4)
+	ld	e,a
+	and	00111111b
+	add	d
+	and	00111111b
+.set:
+	ld	d,a
+	ld	e,a
+	and	11000000b
+	or	d
+	ld	(FM_Voicereg+4),a
+	ret
+
+
+	ld	a,d
+	; This comment sets the	detune of the track.
+	and	0x07		; low	4 bits is value
+	bit	3,d		; Center around 8
+	jr.	z,99f
+	inc	a
+	neg			; make correct value
+	ld	(ix+CHIP_cmd_detune),a
+	ld	(ix+CHIP_cmd_detune+1),0xff
+	ret
+99:
+	ld	(ix+CHIP_cmd_detune),a
+	ld	(ix+CHIP_cmd_detune+1),0x00	
+	ret
+
+
+
+
+
+
 
 _CHIPcmdE_notecut:
 	set	3,(ix+CHIP_Flags)
@@ -2153,19 +1940,8 @@ replay_process_chan_AY:
 	;-- set the	mixer	right
 	ld	hl,FM_regMIXER
 	rrc	(hl)
-	;srl	(hl)
-	
-	
-;	ld	a,(current_song)
 	call	set_songpage
 
-	;===== 
-	; Speed equalization check
-	;=====
-;	ld	a,(equalization_flag)			; check for speed equalization
-;	and	a
-;	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
-	
 	;=====
 	; COMMAND
 	;=====
@@ -2204,18 +1980,10 @@ _pcAY_commandEND:
 	bit	0,(ix+CHIP_Flags)
 	jr.	z,_pcAY_noNoteTrigger
 	
-;	;--- Check for CMD Edx
-;	bit	3,(ix+CHIP_Flags)
-;	jr.	z,_pcAY_triggerNote
-;	ld	a,0x1D		; Ed.
-;	cp	(ix+CHIP_Command)
-;	jr.	z,_pcAY_noNoteTrigger
 
 _pcAY_triggerNote:	
 	;--- get new Note
-	;res	0,(ix+CHIP_Flags)		; reset trigger note flag
 	set	1,(ix+CHIP_Flags)		; set	note active	flag
-;	res	2,(ix+CHIP_Flags)		; key flag for FM
 	; init macrostep but check for cmd9
 	xor	a
 	ld	b,a
@@ -2249,16 +2017,7 @@ _pcAY_noNoteTrigger:
 	;==============
 	bit	1,(ix+CHIP_Flags)
 	jr.	z,_pcAY_noNoteActive
-
 	ld	(_SP_Storage),SP
-
-	
-	;-- skip macro if not PSG
-;	bit 	7,(ix+CHIP_Flags)
-;	jr.	nz,_pcAY_FMinstr
-
-
-
 	
 	;--- Get the macro len and loop
 	ld	l,(ix+CHIP_MacroPointer)
@@ -2329,17 +2088,7 @@ _pcAY_Tminus:
 	ex	de,hl
 	xor	a
 	sbc	hl,de
-;	ex	de,hl
-	
-	
-;_pcAY_noTbase:	
-;	;-- minus the deviation	of the macro
-;	ex	de,hl
-;	xor	a
-;	sbc	hl,de
-;;	ex	de,hl
 88:	
-;_pcAY_tbase:	
 
 	;--- Store new deviation
 	ld	(ix+CHIP_ToneAdd),l
@@ -3149,26 +2898,6 @@ _pcAY_cmd14:
 	;res	3,(ix+CHIP_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd15:
-;	dec	(ix+CHIP_Timer)
-;	jr.	nz,_pcAY_commandEND
-;
-;	;res	3,(ix+CHIP_Flags)
-;	ld	a,(ix+CHIP_cmd_E)
-;	ld	d,a
-;	ld	e,(ix+CHIP_cmd_ToneAdd)
-;	add	e
-;	ld	(ix+CHIP_ToneAdd),a
-;	jr.	nc,_pcAY_commandEND	
-;	
-;	bit	7,d
-;	jr.	z,1f
-;	dec	(ix+CHIP_ToneAdd+1)
-;	jr.	_pcAY_commandEND	
-;1:	inc	(ix+CHIP_ToneAdd+1)
-;	jr.	_pcAY_commandEND	
-;
-;
-;
 ;	
 
 _pcAY_cmd16:
@@ -3228,158 +2957,15 @@ _pcAY_cmd20:
 	jr.	_pcAY_commandEND	
 	
 _pcAY_cmd21:
-	;=================
-	; Waveform PWM / Duty Cycle
-	;=================
-;	;res	3,(ix+CHIP_Flags)	; reset command
-;	res	6,(ix+CHIP_Flags)	; reset normal wave update
-;
-;	;get the waveform	start	in [DE]
-;	ld	hl,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;	rrca			; a mac value is 4 so
-;	rrca			; 3 times rrca is	X32
-;	rrca			; max	result is 128.
-;	add	a,l
-;	ld	l,a
-;	jr.	nc,99f
-;	inc	h
-;99:
-;	ld	b,(ix+CHIP_cmd_B)
-;	inc	b
-;
-;	ld	c,96	
-;	ld	a,32
-;	sub	b
-;_wspw_loop_h:
-;	ld	(hl),c
-;	inc	hl
-;	djnz	_wspw_loop_h
-;	
-;	and	a
-;	jr.	z,_pcAY_commandEND
-;	
-;	ld	c,-96
-;	ld	b,a
-;_wspw_loop_l:
-;	ld	(hl),c
-;	inc	hl
-;	djnz	_wspw_loop_l
 ;
 	jr.	_pcAY_commandEND
 	
 _pcAY_cmd22:
-	;=================
-	; Waveform Cut
-	;=================
-
-;	;res	3,(ix+CHIP_Flags)	; reset command
-;	res	6,(ix+CHIP_Flags)	; reset normal wave update
-;
-;	;get the waveform	start	in [DE]
-;	ld	de,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;	rrca			; a mac value is 4 so
-;	rrca			; 3 times rrca is	X32
-;	rrca			; max	result is 128.
-;	add	a,e
-;	ld	e,a
-;	jr.	nc,99f
-;	inc	d
-;99:
-;	ld	a,(ix+CHIP_Voice)
-;	add	a,a
-;	add	a,a
-;	add	a,a	
-;
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	  bc,_WAVESSCC
-;	add	  hl,bc
-;
-;	ld	a,(ix+CHIP_cmd_B)
-;	inc	a
-;	add	a
-;	ld	c,a
-;	ld	b,0
-;	ldir
-;	
-;	sub	32
-;	neg	
-;	jr.	z,_pcAY_commandEND	
-;	
-;	ld	b,a
-;	xor	a
-;_wsc_l:
-;	ld	(de),a
-;	inc	de
-;	djnz	_wsc_l
-	
 	jr.	_pcAY_commandEND
 	
 _pcAY_cmd23:	
 	jr.	_pcAY_commandEND	
 _pcAY_cmd24:
-	;=================
-	; Waveform Compress
-	;=================
-;	;res	3,(ix+CHIP_Flags)	; reset command
-;	res	6,(ix+CHIP_Flags)	; reset normal wave update
-;
-;	;get the waveform	start	in [DE]
-;	ld	de,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;	rrca			; a mac value is 4 so
-;	rrca			; 3 times rrca is	X32
-;	rrca			; max	result is 128.
-;	add	a,e
-;	ld	e,a
-;	jr.	nc,99f
-;	inc	d
-;99:
-;	ld	a,(ix+CHIP_Voice)
-;	add	a,a
-;	add	a,a
-;	add	a,a	
-;
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	  bc,_WAVESSCC
-;	add	  hl,bc
-;
-;	ld	a,(ix+CHIP_cmd_B)
-;	ld	bc,0x0040
-;	rrca	; x32
-;	rrca
-;	rrca
-;	add	31
-;	ld	iyl,a		; fraction
-;	xor	a	
-;_wcomp_loop:
-;	ldi			
-;	dec	c
-;	jr.	z,1f
-;	add	iyl
-;	jr.	nc,_wcomp_loop
-;	inc	hl
-;	inc	b
-;	dec	c
-;	dec	c
-;	jr.	nz,_wcomp_loop
-;	
-;	;--- remaining data
-;1:
-;	dec	hl
-;	ld	a,(hl)
-;2:	ld	(de),a
-;	inc	de
-;	djnz	2b
 	jr.	_pcAY_commandEND	
 	
 ;===========================================================
@@ -3457,18 +3043,6 @@ _ptAY_loop:
 	cp	13
 	jr	nz,_ptAY_loop
 
-	;--- envelope freq update?
-
-;	ld	a,(hl)
-;	and	a
-;	jp	z,99f		; if bit 0 is not set no update
-;
-;	ld	b,11
-;	out 	(c),b
-;	inc	c
-;	out	(c),a
-;	dec	c
-;	ld	(hl),0	
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a
@@ -3670,8 +3244,17 @@ replay_route_mixer:
 
 _skipMixer:
 	call	_route_FM_drum_update
-
-
+	;------------------------------------------
+	;---- Update the voice registers
+	;------------------------------------------
+	ld	hl,FM_Voicereg
+	xor	a
+.voice_loop:
+	call	_route_FM_reg8_update
+	inc	hl
+	inc	a
+	cp	8
+	jp	c,.voice_loop
 
 	;------------------------------------------
 	;---- Update the tone and drum registers
@@ -3803,30 +3386,6 @@ _rfr_cont:
 
 
 
-;------- Writes Volume safe to the FM chip
-; in :
-;	[a]	Register# to write
-;	[HL]	point to register (previous value is next in RAM)
-;
-; out:
-;	[HL] points to previous value
-;	[A]	contains register# written
-;-----------
-;_route_FM_volreg_update:
-;	ex	af,af'
-;	ld	a,(hl)
-;	inc	hl
-;	cp	(hl)
-;	jp	z,99f	; no change in tone low value
-;	ex	af,af'
-;	out	(FM_WRITE),a
-;	ex	af,af'
-;	ld	(hl),a
-;	out	(FM_DATA),a	
-;99:	ex	af,af'
-;	inc	hl
-;	ret
-
 ;------- Writes a keyoff to the existing tone high register 
 ; in :
 ;	[A']	register# to write
@@ -3855,142 +3414,6 @@ _route_FM_keyOff_update:
 
 
 
-
-;route_FM_toneUpdate:
-;	;-- write tone
-;	ld	c,a
-;	out	(FM_WRITE),a
-;	ld	a,(hl)
-;	inc	hl
-;	out 	(FM_DATA),a
-;	ld	a,0x10
-;	add	c
-;	out	(FM_WRITE),a
-;	ld	a,(hl)
-;	out 	(FM_DATA),a
-;	ret
-
-;route_FM_volumeUpdate:
-;	;-- write volumes
-;	out	(FM_WRITE),a
-;	ld	a,(hl)
-;	inc	hl
-;	out 	(FM_DATA),a
-;	ret
-
-
-
-	
-
-
-
-;;--- FM DRUM VOL
-;	ld	a,(FM_DRUM_Flags)
-;	ld	d,a			; 4 cycles
-;	
-;	ld	c,$36			; 7 cycles
-;	ld	b,3			; 7 cycles
-;	ld	hl,DRUM_regVolBD
-;_drmvolloop:
-;	srl	d
-;	jr.	nc,0f
-;	;-- load the new values
-;	ld	a,c
-;	out	(FM_WRITE),a
-;	ld	a,(hl)		; 7 cycles
-;	
-;	out	(FM_DATA),a
-;0:	inc	hl
-;	inc	hl
-;	inc	hl
-;	inc	c
-;	djnz	_drmvolloop	
-;
-;
-;;--- FM DRUM FREQ
-;	ld	c,$16
-;	ld	e,$26
-;	ld	b,3
-;	ld	hl,DRUM_regToneBD
-;_drmfreqloop:
-;	srl	d
-;	jr.	nc,0f
-;	;-- load the new values
-;	ld	a,c
-;	out	(FM_WRITE),a
-;	ld	a,(hl)		; 7 cycles
-;	out	(FM_DATA),a
-;	ld	a,e
-;	inc	hl			; 6 cycles
-;	
-;	;--- delay to have at least 84 cycles
-;	push	ix
-;	pop	ix
-;	push 	ix
-;	pop 	ix
-;	
-;		
-;	out	(FM_WRITE),a
-;	ld	a,(hl)		; 7 cycles
-;
-;	out	(FM_DATA),a
-;	dec	hl			; 6 cycles
-;	nop
-;0:
-;	inc	hl
-;	inc	hl
-;	inc	hl
-;	inc	c
-;	inc	e
-;	djnz	_drmfreqloop	
-;
-;	xor	a
-;	ld	(FM_DRUM_Flags),a
-;
-;
-;;--- FM DRUMS
-;	ld	a,(DrumMixer)
-;	and	a
-;	jp	z,99f		; skip drums if disabled
-;
-;	ld	a,(FM_DRUM)
-;	and	a
-;	jr.	z,99f
-;	; enable new drum
-;	ex	af,af'		;'
-;	ld	a,0x0e
-;	out	(FM_WRITE),a
-;	ld	a,0			; 7 cycles
-;	ld	(FM_DRUM),a		; 13 cycles
-;	ld	a,10000b
-;;	ld	hl,_drumset-1
-;	out	(FM_DATA),a
-;	
-;	;--- delay to have at least 84 cycles
-;	push	ix
-;	pop	ix
-;	push 	ix
-;	pop 	ix	
-;	
-;	
-;;	ex	af,af'		;'
-;;	add	a,l
-;;	ld	l,a
-;;	jr.	nc,11f
-;;	inc	h
-;;11:
-;;	ld	a,(hl)
-;
-;;	ex	af,af'	;'
-;	ld	a,0x0e
-;	out	(FM_WRITE),a
-;	ex	af,af'		; 4 cycles	'
-;	or	100000b
-;	out	(FM_DATA),a
-;99:
-;	ret
-
-
 load_softwarevoice:
 	ld	hl,_VOICES	
 	sub	16
@@ -4001,38 +3424,51 @@ load_softwarevoice:
 	dec	a
 	jr.	nz,55b
 99:	
-	;--- copy data to FM custom voice register
-	ld	d,8
-	ld	a,$0
-_tt_voice_fmloop:	
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles
-	out	(FM_WRITE),a
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
-	inc	a			; 4 cycles
-	ex	af,af'		;'4 cycles	
-	ld	a,(hl)		; 7 cycles    the low byte
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
-	out	(FM_DATA),a
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
-	;--- delay
-	push 	ix
-	pop	ix
-	nop
-	nop
-		
-	
-	inc	hl
-	ex	af,af'		;'
-	dec	d
-	jr.	nz,_tt_voice_fmloop
+	ld	de,FM_Voicereg
+	ld	a,8
+.loop:
+	ldi
+	inc	de
+	dec	a
+	jp	nz,.loop
+	ret	
 
-	xor	a
 
-	ret
+
+
+
+;	;--- copy data to FM custom voice register
+;	ld	d,8
+;	ld	a,$0
+;_tt_voice_fmloop:	
+;	push	ix			; 17 cycles	dummy code to implement delay
+;	pop	ix			; 17 cycles
+;	out	(FM_WRITE),a
+;	push	ix			; 17 cycles	dummy code to implement delay
+;	pop	ix			; 17 cycles	
+;	inc	a			; 4 cycles
+;	ex	af,af'		;'4 cycles	
+;	ld	a,(hl)		; 7 cycles    the low byte
+;	push	ix			; 17 cycles	dummy code to implement delay
+;	pop	ix			; 17 cycles	
+;	out	(FM_DATA),a
+;	push	ix			; 17 cycles	dummy code to implement delay
+;	pop	ix			; 17 cycles	
+;	;--- delay
+;	push 	ix
+;	pop	ix
+;	nop
+;	nop
+;		
+;	
+;	inc	hl
+;	ex	af,af'		;'
+;	dec	d
+;	jr.	nz,_tt_voice_fmloop
+;
+;	xor	a
+;
+;	ret
 
 
 
@@ -4055,141 +3491,6 @@ _drumset:
 	db	00100011b
 
 
-
-_TEMPSCC:	db "aAAA bBBB cCCC dDDD eEEE fFFF aVbVcVdVeVfV mMM"
-draw_SCCdebug:		
-	; THIS IS DEBUG INFO ON	THE REGISTERS!!!!
-	ld	de,_TEMPSCC+1
-	ld	hl,FM_regToneA 
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex2
-	ld	a,b
-	call	draw_hex2
-;	inc	de
-	inc	de
-	inc	hl
-	inc	hl
-	inc	hl
-	
-	ld	hl,FM_regToneB
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex2
-	ld	a,b
-	call	draw_hex2
-;	inc	de
-	inc	de
-	inc	hl
-	inc	hl
-	inc	hl
-	
-	ld	hl,FM_regToneC	
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex2
-	ld	a,b
-	call	draw_hex2
-;	inc	de
-	inc	de
-	inc	hl
-	inc	hl
-	inc	hl	
-	
-	ld	hl,FM_regToneD
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex2
-	ld	a,b
-	call	draw_hex2
-;	inc	de
-	inc	de
-	inc	hl
-	inc	hl
-	inc	hl	
-	
-	ld	hl,FM_regToneE
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-
-	ld	a,(hl)
-	call	draw_hex2
-	ld	a,b
-	call	draw_hex2
-;	inc	de
-	inc	de	
-	inc	hl
-	inc	hl
-	inc	hl
-	
-	ld	hl,FM_regToneF
-	ld	a,(hl)
-	ld	b,a
-	inc	hl
-	ld	a,(hl)
-	call	draw_hex2
-	ld	a,b
-	call	draw_hex2
-	inc	de
-
-
-	ld	hl,FM_regVOLA	
-	ld	a,(hl)
-	call	draw_hex	;vol a
-	inc	de
-	
-	ld	hl,FM_regVOLB
-	ld	a,(hl)
-	call	draw_hex	    ;vol b
-	
-	ld	hl,FM_regVOLC
-	inc	de
-	ld	a,(hl)
-	call	draw_hex	    ;vol c
-	
-	ld	hl,FM_regVOLD
-	inc	de
-	ld	a,(hl)
-	call	draw_hex	    ;vol d
-	
-	ld	hl,FM_regVOLE
-	inc	de
-	ld	a,(hl)
-	call	draw_hex	    ;vol e
-	
-	ld	hl,FM_regVOLF
-	inc	de
-	ld	a,(hl)
-	call	draw_hex	;vol f
-;	inc	hl
-	inc	de	
-
-;	inc	de
-;	inc	hl
-;	ld	a,(hl)
-;	call	draw_hex2	; mixer 
-;	inc	hl	
-;	inc	de
-;	inc	de
-
-	
-
-	
-	ld	hl,41
-	ld	de,_TEMPSCC
-	ld	b,39;44
-	call	draw_label_fast					
-
-	ret
 
 
 

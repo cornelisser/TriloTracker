@@ -39,6 +39,7 @@
    * [E8y    -     Global transpose](#e8y---global-transpose)
    * [E8y    -     Tone panning](#e8y---tone-panning)
    * [E9y    -     Noise panning](#e9y---noise-panning)
+   * [EBy    -     Brightness](#eby---brightness)
    * [ECy    -     Note cut delay](#ecy---note-cut-delay)
    * [EDy    -     Note delay](#edy---note-delay)
    * [EFy    -     Trigger](#efy---trigger)
@@ -302,8 +303,15 @@ Sets the Game Gear Panning of the noise channel.Can be used in any PSG channel.
  3 = Right
 
 ```
+#### <a name='eby---brightness'></a>EBy    -     Brightness
+[FM only]
+
+y value changes  TL (Total Level) of the modulator up or down until the software voice number is changed. Values $0..$7 are positive values and values $8..$F are negative values (-1..-7). Brightness only works on the software voice of the YM2413. Not the hardware voices ($1-$f).
+
+
+
 #### <a name='ecy---note-cut-delay'></a>ECy    -     Note cut delay
-: value sets the delay in ticks to wait before stopping the current note.
+y value sets the delay in ticks to wait before stopping the current note.
 
 #### <a name='edy---note-delay'></a>EDy    -     Note delay
 y value sets the delay in ticks to wait before starting the note.

@@ -197,8 +197,8 @@ Example:
 A-1 .. B23       Takes tone value of A-4 and 
                  multiplies with 2 and divides by 3           
 ```
-This effect command can be used to find specific envelope tone values. Value is shown in debug information. 
-
+This effect command can be used to find specific envelope tone values to set 8xy and 9xy. Value is shown in debug information. 
+The stand-alone replayer does not support this effect as it takes a lot of time to calculate the values. Replace the Bxy by 8xy and 9xy effect commands.
 
 ### <a name='cxy---scc-morph'></a>Cxy - SCC morph
 <sup>Secondary effect **[SCC only]**</sup><br>

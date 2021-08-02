@@ -443,13 +443,13 @@ replay_init_cont:
 	;--- Get the start speed.
 	ld	a,(song_speed)
 	ld	(replay_speed),a
-	ld	(replay_morph_speed),a
-	ld	(replay_morph_type),a
 	ld	a,1
+	ld	(replay_morph_type),a			; default continue last written waveform
 	ld	(replay_speed_timer),a
 	ld	(replay_morph_timer),a
 	ld	(replay_morph_speed),a
 	dec	a
+
 	ld	(replay_speed_subtimer),a
 	ld	(replay_mode),a	
 	ld	(replay_morph_active),a
@@ -2173,12 +2173,12 @@ _pcAY_noNoise:
 	jp	z,_pcay_voladd
 
 _pcay_evelope:
-	ld	a,16			; set volume to 16 == envelope
+	ld	a,16					; set volume to 16 == envelope
 	ld	(SCC_regVOLE),a
 	ld	a,b
 	and	0x0f
 	ld	(AY_regEnvShape),a		; set the new envelope shape
-	ret				; no further processing.
+	ret							; no further processing.
 
 
 _pcay_volbase:
@@ -2476,30 +2476,6 @@ _pcAY_cmd5:
 	call	_pcAY_cmdasub
 	jp	_pcAY_cmd3
 	
-	
-;	jp	z,_pcAY_cmd5_pos
-;	;--- neg
-;	and	$1f
-;	ld	(ix+TRACK_Timer),a
-;	ld	a,(ix+TRACK_cmd_VolumeAdd)
-;	and	a
-;	jp	z,_pcAY_cmd3
-;	sub	16
-;;	cp	-16		; only store values smaller then -15
-;;	jp	z,_pcAY_cmd3
-;	ld	(ix+TRACK_cmd_VolumeAdd),a
-;	jp	_pcAY_cmd3
-;_pcAY_cmd5_pos:
-;	ld	(ix+TRACK_Timer),a
-;	ld	a,(ix+TRACK_cmd_VolumeAdd)
-;	add	16
-;	jp	z,_pcAY_cmd3
-;	inc	a
-;	cp	16		; only store values smaller then -15
-;	jp	z,_pcAY_cmd3
-;	ld	(ix+TRACK_cmd_VolumeAdd),a
-;	jp	_pcAY_cmd3		
-
 
 
 
@@ -2507,35 +2483,7 @@ _pcAY_cmd6:
 	call	_pcAY_cmdasub
 	jp	_pcAY_cmd4		
 
-;	;retrig
-;	dec	(ix+TRACK_Timer)
-;	jp	nz,_pcAY_cmd4
-;	
-;	; vol	slide
-;	ld	a,(ix+TRACK_cmd_A)
-;	bit	7,a		;- if	set vol slide is neg
-;	jp	z,_pcAY_cmd6_pos
-;	;--- neg
-;	and	$1f
-;	ld	(ix+TRACK_Timer),a
-;	ld	a,(ix+TRACK_cmd_VolumeAdd)
-;	and	a
-;	jp	z,_pcAY_cmd4
-;	sub	16
-;;	dec	a
-;;	cp	-16		; only store values smaller then -15
-;;	jp	z,_pcAY_cmd4
-;	ld	(ix+TRACK_cmd_VolumeAdd),a
-;	jp	_pcAY_cmd4
-;_pcAY_cmd6_pos:
-;	ld	(ix+TRACK_Timer),a
-;	ld	a,(ix+TRACK_cmd_VolumeAdd)
-;	add	16
-;	jp	z,_pcAY_cmd4
-;;	inc	a
-;;	cp	16		; only store values smaller then -15
-;;	jp	z,_pcAY_cmd4
-;	ld	(ix+TRACK_cmd_VolumeAdd),a
+
 
 	;-- Tremelo
 _pcAY_cmd7:

@@ -917,6 +917,100 @@ gcrlc_end:
 
 
 ;===========================================================
+; --- selection_volume_up
+;
+; Sets all volumes in the current selection one higher
+; if possible. Only run if 1 column is selected.
+; 
+; No changes are made to the clipboard status and contents
+;===========================================================
+selection_volume_up:
+	;--- One final check to be sure only 1 column is selected
+	ld	a,(selection_x2)
+	ld	b,a
+	ld	a,(selection_x1)
+	cp	b
+	ret	nz
+
+
+	;--- Now copy the data into the clipboard
+	ld	hl,(clipb_tmp_address)
+	ld	a,(clipb_tmp_rows)
+	ld	b,a
+
+.loop:	
+	;--- Update volume
+	ld	a,(hl)
+	cp	$10			; no volume (0)
+	jp	c,22f		
+	cp	$f0			; Volume < 15
+	jp	nc,22f
+	add	$10
+	ld	(hl),a
+22:
+
+	ld	a,SONG_PATLNSIZE
+	add	a,l
+	ld	l,a
+	jr.	nc,99f
+	inc	h
+99:
+	; still need to copy?
+	djnz .loop
+
+;	ld	a,(current_song)
+	call	set_songpage
+
+	call	store_log_block
+	ret
+
+;===========================================================
+; --- selection_volume_down
+;
+; Sets all volumes in the current selection one lower
+; if possible. Only run if 1 column is selected.
+; 
+; No changes are made to the clipboard status and contents
+;===========================================================
+selection_volume_down:
+	;--- One final check to be sure only 1 column is selected
+	ld	a,(selection_x2)
+	ld	b,a
+	ld	a,(selection_x1)
+	cp	b
+	ret	nz
+
+
+	;--- Now copy the data into the clipboard
+	ld	hl,(clipb_tmp_address)
+	ld	a,(clipb_tmp_rows)
+	ld	b,a
+
+.loop:	
+
+	;--- Update volume
+	ld	a,(hl)
+	cp	$20		; volume > 1 (do not erase volume)
+	jp	c,22f
+	sub	$10
+	ld	(hl),a
+22:
+	ld	a,SONG_PATLNSIZE
+	add	a,l
+	ld	l,a
+	jr.	nc,99f
+	inc	h
+99:
+	; still need to copy?
+	djnz .loop
+
+;	ld	a,(current_song)
+	call	set_songpage
+
+	call	store_log_block
+	ret
+
+;===========================================================
 ; --- selection_octave_up
 ;
 ; Sets all notes in the current selection one octave higher
@@ -928,10 +1022,20 @@ selection_octave_up:
 	;--- setup all the needed values
 	call	_common_selection_change
 
+	;--- Check if we have a single column selection over the volume
+	ld	a,(selection_column1)
+	cp	2
+	jp	nz,.skip
+	ld	a,(clipb_tmp_bytes)
+	cp	1
+	jp	z,selection_volume_up
+
+.skip:
 	;--- Now copy the data into the clipboard
 	ld	hl,(clipb_tmp_address)
 	ld	a,(clipb_tmp_rows)
 	ld	c,a
+
 
 _sou_row_loop:
 		ld	a,(clipb_tmp_bytes)
@@ -997,6 +1101,15 @@ selection_octave_down:
 	;--- setup all the needed values
 	call	_common_selection_change
 
+	;--- Check if we have a single column selection over the volume
+	ld	a,(selection_column1)
+	cp	2
+	jp	nz,.skip
+	ld	a,(clipb_tmp_bytes)
+	cp	1
+	jp	z,selection_volume_down
+
+.skip:
 	;--- Now copy the data into the clipboard
 	ld	hl,(clipb_tmp_address)
 	ld	a,(clipb_tmp_rows)
@@ -1065,6 +1178,15 @@ selection_note_up:
 	;--- setup all the needed values
 	call	_common_selection_change
 
+	;--- Check if we have a single column selection over the volume
+	ld	a,(selection_column1)
+	cp	2
+	jp	nz,.skip
+	ld	a,(clipb_tmp_bytes)
+	cp	1
+	jp	z,selection_volume_up
+
+.skip:
 	;--- Now copy the data into the clipboard
 	ld	hl,(clipb_tmp_address)
 	ld	a,(clipb_tmp_rows)
@@ -1138,6 +1260,15 @@ selection_note_down:
 	;--- setup all the needed values
 	call	_common_selection_change
 
+	;--- Check if we have a single column selection over the volume
+	ld	a,(selection_column1)
+	cp	2
+	jp	nz,.skip
+	ld	a,(clipb_tmp_bytes)
+	cp	1
+	jp	z,selection_volume_down
+
+.skip:
 	;--- Now copy the data into the clipboard
 	ld	hl,(clipb_tmp_address)
 	ld	a,(clipb_tmp_rows)

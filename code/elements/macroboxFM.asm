@@ -9,7 +9,6 @@ draw_macrobox:
 	ld	hl,_LABEL_keyjazz
 	ld	a,(keyjazz_chip)
 
-
 		dec	a
 		jr.	nz,44f
 		;-- psg
@@ -25,14 +24,13 @@ draw_macrobox:
 		inc	hl
 		ld	(hl),163+8	
 		jr.	99f
-		
+
 44:
 		;-- psg+scc
 		ld	(hl),158
 		inc	hl
 		ld	(hl),159
 		jr.	99f
-
 99:
 
 	; box around number, length, restart etc

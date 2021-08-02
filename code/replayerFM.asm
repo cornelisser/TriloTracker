@@ -1597,7 +1597,7 @@ _CHIPcmdE_brightness:
 	ld	d,a
 	ld	a,(FM_Voicereg+4)
 	ld	e,a
-	and	00111111b
+;	and	00111111b
 	sub	d
 	and	00111111b
 	jr.	.set
@@ -1605,7 +1605,7 @@ _CHIPcmdE_brightness:
 	ld	d,a
 	ld	a,(FM_Voicereg+4)
 	ld	e,a
-	and	00111111b
+;	and	00111111b
 	add	d
 	and	00111111b
 .set:

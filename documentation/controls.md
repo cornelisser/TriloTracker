@@ -122,6 +122,7 @@ Key(s) | Function
  `[DOWN]` | Move to next order
  `[LEFT]`/`[RIGHT]` | Set pattern number
  `[R]` | Set restart/loop position
+ `[BACKSPACE]` | Delete pattern row
  `[INS]` | <b>`[?]`</b> Insert new row with pattern number + 1
  `[CTRL]`+`[INS]` | Insert a new position in the order after the last position. Inserted pattern number is the pattern number from the last order position + 1
  `[CTRL]`+`[G]` | Clone pattern

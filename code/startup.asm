@@ -22,6 +22,7 @@ start_init:
 	call	init_font		; set the new font
 
 
+	
 	;--- clear screen
 	call	clear_screen
 
@@ -67,7 +68,7 @@ ELSE
 	call	replay_set_rhythmmode
 ENDIF
 
-	call	replay_stop
+;	call	replay_stop
 
 	call	clear_clipboard	
 	call	reset_selection	

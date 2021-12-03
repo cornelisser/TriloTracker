@@ -34,19 +34,6 @@ CHIP_Vibrato_sine:
       db 	$00,$01,$02,$03,$05,$08,$0B,$0E,$11,$15,$19,$1D,$21,$26,$2B,$2F,$2F,$2B,$26,$21,$1D,$19,$15,$11,$0E,$0B,$08,$05,$03,$02,$01,$00		      ; depth 	B
       db 	$01,$01,$03,$05,$07,$0B,$0E,$12,$17,$1C,$21,$27,$2D,$33,$39,$3F,$3F,$39,$33,$2D,$27,$21,$1C,$17,$12,$0E,$0B,$07,$05,$03,$01,$01		      ; depth 	C
 
-
-
-
-;	db	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 0
-;	db	0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  2,  2,  2,  3,  3,  2,  2,  2,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0	; Depth 1
-;	db	0,  0,  0,  0,  0,  1,  1,  1,  2,  2,  3,  3,  4,  4,  5,  6,  6,  5,  4,  4,  3,  3,  2,  2,  1,  1,  1,  0,  0,  0,  0,  0 ; Depth 2
-;	db	0,  0,  0,  0,  1,  2,  2,  3,  4,  5,  6,  7,  8,  9, 10, 12, 12, 10,  9,  8,  7,  6,  5,  4,  3,  2,  2,  1,  0,  0,  0,  0	; Depth 3
-;	db	0,  0,  1,  1,  2,  4,  5,  7,  8, 10, 12, 14, 17, 19, 21, 24, 24, 21, 19, 17, 14, 12, 10,  8,  7,  5,  4,  2,  1,  1,  0,  0	; Depth 4
-;	db	0,  1,  2,  3,  5,  8, 11, 14, 17, 21, 25, 29, 34, 38, 43, 48, 48, 43, 38, 34, 29, 25, 21, 17, 14, 11,  8,  5,  3,  2,  1,  0	; Depth 5
-;	db	0,  2,  4,  7, 11, 16, 22, 28, 35, 43, 51, 59, 68, 77, 87, 96, 96, 87, 77, 68, 59, 51, 43, 35, 28, 22, 16, 11,  7,  4,  2,  0	; Depth 6	
-;	db	0,  4,  8, 14, 22, 32, 44, 56, 70, 86,102,118,136,154,174,192,192,174,154,136,118,102, 86, 70, 56, 44, 32, 22, 14,  8,  4,  0	; Depth 7
-
-
 ;--- Replay	music stepped
 replay_mode5:
 	;--- The speed timer
@@ -215,7 +202,6 @@ replay_decodedata:
 	ld	a,(replay_patpage)	;--- set correct pattern page
 	call	PUT_P2
 	ld	bc,(replay_patpointer)	;--- Get the pointer to	the data
-;_replay_decode_light:
 	;--- process thechannels (tracks)
 	;xor	a
 	;ld	(AY_regMIXER),a	;set mixer to silence
@@ -223,8 +209,6 @@ replay_decodedata:
 	ld	hl,CHIP_ToneTable
 	ld	(replay_Tonetable),hl
 
-
-	
 	ld	ix,CHIP_Chan1
 	call	replay_decode_chan
 	ld	ix,CHIP_Chan2
@@ -668,105 +652,120 @@ ENDIF
 
 
 
-;--- Very basic pre-scan. Old	one was WAY	too slow.
+;--- Very basic pre-scan. Old one was WAY too slow.
 replay_init_pre:
-	;di
+      di
 	
-	;--- Get the current values (to restore them after pre-scan
-;	ld	a,(current_song)
+      ;--- set up the PRE_INIT_LINE
+      ld    hl,_PRE_INIT_LINE
+      ld    (hl),0      ; No note
+      inc   hl
+      ld    (hl),1      ; Instrument 1
+      inc   hl
+      ld    (hl),$f0    ; Max volume/no effect
+      inc   hl
+      ld    (hl),0      ; No params
+      inc   hl
+
+      ;--- Now copy same to other channel data
+      ld    de,_PRE_INIT_LINE  
+      ex    de,hl
+      ld    bc,4*7
+      ldir
+
+	;--- Get the instruments from	the first line of	the song
 	call	set_songpage
-
-
-	ld	a,(song_pattern_line)
-	push	af					; store for	later
-
-
-	;--- Get the insturments from	the first line of	the song
 	ld	hl,song_order
 	ld	a,(hl)
 	ld	b,a
 	call	set_patternpage
-	
-	ld	de,_AUDITION_LINE
-;	ld	(replay_patpointer),de		; make the code replay this line
-	ld	bc,32
-	ldir
+      ;--- Copy pattern line to pre init line
+      call  replay_init_pre_lineupdate 
 
-	;--- Get the current line (keep instrument and volumes)
-;	ld	a,(current_song)
+	;--- Get the data from the first line of the current pattern
 	call	set_songpage
-
+      ld    a,(song_pattern_line) 
+      inc   a
+      push  af                            ; Store for later
 	ld	a,(song_pattern)
 	ld	b,a
 	call	set_patternpage
-	
-	pop	af
-	and	a
-	jr.	z,0f
-	ld	de,32
-88:
-	add	hl,de
-	dec	a
-	jr.	nz,88b		
-0:
-	ld	b,8
-	ld	de,_AUDITION_LINE
+      pop   bc                            ; get the save line
+.lineloop:
+      push  bc
+      call  replay_init_pre_lineupdate 
+      pop   bc
+      djnz  .lineloop
+
+;      ;--- Get the data from the curent line of the current pattern
+;	pop	af                            ; Restore the pattern line in a
+;	and	a
+;	jr.	z,99f
+;      ;--- Calculate the offset in the pattern for the pattern line
+;	ld	de,32       
+;88:
+;	add	hl,de
+;	dec	a
+;	jr.	nz,88b		
+;0:
+;      call  replay_init_pre_lineupdate      
+
+;99:
+;--- Process the instuments and volumes in the audition line.
+      ld    bc,(replay_patpointer)
+      push  bc
+      ld	bc,_PRE_INIT_LINE  
+
+	ld	ix,CHIP_Chan1
+	call	replay_decode_chan
+	ld	ix,CHIP_Chan2
+	call	replay_decode_chan
+	ld	ix,CHIP_Chan3
+      call	replay_decode_chan
+	ld	ix,CHIP_Chan4
+	call	replay_decode_chan
+	ld	ix,CHIP_Chan5
+	call	replay_decode_chan
+	ld	ix,CHIP_Chan6
+	call	replay_decode_chan
+	ld	ix,CHIP_Chan7
+	call	replay_decode_chan
+	ld	ix,CHIP_Chan8
+	call	replay_decode_chan
+
+
+      pop   bc
+      ld    (replay_patpointer),bc   
+      ei
+
+
+;---------------------------
+; IN: [HL] contains address of a pattern line to update in to audition line
+;     Make sure the pattern data is active in page
+replay_init_pre_lineupdate:
+      ld    de,_PRE_INIT_LINE  
+      ld    b,8
 	;--- process current line chan data
 _pe_chanloop:
-	ld	a,(hl)		; copy note
-	;xor	a			; don;t play note. Just	set instrument.
-	ld	(de),a
-	inc	hl
-	inc	de
-	ld	a,(hl)		; copy instrument
+      inc   hl                ; Skip note
+      inc   de
+	ld	a,(hl)		; Copy instrument
 	and	a			; only overwrite if instr > 0
 	jr.	z,99f
 	ld	(de),a
 99:
-	;if no instrument	at all then	instr	1
-	ld	a,(de)
-	and	a
-	jr.	nz,99f
-	inc	a
-	ld	(de),a
-99:
 	inc	de
 	inc	hl
-	ld	a,(hl)		; copy volume
-	cp	15			; is there a volume
+	ld	a,(hl)		; Copy volume
+      and   $f0		      ; only overwrite if there a volume
 	jr.	nc,99f		; if there is a volume 
-	ld	c,a
-	ld	a,(de)
-	and	$f0
-	jr.	nz,88f		; if there is no volume	at all then	max volume
-	ld	a,$f0
-88:	add	c
-99:	ld	(de),a		; write volume + command
-	and	$0f			; make sure	we do	not process	pattern end
-	cp	$0d			
-	jr.	nz,99f
-	ld	a,(de)
-	and	$f0
-	ld	(de),a			
-
-
+      ld    (de),a
 99:
 	inc	hl
 	inc	de
-	ld	a,(hl)		; copy command param.
-	ld	(de),a
-	inc	hl
+	inc	hl                ; Skip effect param
 	inc	de
 	djnz	_pe_chanloop
-
-	ld	bc,_AUDITION_LINE
-	ld	hl,(replay_patpointer)
-	push	hl
-	ld	(replay_patpointer),bc
-	call	replay_decodedata
-	pop	hl
-	ld	(replay_patpointer),hl
-
 	ret
 	
 
@@ -844,6 +843,7 @@ _dc_noNote:
 	
 	ld	(FM_softvoice_req),a
 	xor	a
+      jp    .zero
 	
 .skip_soft:
 	rla	
@@ -851,6 +851,7 @@ _dc_noNote:
 	rla	
 	rla
 	and 	$f0
+.zero:
 	ld	(ix+CHIP_Voice),a
 ;	set	6,(ix+CHIP_Flags)
 .voice0		
@@ -905,13 +906,7 @@ _dc_noVolume:
 ;	ld	(ix+CHIP_Command),a
 	ld	d,a			; Store command in d for later
 
-	;--- Hack to disable commands > $f Otherwise it could crash
-	cp	$10
-	jp	c,99f
-	xor	a
-99:	
 	;--- calculate cmd address
-
 	add	a
 	ld	hl,_CHIPcmdlist
 	add	a,l
@@ -1467,9 +1462,8 @@ _CHIPcmdE_extended:
 	rrca
 	rrca
 	rrca	
-
 	and $1E
-	
+
 	ld	hl,_CHIPcmdExtended_List
 	add	a,l
 	ld	l,a
@@ -1952,12 +1946,6 @@ replay_process_chan_AY:
 	
 	ld	a,(ix+CHIP_Command)
 
-	;--- Hack to disable commands > $24 Otherwise it might crash
-	cp	$25
-	jp	c,99f
-	xor	a
-99:	
-	
 	add	a
 	ld	e,a
 	ld	d,0
@@ -3006,34 +2994,39 @@ replay_route_PSG:
 99:
 IFDEF TTFM
 	;--- Push values to AY HW
-	ld	b,0
 	ld	a,(psgport)
 	ld	c,a
 	ld	hl,AY_registers
+      ld    b,$ff
+      xor   a
 _comp_loop:	
-	out	(c),b
-	ld	a,(hl)
-	add	1
-	inc	c
+      ;--- write low with $ff (avoid clipping)
+      out   (c),a
+      inc   c
+      out   (c),b
+      dec   c
+      ;--- store the low byte
+      ld	e,(hl)
+      inc   hl
+      ;--- write high byte
+      ld    d,(hl)
+      inc   hl
+      inc   a
 	out	(c),a
-	inc	hl
-	ld	a,(hl)
-	adc	a,0
-	inc	b
-	dec	c
-	out	(c),b	
-	inc	hl
 	inc	c
+	out	(c),d
+      dec   c
+      dec   a
+      ;--- write low byte
 	out	(c),a
-	dec	c
-	inc	b
-	ld	a,6
-	cp	b
+	inc	c
+	out	(c),e
+      dec   c
+      add   2
+	cp	6
 	jp	nz,_comp_loop
-	
-	ld	a,b	
-	
-	
+		
+
 _ptAY_loop:
 	out	(c),a
 	inc	c

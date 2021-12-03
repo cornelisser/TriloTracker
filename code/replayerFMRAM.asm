@@ -250,6 +250,17 @@ _AUDITION_LINE:
 		db	0,0,0,0
 		db	0,0,0,0
 		db	0,0,0,0
+_PRE_INIT_LINE:
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+
+
 psgport:	db	0
 		
 CHIP_FM_ToneTable:
@@ -467,6 +478,7 @@ replay_init:
 replay_stop:
 	xor	a
 	ld	(replay_mode),a
+	ld	(FM_regMIXER),a
 	ld	a,00100000b	
 	ld	(FM_DRUM),a
 
@@ -523,11 +535,10 @@ ELSE
 	ld	a,(AY_regVOLC)
 	and	$0f
 	ld	(AY_regVOLC),a
-
-
-
-
 ENDIF	
+      call  replay_route
+
+
 	ret
 
 replay_set_rhythmmode:

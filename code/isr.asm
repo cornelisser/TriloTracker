@@ -70,6 +70,11 @@ interrupt:
 	call	GET_P2
 	push	af
 
+	ld a,(replay_mode)
+	and	a
+	jp	z,int_no_music	
+
+
 	; --- sound
       ld      a,(vsf)
       and     a
@@ -116,13 +121,11 @@ PAL:                             ; execute the PSG and ayFX core
 ;	ld	a,7+128
 ;	out	(0x99),a
 
-
+int_no_music:
 	;--- read_musickb (Music module)
 	call	musickb_handler
 
-
 	;--- Keyboard
-
 	call	key_handler
 	call	read_functionkeys
 	

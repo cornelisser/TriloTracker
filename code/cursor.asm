@@ -224,18 +224,5 @@ cursorstack_init:
 	ld	(cursor_sp),hl	
 	ret
 	
-;cursor_debug:
-;	ld	de,_CT_LABEL+6
-;	ld	a,(cursorstack_depth)
-;	call	draw_hex2
-;	
-;	ld	hl,(80*1)+44+4
-;	ld	de,_CT_LABEL
-;	call	draw_label
-;
-;	ret
-;
-;_CT_LABEL:
-;	db	"STACK:00",0
 cursorstack_depth:	
 	db	0

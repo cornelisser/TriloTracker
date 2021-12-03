@@ -16,32 +16,25 @@ clear_patterns:
 	dec	b
 	call	set_patternpage
 
-
 	push	bc
-	
 	ld	bc,2048-1
 	xor	a
-	
 	ld	(hl),a
 	push	hl
 	pop	de
 	inc	de
 	
 	ldir	
-	
-	
 
 	pop	bc
-	
 	pop	af
 	dec	a
-	
-;	cp	(SONG_SEGSIZE-1)*SONG_PATINSEG
+
 	jr.	nz,4b
 	
 
 	call	set_songpage
-	
+
 	; set '0' defaults
 	xor	a
 	ld	(song_pattern),a

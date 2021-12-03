@@ -111,8 +111,8 @@ draw_label:
 	
 draw_label_loop:
 	ld	a,(de)
-	cp	0
-	jr.	z,draw_label_end	
+	and	a
+	jr.	z,draw_label_end
 	out	(0x98),a
 	
 	inc	de

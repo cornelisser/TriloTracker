@@ -230,7 +230,7 @@ ENDIF
 	
 	
 _ns_TEMP:
-	db	"v0.11.3b                         "
+	db	"v0.11.4                         "
 ;	db	"TriloTracker ",VERSION
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR

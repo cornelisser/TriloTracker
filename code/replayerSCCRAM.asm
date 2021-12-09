@@ -43,7 +43,7 @@ auto_env_divide			db	0
 
 
 
-;replay_sample_num			db 0 			; Current sample deeing played 
+;replay_sample_num		db 0 			; Current sample deeing played 
 ;replay_sample_active		db 0			; 0 = inactive, 1 update, -1 init
 ;replay_sample_waveoffset	db 0			; Offset for the waveform beeing used.
 ;replay_sample_period		dw 0			; Pointer to the period data
@@ -266,6 +266,15 @@ SCC_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)
 _WAVESSCC: 			ds	32*MAX_WAVEFORM
 
 _AUDITION_LINE:
+		db	0,0,8,0           ; default envelope freq $400
+		db	0,0,9,4
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+		db	0,0,0,0
+_PRE_INIT_LINE:
 		db	0,0,0,0
 		db	0,0,0,0
 		db	0,0,0,0
@@ -273,8 +282,7 @@ _AUDITION_LINE:
 		db	0,0,0,0
 		db	0,0,0,0
 		db	0,0,0,0
-		db	0,0,0,0
-		
+		db	0,0,0,0		
 
 psgport:	db	0
 ;-- SCC registers
@@ -362,6 +370,7 @@ replay_stop:
 	and	$0f
 	ld	(AY_regVOLC),a
 
-
+      call  replay_route
+      ei                      ;--- As replay_route does slot select. 
 	ret	
 	

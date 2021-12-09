@@ -193,10 +193,7 @@ replay_decodedata:
 	ld	a,(replay_patpage)	;--- set correct pattern page
 	call	PUT_P2
 	ld	bc,(replay_patpointer)	;--- Get the pointer to	the data
-;_replay_decode_light:
-	;--- process thechannels (tracks)
-	;xor	a
-	;ld	(AY_regMIXER),a	;set mixer to silence
+
 	;--- Set the tone table base
 	ld	hl,TRACK_ToneTable
 	ld	(replay_Tonetable),hl
@@ -240,9 +237,6 @@ replay_decodedata_NO:
 	ld	a,(replay_morph_active)
 	and	a
 	call	nz,replay_process_morph
-
-
-
 
 	xor	a
 	ld	(SCC_regMIXER),a
@@ -317,68 +311,6 @@ replay_decodedata_NO:
 	call	replay_process_chan_AY
 
 	ret
-;
-;	;---- Morphing routine
-;	ld	a,(replay_morph_active)
-;	and	a
-;	ret	z
-;	
-;	ld	hl,(replay_morph_timer)
-;	dec	(hl)
-;	ret	nz
-;	
-;	;----- reset timer
-;	ld	a,8
-;	ld	(replay_morph_timer),a
-;	ld	(replay_morph_update),a
-;	
-;	;----- calc new morph step
-;	ld	hl,replay_morph_buffer
-;	ld	b,32
-;	ld	a,(replay_morph_counter)
-;	ld	c,a
-;_m_loop:
-;	ld	a,(hl)	; calc
-;	ld	d,a
-;	inc	hl
-;	bit	5,a
-;	jp	z,_m_add
-;_m_sub:
-;	;--- test if we need correction
-;	cp	c
-;	jp	nc,99f
-;	dec	(hl)		; correction
-;99:
-;	and	$0f
-;	sub	(hl)
-;	neg
-;	ld	(hl),a
-;	inc	hl
-;	djnz	_m_loop
-;	jp	0f
-;	
-;_m_add:
-;	;--- test if we need correction
-;	cp	c
-;	jp	nc,99f
-;	dec	(hl)		; correction
-;99:
-;	and	$0f
-;	sub	(hl)
-;	ld	(hl),a
-;	inc	hl
-;	djnz	_m_loop
-;
-;0:
-;	ld	a,16
-;	add	c
-;	ld	(replay_morph_counter),a
-;	ret	nz
-;	ld	(replay_morph_active),a		; stop morphing
-;	ret
-
-
-
 
 
 ;===========================================================
@@ -389,7 +321,6 @@ replay_decodedata_NO:
 ;===========================================================
 replay_setnextpattern:
 	;-- get new	page
-;	ld	a,(current_song)
 	call	set_songpage
 	
 	;--- Get the loop	position
@@ -540,108 +471,119 @@ replay_init_cont:
 
 ;--- Very basic pre-scan. Old	one was WAY	too slow.
 replay_init_pre:
-	;di
-	call	reset_hook		; prevent any replayer update while we are preparing
-	;--- Get the current values (to restore them after pre-scan
-;	ld	a,(current_song)
-	call	set_songpage
+	di
 
+    ;--- set up the PRE_INIT_LINE
+      ld    hl,_PRE_INIT_LINE
+      ld    (hl),0      ; No note
+      inc   hl
+      ld    (hl),1      ; Instrument 1
+      inc   hl
+      ld    (hl),$f0    ; Max volume/no effect
+      inc   hl
+      ld    (hl),0      ; No params
+      inc   hl
 
-	ld	a,(song_pattern_line)
-	push	af					; store for	later
-
+      ;--- Now copy same to other channel data
+      ld    de,_PRE_INIT_LINE  
+      ex    de,hl
+      ld    bc,4*7
+      ldir
 
 	;--- Get the instruments from	the first line of	the song
+	call	set_songpage
 	ld	hl,song_order
 	ld	a,(hl)
 	ld	b,a
 	call	set_patternpage
-	
-	ld	de,_AUDITION_LINE
-;	ld	(replay_patpointer),de		; make the code replay this line
-	ld	bc,32
-	ldir
+      ;--- Copy pattern line to pre init line
+      call  replay_init_pre_lineupdate 
 
-	;--- Get the current line (keep instrument and volumes)
-;	ld	a,(current_song)
+	;--- Get the data from the first line of the current pattern
 	call	set_songpage
-
+      ld    a,(song_pattern_line) 
+      inc   a
+      push  af                            ; Store for later
 	ld	a,(song_pattern)
 	ld	b,a
 	call	set_patternpage
+      pop   bc                            ; get the save line
+.lineloop:
+      push  bc
+      call  replay_init_pre_lineupdate 
+      pop   bc
+      djnz  .lineloop
+
+;      ;--- Get the data from the curent line of the current pattern
+;	pop	af                            ; Restore the pattern line in a
+;	and	a
+;	jr.	z,99f
+;      ;--- Calculate the offset in the pattern for the pattern line
+;	ld	de,32       
+;88:
+;	add	hl,de
+;	dec	a
+;	jr.	nz,88b		
+;0:
+;      call  replay_init_pre_lineupdate      
+
+;99:
+;--- Process the instuments and volumes in the audition line.
+      ld    bc,(replay_patpointer)
+      push  bc
+      ld	bc,_PRE_INIT_LINE  
+
+	ld	ix,TRACK_Chan1
+	call	replay_decode_chan
+	ld	ix,TRACK_Chan2
+	call	replay_decode_chan
+	ld	ix,TRACK_Chan3
+      call	replay_decode_chan
+	ld	ix,TRACK_Chan4
+	call	replay_decode_chan
+	ld	ix,TRACK_Chan5
+	call	replay_decode_chan
+	ld	ix,TRACK_Chan6
+	call	replay_decode_chan
+	ld	ix,TRACK_Chan7
+	call	replay_decode_chan
+	ld	ix,TRACK_Chan8
+	call	replay_decode_chan
+
+
+      pop   bc
+      ld    (replay_patpointer),bc   
+      ei
+      ret
 	
-	pop	af
-	and	a
-	jp	z,0f
-	ld	de,32
-88:
-	add	hl,de
-	dec	a
-	jp	nz,88b		
-0:
-	ld	b,8
-	ld	de,_AUDITION_LINE
+;---------------------------
+; IN: [HL] contains address of a pattern line to update in to audition line
+;     Make sure the pattern data is active in page
+replay_init_pre_lineupdate:
+      ld    de,_PRE_INIT_LINE  
+      ld    b,8
 	;--- process current line chan data
 _pe_chanloop:
-	ld	a,(hl)		; copy note
-	;xor	a			; don;t play note. Just	set instrument.
-	ld	(de),a
-	inc	hl
-	inc	de
-	ld	a,(hl)		; copy instrument
+      inc   hl                ; Skip note
+      inc   de
+	ld	a,(hl)		; Copy instrument
 	and	a			; only overwrite if instr > 0
-	jp	z,99f
-	ld	(de),a
-99:
-	;if no instrument	at all then	instr	1
-	ld	a,(de)
-	and	a
-	jp	nz,99f
-	inc	a
+	jr.	z,99f
 	ld	(de),a
 99:
 	inc	de
 	inc	hl
-	ld	a,(hl)		; copy volume
-	cp	15			; is there a volume
-	jp	nc,99f		; if there is a volume 
-	ld	c,a
-	ld	a,(de)
-	and	$f0
-	jp	nz,88f		; if there is no volume	at all then	max volume
-	ld	a,$f0
-88:	add	c
-99:	ld	(de),a		; write volume + command
-	and	$0f			; make sure	we do	not process	pattern end
-	cp	$0d			
-	jp	nz,99f
-	ld	a,(de)
-	and	$f0
-	ld	(de),a			
-
-
+	ld	a,(hl)		; Copy volume
+      and   $f0		      ; only overwrite if there a volume
+	jr.	z,99f		; if there is a volume 
+      ld    (de),a
 99:
 	inc	hl
 	inc	de
-	ld	a,(hl)		; copy command param.
-	ld	(de),a
-	inc	hl
+	inc	hl                ; Skip effect param
 	inc	de
 	djnz	_pe_chanloop
-
-	ld	bc,_AUDITION_LINE
-	ld	hl,(replay_patpointer)
-	push	hl
-	ld	(replay_patpointer),bc
-	call	replay_decodedata
-	pop	hl
-	ld	(replay_patpointer),hl
-
-	
-	call	set_hook		; re-enable the replayer in the ISR
 	ret
-	
-
 	
 
 ;===========================================================
@@ -930,7 +872,7 @@ _CHIPcmd3_portTone:
 	
 	res	0,(ix+TRACK_Flags)
 _CHPcmd3_newNote:
-;	ld	a,(ix+CHIP_cmd_3)
+;	ld	a,(ix+TRACK_cmd_3)
 	and	$7f				; reset deviation
 	ex	af,af'			;'
 	

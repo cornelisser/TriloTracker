@@ -510,11 +510,17 @@ replay_stop:
 	jp	nz,.loop
 
 
-
+	ld    a,$f0
+      ld    (FM_regVOLA),a
+      ld    (FM_regVOLB),a
+      ld    (FM_regVOLC),a
+      ld    (FM_regVOLD),a
+      ld    (FM_regVOLE),a
+      ld    (FM_regVOLF),a
 
 IFDEF TTSMS
 	;--- Silence the SN7 PSG
-	xor	a
+      xor	a
 	ld	(AY_regVOLA),a
 	ld	(AY_regVOLB),a
 	ld	(AY_regVOLC),a
@@ -536,8 +542,9 @@ ELSE
 	and	$0f
 	ld	(AY_regVOLC),a
 ENDIF	
-      call  replay_route
 
+      call  replay_route
+      
 
 	ret
 

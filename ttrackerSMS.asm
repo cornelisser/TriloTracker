@@ -1,5 +1,5 @@
 ; Trilo-Tracker v0.2
-define VERSION "v0.11.3b SMS"
+define VERSION "v0.11.4b SMS"
 define YEAR "2021"
 define CHIPSET_CODE $30
 

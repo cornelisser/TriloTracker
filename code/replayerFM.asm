@@ -737,7 +737,7 @@ replay_init_pre:
       pop   bc
       ld    (replay_patpointer),bc   
       ei
-
+      ret
 
 ;---------------------------
 ; IN: [HL] contains address of a pattern line to update in to audition line
@@ -758,7 +758,7 @@ _pe_chanloop:
 	inc	hl
 	ld	a,(hl)		; Copy volume
       and   $f0		      ; only overwrite if there a volume
-	jr.	nc,99f		; if there is a volume 
+	jr.	z,99f		      ; if there is a volume 
       ld    (de),a
 99:
 	inc	hl

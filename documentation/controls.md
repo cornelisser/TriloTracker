@@ -215,7 +215,7 @@ Key(s) | Function
 Key(s) | Function
 ------- | -------
  `[ESC]` | Exit drum editor
- `[B]` | Toggle base drum
+ `[B]` | Toggle bass drum
  `[S]` | Toggle snare
  `[T]` | Toggle tom
  `[C]` | Toggle cymbal

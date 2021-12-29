@@ -21,7 +21,7 @@ start_init:
 	call	init_vdp		; set the vdp registers (mouse/colors/width80)
 	call	init_font		; set the new font
 
-
+	call	detect_R800
 	
 	;--- clear screen
 	call	clear_screen
@@ -134,6 +134,21 @@ config:
 	call	set_textcolor		; Adjust the colors to the current song.
 
 
+	ret
+
+
+detect_R800:
+	ld 	hl,$002D
+	call	read_bios_val
+
+    	cp 	3
+    	jp	c,.z80
+	ld	a,1
+	ld	(r800),a			; 0 = z80 other is R800
+	ret
+.z80:
+	xor	a
+	ld	(r800),a
 	ret
 
 

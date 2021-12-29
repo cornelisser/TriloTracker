@@ -29,14 +29,14 @@ On each row you can set which percussion to trigger. You can use `[ENTER]` to to
 
 ### Basedrum channel
 
-The base drum has its own tone register and volume setting. 
+The bass drum has its own tone register and volume setting. 
 You can set the tone using a note or an offset (using `-` or `+`) (which is added/subtracted from the last know tone value). 
 The volume can be set to values `$1`-`$F`. 
 Note: The tone and volume values are optional. If not specified any previous value will be used.
 
 ### Hi-Hat/Snare channel
 
-Same as the base drum channel but the hi-hat and snare share the same tone value. They do have their own volume values.
+Same as the bass drum channel but the hi-hat and snare share the same tone value. They do have their own volume values.
 
 ### Tom/Cymbal channel
 

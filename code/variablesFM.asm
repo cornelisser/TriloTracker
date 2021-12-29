@@ -162,8 +162,9 @@ PUT_P3:		#3
 
 org_page:		#1
 prim_slot:		#1
-mapper_slot		#1
-SCC_slot:		#1	;scc slot
+mapper_slot:	#1
+r800:			#1	; CPU mode
+count_low:		#1	; R800 timer
 
 vsf:		#1	; vdp type for correct playback on 60hz
 cnt:		#1	; tic timer for correct playback on 60hz
@@ -234,7 +235,7 @@ DRUM_regToneCT	#2
 DRUM_regToneCTb	#2
 DRUM_regVolCT	#1
 DRUM_regVolCTb	#1
-FM_DRUM		#1	; Percussion bits
+FM_DRUM		#2	; Percussion bits
 
 
 
@@ -265,6 +266,8 @@ replay_patpage 			#1 			; the current page
 replay_previous_note		#1			; previousnote played
 replay_mainvol			#1			; the volume correction.
 
+replay_voicetrigger		#1
+replay_softvoice			#1
 
 
 ; key pressed

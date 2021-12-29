@@ -11,7 +11,7 @@ FM_DATA:	equ	0x7d	; port to set fm data for reg
 
 DRM_DEFAULT_values:
 ;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
-	dw	0x0520			; Base drum
+	dw	0x0520			; Bass drum
 	db	0x01			; vol
 	dw	0x0550			; Snare + HiHat
 	db	0x11			; vol
@@ -603,7 +603,7 @@ ENDIF
 	ld	(CHIP_Chan7+CHIP_Voice),a	
 	ld	(CHIP_Chan8+CHIP_Voice),a
 	ld	a,255
-	ld	(FM_softvoice_req),a
+	ld	(replay_softvoice),a
 	ld	a,128
 	ld	(CHIP_Chan3+CHIP_Flags),a
 	ld	(CHIP_Chan4+CHIP_Flags),a
@@ -841,8 +841,37 @@ _dc_noNote:
 	cp	16
 	jp	c,.skip_soft
 	
-	ld	(FM_softvoice_req),a
-	xor	a
+	;---- Check if voice is different than current
+	ld	d,a
+	ld	a,(replay_softvoice)
+	cp	d
+	jp	z,.skip_soft
+.debug:
+	ld	a,d
+	ld	(replay_softvoice),a
+	ld	(replay_voicetrigger),a
+	;--- Pre-load_softwarevoice 
+	sub	16
+	ld	h,0
+	ld	l,a
+	;--- times 8
+	add	hl,hl
+	add	hl,hl	
+	add	hl,hl
+	ld	de,_VOICES
+	add	hl,de
+
+	;--- Copy new values
+	ld	de,FM_Voicereg
+	ld	a,8
+	push	bc		; safe pointer to data
+.loop:
+	ldi
+	inc	de
+	dec	a
+	jp	nz,.loop
+
+	pop	bc		; restore pointer to data
       jp    .zero
 	
 .skip_soft:
@@ -856,7 +885,6 @@ _dc_noNote:
 ;	set	6,(ix+CHIP_Flags)
 .voice0		
 	call	set_patternpage_safe
-	
 _dc_noInstr:
 	inc	bc
 	
@@ -1960,22 +1988,23 @@ replay_process_chan_AY:
 	
 _pcAY_noCommand:	
 _pcAY_commandEND:
-
 	;=====
 	; NOTE
 	;=====
 	;--- Check if we need to trigger a new note
-	bit	0,(ix+CHIP_Flags)
+	ld	a,(ix+CHIP_Flags)
+	bit	0,a
 	jr.	z,_pcAY_noNoteTrigger
 	
 
 _pcAY_triggerNote:	
 	;--- get new Note
-	set	1,(ix+CHIP_Flags)		; set	note active	flag
+	set	1,a		; set	note active	flag
+	res	0,a		; reset trigger flag
+	ld	(ix+CHIP_Flags),a
 	; init macrostep but check for cmd9
-	xor	a
-	ld	b,a
-	bit	3,(ix+CHIP_Flags)
+	ld	b,0
+	bit	3,a
 	jr.	z,99f
 	ld	a,0x09		; Macro offset
 	cp	(ix+CHIP_Command)
@@ -1993,7 +2022,12 @@ _pcAY_triggerNote:
 	ld	(ix+CHIP_cmd_ToneSlideAdd),0
 	ld	(ix+CHIP_cmd_ToneSlideAdd+1),0
 
+	ld	iyl,64			; keyon flip trigger
+	jp	_pcAY_instrument
+
 _pcAY_noNoteTrigger:
+	ld	iyl,0				; keyon flip trigger
+_pcAY_instrument:
 	;Get note freq
 	ld	a,(ix+CHIP_Note)
 	add	a,(ix+CHIP_cmd_NoteAdd)
@@ -2088,7 +2122,7 @@ _pcAY_noTone:
 	bit 	7,(ix+CHIP_Flags)
 	jr.	nz,pcAY_FMinstr
 	
-	res	0,(ix+CHIP_Flags) 	; reset any note trigger for PSG. FM needs it.
+;	res	0,(ix+CHIP_Flags) 	; reset any note trigger for PSG. FM needs it.
 
 	ex	af,af'			;' get note	offset
 	ld	sp,(replay_Tonetable)	;CHIP_ToneTable-2	; -2 as note 0 is	no note
@@ -2426,14 +2460,14 @@ _wrap_skip:
 	pop	de
 	ex	de,hl
 	ld	(hl),e
-;	inc	hl
 	inc	hl
-	ld	a,d	; reset keyon and sustain
+	ld	a,d			; reset keyon and sustain
 	and	$0f
 	ld	d,a
 	ld	a,(ix+CHIP_Flags)	; Add the sustain and key bits.
-	and	16+32	
+	and	16+32
 	or	d
+	or	iyl			; iyl is 64 if there is a note trigger
 	ld	(hl),a
 
 
@@ -3189,16 +3223,6 @@ ENDIF
 ; F M P A C 
 ;--------------
 replay_route_FM:
-	ld	hl,FM_softvoice_req
-	ld	a,(hl)
-	inc	hl
-	cp	(hl)
-	jp	z,.noVoice
-	
-	ld	(hl),a
-	call	load_softwarevoice
-
-.noVoice:
 	ld	a,(replay_mode)
 	cp	2
 	jr.	z,_skipMixer
@@ -3226,7 +3250,7 @@ replay_route_mixer:
 	jp	c,99f		; if flag was set skip silencing the channel
 	res	4,(hl)
 99:
-	ld	a,6	;--- point to next channel reg
+	ld	a,6		;--- point to next channel reg
 	add	a,l
 	ld	l,a
 	jp	nc,99f
@@ -3236,256 +3260,231 @@ replay_route_mixer:
 
 
 _skipMixer:
-	call	_route_FM_drum_update
-	;------------------------------------------
-	;---- Update the voice registers
-	;------------------------------------------
-	ld	hl,FM_Voicereg
-	xor	a
-.voice_loop:
-	call	_route_FM_reg8_update
-	inc	hl
-	inc	a
-	cp	8
-	jp	c,.voice_loop
-
-	;------------------------------------------
-	;---- Update the tone and drum registers
-	;------------------------------------------
-	ld 	hl,FM_Registers
-	ld	de,CHIP_Chan3+CHIP_Flags
-	ld	a,$10		; Register $10
-	ld	b,9		; 6(tone)+3(drum) channels to update
-
-.channel_loop:	
-	; Tone low
-	call	_route_FM_reg16_update
-	dec	hl
-	add	a,$10	; Register# $20
-
-	ex	af,af'
-
-	ld	a,b	;-- Only do this check for first 6 chans. Other are drum
-	cp	4
-	jp	c,0f
-
-	;-- Check if we need to toggle key to start a new note
-	ld	a,(de)
-	bit	0,a
-	jp	z,99f	; no notetrigger
-	
-	res	0,a		; reset trigger
-	ld	(de),a
-	bit	4,a
-	call	nz,_route_FM_keyOff_update
-99:
-	ld	a,CHIP_REC_SIZE
-	add	a,e
+replay_route_FM_chans:
+;--- 	Write FM channel registers
+	;--- Store CPU type for later.
+	ld	a,(r800)
 	ld	e,a
-	jp	nc,99f
-	inc	d
-99:	
-0:
+	and	a
+	jp	z,99f
+	;--- init the r800 wait timer
+	in	a,($e6)
+	ld	(count_low),a
+99:
+	;--- Check if we need to update the voice regs
+	ld	a,(replay_voicetrigger)
+	and	a
+	jp	z,.channels
+	;--- update the voice registers
+	xor	a
+	ld	(replay_voicetrigger),a
+	ld	hl,FM_Voicereg
+	ld	bc,$0800		; 8 values, base register 0
 	ex	af,af'
-	
-	; Tone High + key & sustain
-	call	_route_FM_reg16_update
+.voiceloop:
+	ld	a,(hl)
 	inc	hl
-	add	a,$10	; Register# $30
-	
-	; Volume + voice
-	call	_route_FM_reg8_update
+	cp	(hl)
+	jp	z,99f
+	ld	d,a
+	ld	a,c
+	call	_writeFM	
+
+99:
 	inc	hl
-	add	a,-$1F	; Register# = channel + $10
+	inc	c
+	djnz	.voiceloop
+
+
+.channels:
+	ld	bc, $0910			; 9 channels, start reg# is $10
+	ld	hl,FM_regToneA+1		; pointer to the backup of reg# $2x
+.channel_loop:
+;	;--- Check if channel is active
+	ld	a,(hl)
+;	cp	128		; test bit 7	0 = chan not active
+;	jp	c,.notActive
+	cp	64		; test bit 6	1 = note trigger
+	jp	c,.noKeyOnSwitch
+
+.keyOnSwitch:
+	;--- Flip KeyOn bit
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	and	00101111b		; reset keyon bit
+	ld	d,a
+	ld	a,$10
+	add	c
+	call	_writeFM
+	dec	hl
+	dec	hl
+.noKeyOnSwitch:
+	dec	hl
+	;--- Write reg $1x
+	ld	a,(hl)
+	inc	hl
+	inc	hl
+	cp	(hl)
+	jp	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,c			; Store reg# in C
+	call	_writeFM
+99:
+	dec	hl
+	;--- Write reg $2x
+	ld	a,(hl)
+	inc	hl
+	inc	hl
+	cp	(hl)
+	jp	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,$10
+	add	a,c			; Store reg# in C+10
+	call	_writeFM
+99:
+	inc	hl	
+	;--- Write reg $3x
+	ld	a,(hl)
+	inc	hl
+	cp	(hl)
+	jp	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,$20
+	add	c			; Store reg# in C
+	call	_writeFM
+99:
+	inc	hl
+	inc	hl
+.continue:	
+	inc	c			; increase base register with 1
 	djnz	.channel_loop
-	ret
 
-
-_route_FM_drum_update:
+	;--- write rythm register
+.rythm:
 	ld	a,(DrumMixer)
 	and	a
-	ret	z		; Drums on mute
+	ret	z			; Drums on mute
 
-	ld	a,(FM_DRUM)
-	and	00011111b		; erase bit 5
+	dec	hl
+	ld	a,(hl)
+	and	00011111b		; check if there are drums
 	ret	z			; no drums to play
-	
-	ld	b,a
-	ld	a,0x0e
-	;-- load the new values
-	out	(FM_WRITE),a	; Select rythm register
-	ld	a,b			; 5 cycles
-	ld	a,b			; 5 cycles
-	
-	out	(FM_DATA),a		
-	push	af
-	pop	af
-	push	af
-	pop	af
 
+	ld	d,a			; Trigger on the drums
+	ld	a,$0e			
+	call	_writeFM
 
-	ld	a,0
-	ld	(FM_DRUM),a
-	ld	a,b
-	or	100000b		; set the percussion bit
-	out	(FM_DATA),a
-	
-	ret
-	
-
-;------- Writes safe to the FM chip
-; in :
-;	[a]	Register# to write
-;	[HL]	point to register (previous value is next in RAM)
-;
-; out:
-;	[HL] points to previous value
-;	[A]	contains register# written
-;-----------
-_route_FM_reg8_update:
-	ex	af,af'
-	ld	a,(hl)
-	jp	_rfr_cont
-	
-	
-;------- Writes safe to the FM chip
-; in :
-;	[a]	Register# to write
-;	[HL]	point to register (previous value is next in RAM)
-;
-; out:
-;	[HL] points to previous value
-;	[A]	contains register# written
-;-----------
-_route_FM_reg16_update:
-	ex	af,af'
-	ld	a,(hl)
-	inc	hl
-_rfr_cont:
-	inc	hl
-	cp	(hl)	
-	jp	z,99f		; no change in tone low value
-	ex	af,af'	
-	out	(FM_WRITE),a
-	ex	af,af'
-	ld	(hl),a
-	out	(FM_DATA),a	
-	push	ix			; 17 cycles	dummy code to implement delay
-	pop	ix			; 17 cycles	
-99:	ex	af,af'
-;	dec	hl	
-	ret
-	
-
-
-
-;------- Writes a keyoff to the existing tone high register 
-; in :
-;	[A']	register# to write
-;	[HL]	point to register (previous value is next in RAM)
-;
-; out:
-;	[HL] points to same location
-;	[A']	contains register# written
-;-----------
-_route_FM_keyOff_update:
-	ex	af,af'
-	out	(FM_WRITE),a
-	ex	af,af'		; 4 cycles	 '
-	ld	a,(hl)
-	and	11101111b	; erase keyON bit.
-
-	out	(FM_DATA),a	
-	inc	hl
-	inc	hl
-	ld	(hl),a		; make sure to change old value to trigger update
-	dec	hl
-	dec	hl
+	set	5,d			; Trigger off the drums
+	call	_writeFM_data
+	ld	(hl),0
 	ret
 
-
-
-
-
-load_softwarevoice:
-	ld	hl,_VOICES	
-	sub	16
-	jr.	z,99f
-	ld	de,8
-55:
+.notActive:
+	ld	de,6
 	add	hl,de
-	dec	a
-	jr.	nz,55b
-99:	
-	ld	de,FM_Voicereg
-	ld	a,8
-.loop:
-	ldi
-	inc	de
-	dec	a
-	jp	nz,.loop
-	ret	
+	jp	.continue
+	;--- Points to start address of next chan
 
 
 
+; [A] reg#
+; [D] value
+; [E] R800	(0=Z80, 1 = R800)
+; [HL] points to previous value
+_writeFM:
+	bit	0,e				;  8 cycles
+	jp	nz,_writeFM_R800		; 10 cycles
+	out	(FM_WRITE),a		; 11 cycles
+	ld	a,d				;  4 cycles
+_writeFM_cont:
+	ld	(hl),a			;  7 cycles	
+	out	(FM_DATA),a			; 11 cycles
+	ret					; 10 cycles
+
+; [D] value
+; [E] R800	(0=Z80, 1 = R800)
+; [HL] points to previous value
+_writeFM_data:
+	bit	0,e				;  8 cycles
+	jp	nz,_writeFM_data_R800	; 10 cycles
+	push	bc				; 11 cycles	Dummy for write delay
+	pop	bc				; 11 cycles	Dummy for write delay
+	jp	_writeFM_cont		; 10 cycles
+
+; [A] reg#
+; [D] value
+; [HL] points to previous value
+_writeFM_R800:		
+	;--- wait to write
+	push	de
+	ex	af,af'
+	ld	a,(count_low)
+	ld	d,a
+.loop_long:
+	in	a,($e6)
+	sub	d
+	cp	6
+	jp	c,.loop_long
+
+	pop	de
+	ex	af,af'
+	;-- write address
+	out	(FM_WRITE),a		; 11 cycles
+
+	in	a,($e6)
+	;--- wait to write
+	push	de
+	ld	d,a
+.loop_short
+	in	a,($e6)
+	sub	d
+	cp	1
+	jp	c,.loop_short
+	pop	de
+_writeFM_R800_cont:
+	;--- write data
+	ld	a,d				;  4 cycles
+	ld	(hl),d			;  7 cycles	
+	out	(FM_DATA),a			; 11 cycles
+	in	a,($e6)
+	ld	(count_low),a
+	ret					; 10 cycles
+
+; [D] value
+; [HL] points to previous value
+_writeFM_data_R800:
+	;--- wait to write
+	push	de
+	ld	a,(count_low)
+	ld	d,a
+.loop_long:
+	in	a,($e6)
+	sub	d
+	cp	6
+	jp	c,.loop_long
+	pop	de
+	jp	_writeFM_R800_cont
+	;--- end
 
 
-;	;--- copy data to FM custom voice register
-;	ld	d,8
-;	ld	a,$0
-;_tt_voice_fmloop:	
-;	push	ix			; 17 cycles	dummy code to implement delay
-;	pop	ix			; 17 cycles
-;	out	(FM_WRITE),a
-;	push	ix			; 17 cycles	dummy code to implement delay
-;	pop	ix			; 17 cycles	
-;	inc	a			; 4 cycles
-;	ex	af,af'		;'4 cycles	
-;	ld	a,(hl)		; 7 cycles    the low byte
-;	push	ix			; 17 cycles	dummy code to implement delay
-;	pop	ix			; 17 cycles	
-;	out	(FM_DATA),a
-;	push	ix			; 17 cycles	dummy code to implement delay
-;	pop	ix			; 17 cycles	
-;	;--- delay
-;	push 	ix
-;	pop	ix
-;	nop
-;	nop
-;		
-;	
-;	inc	hl
-;	ex	af,af'		;'
-;	dec	d
-;	jr.	nz,_tt_voice_fmloop
-;
-;	xor	a
-;
-;	ret
-
-
-
-_drumset:
-	db	00100000b ; none
-	db	00110000b ; bdrum
-	db	00101000b ; snare
-	db	00111000b ; bdrum+snare
-	db	00100001b ; hihat
-	db	00100010b ; Cymbal
-	db	00110010b ; bdrum + cymbal
-	db	00101010b ; snare + cymbal
-	db	00111010b ; 
-	db	00100100b
-	db	00110100b
-	db	00110001b
-	db	00101001b
-	db	00111001b
-	db	00110110b
-	db	00100011b
-
-
-
-
+;_drumset:
+;	db	00100000b ; none
+;	db	00110000b ; bdrum
+;	db	00101000b ; snare
+;	db	00111000b ; bdrum+snare
+;	db	00100001b ; hihat
+;	db	00100010b ; Cymbal
+;	db	00110010b ; bdrum + cymbal
+;	db	00101010b ; snare + cymbal
+;	db	00111010b ; 
+;	db	00100100b
+;	db	00110100b
+;	db	00110001b
+;	db	00101001b
+;	db	00111001b
+;	db	00110110b
+;	db	00100011b
 
 REPLAY_END:
 

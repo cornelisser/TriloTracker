@@ -22,7 +22,7 @@ CHIP_Volume				equ 6
 CHIP_Flags				equ 7	
 	; 0 = note trigger
 	; 1 = note active
-	; 2 = 
+	; 2 = envelope
 	; 3 = command trigger
 	; 4 = key trigger		; for fm note trigger	; Do not use for PSG!
 	; 5 = sustain		; for fm note sustain	; Do not use for PSG!
@@ -173,8 +173,9 @@ SCC_VOLUME_TABLE
 FM_DRUM_LEN		db	0	; Length of drum macro
 FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
 
-FM_softvoice_req	db	0	; Software voice requested
-FM_softvoice_set 	db	0	; Software voice currently loaded
+
+;FM_softvoice_req	db	0	; Software voice requested
+;FM_softvoice_set 	db	0	; Software voice currently loaded
 
 
 ;_KEYJAZZ_LINE:	db	0,0,0,0

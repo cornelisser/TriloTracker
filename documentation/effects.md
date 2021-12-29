@@ -34,7 +34,7 @@
    * [E0y - Arpeggio speed](#e0y---arpeggio-speed)
    * [E1y - Fine slide up](#e1y---fine-slide-up)
    * [E2y    -     Fine slide down](#e2y---fine-slide-down)
-   * [E50    -     Note link](#e50---note-link)
+   * [E50    -     LEgato (Note link)](#e50---note-link)
    * [E6y    -     Track detune](#e6y---track-detune)
    * [E8y    -     Global transpose](#e8y---global-transpose)
    * [E8y    -     Tone panning](#e8y---tone-panning)
@@ -264,7 +264,7 @@ y value sets the value to slide up. This is only done once. This command is usef
 #### <a name='e2y---fine-slide-down'></a>E2y    -     Fine slide down
 y value sets the value to slide down. This is only done once. This command is useful on higher notes for portamento or as note detune.
 
-#### <a name='e50---note-link'></a>E50    -     Note link
+#### <a name='e50---note-link'></a>E50    -     Legato (Note link)
 Links the note next to this command with the previous note. The instrument macro is not restarted.
 
 #### <a name='e6y---track-detune'></a>E6y    -     Track detune

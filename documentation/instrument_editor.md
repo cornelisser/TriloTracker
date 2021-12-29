@@ -45,7 +45,7 @@ E.g. the volume can be used set the ADSR (Attack,Decay and Sustain, Release).
 The noise columns are only processed when the instrument is used in a PSG channel. Do remember that there is only 1 noise channel (the 4th PSG channel). When using multiple instruments that produce noise (noise enabled) on the same tic, only the last noise value is used.
 
 ## Envelope [TTFM][TTSCC]
-The envelope shape can be set on any row. This feature is mostly used to create base drums on PSG. To continue the envelope in an instrument it is important to have an envelope value of 0. Otherwise the envelope will be reset each time the instrument macro is played. 
+The envelope shape can be set on any row. This feature is mostly used to create bass drums on PSG. To continue the envelope in an instrument it is important to have an envelope value of 0. Otherwise the envelope will be reset each time the instrument macro is played. 
 
 Example (bad):
 ```

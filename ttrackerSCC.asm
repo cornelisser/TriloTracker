@@ -143,6 +143,7 @@ font_data:
 	;
 	; --------------------------------------------------
 	page 1
+	include 	".\code\bios.asm"
 	include 	".\code\cursor.asm"
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"

@@ -181,7 +181,7 @@ font_data:
 	;
 	; --------------------------------------------------
 	page 1
-
+	include 	".\code\bios.asm"
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
 	include	".\code\register_debug.asm"

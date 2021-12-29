@@ -284,8 +284,8 @@ ENDIF
 
 	ret
 	
-_dpe_step:		ds 1
-_dpe_step_count:	ds 1
+_dpe_step:			ds 1
+_dpe_step_count:		ds 1
 _dpe_step_char:		ds 1
 IFDEF TTSCC
 ELSE
@@ -963,6 +963,10 @@ _pktc_kright_loop:
 	ld	a,(_dpe_patlen)
 	ld	b,a
 	ld	a,(song_pattern_line)
+	;-- Add extra check here to wrap around if current pos is last line
+
+
+
 	add	c
 	cp	b
 	jr.	c,11f
@@ -1013,18 +1017,17 @@ _pktc_kright_loop:
 	ld	a,(song_step)
 	ld	c,a
 44:	
-
 	; row up
 	ld	a,(song_pattern_line)
+	;-- Add extra check here to wrap around if current pos is first line
+
+
+
 	cp	c
 	jr.	nc,11f
-	
 	ld	c,a
-	
-	
 11:
 	sub	c
-	
 	ld	(song_pattern_line),a
 	push	bc
 	call	flush_cursor

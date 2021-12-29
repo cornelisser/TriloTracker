@@ -422,7 +422,7 @@ load_config:
 	ld	(disk_handle),a
 	
 	;--- Read config file byte for byte. This to not write strange values into RAM if config file has not all data
-	ld	b,29
+	ld	b,_ENV_PROGRAM-_CONFIG_SLOT
 	ld	de,_CONFIG_SLOT
 .loop:	
 	push	bc
@@ -433,6 +433,7 @@ load_config:
 	jp	nz,.end
 	pop	bc
 	djnz	.loop
+	push	bc
 
 .end:
 	pop	bc

@@ -846,7 +846,7 @@ _dc_noNote:
 	ld	a,(replay_softvoice)
 	cp	d
 	jp	z,.skip_soft
-.debug:
+
 	ld	a,d
 	ld	(replay_softvoice),a
 	ld	(replay_voicetrigger),a

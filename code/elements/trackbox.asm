@@ -1543,6 +1543,10 @@ _process_key_trackbox_compact_END:
 	ret
 
 _process_key_trackbox_compact_END_sound:
+	;--- Auto increment after audition start to audit correct patline.
+	call	auto_increment
+
+	;--- if note audition is on.
 	ld	a,(_CONFIG_AUDIT)
 	and	a
 	ret	z
@@ -1557,9 +1561,8 @@ _process_key_trackbox_compact_END_sound:
 	ld	a,3
 	ld	(replay_mode),a
 	call	replay_init_pre
-	
-	;--- Auto increment after audition start to audit correct patline.
-	call	auto_increment
+
+
 	
 88:	halt
 ;	--- wait till key is released	

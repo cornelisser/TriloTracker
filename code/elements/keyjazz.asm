@@ -181,7 +181,7 @@ ENDIF
 	and	a
 	jr.	nz,.keyjazzchip
 IFDEF TTSCC
-	ld	a,31
+	ld	b,31
 ELSE
 	ld	a,(replay_chan_setup)
 	and 	$01

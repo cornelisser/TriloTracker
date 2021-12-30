@@ -131,7 +131,7 @@ replay_mode3:
 	jp	_rpm2_3		; mode 2 and 3 work alike.
 	
 1:	
-	call	replay_init_pre
+;	call	replay_init_pre
 	jp	replay_mode2
 
 
@@ -370,6 +370,7 @@ _snp_continue:
 ; 
 ;===========================================================
 replay_init_cont:
+	di
 ;	call	draw_vu_empty
 	;--- Get the start speed.
 	ld	a,(song_speed)
@@ -430,14 +431,15 @@ replay_init_cont:
 	ld	(TRACK_Chan7+TRACK_Flags),a	
 	ld	(TRACK_Chan8+TRACK_Flags),a	
 	
-	call scc_reg_update
+	call 	scc_reg_update
 	
 	ld	a,(mapper_slot)				; Recuperamos el slot
 	ld	h,0x80
-	call enaslt
+	call 	enaslt
 	
+
 	call	replay_route
-	ei
+;	ei
 	
 ;	ld	hl,song_order
 	ld	a,(song_pattern)	
@@ -465,6 +467,7 @@ replay_init_cont:
 ;
 	
 	; end	is here
+	ei
 	ret
 
 

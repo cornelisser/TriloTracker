@@ -140,7 +140,7 @@ replay_mode3:
 	jr.	_rpm2_3		; mode 2 and 3 work alike.
 	
 1:	
-	call	replay_init_pre
+;	call	replay_init_pre
 	jr.	replay_mode2
 
 

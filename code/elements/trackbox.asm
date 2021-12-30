@@ -1556,7 +1556,8 @@ _process_key_trackbox_compact_END_sound:
 	ld	(replay_key),a	
 	ld	a,3
 	ld	(replay_mode),a
-
+	call	replay_init_pre
+	
 	;--- Auto increment after audition start to audit correct patline.
 	call	auto_increment
 	

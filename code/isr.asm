@@ -129,39 +129,12 @@ int_no_music:
 	call	key_handler
 	call	read_functionkeys
 	
-	
-
-	
 	;-- Cursor blink
 	ld	hl,cursor_timer
 	inc	(hl)	
 
-
 	pop	af
 	call	PUT_P2
 
-
-
-
-
 	ret
 
-;	; =====================
-;	; Restore the registers.
-;	; =====================
-;	pop ix
-;	pop iy
-;	pop af
-;	pop bc
-;	pop de
-;	pop hl
-;	ex af
-;	exx
-;	pop af
-;	pop bc
-;	pop de
-;	pop hl
-;	pop ix
-;	pop iy
-;	ei
-;	ret    

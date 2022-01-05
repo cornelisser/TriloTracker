@@ -2487,18 +2487,18 @@ _pcFM_noVoice:
 	and	0x0f		; get	low 3	bits for volume deviation
 	
 	bit	4,b		; bit	6 set	= subtract?
-	ld	b,a		; set	deviation in b
+	ld	d,a		; set	deviation in b
 	ld	a,c		; set	current volume add back	in c
 	jr.	nz,1f
 	;--- add 
-	add	b
+	add	d
 	cp	16
 	jr.	c,4f
 	ld	a,15
 	jr.	4f
 1:
 	;--- sub 
-	sub	b
+	sub	d
 	cp	16
 	jr.	c,4f
 	xor	a

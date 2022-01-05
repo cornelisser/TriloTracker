@@ -2128,6 +2128,11 @@ IFDEF	TTSCC
 	ld	hl,8*16
 	call	read_file
 	jr.	nz,catch_diskerror	
+
+	;---- NOTE previous version then version 8 of TTFM are not loaded correct in TTSCC
+	;	as the data is 2 byte (header) + 4 byte (data n-times)
+
+
 	; skip the drum macro names
 	ld	hl,MAX_DRUMS*16
 	ld	a,(song_version)

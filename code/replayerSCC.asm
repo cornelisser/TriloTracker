@@ -2860,17 +2860,6 @@ replay_route:
 	cp	2
 	jp	z,99f
 
-;	ld	a,(psgmode)
-;	and	a
-;	jp	nz,e_psg
-
-;msx_psg:
-;	; set PSG
-;	ld	a,$d
-;	out	($a0),a
-;	ld	a,1
-;	out	($a1),a
-;
 	;--- Apply the mixer.
 	ld	a,(MainMixer)
 	ld	b,a
@@ -2892,33 +2881,37 @@ replay_route:
 0:
 99:
 	;--- Push values to AY HW
-	ld	b,0
 	ld	a,(psgport)
 	ld	c,a
 	ld	hl,AY_registers
+      ld    b,$ff
+      xor   a
 _comp_loop:	
-	out	(c),b
-	ld	a,(hl)
-;	add	1
-	inc	c
+      ;--- write low with $ff (avoid clipping)
+      out   (c),a
+      inc   c
+      out   (c),b
+      dec   c
+      ;--- store the low byte
+      ld	e,(hl)
+      inc   hl
+      ;--- write high byte
+      ld    d,(hl)
+      inc   hl
+      inc   a
 	out	(c),a
-	inc	hl
-	ld	a,(hl)
-;	adc	a,0
-	inc	b
-	dec	c
-	out	(c),b	
-	inc	hl
 	inc	c
+	out	(c),d
+      dec   c
+      dec   a
+      ;--- write low byte
 	out	(c),a
-	dec	c
-	inc	b
-	ld	a,6
-	cp	b
+	inc	c
+	out	(c),e
+      dec   c
+      add   2
+	cp	6
 	jp	nz,_comp_loop
-	
-	ld	a,b	
-	
 	
 _ptAY_loop:
 	out	(c),a

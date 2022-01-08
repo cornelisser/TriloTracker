@@ -65,6 +65,12 @@ start_init:
 
 IFDEF	TTSCC
 ELSE
+	;-- Clear register data
+	ld	de,FM_Registers+1
+	ld	hl,FM_Registers
+	ld	(hl),0
+	ld	bc,53
+	ldir
 	call	replay_set_rhythmmode
 ENDIF
 

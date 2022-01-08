@@ -845,8 +845,12 @@ _dc_noNote:
 	ld	d,a
 	ld	a,(replay_softvoice)
 	cp	d
-	jp	z,.skip_soft
-
+	jp	nz,.getins
+	;--- already loaded so set voice 0
+	xor	a
+	jp	z,.zero
+	;--- (pre)load the softvoice values
+.getins:
 	ld	a,d
 	ld	(replay_softvoice),a
 	ld	(replay_voicetrigger),a
@@ -3309,9 +3313,23 @@ replay_route_FM_chans:
 
 .keyOnSwitch:
 	;--- Flip KeyOn bit
+	; To be honest I am a little confused on the this part as 
+	; with certain FM instruments ($14) it is not sufficient to 
+	; disable the keyon bit and enable it.  It needs to be a 
+	; full on-off-on sequence to work on all instruments.
 	inc	hl
 	inc	hl
 	ld	a,(hl)
+	;--- Check if Key is already ON
+	bit	4,a
+	jp	nz,99f		; skip if key was already set
+	or	00010000b		; set bit
+	ld	d,a
+	ld	a,$10
+	add	c
+	call	_writeFM
+	ld	a,(hl)	
+99:
 	and	00101111b		; reset keyon bit
 	ld	d,a
 	ld	a,$10

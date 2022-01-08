@@ -195,8 +195,8 @@ replay_decodedata:
 	ld	bc,(replay_patpointer)	;--- Get the pointer to	the data
 
 	;--- Set the tone table base
-	ld	hl,TRACK_ToneTable
-	ld	(replay_Tonetable),hl
+;	ld	hl,TRACK_ToneTable
+;	ld	(replay_Tonetable),hl
 	
 	ld	iyh,$00
 	ld	ix,TRACK_Chan1
@@ -1573,7 +1573,7 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_notelink	;5
 	dw	_CHIPcmdE_trackdetune	;6
 	dw	_CHIPcmdE_none		;7
-	dw	_CHIPcmdE_none		;8
+	dw	_CHIPcmdE_transpose	;8
 	dw	_CHIPcmdE_none		;9
     
 	dw	_CHIPcmdE_none		;A
@@ -1724,28 +1724,26 @@ _CHIPcmdE_trackdetune:
 	ret
 	
 _CHIPcmdE_transpose:
-;	res	3,(ix+TRACK_Flags)		; command in-active
-;
-;	ld	a,d
-;	add	a
-;	ld	hl,TRACK_ToneTable;(replay_Tonetable)
-;	; This comment sets the	detune of the track.
-;	and	15		; low	4 bits is value
-;	bit	3,d		; Center around 8
-;	ld	d,0
-;	ld	e,a
-;
-;	jp	z,99f
-;
-;;neg	
-;	xor	a
-;	sbc	hl,de
-;	ld	(replay_Tonetable),hl
-;	ret
-;; pos
-;99:	
-;	add	hl,de
-;	ld	(replay_Tonetable),hl
+	ld	a,d
+	add	a
+	ld	hl,TRACK_ToneTable;(replay_Tonetable)
+	; This comment sets the	detune of the track.
+	and	15		; low	4 bits is value
+	bit	3,d		; Center around 8
+	ld	d,0
+	ld	e,a
+
+	jp	z,99f
+
+;neg	
+	xor	a
+	sbc	hl,de
+	ld	(replay_Tonetable),hl
+	ret
+; pos
+99:	
+	add	hl,de
+	ld	(replay_Tonetable),hl
 	ret
 
 

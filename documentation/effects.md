@@ -270,6 +270,16 @@ Links the note next to this command with the previous note. The instrument macro
 #### <a name='e6y---track-detune'></a>E6y    -     Track detune
 y value sets the track detune for all notes played till set differently. Values $0..$7 are positive values and values $8..$F are negative values (-1..-7)
 
+
+#### <a name='e8y---global-transpose'></a>E8y    -     Global transpose
+<sup>**[TTSCC Only]**</sup><br>
+y value sets the global transpose for all notes in halve notes. Values $0..$7 are positive (0..7) values and values $8..$F are negative values (-1..-7)<br>
+```
+---.. E82    Will add 2 halve notes to all notes played.
+---.. ...
+---.. E80    Global transpose is set back to original (reset).
+```
+
 #### <a name='e8y---tone-panning'></a>E8y    -     Tone panning
 <sup>**[SMS Only]**</sup><br>
 Sets the Game Gear Panning of the current channel. <br>

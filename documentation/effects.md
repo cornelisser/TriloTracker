@@ -273,7 +273,7 @@ y value sets the track detune for all notes played till set differently. Values 
 
 #### <a name='e8y---global-transpose'></a>E8y    -     Global transpose
 <sup>**[TTSCC Only]**</sup><br>
-y value sets the global transpose for all notes in halve notes. Values $0..$7 are positive (0..7) values and values $8..$F are negative values (-1..-7)<br>
+y value sets the global transpose for all notes in halve notes. Values $0..$7 are positive (0..7) values and values $8..$F are negative values (-0..-7)<br>
 ```
 ---.. E82    Will add 2 halve notes to all notes played.
 ---.. ...

@@ -1543,14 +1543,10 @@ _process_key_trackbox_compact_END:
 	ret
 
 _process_key_trackbox_compact_END_sound:
-	;--- Auto increment after audition start to audit correct patline.
-	call	auto_increment
-
 	;--- if note audition is on.
 	ld	a,(_CONFIG_AUDIT)
 	and	a
-	ret	z
-
+	jp	z,auto_increment		;--- Auto increment after audition start to audit correct patline.
 
 	;--- sound the pattern line
 	call	replay_init
@@ -1562,8 +1558,6 @@ _process_key_trackbox_compact_END_sound:
 	ld	(replay_mode),a
 	call	replay_init_pre
 
-
-	
 88:	halt
 ;	--- wait till key is released	
 	ld	a,(replay_mode)
@@ -1580,6 +1574,7 @@ _process_key_trackbox_compact_END_sound:
 99:	
 ;	ld	a,(current_song)
 	call	set_songpage
+	call	auto_increment
 	ret	
 	
 
@@ -1677,7 +1672,7 @@ auto_increment:
 		ld	a,(song_pattern_offset)
 		add	b
 		ld	(song_pattern_offset),a
-		call	update_trackbox
+;		call	update_trackbox
 		jr.	_auto_increment_END
 	
 99:	;--- new cursor is on screen.

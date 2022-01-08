@@ -119,7 +119,6 @@ ENDIF
 	inc	hl
 	djnz 	0b
 	
-
 	ld	b,65
 	ld	hl,_ns_TEMP
 	ld	de,song_name
@@ -230,8 +229,7 @@ ENDIF
 	
 	
 _ns_TEMP:
-	db	"v0.11.5                         "
-;	db	"TriloTracker ",VERSION
+	db	"v0.11.5                        ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

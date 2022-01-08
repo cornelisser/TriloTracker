@@ -135,6 +135,8 @@ update_songbox_volume:
 	call	draw_label_fast
 
 	ret
+
+
 ;===========================================================
 ; --- process_key_songbox
 ;
@@ -142,15 +144,30 @@ update_songbox_volume:
 ; 
 ;===========================================================
 process_key_songbox:
-	
 	;--- Set the start of the name.
-	ld	hl,song_name
+	ld	hl,song_by
 	ld	a,(cursor_y)
 	cp	2
-	jr.	z,0f
-	ld	hl,song_by
+	jr.	nz,1f
+
+	;--- Check if we need to remove the placeholder
+	ld	a,(song_name+31)
+	and	a
+	jp	nz,0f
+
+	;--- erase placeholder
+	ld	hl,song_name
+	ld	a,32
+88:	
+	ld	(hl),32
+	inc	hl
+	dec	a
+	jp	nz,88b
+	call	update_songbox
+
 0:	
-		
+	ld	hl,song_name
+1:
 	ld	a,(key)
 	;--- Check if edit is ended.
 	cp	_ESC

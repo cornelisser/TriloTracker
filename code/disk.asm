@@ -1959,7 +1959,7 @@ open_tmufile:
 
 	ld	a,b
 	ld	(disk_handle),a
-	
+
 	;--- Read version
 	ld	de,song_version
 	ld	hl,1

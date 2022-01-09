@@ -140,7 +140,7 @@ draw_macrobox:
 _LABEL_SAMPLEBOX:
 	db	"instrument edit:",0
 _LABEL_SAMPPLEMACRO:
-	db	"Macro:",0
+	db	"Macro:",_HORIZONTAL,"freq",_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,"n/w",_HORIZONTAL,"vol",0
 _LABEL_SAMPPLEFORM:
 	db	"waveForm:",0
 ;_LABEL_SAMPLEBARS:
@@ -163,9 +163,7 @@ _PSG_SAMPLESTRING:
 	db	"           [000]        X    "
 
 _ups_pntpos:	dw	0
-;_ups_tone:		dw	0
-;_ups_noise:		db	0
-;_ups_volume:	db	0
+
 
 
 _PSG_VOL0:	db  32, 32, 32, 32, 32

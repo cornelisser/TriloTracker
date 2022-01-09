@@ -121,7 +121,7 @@ set_textcolor:
 	ld	a,(keyjazz)
 	and	a
 	jp	z,99f
-	ld	a,$21
+	ld	a,$32
 99:
 	ld	(hl),a
 	

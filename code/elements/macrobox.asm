@@ -146,7 +146,7 @@ _LABEL_SAMPPLEFORM:
 ;_LABEL_SAMPLEBARS:
 ;	db	"vol",0
 _LABEL_SAMPLETEXT:
-	db	"Ins: Len: Rst: Wav: Description:     Oct: Tst:",0
+	db	"Ins: Len: Rst: Wav: Name:             Oct: Tst:",0
 _LABEL_SAMPLETEXT2:	
 	db	_ARROWLEFT," x",_ARROWRIGHT,32
 	db	_ARROWLEFT,"xx",_ARROWRIGHT,32

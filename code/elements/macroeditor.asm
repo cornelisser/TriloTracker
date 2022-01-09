@@ -339,8 +339,8 @@ ENDIF
 		call	reset_cursor_macrobox
 		jr.	processkey_macroeditor_END	
 0:	
-	;--- CTRL_D - Instrument description
-	cp	_CTRL_D
+	;--- CTRL_N - Instrument name
+	cp	_CTRL_N
 	jr.	nz,0f
 		ld	a,(editsubmode)
 		and	a

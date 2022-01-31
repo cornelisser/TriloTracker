@@ -229,18 +229,18 @@ Sets the speed of the morphing. between the 16 steps. 0 = total time is 16 tics 
 
 At default the drum macros are initialized as below:
 ```
- preset     |1|2|3|4|5|6|7|8|9|A|B|C|D|E|F|
-            ===============================
- bass-drum  |x| |x| | |x| |x| |x|x| |x|x| |
- snare-drum | |x|x| | | |x|x| | | |x|x| | |
- hi-hat     | | | |x| | | | | | |x|x|x| |x|
- cymbal     | | | | |x|x|x|x| | | | | |x|x|
- tom        | | | | | | | | |x|x| | | |x| |
+ preset     |1|2|3|4|5|6|7|8|9|A|B|C|D|E|F| Note |
+            ======================================
+ bass-drum  |x| |x| | |x| |x| |x|x| |x|x| | F-3  |
+ snare-drum | |x|x| | | |x|x| | | |x|x| | | A-1  |
+ hi-hat     | | | |x| | | | | | |x|x|x| |x|  "   |
+ cymbal     | | | | |x|x|x|x| | | | | |x|x| C-1  |
+ tom        | | | | | | | | |x|x| | | |x| |  "   |
 
 ```
 
 #### <a name='c00---drum-reset'></a>C00 - Drum reset
-Resets all percussion registers to default.
+Resets percussion tone/volume registers to default.
 
 #### <a name='cxy---drum'></a>Cxy - Drum 
 Play the corresponding drum macro ($1-$13)

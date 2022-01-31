@@ -499,16 +499,8 @@ replay_stop:
 	;--- DRUM default values
 	ld	de,DRUM_regToneBD
 	ld	hl,DRM_DEFAULT_values
-	ld	a,3
-.loop:	
-	ldi
-	ldi
-	inc	de
-	inc	de
-	ldi
-	inc	de
-	dec	a
-	jp	nz,.loop
+	ld	bc,18
+	ldir
 
 
 	ld    a,$f0

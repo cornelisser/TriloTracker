@@ -227,9 +227,9 @@ _cdm_DRUMDEFAULT:
 ENDIF
 
 	
-	
+	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.11.5                        ",0	; 0 marker indicates placeholder 
+	db	"v0.11.6                        ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

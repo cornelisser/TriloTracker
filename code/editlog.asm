@@ -383,7 +383,7 @@ sub_undo1:
 	ret
 
 ; =========================================================
-; NOTE (2 byte) BYTE UNDO
+; Note (2 byte) BYTE UNDO
 ; =========================================================	
 sub_undo2:
 	;--- Get the destination page

@@ -12,7 +12,7 @@ SCC_VOLUME_TABLE
 
 DRM_DEFAULT_values:
 	db	11100111b		; 0,1,2 = volume, 5,6,7 = freq
-	dw	0x0520		; Base drum
+	dw	0x0520		; Bass drum
 	db	0x01			; vol
 	dw	0x0550		; Snare + HiHat
 	db	0x11			; vol
@@ -1957,7 +1957,7 @@ _pcAY_noCommand:
 _pcAY_commandEND:
 
 	;=====
-	; NOTE
+	; Note
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	0,(ix+CHIP_Flags)

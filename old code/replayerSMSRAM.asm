@@ -140,7 +140,7 @@ FM_DRUM_Flags	db	0	; 0,1,2 = volume, 5,6,7 = freq
 DRUM_regVolBD		db	0	; Drum (low)
 DRUM_regVolSH		db	0	; Snare(low) Hihat(High)
 DRUM_regVolCT		db	0	; Cymbal(low) TomTom (High)
-DRUM_regToneBD		dw	0	; Base drum
+DRUM_regToneBD		dw	0	; Bass drum
 DRUM_regToneSH		dw	0	; Snare + HiHat
 DRUM_regToneCT		dw	0	; Cymbal + TomTom
 

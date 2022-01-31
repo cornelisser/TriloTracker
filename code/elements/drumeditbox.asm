@@ -397,7 +397,7 @@ _dml_empty:
 	
 
 _dml_note:
-	; NOTE
+	; Note
 	push	hl
 	;--- get pointer to the note labels.
 	ld	hl,_LABEL_NOTES

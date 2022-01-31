@@ -8,15 +8,21 @@ FM_DATA:	equ	0x7d	; port to set fm data for reg
 ;
 ;================================
 
-
 DRM_DEFAULT_values:
+	; values taken from XAK3 intro. Used the most used values as default
 ;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
-	dw	0x0520			; Bass drum
-	db	0x01			; vol
-	dw	0x0550			; Snare + HiHat
-	db	0x11			; vol
-	dw	0x01c0			; Cymbal + TomTom
-	db	0x11			; vol
+	dw	0x04E4			; Bass drum
+	dw	0x0000
+	db	0x00			; vol
+	db	0xff
+	dw	0x0120			; Snare + HiHat
+	dw	0x0000
+	db	0x00			; vol
+	db	0xff
+	dw	0x00AB			; Cymbal + TomTom
+	dw	0x0000
+	db	0x00			; vol
+	db	0x00
 	
 
 ; Sine table used for tremolo and vibrato
@@ -1433,8 +1439,17 @@ _CHIPcmdC_drum:
 	ret	nc
 
 	and	a
-	ret	z			; B00 does nothing
+;	ret	z			; B00 does nothing
+	jp	nz,0f
 
+	push	bc
+	;--- DRUM default values
+	ld	de,DRUM_regToneBD
+	ld	hl,DRM_DEFAULT_values
+	ld	bc,18
+	ldir
+	pop	bc
+	ret
 0:	
 	;--- Set the song page
 	call	set_songpage_safe
@@ -1771,7 +1786,7 @@ _CHIPcmdF_speed:
 
 
 _rpd_noDrum:
-;	ld	(FM_DRUM),a		; store the percusion bits
+	ld	(FM_DRUM),a		; store the percusion bits
 	ret
 ;===========================================================
 ; ---replay_process_drum
@@ -1789,6 +1804,10 @@ replay_process_drum:
 
 	; drum bits
 	ld	a,(bc)
+	and	a
+	jp	z,.skip_p
+	or	$20
+.skip_p:	
 	ld	(FM_DRUM),a		; store the percusion bits
 	inc	bc
 	;- Bass drum
@@ -1993,7 +2012,7 @@ replay_process_chan_AY:
 _pcAY_noCommand:	
 _pcAY_commandEND:
 	;=====
-	; NOTE
+	; Note
 	;=====
 	;--- Check if we need to trigger a new note
 	ld	a,(ix+CHIP_Flags)
@@ -3265,7 +3284,7 @@ replay_route_mixer:
 
 _skipMixer:
 replay_route_FM_chans:
-;--- 	Write FM channel registers
+	;--- 	Write FM channel registers
 	;--- Store CPU type for later.
 	ld	a,(r800)
 	ld	e,a
@@ -3384,18 +3403,25 @@ replay_route_FM_chans:
 	and	a
 	ret	z			; Drums on mute
 
+	ld	b,(hl)		; save old
 	dec	hl
 	ld	a,(hl)
-	and	00011111b		; check if there are drums
-	ret	z			; no drums to play
+	and	a
+	ret	z
 
-	ld	d,a			; Trigger on the drums
+	inc	hl
+	ld	c,a			; save new
+	xor	$1f			; create key off mask
+	and	b			; reset bits to trigger
+	ld	d,a			
 	ld	a,$0e			
 	call	_writeFM
 
-	set	5,d			; Trigger off the drums
+	ld	a,c			; restore new
+	or	b			; add old key-on bits
+	ld	d,a
 	call	_writeFM_data
-	ld	(hl),0
+;	ld	(hl),0
 	ret
 
 .notActive:

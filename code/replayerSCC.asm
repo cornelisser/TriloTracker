@@ -2849,11 +2849,9 @@ _pcAY_cmd1e_sample:
 ; WILL DISABLE INTERRUPTS !!!!
 ;===========================================================
 replay_route:
-
 ;---------------
 ; P S	G 
 ;---------------
-
 	ld	a,(replay_mode)
 	cp	2
 	jp	z,99f

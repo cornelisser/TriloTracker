@@ -35,7 +35,7 @@ draw_samplebox:
 
 
 ;	ld	hl,(80*9)+1+28+4
-;	ld	de,_LABEL_SAMPPLEFORM
+;	ld	de,_LABEL_SAMPLEFORM
 ;	call	draw_label
 
 

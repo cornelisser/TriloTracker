@@ -70,14 +70,13 @@ draw_macrobox:
 
 
 	ld	hl,(80*9)+1
-	ld	de,_LABEL_SAMPPLEMACRO
+	ld	de,_LABEL_SAMPLEMACRO
 	call	draw_label
 
 
 	ld	hl,(80*9)+1+28+4
-	ld	de,_LABEL_SAMPPLEFORM
+	ld	de,_LABEL_SAMPLEFORM
 	call	draw_label
-
 
 	ld	hl,0x0806
 	ld	de,0x3103	
@@ -124,6 +123,9 @@ draw_macrobox:
 	ld	de,0x0b08	
 	call	erase_colorbox
 	
+	ld	hl,(80*17)+1+28+4
+	ld	de,_LABEL_SAMPLEEDIT
+	call	draw_label
 
 	; decimal wave values
 ;	ld	hl,0x250a
@@ -139,12 +141,12 @@ draw_macrobox:
 	
 _LABEL_SAMPLEBOX:
 	db	"instrument edit:",0
-_LABEL_SAMPPLEMACRO:
+_LABEL_SAMPLEMACRO:
 	db	"Macro:",_HORIZONTAL,"freq",_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,_HORIZONTAL,"n/w",_HORIZONTAL,"vol",0
-_LABEL_SAMPPLEFORM:
+_LABEL_SAMPLEFORM:
 	db	"waveForm:",0
-;_LABEL_SAMPLEBARS:
-;	db	"vol",0
+_LABEL_SAMPLEEDIT:
+	db	"waveEdit:",0
 _LABEL_SAMPLETEXT:
 	db	"Ins: Len: Rst: Wav: Name:             Oct: Tst:",0
 _LABEL_SAMPLETEXT2:	
@@ -2157,6 +2159,19 @@ reset_cursor_macrobox:
 		ld	a,1
 		ld	(cursor_type),a	
 		jr.	99f		
+0:
+	dec	a
+	jr.	nz,0f
+	;--- Waveform hex edit 
+		ld	a,2
+		ld	(cursor_type),a
+		xor	a
+		ld	(_scc_waveform_col),a
+		call	get_waveform_val	
+		ld	a,35
+		ld	(cursor_x),a
+		ld	a,18
+		jr.	88f	
 0:
 99:	ld	a,8
 88:	ld	(cursor_y),a

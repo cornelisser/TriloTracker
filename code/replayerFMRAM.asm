@@ -6,7 +6,8 @@
 ;================================
 ;replay_vib_table:			dw 0			; pointer to the vibrato table
 replay_Tonetable:			dw CHIP_ToneTable
-
+replay_PSG_tonetable:		dw	0
+replay_FM_tonetable:		dw	0
 replay_period:			db	0			; Pitch table for playback
 
 auto_env_times			db	0

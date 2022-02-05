@@ -88,7 +88,7 @@ init_sampleeditor:
 ; 
 ;===========================================================	
 processkey_sampleeditor:
-	;--- check for sampel file dialog
+	;--- check for sample file dialog
 	ld	a,(key)
 	cp	5
 	jr.	nz,.noFunctionkey

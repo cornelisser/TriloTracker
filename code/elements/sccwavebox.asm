@@ -206,9 +206,119 @@ _uswb_writeval:
 	ld	c,a
 	cp	112
 	jr.	nz,_uswb_nextline
-	
-	
-	
+	ret
+
+
+;--- Translate column to cursor pos
+hex_update_cursor:
+	ld	(_scc_waveform_col),a
+	call	flush_cursor
+	ld	b,a
+	;--- x pos
+	and	$03
+	ld	c,a
+	add	a	; *2
+	add	c	; *3
+	add	35
+	ld	(cursor_x),a
+	;--- y pos
+	srl	b	; div 2
+	srl	b	; div 4
+	ld	a,18
+	add	b
+	ld	(cursor_y),a
+
+	xor	a
+	ld	(_scc_waveform_val),a
+	ret
+
+
+;===========================================================
+; --- process_key_sccwavebox
+;
+; Process the input for the scc sample. 
+; 
+; 
+;===========================================================
+process_key_sccwavebox_hex:
+	ld	a,(key)
+	and	a
+	ret	z
+
+	cp	_ESC
+	jr.	nz,0f
+		jr.	restore_cursor
+0:
+	cp	_KEY_LEFT
+	jr.	nz,0f
+		ld	a,(_scc_waveform_col)
+		and	a
+		jp	nz,99f
+		;-- wrap around
+		ld	a,32		
+99:		
+		dec	a
+		jr.	hex_update_cursor
+0:
+	cp	_KEY_RIGHT
+	jr.	nz,0f
+		ld	a,(_scc_waveform_col)
+		cp	31
+		jp	c,99f
+		;--- wrap around
+		ld	a,255
+99:
+		inc	a
+		jr.	hex_update_cursor
+0:
+	cp	_KEY_UP
+	jr.	nz,0f
+		ld	a,(_scc_waveform_col)
+		cp	4
+		ret	c
+		sub	4
+		jr.	hex_update_cursor
+0:
+	cp	_KEY_DOWN
+	jr.	nz,0f
+		ld	a,(_scc_waveform_col)
+		cp	28
+		ret	nc
+		add	4
+		jr.	hex_update_cursor
+0:
+	; is it a number?
+	cp	'0'	; bigger than 0 
+	jr.	c,99f	
+	cp	'9'+1	; smaller than 9?
+	jr.	nc,99f
+	sub 	'0'
+	jr.	22f
+99:	
+	cp	'a'
+	jr.	c,99f
+	cp	'f'+1
+	jr.	nc,99f
+	sub	'a'-10
+	jr.	22f
+99:	
+	cp	'A'
+	jr.	c,0f
+	cp	'F'+1
+	jr.	nc,0f
+	sub	'A'-10
+;	ld	d,a
+22:	
+	ld	d,a
+	ld	a,(_scc_waveform_val)
+	sla	a
+	sla	a
+	sla	a
+	sla	a
+	or	d
+	ld	(_scc_waveform_val),a
+	call	update_waveform_val
+0:
 	ret
 
 ;===========================================================

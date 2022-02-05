@@ -226,7 +226,7 @@ replay_decodedata:
 	and	$01
 	jp	nz,_rdd_3psg
 	
-	ld	hl,CHIP_FM_ToneTable
+	ld	hl,(replay_FM_tonetable)
 	ld	(replay_Tonetable),hl
 
 
@@ -270,7 +270,7 @@ _rdd_2psg:
 ;===========================================================
 replay_decodedata_NO:
 	; do what is needed when there is no new data
-	ld	hl,CHIP_ToneTable
+	ld	hl,(replay_PSG_tonetable)
 	ld	(replay_Tonetable),hl
 
 	xor	a
@@ -344,8 +344,8 @@ _rdd_3psg_5fm:
 	xor	a			; reset the mixer
 	ld	(FM_regMIXER),a
 
-	ld	hl,CHIP_FM_ToneTable
-	ld	(replay_Tonetable),hl	
+	ld	hl,(replay_FM_tonetable)
+	ld	(replay_Tonetable),hl
 	
 	jp	_rdd_cont
 
@@ -367,7 +367,7 @@ _rdd_2psg_6fm:
 	xor	a			; reset the mixer
 	ld	(FM_regMIXER),a
 
-	ld	hl,CHIP_FM_ToneTable
+	ld	hl,(replay_FM_tonetable)
 	ld	(replay_Tonetable),hl
 	
 	ld	ix,CHIP_Chan3
@@ -582,10 +582,12 @@ ENDIF
 ;	ld	(replay_vib_table),hl
 	
 	;--- Set the tone table base
-	ld	hl,CHIP_ToneTable
-	ld	(replay_Tonetable),hl
-	
-	
+	ld	hl,TRACK_ToneTable
+	ld	(replay_PSG_tonetable),hl
+	ld	hl,CHIP_FM_ToneTable
+	ld	(replay_FM_tonetable),hl
+
+
 	;--- Silence the chips
 	ld	a,0x3f
 	ld	(AY_regMIXER),a
@@ -1532,8 +1534,8 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_notelink	;5
 	dw	_CHIPcmdE_trackdetune	;6
 	dw	_CHIPcmdE_none		;7
-	dw	_CHIPcmdE_tonepanning	;8
-	dw	_CHIPcmdE_noisepanning	;9
+	dw	_CHIPcmdE_transpose	;8
+	dw	_CHIPcmdE_none	;9
 	dw	_CHIPcmdE_none		;A
 	dw	_CHIPcmdE_brightness	;B
 	dw	_CHIPcmdE_notecut		;C	
@@ -1746,7 +1748,33 @@ _CHIPcmdE_trackdetune:
 	ld	(ix+CHIP_cmd_detune+1),0x00	
 	ret
 	
+_CHIPcmdE_transpose:
+	ld	a,d
+	add	a
+	; This comment sets the	detune of the track.
+	and	15		; low	4 bits is value
+	bit	3,d		; Center around 8
+	ld	d,0
+	ld	e,a
 
+	ld	hl,TRACK_ToneTable;(replay_Tonetable)
+	jp	z,.neg
+;neg	
+	xor	a
+	sbc	hl,de
+	ld	(replay_PSG_tonetable),hl
+	ld	hl,CHIP_FM_ToneTable
+	sbc	hl,de
+	ld	(replay_FM_tonetable),hl
+	ret
+; pos
+.neg:	
+	add	hl,de
+	ld	(replay_PSG_tonetable),hl
+	ld	hl,CHIP_FM_ToneTable
+	add	hl,de
+	ld	(replay_FM_tonetable),hl
+	ret
 
 
 
@@ -3272,13 +3300,21 @@ replay_route_mixer:
 	rrc	c
 	jp	c,99f		; if flag was set skip silencing the channel
 	res	4,(hl)
+	inc	hl
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	or	$0f
+	ld	(hl),a
+	jp	3f
 99:
-	ld	a,6		;--- point to next channel reg
-	add	a,l
-	ld	l,a
-	jp	nc,99f
-	inc	h
-99:
+	inc	hl
+	inc	hl
+	inc	hl
+3:
+	inc	hl
+	inc	hl
+	inc	hl	
 	djnz	.loop
 
 
@@ -3421,7 +3457,6 @@ replay_route_FM_chans:
 	or	b			; add old key-on bits
 	ld	d,a
 	call	_writeFM_data
-;	ld	(hl),0
 	ret
 
 .notActive:

@@ -338,6 +338,21 @@ ENDIF
 		ld	(editsubmode),a
 		call	reset_cursor_macrobox
 		jr.	processkey_macroeditor_END	
+IFDEF TTSCC
+0:
+	;--- CTRL_E - Waveform edit in hex
+	cp	_CTRL_E
+	jr. 	nz,0f
+		ld	a,(editsubmode)
+		and	a
+		jr.	nz,79f
+		call	save_cursor
+79:		
+		ld	a,7
+		ld	(editsubmode),a
+		call	reset_cursor_macrobox
+		jr.	processkey_macroeditor_END
+ENDIF
 0:	
 	;--- CTRL_N - Instrument name
 	cp	_CTRL_N
@@ -524,9 +539,6 @@ processkey_macroeditor_normal:
 	jr.	nz,_pppp_instruments
 
 1:	
-	
-	
-	
 	; - ESCAPE
 	cp	_ESC
 	jr.	nz,0f
@@ -576,6 +588,11 @@ ELSE
 ENDIF
 	dec	a
 	jr.	z,process_key_macrobox_description
+IFDEF TTSCC
+	dec	a
+	jr.	z,process_key_sccwavebox_hex	
+ENDIF
+
 	
 processkey_macroeditor_END:
 

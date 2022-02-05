@@ -11,6 +11,7 @@
 * [Instrument Editor](#instrument-editor)
    * [Macro Editor](#macro-editor)
    * [Waveform Editor](#waveform-editor)
+   * [Waveform Hex-Editor](#waveform-hexeditor)
    * [Voice Editor](#voice-editor)
    * [FM Instrument Dialog](#fm-instrument-dialog)
 * [Drum Editor](#drum-editor)
@@ -151,12 +152,13 @@ Key(s) | Function
  `[TAB]` or `[CTRL]`+`[I]` | <b>`[Duplicate]`</b> Go to the instrument selection menu
  `[CTRL]`+`[L]` | Set macro length
  `[CTRL]`+`[R]` | Set macro restart/loop position
- `[CTRL]`+`[D]` | Set instrument name
+ `[CTRL]`+`[N]` | Set instrument name
  `[CTRL]`+`[O]` | Set octave (used for key-jazz mode)
  `[CTRL]`+`[UP]` | Select next instrument
  `[CTRL]`+`[DOWN]` | Select previous instrument
  `[CTRL]`+`[T]` | Select playback chip (key-jazz mode)
  `[CTRL]`+`[F]` | Jump to waveform editor **[SCC]**
+ `[CTRL]`+`[E]` | Jump to waveform hex editor **[SCC]**
  `[CTRL]`+`[W]` | Set waveform **[SCC]**
  `[CTRL]`+`[LEFT]` | Select previous waveform **[SCC]**
  `[CTRL]`+`[RIGHT]` | Select next waveform **[SCC]**
@@ -189,6 +191,14 @@ Key(s) | Function
  `[SHIFT]`+`[UP]`/`[DOWN]`| Increase/decrease the current waveform column in steps of 1
  `[CTRL]`+`[C]` | Copy waveform
  `[CTRL]`+`[V]` | Paste waveform
+
+### <a name='waveform-hexeditor'></a>Waveform Hex-Editor
+Key(s) | Function
+------- | -------
+ `[ESC]` | Exit hex waveform editor
+ `[UP]`/`[DOWN]`/`[LEFT]`/`[RIGHT]` | Move cursor
+ `[0..9]` / `[A..F]` | Input value
+
 
 ### <a name='voice-editor'></a>Voice Editor
 Key(s) | Function

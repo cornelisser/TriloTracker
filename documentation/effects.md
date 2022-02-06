@@ -107,13 +107,15 @@ Example:
 <sup>Primary effect</sup><br>
 Vibrato with speed x and depth y. This command will oscillate the frequency of the current note with a sine wave. The depth value ranges from 1 to 13 ($1 - $D). Higher values are ignored. The speed x set the speed in number of tics from 1 to 15 ($1 - $F). The vibrato can be updated during the effect by using 40y (set new depth) or 4x0 (set new speed). 400 will stop the effect.
 
+<sup>(Note: The standalone replayer only supports depths 1-8.) <sup>
+
 Example:
 ```
  C-4 .. ...
  ... .. 442 Start vibrato with depth 2 and speed 4
  ... .. ... 
  ... .. 404 Update the vibrato depth to 4 and keep speed the same. 
-```
+``` 
 
 
 ## <a name='5xy---tone-portamento-+-volume-slide'></a>5xy - Tone Portamento + Volume Slide

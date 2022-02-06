@@ -80,6 +80,7 @@ update_sccwave:
 	ld 	(_labelpointer),hl
 	pop	hl
 	
+	and	a
 	jr.	z,99f
 44:
 	add	hl,de

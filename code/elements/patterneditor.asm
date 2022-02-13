@@ -550,7 +550,10 @@ check_channel_soloplay:
 	ld	a,(key)
 	sub	$30
 	and	a
-	jp	nz,99f
+	jp	z,0f
+	cp	9
+	jp	c,99f
+0:	
 	;-- ONLY DRUM
 	ld	a,(DrumMixer)	
 	bit 	5,a
@@ -629,6 +632,7 @@ check_channel_mute:
 	and	a
 	jp	z,.drum
 	cp	9
+	jp	z,.drum	
 	ret	nc
 
 	;-- get mask

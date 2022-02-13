@@ -51,8 +51,8 @@ Key(s) | Function
  `[CTRL]`+`[O]` | Set octave
  `[CTRL]`+`[T]` | Set step visualization size
  `[CTRL]`+`[A]` | Set edit step
- `[CTRL]`+`[0..8]` | Mute/Un-mute track. '0' is for FM drums
- `[ALT]`+`[0..8]` | Solo/Un-solo track. '0' is for FM drums
+ `[CTRL]`+`[0..9]` | Mute/Un-mute track. '0' and '9' is for FM drums
+ `[ALT]`+`[0..9]` | Solo/Un-solo track. '0' and '9' is for FM drums
 
 
 
@@ -231,6 +231,7 @@ Key(s) | Function
  `[C]` | Toggle cymbal
  `[H]` | Toggle hi-hat
  `[ENTER]` | Toggle percussion bit
+ `[CTRL]`+`[N]` | Set drum name
 
 
 ## <a name='sample-editor'></a>Sample Editor

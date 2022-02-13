@@ -138,7 +138,7 @@ _LABEL_DRUMMACRO:
 	db	"Macro:",$81,$81,$81,$81,$81,$81,$81,$81,$81,"B",$81,$81,$81,$81,$81,"H",$81,"S",$81,$81,$81,$81,$81,"T",$81,"C",0
 
 _LABEL_DRUMTEXT:
-	db	"Drm: Len:           Description:     Oct:",0
+	db	"Drm: Len:           Name       :     Oct:",0
 _LABEL_DRUMTEXT2:	
 	db	_ARROWLEFT," x",_ARROWRIGHT,32
 	db	_ARROWLEFT,"xx",_ARROWRIGHT,0

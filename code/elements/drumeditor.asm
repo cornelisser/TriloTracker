@@ -184,8 +184,8 @@ processkey_drumeditor:
 ;		call	reset_cursor_psgsamplebox
 ;		jr.	processkey_psgsampleeditor_END	
 0:	
-	;--- CTRL_D - Instrument description
-	cp	_CTRL_D
+	;--- CTRL_D - Instrument Name
+	cp	_CTRL_N
 	jr.	nz,0f
 		ld	a,(editsubmode)
 		and	a

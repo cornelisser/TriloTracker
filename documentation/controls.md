@@ -99,6 +99,7 @@ Key(s) | Function
  `[1]` | Note-Sustain
  `[SHIFT]`+`[A]` | Note-Sustain
  `[SHIFT]`+`[1]` | Note-Release
+ `[F]` | Force volume to 0 (workaround)
  `[SHIFT]` | Enter a note with 1 octave higher
  `[CTRL]`+`[,]`/`[.]` | Transpose selected notes by semitone down/up
  `[CTRL]`+`[<]`/`[>]` | Transpose selected notes by octave down/up

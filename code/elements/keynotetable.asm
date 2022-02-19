@@ -99,7 +99,7 @@ _LABEL_NOTES_START:
 	db	226,"-",240
 	db	"-",224,"-"
 	db	"-s-"
-	db	" v0"
+	db	" ",$1f,$18
 _LABEL_NOTES_END:
 
 _KEY_NOTE_TABLE_START:

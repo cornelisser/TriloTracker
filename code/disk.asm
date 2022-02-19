@@ -50,6 +50,19 @@ get_drives:
 ;	ld	a,1
 ;	ret
 
+get_instrument_address:
+	;--- Calculate the position in RAM of current sample	
+	ld	hl,instrument_macros
+	ld	de,INSTRUMENT_SIZE
+	ld	a,(song_cur_instrument)
+	and	a
+	ret	z
+0:
+	add	hl,de
+	dec	a
+	jr.	nz,0b	
+	ret
+
 
 ;===========================================================
 ; --- init_workdir
@@ -1173,21 +1186,12 @@ _create_in_continue:
 	call	nz,catch_diskerror
 	
 	;--- Write macro
-	;--- Calculate the position in RAM of current sample	
-	ld	hl,instrument_macros
-	ld	de,INSTRUMENT_SIZE
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,1f
-0:
-	add	hl,de
-	dec	a
-	jr.	nz,0b	
-1:	
+	call	get_instrument_address
+	push 	hl
 	ex	de,hl
 	call	write_file
 	call	nz,catch_diskerror
-
+	pop	hl
 
 IFDEF TTSCC	
 	;--- Write waveform
@@ -1197,17 +1201,38 @@ IFDEF TTSCC
 	ld	de,32
 	and	a
 	jr.	z,99f
-	
-
 0:
 	add	hl,de
 	dec	a
 	jr.	nz,0b
-
 99:
 	ex	de,hl
 	call	write_file	
 	call	nz,catch_diskerror
+ELSE
+	;--- check if it contains a software voice
+	inc	hl
+	inc	hl
+	ld	a,(hl)
+	cp	177
+	jr.	c,0f
+
+	;--- Write voice
+	;--- calculate the current wave pos in RAM
+	ld	hl,_VOICES+((192-31)*8)
+	ld	de,8
+	sub	177
+	jp	z,3f
+1:
+	add	hl,de
+	dec	a
+	jp	nz,1b
+
+3:	ex	de,hl
+	call	write_file	
+	call	nz,catch_diskerror
+0:
+
 ENDIF
 	
 	call	close_file
@@ -1321,11 +1346,18 @@ _create_ins_continue:
 IFDEF	TTSCC	
 	;--- Write waveform
 	;--- calculate the current wave pos in RAM
-	ld	hl,_WAVESSCC
-	ld	de,32*MAX_WAVEFORM
-	ex	de,hl
+	ld	de,_WAVESSCC
+	ld	hl,32*MAX_WAVEFORM
 	call	write_file	 
 	call	nz,catch_diskerror
+ELSE
+	;--- Write custom voices.
+	ld	de,_VOICES+((192-31)*8)
+	ld	hl,8*16
+	call	write_file
+	call	nz,catch_diskerror
+
+
 ENDIF
 	
 	call	close_file
@@ -1751,13 +1783,10 @@ save_vofile:
 	ld	de,8
 	and	a
 	jr.	z,99f
-	
-
 0:
 	add	hl,de
 	dec	a
 	jr.	nz,0b
-
 99:
 	ex	de,hl
 	call	write_file	
@@ -2567,16 +2596,7 @@ open_infile:
 
 	;--- read macro
 	;--- Calculate the position in RAM of current sample	
-	ld	hl,instrument_macros
-	ld	de,INSTRUMENT_SIZE
-	ld	a,(song_cur_instrument)
-	and	a
-	jr.	z,1f
-0:
-	add	hl,de
-	dec	a
-	jr.	nz,0b	
-1:	
+	call	get_instrument_address
 	ex	de,hl
 	call	read_file
 	call	nz,catch_diskerror
@@ -2599,7 +2619,6 @@ IFDEF	TTSCC
 	ex	de,hl
 	call	read_file	
 	call	nz,catch_diskerror
-ENDIF
 
 	; restore the correct waveform
 	ld	hl,instrument_macros
@@ -2618,6 +2637,54 @@ ENDIF
 	ld	(hl),a
 
 
+
+
+ELSE
+	call	get_instrument_address
+	inc	hl
+	inc	hl
+	push	hl			; save pointer to update new custom voice nr
+	ld	a,(hl)
+	cp	177			; Check if this instrument has a custom voice
+	jp	c,0f
+
+	;--- check for an empty voice slot
+	ld	hl,_VOICES+((192-31)*8)
+	ld	c,0			; voice slot
+1:	;--- voice check loop
+	ld	b,8			; bytes to check
+	xor	a			
+2:	;--- data 0 check loop 
+	or	(hl)
+	inc	hl
+	djnz	2b
+
+	and	a			; any value found?
+	jp	z,11f			; Found empty voice slot
+
+	inc	c			; Next voice slot
+	ld	a,c
+	cp	16			; Nax 16 voices. 
+	jp	c,1b
+	
+	dec	c			; If none found overwrite last slot
+11:
+	;--- found slot	
+	ld	a,177
+	add	c
+	pop	de			; pointer custom voicenr
+	ld	(de),a		; store voice in instrument
+	ld	(instrument_waveform),a
+
+	ld	de,-8
+	add	hl,de
+	ld	de,8
+	ex	de,hl
+	call	read_file
+	call	nz,catch_diskerror	
+
+0:
+ENDIF
 	call	close_file
 	
 	call	set_hook
@@ -2675,6 +2742,12 @@ IFDEF	TTSCC
 	;--- calculate the current wave pos in RAM
 	ld	de,_WAVESSCC
 	ld	hl,32*32
+	call	read_file	
+	call	nz,catch_diskerror
+ELSE
+	;--- Write custom voices.
+	ld	de,_VOICES+((192-31)*8)
+	ld	hl,8*16
 	call	read_file	
 	call	nz,catch_diskerror
 ENDIF

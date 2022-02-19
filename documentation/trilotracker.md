@@ -36,4 +36,5 @@ Compiler<br>
 Re-player <br>
 
 ## Technical documentation
-<a href="memory_layout.md">Memory layout<a>
+<a href="memory_layout.md">Memory layout</a>  
+<a href="instrument_macro_layout.md">Instrument macro layout</a>  

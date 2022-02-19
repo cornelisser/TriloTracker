@@ -796,12 +796,14 @@ replay_decode_chan:
 	and	a
 	jr.	z,_dc_noNote
 	cp	97
+	jr. 	c,0f
 	jr.	z,_dc_restNote	; 97 is a rest
-	cp	98
-	jr.	z,_dc_sustainNote	; 98 is a rest	
+	cp	99
+	jr. 	z,_dc_vol0note	; set track volume to 0
+	jr.	c,_dc_sustainNote	; 98 is a rest	
 	jr.	nc,_dc_noNote	; anything higher	than 97 are	no notes
 	
-	
+0:	
 	ld	(ix+CHIP_Note),a
 	set	0,(ix+CHIP_Flags)		; bit0=1 ; trigger a note
 	set	4,(ix+CHIP_Flags)		; set key for FM
@@ -993,6 +995,17 @@ noCMDchange:
 	inc	bc
 	inc	bc
 	ret
+
+
+;-------------------------
+; Set volume to 0
+;=========================
+_dc_vol0note:
+	ld	a,(ix+CHIP_Volume)
+	and	0x0f
+	ld	(ix+CHIP_Volume),a
+	jp	99f
+
 
 ;-------------------
 ;  Sustain the note
@@ -1634,6 +1647,8 @@ _CHIPcmdE_brightness:
 	; This comment sets the	detune of the track.
 	and	0x07		; low	4 bits is value
 	ret	z		;jp	z,.set
+	ld (replay_voicetrigger),a
+
 	bit	3,d		; Center around 8
 	jr.	z,.add
 .sub:
@@ -1658,28 +1673,6 @@ _CHIPcmdE_brightness:
 	or	d
 	ld	(FM_Voicereg+4),a
 	ret
-
-
-	ld	a,d
-	; This comment sets the	detune of the track.
-	and	0x07		; low	4 bits is value
-	bit	3,d		; Center around 8
-	jr.	z,99f
-	inc	a
-	neg			; make correct value
-	ld	(ix+CHIP_cmd_detune),a
-	ld	(ix+CHIP_cmd_detune+1),0xff
-	ret
-99:
-	ld	(ix+CHIP_cmd_detune),a
-	ld	(ix+CHIP_cmd_detune+1),0x00	
-	ret
-
-
-
-
-
-
 
 _CHIPcmdE_notecut:
 	set	3,(ix+CHIP_Flags)

@@ -49,9 +49,10 @@ window:
 	ld	b,64
 	ld	hl,_WINDOW_BUFFER + (_WINDOW_ERROR_OK_LABEL-_WINDOW_ERROR_OK)
 12:	ld	a,(hl)
-	cp	255
-	jr.	nz,23f
-	ld	(hl),32		; replace it with a space.
+	inc	a
+	cp	2
+	jr.	nc,23f
+	ld	(hl),32		; replace ff and 0 with a space.
 23:
 	inc	hl
 	djnz 	12b	

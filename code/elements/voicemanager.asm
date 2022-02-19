@@ -298,6 +298,7 @@ init_voicemanager:
 	;--- get current instrument
 	call	set_songpage
 	ld	a,(instrument_waveform)
+
 	ld	(vm_voice),a
 	
 	call	translate_voice_to_selection
@@ -615,7 +616,7 @@ set_cursor_voicemanager:
 	ld	a,(vm_selection)
 	add	VM_Y+4
 	ld	(cursor_y),a
-	ld	a,VM_X+28+7
+	ld	a,VM_X+26
 	ld	(cursor_x),a
 	ld	a,3
 	ld	(cursor_type),a

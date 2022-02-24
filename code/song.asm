@@ -242,7 +242,7 @@ ENDIF
 	
 	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.11.8.3 Numpad shortcuts      ",0	; 0 marker indicates placeholder 
+	db	"v0.11.9                         ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

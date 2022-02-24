@@ -90,16 +90,6 @@ draw_drumeditbox:
 	ld	de,0x1D10	
 	call	erase_colorbox	
 
-	; macro names (left)
-	ld	hl,0x2a0a
-	ld	de,0x100f	
-	call	erase_colorbox	
-
-	; macro names (right)
-	ld	hl,0x3e0a
-	ld	de,0x1004	
-	call	erase_colorbox		
-
 	;--- draw name numbers
 	ld	a,"."
 	ld	de,_LABEL_DRUMTEXT2SUB+2
@@ -169,8 +159,7 @@ update_drumeditbox:
 	ld	c,a			; contains the line#
 	ld	b,16		
 	; add offset here somewhere
-	
-	
+		
 	; -- Init and store the display pos in PNT
 	ld	hl,(80*9)+1			; start position
 	ld	(_udm_pntpos),hl	
@@ -478,6 +467,30 @@ _udn_loop:
 	dec	a
 	jr.	nz,_udn_loop
 	
+	;----- Show active drum
+	; macro names (left)
+	ld	hl,0x270a
+	ld	de,0x130f	
+	call	erase_colorbox	
+
+	; macro names (right)
+	ld	hl,0x3b0a
+	ld	de,0x1304	
+	call	erase_colorbox	
+
+	ld	hl,$2709
+	ld	de,0x1301	
+	ld	a,(song_cur_drum)
+	cp	16
+	jp	c,99f
+	ld	h,$3b
+	sub	15
+99:
+	add	l
+	ld	l,a
+	call	draw_colorbox	
+
+
 	ret
 	
 ;--- Get drum start
@@ -545,7 +558,7 @@ process_key_drumeditbox:
 .line_loop:
 	call	_move_drumlineup
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	dec	a
 	cp	ixh
 	jr.	nc,.line_loop
@@ -587,7 +600,7 @@ process_key_drumeditbox:
 	;call	_get_drum_start  ; hl still points at start macro
 	ld	a,(hl)
 	cp	1
-	jp	z,99f
+	jr.	z,99f
 	dec	a
 	ld	(hl),a
 99:
@@ -597,7 +610,7 @@ process_key_drumeditbox:
 	call	_move_drumlinedown
 	inc	a
 	cp	15
-	jp	z,88f
+	jr.	z,88f
 	jr.	.line_loopdel
 88:	
 	jr.	update_drumeditbox
@@ -1408,19 +1421,19 @@ get_drumsample_track_location:
 	ld	a,(cursor_column)		
 	ld	b,0
 	cp	8			; < column 8
-	jp	c,_gdstl_add
+	jr.	c,_gdstl_add
 	inc	b
 	cp	9			; < column 9
-	jp	c,_gdstl_add
+	jr.	c,_gdstl_add
 	inc	b	
 	cp	12			; < column 12
-	jp	c,_gdstl_add
+	jr.	c,_gdstl_add
 	inc	b
 	cp	14			; < column 14
-	jp	c,_gdstl_add
+	jr.	c,_gdstl_add
 	inc	b	
 	cp	17			; < column 17
-	jp	c,_gdstl_add
+	jr.	c,_gdstl_add
 	inc	b
 	
 _gdstl_add:

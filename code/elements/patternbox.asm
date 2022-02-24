@@ -676,9 +676,9 @@ IFDEF	TTSCC
 ELSE
 	ld	a,(replay_chan_setup)
 	and 	1
-	jp	z,99f
+	jr.	z,99f
 	ld	de,_LABEL_PATTERNHEADER2	
-	jp	88f
+	jr.	88f
 99:
 ENDIF
 	ld	de,_LABEL_PATTERNHEADER
@@ -763,7 +763,7 @@ IFDEF TTSCC
 ELSE
 	ld	a,(DrumMixer)
 	and 	a
-	jp	nz,0f
+	jr.	nz,0f
 	ld	hl,(80*9)+4+72
 	ld	de,_LABEL_DISABLED
 	ld	b,4

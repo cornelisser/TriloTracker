@@ -51,7 +51,7 @@ _dvm_cat_loop:
 	add	hl,bc
 	pop	af
 	dec	a
-	jp	nz,_dvm_cat_loop
+	jr.	nz,_dvm_cat_loop
 
 	
 	call	update_voicemanager	
@@ -158,7 +158,7 @@ _uvm_voice_loop:
 	inc	b
 	ld	a,c
 	cp	b
-	jp	nz,_uvm_voice_loop
+	jr.	nz,_uvm_voice_loop
 
 	pop	bc
 	push	bc
@@ -184,7 +184,7 @@ _uvm_num_loop:
 	inc	b
 	ld	a,c
 	cp	b
-	jp	nz,_uvm_num_loop	
+	jr.	nz,_uvm_num_loop	
 	
 	pop	bc
 	;--- erase the remaining lines
@@ -205,7 +205,7 @@ _uvm_clear_loop:
 	add	hl,bc
 	pop	af
 	dec	a
-	jp	nz,_uvm_clear_loop
+	jr.	nz,_uvm_clear_loop
 		
 	
 0:	
@@ -342,18 +342,18 @@ processkey_voicemanager:
 
 0:
 	cp	_ENTER
-	jp	nz,0f
+	jr.	nz,0f
 	
 	ld	a,(song_cur_instrument)
 	ld	hl,instrument_macros+2
 	ld	de,$83
 ;	ld	a,(vm_voice)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 
 55:	add	hl,de
 	dec	a
-	jp	nz,55b
+	jr.	nz,55b
 99:	
 	ld	a,(vm_voice)
 	ld	(hl),a
@@ -383,10 +383,10 @@ processkey_voicemanager:
 	ld	a,(vm_selection)
 	add	b			; get new voice# at same selection pos.
 	cp	c
-	jp	c,44f
+	jr.	c,44f
 	ld	a,c
 	dec	a
-	jp	44f
+	jr.	44f
 
 0:
 	;--- next pattern
@@ -409,7 +409,7 @@ processkey_voicemanager:
 	ld	a,(vm_selection)
 	add	b			; get new voice# at same selection pos.
 	cp	c
-	jp	c,44f
+	jr.	c,44f
 	ld	a,c
 	dec	a
 44:
@@ -444,44 +444,12 @@ processkey_voicemanager:
 	jr.	update_voicemanager;_selection
 
 0:	
-0:
-	
-	;--- Special numkey check for setting octave.
-;	call	read_numkeys
-	ld	a,(key_value)
-	 
-	cp	0x4b
-	jr.	c,0f
-	cp	0x55
-	jr.	nc,0f
-		
-	;--- set octave
-	sub	0x4b
-	ld	(song_octave),a
-	call	update_voicemanager
-	jr.	process_key_patternbox_octave_END
-		
-	
+
+	call	process_key_numpad
+	jr.	c,update_voicemanager
+
 
 0:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ;	ld	a,(keyjazz)
@@ -492,11 +460,11 @@ processkey_voicemanager:
 	ld	hl,instrument_macros+2
 	ld	de,$83
 	and	a
-	jp	z,99f
+	jr.	z,99f
 
 55:	add	hl,de
 	dec	a
-	jp	nz,55b
+	jr.	nz,55b
 99:	
 	ld	a,(vm_voice)
 	ld	b,(hl)
@@ -636,7 +604,7 @@ translate_voice_to_selection:
 	dec	a
 	inc	c
 	cp	b	
-	jp	c,0b
+	jr.	c,0b
 	
 	;--- Store the category
 	ld	a,c

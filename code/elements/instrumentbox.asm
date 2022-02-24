@@ -57,44 +57,44 @@ update_instrumentbox:
 
 	ld	hl,(80*2)+58
 	ld	de,_LABEL_INSTRUMENTS
-	ld	b,20	
+	ld	b,21	
 	call	draw_label_fast
 	ld	hl,(80*3)+58
-	ld	de,_LABEL_INSTRUMENTS+20
-	ld	b,20	
+	ld	de,_LABEL_INSTRUMENTS+21
+	ld	b,21	
 	call	draw_label_fast
 	ld	hl,(80*4)+58
-	ld	de,_LABEL_INSTRUMENTS+40
-	ld	b,20	
+	ld	de,_LABEL_INSTRUMENTS+42
+	ld	b,21	
 	call	draw_label_fast
 	ld	hl,(80*5)+58
-	ld	de,_LABEL_INSTRUMENTS+60
-	ld	b,20	
+	ld	de,_LABEL_INSTRUMENTS+63
+	ld	b,21	
 	call	draw_label_fast
 	ld	hl,(80*6)+58
-	ld	de,_LABEL_INSTRUMENTS+80
-	ld	b,20	
+	ld	de,_LABEL_INSTRUMENTS+84
+	ld	b,21	
 	call	draw_label_fast
 	ld	hl,(80*7)+58
-	ld	de,_LABEL_INSTRUMENTS+100
-	ld	b,20	
+	ld	de,_LABEL_INSTRUMENTS+105
+	ld	b,21	
 	call	draw_label_fast
 	ld	hl,(80*8)+58
-	ld	de,_LABEL_INSTRUMENTS+120
-	ld	b,20	
+	ld	de,_LABEL_INSTRUMENTS+126
+	ld	b,21	
 	call	draw_label_fast
 	
 	ret
 
 
 _LABEL_INSTRUMENTS:
-	db	"x. ________________ "
-	db	"x. ________________ "
-	db	"x. ________________ "
-	db	"x. ________________ "
-	db	"x. ________________ "
-	db	"x. ________________ "
-	db	"x. ________________ "
+	db	"x. ________________  "
+	db	"x. ________________  "
+	db	"x. ________________  "
+	db	"x. ________________  "
+	db	"x. ________________  "
+	db	"x. ________________  "
+	db	"x. ________________  "
 	
 	
 ;===============================================
@@ -127,13 +127,57 @@ _bil_loop:
 	add	a,7
 	sub	ixh
 	
+	push	af	; store instrument nr
+
 	call	draw_fake_hex_sp
 	inc	de
 	inc	de
 	ld	bc,16
 	ldir
-	inc	de
-	
+;	inc	de
+
+	pop	af	; restore instrument nr
+	push	hl
+	ex	de,hl
+	ld	bc,instrument_types
+	add	a,c
+	ld	c,a
+	jp	nc,99f
+	inc	b
+99:
+	ld	a,(bc)
+	cp	2
+	jp	z,2f
+	jp	c,1f
+0:
+	;-- none
+	ld	(hl),32
+	inc	hl
+	ld	(hl),32
+	jr.	99f
+2:
+IFDEF	TTSCC
+	;--- SCC
+	ld	(hl),162
+	inc	hl
+	ld	(hl),163
+ELSE
+	;--- FM
+	ld	(hl),162+8
+	inc	hl
+	ld	(hl),163+8
+ENDIF
+	jr.	99f	
+1:
+	;-- psg
+	ld	(hl),160
+	inc	hl
+	ld	(hl),161
+;	jr.	99f
+99:
+	inc	hl
+	ex	de,hl
+	pop	hl
 	
 	dec	ixh
 	jr.	nz,_bil_loop
@@ -154,7 +198,7 @@ _bil_loop:
 	add	2
 	ld	l,a
 	ld	h,58
-	ld	de,0x1401
+	ld	de,0x1501
 	call	draw_colorbox
 99:
 	call	update_instrumentbox
@@ -361,16 +405,16 @@ _ifound:
 
 99:		
 		cp	c
-		jp	c,1f	; instrument < offset?
+		jr.	c,1f	; instrument < offset?
 		sub	c
 		cp	7	
-		jp	nc,99f	; not visible now
+		jr.	nc,99f	; not visible now
 		ld	a,c		; vissible not change offset
-		jp	1f
+		jr.	1f
 99:		
 		ld	a,b
 		cp	$1a
-		jp	c,1f	; instrument < 'P'
+		jr.	c,1f	; instrument < 'P'
 		ld	a,$19
 	
 1:		; set the offset

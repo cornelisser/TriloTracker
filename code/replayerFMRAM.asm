@@ -243,15 +243,15 @@ FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
 
 FM_regMIXER 	db	0	; x3f	; Mixer control (1 = off, 0 = on)
 
-_AUDITION_LINE:
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
-		db	0,0,0,0
+;_AUDITION_LINE:
+;		db	0,0,0,0
+;		db	0,0,0,0
+;		db	0,0,0,0
+;		db	0,0,0,0
+;		db	0,0,0,0
+;		db	0,0,0,0
+;		db	0,0,0,0
+;		db	0,0,0,0
 _PRE_INIT_LINE:
 		db	0,0,0,0
 		db	0,0,0,0

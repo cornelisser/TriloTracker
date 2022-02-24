@@ -83,6 +83,7 @@ instrument_macro_offset	#1	; for use in macro
 instrument_len		#1	
 instrument_waveform	#1
 instrument_loop		#1
+instrument_types		#32
 instrument_macros		#(INSTRUMENT_SIZE)*32
 ;psg_sample_line:	
 instrument_line:		#1

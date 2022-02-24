@@ -1,6 +1,12 @@
+FREE_REPLAY		equ SWAP_REPLAY - SWAP_CHECK	; Free space before SWAP_REPLAY
+FREE_MACRO 		equ $4000 - SWAP_MACRO_END
+FREE_TRACK 		equ $4000 - SWAP_TRACK_END
+FREE_DRUM 		equ $4000 - SWAP_DRUM_END
+
+
 ; Trilo-Tracker v0.2
-define VERSION "v0.11.4b"
-define YEAR "2021"
+;define VERSION "v0.11.4b"
+;define YEAR "2021"
 define CHIPSET_CODE $10
 
 DEFINE TTFM 
@@ -184,6 +190,7 @@ font_data:
 	include 	".\code\window.asm"
 	include 	".\code\replayerFMRAM.asm"	
 
+SWAP_CHECK:	
 
 
 	

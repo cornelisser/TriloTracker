@@ -145,7 +145,7 @@ update_samplebox:
 [3]	add	a			; times 8
 	add	a,e
 	ld 	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	hl,(80*8)+1+8+21	
@@ -167,7 +167,7 @@ update_samplebox:
 	ld	c,173
 .memory_loop:
 	and	a
-	jp	nz,99f
+	jr.	nz,99f
 	ld	c,'-'
 	inc	a
 99:
@@ -190,13 +190,13 @@ update_samplebox:
 	ld	a,80
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	inc	ixh
 	ld	a,ixh
 	cp	16
-	jp	nz,.name_loop
+	jr.	nz,.name_loop
 
 
 	;---- Draw sample base notes
@@ -229,7 +229,7 @@ update_samplebox:
 	ld	a,80
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	;--- next tone value
@@ -240,7 +240,7 @@ update_samplebox:
 
 
 	dec	ixh
-	jp	nz,.note_loop
+	jr.	nz,.note_loop
 
 
 
@@ -255,7 +255,7 @@ update_samplebox:
 [2]	add	a			; times 4
 	add	a,e
 	ld 	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	a,(de)
@@ -299,11 +299,11 @@ process_key_samplebox:
 	ret	z
 
 	cp	_KEY_DOWN
-	jp	nz,0f
+	jr.	nz,0f
 
 	ld	a,(editsubmode)
 	cp	3
-	jp	z,process_key_samplebox_END
+	jr.	z,process_key_samplebox_END
 	inc	a
 	ld	(editsubmode),a
 	call	flush_cursor
@@ -311,21 +311,21 @@ process_key_samplebox:
 	inc	a
 	ld	(cursor_y),a
 
-	jp	process_key_samplebox_END
+	jr.	process_key_samplebox_END
 0:
 	cp	_KEY_UP
-	jp	nz,0f
+	jr.	nz,0f
 
 	ld	a,(editsubmode)
 	and	a
-	jp	z,process_key_samplebox_END
+	jr.	z,process_key_samplebox_END
 	dec	a
 	ld	(editsubmode),a
 	call	flush_cursor
 	ld	a,(cursor_y)
 	dec	a
 	ld	(cursor_y),a
-	jp	process_key_samplebox_END
+	jr.	process_key_samplebox_END
 0:
 
 process_key_samplebox_END:
@@ -426,7 +426,7 @@ sample_get_note:
 [2]	add	a			; times 4
 	add	a,e
 	ld 	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	inc	de
@@ -442,28 +442,28 @@ sample_get_note:
 	ld	a,(de)
 
 	cp	(hl)
-	jp	c,.nomatch_high
-	jp	nz,.match_end_high
+	jr.	c,.nomatch_high
+	jr.	nz,.match_end_high
 
 	dec	de
 	dec	hl
 .loop_low:
 	ld	a,(de)
 	cp	(hl)
-	jp	c,.nomatch_low
-	jp	.match_end_low
+	jr.	c,.nomatch_low
+	jr.	.match_end_low
 
 .nomatch_low:
 	inc	b
 	inc	hl
 	inc	hl
-	jp	.loop_low	
+	jr.	.loop_low	
 
 .nomatch_high:
 	inc	b
 	inc	hl
 	inc	hl
-	jp	.loop_high
+	jr.	.loop_high
 
 
 .match_end_low:
@@ -474,7 +474,7 @@ sample_get_note:
 	ld	hl,sample_offsets
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	(hl),b
@@ -528,10 +528,10 @@ sample_remove:
 	ld	bc,34
 .frame_loop:
 	cp	(hl)
-	jp	nz,.no_end_low
+	jr.	nz,.no_end_low
 	inc	hl
 	cp	(hl)
-	jp	z,.end_found
+	jr.	z,.end_found
 	dec	hl
 .no_end_low:
 	add	hl,bc
@@ -571,10 +571,10 @@ sample_remove:
 
 	ld	bc,(temp_start)					; pointer > sample_start
 	cp	b
-	jp	c,.before_start
+	jr.	c,.before_start
 	ld	a,l
 	cp	c
-	jp	c,.before_start
+	jr.	c,.before_start
 	;---- update this pointer
 	xor	a
 	ld	bc,(temp_len)
@@ -593,7 +593,7 @@ sample_remove:
 	inc	de
 	ld	a,$40			; test is we are done with period/pointer data (16 sampels * 4 bytes)
 	cp	l
-	jp	c,.pointer_loop
+	jr.	c,.pointer_loop
 
 
 	;--- set new sample_end

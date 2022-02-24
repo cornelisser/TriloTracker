@@ -284,7 +284,7 @@ y value sets the global transpose for all notes in halve notes. Values $0..$7 ar
 #### <a name='eby---brightness'></a>EBy    -     Brightness
 [FM only]
 
-y value changes  TL (Total Level) of the modulator up or down until the software voice number is changed. Values $0..$7 are positive values and values $8..$F are negative values (-1..-7). Brightness only works on the software voice of the YM2413. Not the hardware voices ($1-$f).
+y value changes  TL (Total Level) of the modulator up or down until the software voice number is changed. Values $0..$7 are positive values and values $8..$F are negative values (-1..-7). Brightness only works on the software voice of the YM2413. Not the hardware voices ($1-$f). And the value is valid for the all tracks/channels playing this software voice. Using this effect command on the same row multiple times will accumulate the effect.
 
 
 

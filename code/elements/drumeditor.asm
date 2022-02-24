@@ -103,6 +103,7 @@ processkey_drumeditor:
 		;--- DOWN
 		cp	_KEY_DOWN
 		jr.	nz,0f
+_drum_up:
 		; pattern# down
 		ld	a,(song_cur_drum)
 		cp	1
@@ -119,6 +120,7 @@ processkey_drumeditor:
 		cp	_KEY_UP
 		jr.	nz,0f
 		; pattern# up
+_drum_down:		
 		ld	a,(song_cur_drum)
 		inc	a
 		cp	MAX_DRUMS
@@ -269,26 +271,39 @@ process_key_drumeditor_musickb:
 	jr. 	process_key_drumjazz
 ;	ret		
 	
+
+
+
 processkey_drumeditor_normal:	
 
 	call	process_key_drumeditor_musickb
 
-	;--- set octave using numpad
+	;--- Check drum numpad extra
 	ld	a,(key_value)
-	 
-	cp	0x4b
+	cp	72
 	jr.	c,0f
-	cp	0x55
+	cp	89
 	jr.	nc,0f
-		
-	;--- set octave
-	sub	0x4b
-	ld	(song_octave),a
-	xor	a
-	ld	(key),a
-	call	update_drumeditor
 
-	jr.	processkey_drumeditor_END
+	ld	a,(key)
+	;--- Drum up
+	cp	"+"
+	jr.	nz,1f
+	jr.	_drum_down
+1:	
+	;--- drum down
+	cp	"-"
+	jr.	nz,1f
+	jr.	_drum_up
+1:	
+	;--- drum reset
+	cp "0"
+	jr.	nz,1f
+	jr.	update_drumeditor
+1:
+	call	process_key_numpad
+	jr. 	c,update_drumeditor
+
 
 0:
 ;	;--- insturment editor?
@@ -308,7 +323,7 @@ processkey_drumeditor_normal:
 	and	a
 	jr.	nz,0f
 
-		jp	restore_patterneditor
+		jr.	restore_patterneditor
 		;jr.	processkey_drumeditor_END
 	
 0:
@@ -318,7 +333,7 @@ processkey_drumeditor_normal:
 	;-- Always reset
 	ld	a,(keyjazz)
 	and	a
-	jp	nz,2f
+	jr.	nz,2f
 	;--- only if we are editing
 	ld	a,(editsubmode)
 	and	a

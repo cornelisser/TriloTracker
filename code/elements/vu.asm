@@ -11,7 +11,7 @@ draw_vu_empty:
 	ld	de,_VU_VALUES+1
 	ld	(hl),0
 [7]	ldi
-	jp	1f
+	jr.	1f
 	
 ;---------- VU meter
 draw_vu:
@@ -55,13 +55,13 @@ _vu_line_calc:
 _vu_track_loop:
 	ld	a,(hl)
 	cp	4
-	jp	c,88f
+	jr.	c,88f
 	;--- >= 4
 	sub	4
 	ld	(hl),a
 	ld	a,143+4
 	ld	(de),a
-	jp	77f
+	jr.	77f
 	;---- < 4
 88:	
 	add	143

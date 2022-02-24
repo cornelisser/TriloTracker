@@ -63,15 +63,15 @@ detect_keyboardtype:
 	
 	;-- Set French to International
 	cp	2
-	jp	nz, 99f
+	jr.	nz, 99f
 	ld 	a,1
 	;-- Set UK to International
 	cp	3
-	jp	nz, 99f
+	jr.	nz, 99f
 	ld 	a,1	
 	;--- Set German to 2 = German mapping
 	cp	4
-	jp	nz,99f
+	jr.	nz,99f
 	ld 	a,2
 99:
 	ld	(keyboardtype),a
@@ -89,7 +89,7 @@ create_keyboardtype_mapping:
 	
 	ld	a,(_CONFIG_KB)
 	cp	3
-	jp	c,99f
+	jr.	c,99f
 	ld	a,(keyboardtype)
 99:
 	and	a
@@ -97,13 +97,13 @@ create_keyboardtype_mapping:
 	;--- Update the note table for int and german keyboards
 	ld 	hl,_KEY_NOTE_TABLE+$2e		;location of Y int, Z german
 	dec	a
-	jp	z,.setQWERTY
+	jr.	z,.setQWERTY
 ; --- German keyboard
 .setQWERTZ:
 	ld	(hl),0+1
 	inc	hl
 	ld 	(hl),9+12+1
-	jp	0f
+	jr.	0f
 	
 ; --- International keyboard 	
 .setQWERTY:
@@ -586,7 +586,7 @@ KH_mapping:		;[INTERNATIONAL]
 	db	  0,  0,  0,  0,  0,  1,  2,  3
 	db	  4,  5, 27,  9,  0,  8,  0, 13
 	db	" ", 11, 18,127, 29, 30, 31, 28
-	db	"*","+","/","0","1","2","3","4"
+	db	"*","+","/","0","1","2","3","4"  ;numpad
 	db	"5","6","7","8","9","-",",","."
 
 	db	")","!","@","#","$","%","^","&"

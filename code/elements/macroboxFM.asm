@@ -252,6 +252,51 @@ _PSG_VOLF:	db 245,245,245,245,245
 ; 
 ;===========================================================
 update_macrobox:
+
+	;--- set the instrument type for keyjazz
+	ld	a,(song_cur_instrument)
+	ld	hl,instrument_types
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	ld	(keyjazz_chip),a
+
+	;--- Display the keyjazz chip
+	ld	hl,_LABEL_keyjazz
+		dec	a
+		jr.	nz,44f
+		;-- psg
+		ld	(hl),160
+		inc	hl
+		ld	(hl),161
+		jr.	99f
+44:
+		dec	a
+		jr.	nz,44f	
+		;-- scc
+		ld	(hl),162+8
+		inc	hl
+		ld	(hl),163+8	
+		jr.	99f
+
+44:
+		;-- psg+scc
+		ld	(hl),158
+		inc	hl
+		ld	(hl),159
+		jr.	99f
+99:
+
+
+
+
+
+
+
+
 	;--- Make sure the cursor is inside the macro
 	ld	a,(instrument_len)
 	ld	b,a
@@ -430,11 +475,11 @@ _vol_update:
 	;--- Volume	
 	ld	a,c
 	and	00110000b
-	jp	z,_ups_base
+	jr.	z,_ups_base
 	cp	00100000b
-	jp	z,_ups_add
+	jr.	z,_ups_add
 	cp	00110000b
-	jp	z,_ups_sub
+	jr.	z,_ups_sub
 
 IFDEF TTFM
 _ups_env:
@@ -450,45 +495,45 @@ _ups_env:
 	push	hl
 	ld	a,c
 	and	0x0f
-	jp	z,.env_no
+	jr.	z,.env_no
 	cp	4
-	jp	c,.env_0
+	jr.	c,.env_0
 	cp	8
-	jp	c,.env_4
-	jp	z,.env_8
+	jr.	c,.env_4
+	jr.	z,.env_8
 	cp	$a
-	jp	c,.env_0
-	jp	z,.env_a
+	jr.	c,.env_0
+	jr.	z,.env_a
 	cp	$c
-	jp	c,.env_b
-	jp	z,.env_c
+	jr.	c,.env_b
+	jr.	z,.env_c
 	cp	$e
-	jp	c,.env_d
-	jp	z,.env_e
+	jr.	c,.env_d
+	jr.	z,.env_e
 .env_4:
 	ld	hl,ENVELOPE_4567F
-	jp	.print
+	jr.	.print
 .env_0:
 	ld	hl,ENVELOPE_01239
-	jp	.print
+	jr.	.print
 .env_8:
 	ld	hl,ENVELOPE_8
-	jp	.print
+	jr.	.print
 .env_a:
 	ld	hl,ENVELOPE_A
-	jp	.print
+	jr.	.print
 .env_b:
 	ld	hl,ENVELOPE_B
-	jp	.print
+	jr.	.print
 .env_c:
 	ld	hl,ENVELOPE_C
-	jp	.print
+	jr.	.print
 .env_d:
 	ld	hl,ENVELOPE_D
-	jp	.print
+	jr.	.print
 .env_no:
 	ld	hl,ENVELOPE_NO
-	jp	.print
+	jr.	.print
 .env_e:
 	ld	hl,ENVELOPE_E
 .print	
@@ -497,7 +542,7 @@ _ups_env:
 	ldir
 	pop	hl
 	inc	de
-	jp	55f
+	jr.	55f
 
 ENVELOPE_NO:
 	db	'    '
@@ -521,11 +566,11 @@ ENDIF
 
 _ups_base:
 	ld	a,"_"
-	jp	0f
+	jr.	0f
 _ups_add:
 	;- add
 	ld	a,"+"
-	jp	0f
+	jr.	0f
 _ups_sub:
 	ld	a,"-"
 0:
@@ -572,7 +617,7 @@ IFDEF TTFM
 	
 	call	draw_hex2
 	inc	de
-	jp	2f
+	jr.	2f
 88:	;--- draw empty
 	ld	a," "	; space
 	ld	(de),a
@@ -597,11 +642,11 @@ ELSE	; TTSMS
 0:	ld	(hl),32
 	inc	hl
 	dec	a
-	jp	nz,0b
+	jr.	nz,0b
 	
 	ex	de,hl
 	pop	hl
-	jp	2f
+	jr.	2f
 	
 88:
 	push	hl
@@ -622,7 +667,7 @@ ELSE	; TTSMS
 	ld	hl,_NOISE_0
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	push	bc
@@ -661,7 +706,7 @@ ENDIF
 	inc	de	
 	ld	(de),a
 	inc	de
-	jp	55f
+	jr.	55f
 88:
 ;// voice link active
 	ld	a,"v"
@@ -670,7 +715,7 @@ ENDIF
 	ld	a,b	
 	and	00001111b
 	call	draw_hex2
-;	jp	55f
+;	jr.	55f
 
 
 
@@ -899,7 +944,7 @@ _upsb_add:
 ;	add	a	; x4
 ;	add	a,l
 ;	ld	l,a
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	inc	h
 ;99:
 ;
@@ -1099,12 +1144,12 @@ process_key_macrobox:
 	;-- Get address of current line
 	ld	a,(instrument_line)
 	cp	31
-	jp	nc,88f
+	jr.	nc,88f
 	add	a	;x2
 	add	a	;x4
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc 	h
 99:
 	ld	d,h	; store in DE
@@ -1370,7 +1415,7 @@ _psgsamright:
 	ld	(hl),a
 	; reset Voicelink if needed.
 	bit 	7,a
-	jp	z,99f
+	jr.	z,99f
 	inc	hl
 	inc	hl
 	inc	hl
@@ -1402,7 +1447,7 @@ _psgsamright:
 	xor	128
 	ld	(hl),a
 	and	128
-	jp	z,99f
+	jr.	z,99f
 	;-- reset the noise bit
 	dec	hl
 	dec	hl
@@ -1441,7 +1486,7 @@ _pkp_env:
 	;--- Check if we are editing volume
 	ld	a,(cursor_input)
 	cp	13
-	jp	nz,update_macrobox
+	jr.	nz,update_macrobox
 	call	get_macro_location
 	inc	hl
 	ld	a,(hl)

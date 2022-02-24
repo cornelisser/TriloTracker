@@ -93,7 +93,7 @@ IFDEF TTSCC
 ELSE
 	ld	a,(instrument_waveform)
 	cp	192-15
-	jp	c,99f
+	jr.	c,99f
 	;-- only draw if current instrument has custom voice
 	ld	hl,(80*13)+0x3b		
 	ld	de,_LABEL_DISKWAVE
@@ -401,7 +401,7 @@ _ifd_drive_check:
 	
 	ld	a,(window_shown)
 	and	a
-	jp	nz,restore_insfiledialog
+	jr.	nz,restore_insfiledialog
 	
 	;--- no erorr was shown.
 	ld	de,_FILMES_none
@@ -807,7 +807,7 @@ _ipfd_LOAD_VOI:
 	;-- Only if current voice is custom
 	ld	a,(instrument_waveform)
 	cp	192-15
-	jp	c,restore_insfiledialog
+	jr.	c,restore_insfiledialog
 	
 	;--- LOAD software voice
 	ld	de,_FILMES_loading
@@ -838,7 +838,7 @@ _ipfd_SAVE_VOI:
 	;-- Only if current voice is custom
 	ld	a,(instrument_waveform)
 	cp	192-15
-	jp	c,restore_insfiledialog
+	jr.	c,restore_insfiledialog
 
 	;--- Save A voice
 	ld	de,_FILMES_saving

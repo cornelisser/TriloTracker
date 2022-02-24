@@ -132,7 +132,7 @@ processkey_patterneditor:
 		;--- Check if shift is pressed
 		ld	a,(skey)
 		cp	1	
-		jp	z,5f
+		jr.	z,5f
 		;-- normal play back
 		call	start_playback
 		jr.	processkey_patterneditor_END	
@@ -204,7 +204,7 @@ ENDIF
 ;	;--- escape this for GRAPH/ALT
 	ld	a,(fkey)
 	cp	6
-	jp	nz,_noCTRL
+	jr.	nz,_noCTRL
 
 	ld	a,(key)
 	;--- CTRL + N - Song Name
@@ -550,18 +550,18 @@ check_channel_soloplay:
 	ld	a,(key)
 	sub	$30
 	and	a
-	jp	z,0f
+	jr.	z,0f
 	cp	9
-	jp	c,99f
+	jr.	c,99f
 0:	
 	;-- ONLY DRUM
 	ld	a,(DrumMixer)	
 	bit 	5,a
-	jp	z,22f
+	jr.	z,22f
 	
 	ld	a,(MainMixer)	
 	and	a
-	jp	z,.enableAll
+	jr.	z,.enableAll
 22:
 	ld	a,100000b
 	ld	(DrumMixer),a
@@ -579,13 +579,13 @@ check_channel_soloplay:
 	ld	hl,_mixer_mask-1
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:	
 	ld	d,(hl)
 	ld	a,(MainMixer)
 	xor	d
-	jp	z,.enableAll
+	jr.	z,.enableAll
 	ld	a,d
 	ld	(MainMixer),a
 	;-- silence drums
@@ -594,7 +594,7 @@ check_channel_soloplay:
 	xor	a
 	ld	(DrumMixer),a
 	call	draw_pattern_header
-	jp	.end				
+	jr.	.end				
 	
 .enableAll:
 	ld	a,(DrumMixer)
@@ -603,7 +603,7 @@ check_channel_soloplay:
 	ld	a,$ff
 	ld	(MainMixer),a
 	call	draw_pattern_header
-	jp	.end					
+	jr.	.end					
 	
 _mixer_mask:
 	db	00100000b
@@ -618,28 +618,28 @@ _mixer_mask:
 check_channel_mute:
 	ld	a,(fkey)
 	and	a
-	jp	z,99f			; Hack for no CTRL or ALT
+	jr.	z,99f			; Hack for no CTRL or ALT
 	cp	6
 	ret	nz			; Check if CTRL is used.
 	;-- CTRL
 	ld	a,(key)
 	sub	a,"0"+128
-	jp	88f
+	jr.	88f
 99:
 	ld	a,(key)
 	sub	a,"0"	
 88:
 	and	a
-	jp	z,.drum
+	jr.	z,.drum
 	cp	9
-	jp	z,.drum	
+	jr.	z,.drum	
 	ret	nc
 
 	;-- get mask
 	ld	hl,_mixer_mask-1
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:	
 	ld	d,(hl)
@@ -656,4 +656,147 @@ check_channel_mute:
 	xor	100000b
 	ld	(DrumMixer),a
 	call	draw_pattern_header
-	jp 	.end	
+	jr. 	.end	
+
+
+process_key_numpad:
+	;--- set octave using numpad
+	ld	a,(key_value)
+	 
+	cp	72
+	jr.	c,.end_no
+	cp	89
+	jr.	nc,.end_no
+
+	ld	a,(key)
+	;--- Octave down
+	cp	"/"
+	jr. 	nz,.octave_up
+
+	ld	a,(song_octave)
+	dec	a
+	jr.	z,.end_yes		; 1 is lowest octave
+	ld	(song_octave),a
+	jr.	.end_yes
+
+.octave_up:
+	;--- Octave up
+	cp	"*"
+	jr.	nz,.ins_down
+
+	ld	a,(song_octave)
+	inc	a
+	cp	9
+	jr.	nc,.end_yes
+	ld	(song_octave),a
+	jr.	.end_yes
+
+.ins_down:	
+	;--- Instrument down
+	cp	"-"
+	jr.	nz,.ins_up
+
+	ld	a,(song_active_instrument)
+	dec	a
+	and	31
+	ld	b,a
+	call	_set_ins
+	cp	31
+	jr.	c,0f
+	ld	a,31-6
+	jr.	88f
+0:	ld	a,(song_instrument_offset)
+	cp	b
+	jr.	c,99f
+	ld	a,b
+88:
+	ld	(song_instrument_offset),a	
+99:
+	call	build_instrument_list
+	jr.	.end_yes
+
+.ins_up:
+	;--- Instrument up
+	cp	"+"
+	jr.	nz,.ins_reset
+
+	ld	a,(song_active_instrument)
+	inc	a
+	and	31
+	call	_set_ins
+	jr.	z,88f
+	ld	b,a
+	ld	a,(song_instrument_offset)
+	add	6
+	cp	b
+	jr.	nc,99f
+	ld	a,b
+	sub	6
+88:
+	ld	(song_instrument_offset),a
+99:
+	call	build_instrument_list
+	jr.	.end_yes
+
+.ins_reset:
+	;--- Instrument reset
+	cp	"0"
+	jr.	nz,.add_down
+
+	xor	a
+	ld	(song_instrument_offset),a
+	call	_set_ins
+	call	build_instrument_list
+	jr.	.end_yes
+
+
+.add_down:
+	;--- Add down
+	cp	"."
+	jr.	nz,.add_up
+
+	ld	a,(song_add)
+	and	a
+	jr.	z,.end_yes
+	dec	a
+	ld	(song_add),a
+	jr	.end_yes
+
+.add_up:
+	;--- Add up
+	cp	","
+	jr.	z,0f
+	cp	"9"
+	jr.	nz,.octave
+0:
+	ld	a,(song_add)
+	cp	16
+	jr.	nc,.end_yes
+	inc	a
+	ld	(song_add),a
+	jr	.end_yes
+
+.octave:	
+	;--- set octave
+	sub	"0"
+	ld	(song_octave),a
+
+
+.end_yes:		;--- Key input processed
+	xor	a
+	ld	(key),a
+	scf
+	ret
+
+.end_no:		;--- no numpad key found
+	xor	a
+	ret
+
+_set_ins:
+	ld	(song_active_instrument),a
+	ld	(tmp_cur_instrument),a
+	and	a
+	ret	z
+	ld 	(song_cur_instrument),a
+	ret
+s

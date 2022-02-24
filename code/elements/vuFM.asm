@@ -10,7 +10,7 @@ draw_vu_empty:
 	ld	de,_VU_VALUES+1
 	ld	(hl),0
 [7]	ldi
-	jp	1f
+	jr.	1f
 	
 
 
@@ -30,12 +30,12 @@ draw_vu:
 	;--- Determine the channel setup
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,.setup26
+	jr.	z,.setup26
 .setup35:
 	ld	de,_VU_VALUES+3
 	ld	hl,CHIP_Chan4+CHIP_Flags   
 	ld	b, 5	
-	jp	.loop
+	jr.	.loop
 
 .setup26:
 	ld	de,_VU_VALUES+2
@@ -44,7 +44,7 @@ draw_vu:
 	
 .loop:	
 	bit 	1,(hl)		; keyon
-	jp	z,.off
+	jr.	z,.off
 		
 	ld	a,(de)
 	ld	c,a
@@ -57,7 +57,7 @@ draw_vu:
 	ld	a,CHIP_REC_SIZE
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	djnz .loop
@@ -82,7 +82,7 @@ draw_vu:
 .off:
 	xor	a
 	ld	(de),a
-	jp	.loop_end
+	jr.	.loop_end
 
 
 
@@ -95,13 +95,13 @@ _vu_line_calc:
 _vu_track_loop:
 	ld	a,(hl)
 	cp	4
-	jp	c,88f
+	jr.	c,88f
 	;--- >= 4
 	sub	4
 	ld	(hl),a
 	ld	a,143+4
 	ld	(de),a
-	jp	77f
+	jr.	77f
 	;---- < 4
 88:	
 	add	143

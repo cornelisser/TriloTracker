@@ -460,14 +460,14 @@ _ctp_next_inputtype:
 	ld	a,iyl
 	inc	a
 	cp	3		; command is already copied -> set 4 Xy
-	jp	nz,99f
+	jr.	nz,99f
 	inc	a
-	jp	0f
+	jr.	0f
 99:
 	cp	5		; y is already copied -> set 0 note
-	jp	nz,99f
+	jr.	nz,99f
 	inc	a
-	jp	0f
+	jr.	0f
 99:
 
 0:	ld	iyl,a
@@ -562,7 +562,7 @@ _ctp_store_single_value:
 _ctpssv_low:
 	ld	a,(copy_transparent)
 	and	a
-	jp	z,0f	
+	jr.	z,0f	
 ;	ld	a,(de)		; don't overwrite destination 	
 ;	and	$f0
 	ld	a,(hl)		; don't overwrite with empty		
@@ -582,7 +582,7 @@ _ctpssv_low:
 _ctpssv_high:
 	ld	a,(copy_transparent)
 	and	a
-	jp	z,0f	
+	jr.	z,0f	
 ;	ld	a,(de)		; don't overwrite destination 
 ;	and	$0f
 	ld	a,(hl)		; don't overwrite with empty	
@@ -602,10 +602,10 @@ _ctpssv_high:
 _ctpssv_byte:
 	ld	a,(copy_transparent)
 	and	a
-	jp	z,0f	
+	jr.	z,0f	
 	ld	a,iyl
 	cp	2
-	jp	z,_ctpssv_hilo
+	jr.	z,_ctpssv_hilo
 	
 ;	ld	a,(de)		; don't overwrite destination 
 	ld	a,(hl)		; don't overwrite with empty	
@@ -621,7 +621,7 @@ _ctpssv_byte:
 _ctpssv_hilo:
 	ld	a,(hl)
 	and	0xf0	
-	jp	z,1f	; is there a value
+	jr.	z,1f	; is there a value
 	ld	b,a
 	ld	a,(de)
 	and	0x0f
@@ -630,7 +630,7 @@ _ctpssv_hilo:
 1:
 	ld	a,(hl)
 	and	0x0f	
-	jp	z,1f	; is there a value
+	jr.	z,1f	; is there a value
 	ld	b,a
 	ld	a,(de)
 	and	0xf0
@@ -942,9 +942,9 @@ selection_volume_up:
 	;--- Update volume
 	ld	a,(hl)
 	cp	$10			; no volume (0)
-	jp	c,22f		
+	jr.	c,22f		
 	cp	$f0			; Volume < 15
-	jp	nc,22f
+	jr.	nc,22f
 	add	$10
 	ld	(hl),a
 22:
@@ -991,7 +991,7 @@ selection_volume_down:
 	;--- Update volume
 	ld	a,(hl)
 	cp	$20		; volume > 1 (do not erase volume)
-	jp	c,22f
+	jr.	c,22f
 	sub	$10
 	ld	(hl),a
 22:
@@ -1025,10 +1025,10 @@ selection_octave_up:
 	;--- Check if we have a single column selection over the volume
 	ld	a,(selection_column1)
 	cp	2
-	jp	nz,.skip
+	jr.	nz,.skip
 	ld	a,(clipb_tmp_bytes)
 	cp	1
-	jp	z,selection_volume_up
+	jr.	z,selection_volume_up
 
 .skip:
 	;--- Now copy the data into the clipboard
@@ -1104,10 +1104,10 @@ selection_octave_down:
 	;--- Check if we have a single column selection over the volume
 	ld	a,(selection_column1)
 	cp	2
-	jp	nz,.skip
+	jr.	nz,.skip
 	ld	a,(clipb_tmp_bytes)
 	cp	1
-	jp	z,selection_volume_down
+	jr.	z,selection_volume_down
 
 .skip:
 	;--- Now copy the data into the clipboard
@@ -1181,10 +1181,10 @@ selection_note_up:
 	;--- Check if we have a single column selection over the volume
 	ld	a,(selection_column1)
 	cp	2
-	jp	nz,.skip
+	jr.	nz,.skip
 	ld	a,(clipb_tmp_bytes)
 	cp	1
-	jp	z,selection_volume_up
+	jr.	z,selection_volume_up
 
 .skip:
 	;--- Now copy the data into the clipboard
@@ -1263,10 +1263,10 @@ selection_note_down:
 	;--- Check if we have a single column selection over the volume
 	ld	a,(selection_column1)
 	cp	2
-	jp	nz,.skip
+	jr.	nz,.skip
 	ld	a,(clipb_tmp_bytes)
 	cp	1
-	jp	z,selection_volume_down
+	jr.	z,selection_volume_down
 
 .skip:
 	;--- Now copy the data into the clipboard

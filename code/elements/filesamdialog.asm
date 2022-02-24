@@ -242,11 +242,11 @@ processkey_sam_filedialog_menu:
 		and	a
 		jr.	z,processkey_sam_filedialog_menu_END	; no update
 		cp	4
-		jp	nz,99f
+		jr.	nz,99f
 		ld	a,2
 99:
 		cp	12
-		jp	nz,99f
+		jr.	nz,99f
 		ld	a,6
 99:
 		dec	a
@@ -275,11 +275,11 @@ processkey_sam_filedialog_menu:
 		cp	12
 		jr.	nc,processkey_sam_filedialog_menu_END	; no update
 		cp	1
-		jp	nz,99f
+		jr.	nz,99f
 		ld	a,3
 99:
 		cp	5
-		jp	nz,99f
+		jr.	nz,99f
 		ld	a,11
 99:
 		inc	a
@@ -362,7 +362,7 @@ _sfd_drive_check:
 	
 	ld	a,(window_shown)
 	and	a
-	jp	nz,restore_samfiledialog
+	jr.	nz,restore_samfiledialog
 	
 	;--- no erorr was shown.
 	ld	de,_FILMES_none

@@ -74,7 +74,7 @@ update_sccwave:
 	push 	hl
 	ld	hl,_LABEL_VOICE_VAL
 	cp 	161
-	jp	c,99f
+	jr.	c,99f
 	ld	hl,_LABEL_VOICE_VAL_EDIT
 99:
 	ld 	(_labelpointer),hl
@@ -95,10 +95,10 @@ update_sccwave:
 	;-- Amp modulation
 
 	bit 7,(hl)
-	jp	z,_m_amp_off
+	jr.	z,_m_amp_off
 _m_amp_on:
 	ld	a,1
-	jp	66f
+	jr.	66f
 _m_amp_off:
 	ld	a,0
 66:
@@ -111,10 +111,10 @@ _m_amp_off:
 
 	;--Vib modulation
 	bit 6,(hl)
-	jp	z,_m_vib_off
+	jr.	z,_m_vib_off
 _m_vib_on:
 	ld	a,1
-	jp	66f
+	jr.	66f
 _m_vib_off:
 	ld	a,0
 66:
@@ -127,10 +127,10 @@ _m_vib_off:
 
 	;--Envelope type (decay/sustain)
 	bit 5,(hl)
-	jp	nz,_m_env_sus
+	jr.	nz,_m_env_sus
 _m_env_dec:
 	ld	a,0
-	jp	66f
+	jr.	66f
 _m_env_sus:
 	ld	a,1
 66:
@@ -143,10 +143,10 @@ _m_env_sus:
 
 	;--Rate key Scale
 	bit 4,(hl)
-	jp	nz,_m_ksr1
+	jr.	nz,_m_ksr1
 _m_ksr0:
 	ld	a,0
-	jp	66f
+	jr.	66f
 _m_ksr1:
 	ld	a,1
 66:
@@ -175,10 +175,10 @@ _m_ksr1:
 	;=================
 	;-- Amp modulation
 	bit 7,(hl)
-	jp	z,_c_amp_off
+	jr.	z,_c_amp_off
 _c_amp_on:
 	ld	a,1
-	jp	66f
+	jr.	66f
 _c_amp_off:
 	ld	a,0
 66:
@@ -191,10 +191,10 @@ _c_amp_off:
 
 	;--Vib modulation
 	bit 6,(hl)
-	jp	z,_c_vib_off
+	jr.	z,_c_vib_off
 _c_vib_on:
 	ld	a,1
-	jp	66f
+	jr.	66f
 _c_vib_off:
 	ld	a,0
 66:
@@ -207,10 +207,10 @@ _c_vib_off:
 
 	;--Envelope type (decay/sustain)
 	bit 5,(hl)
-	jp	nz,_c_env_sus
+	jr.	nz,_c_env_sus
 _c_env_dec:
 	ld	a,0
-	jp	66f
+	jr.	66f
 _c_env_sus:
 	ld	a,1
 66:
@@ -223,10 +223,10 @@ _c_env_sus:
 
 	;--Rate key Scale
 	bit 4,(hl)
-	jp	nz,_c_ksr1
+	jr.	nz,_c_ksr1
 _c_ksr0:
 	ld	a,0
-	jp	66f
+	jr.	66f
 _c_ksr1:
 	ld	a,1
 66:
@@ -294,10 +294,10 @@ _c_ksr1:
 	;--Wave distortion Modulator
 	bit 	3,(hl)
 	push	hl
-	jp	z,_m_dist_off
+	jr.	z,_m_dist_off
 _m_dist_on:
 	ld	a,1
-	jp	66f
+	jr.	66f
 _m_dist_off:
 	ld	a,0
 66:
@@ -310,10 +310,10 @@ _m_dist_off:
 	;--Wave distortion Carrier
 	bit 	4,(hl)
 	push	hl
-	jp	z,_c_dist_off
+	jr.	z,_c_dist_off
 _c_dist_on:
 	ld	a,1
-	jp	66f
+	jr.	66f
 _c_dist_off:
 	ld	a,0
 66:
@@ -487,7 +487,7 @@ process_key_voicebox_edit:
 
 0:
 	cp	_SPACE
-	jp	nz,0f
+	jr.	nz,0f
 	ld	a,(keyjazz)
 	xor	1
 	ld	(keyjazz),a
@@ -505,7 +505,7 @@ process_key_voicebox_edit:
 ;		dec	a
 ;		ld	(_scc_waveform_col),a
 ;		call	flush_cursor
-;		jp	_set_voice_cursor
+;		jr.	_set_voice_cursor
 		
 0:	
 	cp	_KEY_RIGHT
@@ -518,7 +518,7 @@ process_key_voicebox_edit:
 ;		inc	a
 ;		ld	(_scc_waveform_col),a
 ;		call	flush_cursor
-;		jp	_set_voice_cursor
+;		jr.	_set_voice_cursor
 0:	
 	cp	_KEY_UP
 	jr.	nz,0f
@@ -527,18 +527,18 @@ process_key_voicebox_edit:
 		cp	1
 		jr.	c,process_key_voicebox_edit_END
 		cp 	14
-		jp	nz,99f
+		jr.	nz,99f
 		dec	a
 99:	
 		cp 	18
-		jp	nz,99f
+		jr.	nz,99f
 		dec	a
 99:
 		dec	a
 		;dec	a
 		ld	(_scc_waveform_col),a
 		call	flush_cursor
-		jp	_set_voice_cursor
+		jr.	_set_voice_cursor
 	
 0:	
 	cp	_KEY_DOWN
@@ -548,18 +548,18 @@ process_key_voicebox_edit:
 		cp	25
 		jr.	nc,process_key_voicebox_edit_END
 		cp 	12
-		jp	nz,99f
+		jr.	nz,99f
 		inc	a
 99:	
 		cp 	16
-		jp	nz,99f
+		jr.	nz,99f
 		inc	a
 99:
 		;inc	a
 		inc	a
 		ld	(_scc_waveform_col),a
 		call	flush_cursor
-		jp	_set_voice_cursor
+		jr.	_set_voice_cursor
 	
 0:
 
@@ -579,7 +579,7 @@ process_key_voicebox_edit:
 	ld	hl,_pkv_jumplist
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -627,7 +627,7 @@ _pkv_mod_amp:
 	ld	a,(hl)
 	xor	10000000b
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_car_amp:
 	ld	a,(key)
@@ -640,7 +640,7 @@ _pkv_car_amp:
 	ld	a,(hl)
 	xor	10000000b
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 
 	
 
@@ -654,7 +654,7 @@ _pkv_mod_freq:
 	ld	a,(hl)
 	xor	01000000b
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_car_freq:
 	ld	a,(key)
@@ -667,7 +667,7 @@ _pkv_car_freq:
 	ld	a,(hl)
 	xor	01000000b
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 
 _pkv_mod_env:
 ;	ld	a,(key)
@@ -679,7 +679,7 @@ _pkv_mod_env:
 	ld	a,(hl)
 	xor	00100000b
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_car_env:
 	ld	a,(key)
@@ -692,7 +692,7 @@ _pkv_car_env:
 	ld	a,(hl)
 	xor	00100000b
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 
 _pkv_mod_rate:
 	ld	a,(key)
@@ -704,7 +704,7 @@ _pkv_mod_rate:
 	ld	a,(hl)
 	xor	00010000b
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_car_rate:
 	ld	a,(key)
@@ -717,7 +717,7 @@ _pkv_car_rate:
 	ld	a,(hl)
 	xor	00010000b
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 
 _pkv_mod_wav:
 ;	ld	a,(key)
@@ -733,7 +733,7 @@ _pkv_mod_wav:
 	
 	xor	00001000b
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_car_wav:
 ;	ld	a,(key)
@@ -748,7 +748,7 @@ _pkv_car_wav:
 	ld	a,(hl)
 	xor	00010000b
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_mod_mlev:
 ;	call	_pkv_input_4bitvalue
@@ -764,7 +764,7 @@ _pkv_mod_mlev:
 	and	$f0
 	or	d
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_car_mlev:
 ;	call	_pkv_input_4bitvalue
@@ -780,7 +780,7 @@ _pkv_car_mlev:
 	and	$f0
 	or	d
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 	
 _pkv_mod_klev:
 	ld	a,(instrument_waveform)
@@ -794,7 +794,7 @@ _pkv_mod_klev:
 	and	00111111b
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_car_klev:
 	ld	a,(instrument_waveform)
@@ -809,7 +809,7 @@ _pkv_car_klev:
 	and	00111111b
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 	
 
@@ -829,7 +829,7 @@ _pkv_mod_total:
 		
 	ld	a,1
 	ld	(_pkv_mod_total_COL),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 
 _pkv_mod_feed:
 	ld	a,(instrument_waveform)
@@ -845,7 +845,7 @@ _pkv_mod_feed:
 	and	11111000b
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_mod_attack:
 ;	call	_pkv_input_4bitvalue
@@ -869,7 +869,7 @@ _pkv_mod_attack:
 	and	$0f
 	or	d
 	ld	(hl),a
-	jp	update_sccwave	
+	jr.	update_sccwave	
 
 
 
@@ -890,7 +890,7 @@ _pkv_car_attack:
 	and	$0f
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_mod_decay:
 	ld	a,(instrument_waveform)	
@@ -907,7 +907,7 @@ _pkv_mod_decay:
 	and	$f0
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_car_decay:
 	ld	a,(instrument_waveform)	
@@ -925,7 +925,7 @@ _pkv_car_decay:
 	and	$f0
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_mod_sustain:
 	ld	a,(instrument_waveform)	
@@ -944,7 +944,7 @@ _pkv_mod_sustain:
 	and	$0f
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_car_sustain:
 	ld	a,(instrument_waveform)	
@@ -964,7 +964,7 @@ _pkv_car_sustain:
 	and	$0f
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_mod_release:
 	ld	a,(instrument_waveform)	
@@ -983,7 +983,7 @@ _pkv_mod_release:
 	and	$f0
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_car_release:
 	ld	a,(instrument_waveform)	
@@ -1002,7 +1002,7 @@ _pkv_car_release:
 	and	$f0
 	or	d
 	ld	(hl),a
-	jp	update_sccwave
+	jr.	update_sccwave
 	
 _pkv_none:
 	ret
@@ -1017,19 +1017,19 @@ _3bit_leftright:
 	ld	a,b
 	;-- left
 	cp 	_KEY_LEFT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	dec	a
-	jp	88f
+	jr.	88f
 99:
 	;-- right
 	cp	_KEY_RIGHT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	cp	00000111b
-	jp	z,88f
+	jr.	z,88f
 	inc	a
 88:
 	ld	d,a
@@ -1045,19 +1045,19 @@ _4bit_leftright:
 	ld	a,b
 	;-- left
 	cp 	_KEY_LEFT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	dec	a
-	jp	88f
+	jr.	88f
 99:
 	;-- right
 	cp	_KEY_RIGHT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	cp	15
-	jp	z,88f
+	jr.	z,88f
 	inc	a
 88:
 	ld	d,a
@@ -1073,19 +1073,19 @@ _6bit_leftright:
 	ld	a,b
 	;-- left
 	cp 	_KEY_LEFT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	dec	a
-	jp	88f
+	jr.	88f
 99:
 	;-- right
 	cp	_KEY_RIGHT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	cp	00111111b
-	jp	z,88f
+	jr.	z,88f
 	inc	a
 88:
 	ld	d,a
@@ -1099,19 +1099,19 @@ _4bit_high_leftright:
 	ld	a,b
 	;-- left
 	cp 	_KEY_LEFT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	sub	16
-	jp	88f
+	jr.	88f
 99:
 	;-- right
 	cp	_KEY_RIGHT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	cp	$f0
-	jp	z,88f
+	jr.	z,88f
 	add	16
 88:
 	ld	d,a
@@ -1127,19 +1127,19 @@ _2bits_high_leftright:
 	ld	a,b
 	;-- left
 	cp	_KEY_LEFT
-	jp	nz,99f
+	jr.	nz,99f
 	ex	af,af'
 	cp	0
-	jp	z,88f
+	jr.	z,88f
 	sub	01000000b
-	jp	88f
+	jr.	88f
 	;-- right
 99:	
 	cp	_KEY_RIGHT
-	jp	nz,88f
+	jr.	nz,88f
 	ex	af,af'
 	cp	11000000b
-	jp	z,88f
+	jr.	z,88f
 	add	01000000b
 88:	
 	ld	d,a
@@ -1167,7 +1167,7 @@ _2bits_high_leftright:
 ;	cp	'A'
 ;	ret	c
 ;	cp	'F'+1
-;	jp	44f
+;	jr.	44f
 ;	sub	'A'-10
 ;22:
 ;	ret
@@ -1205,12 +1205,12 @@ _set_voice_cursor:
 	; in a the column
 	sra	a
 	ld	b,a
-	jp	c,_svc_car
+	jr.	c,_svc_car
 
 	;--- modulator column
 _svc_mod:
 	ld	a,52+_base
-	jp	0f
+	jr.	0f
 	;--- carrier column
 _svc_car:	
 	ld	a,59+_base
@@ -1248,7 +1248,7 @@ _dv_loop:
 	ld	de,80
 	add	hl,de
 	dec	ixh
-	jp	nz,_dv_loop
+	jr.	nz,_dv_loop
 	ret
 
 

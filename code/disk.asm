@@ -250,14 +250,14 @@ get_dir:
 	;--- after retieval we can be sure about found dir/files
 	ld	a,(disk_entries)
 ;	cp	1
-;	jp	c,99f
+;	jr.	c,99f
 0:	
 	call	set_hook
 	ret
 ;99:	;-- no files or directories found
 ;	ld	a,(suppress_filenotfound)
 ;	and	a
-;	jp	nz,0b
+;	jr.	nz,0b
 ;	
 ;	ld	a,$D7
 ;	jr.	window
@@ -320,10 +320,10 @@ _dir_store_name:
 		; do not list '.' dirs
 		ld	a,(disk_fib+1)
 		cp	'.'
-		jp	nz,33f
+		jr.	nz,33f
 		ld	a,(disk_fib+2)
 		and 	a
-		jp	nz,33f
+		jr.	nz,33f
 		jr.  	77f
 		
 		
@@ -747,15 +747,15 @@ delete_tmufile:
 	call	reset_hook
 		
 	cp	"Y"
-	jp	z,1f
+	jr.	z,1f
 	cp	"y"
-	jp	nz,0f
+	jr.	nz,0f
 
 1:
 	pop	hl
 	call	delete_file
 
-	jp	z,1f
+	jr.	z,1f
 	
 	;--- general error display
 	call	catch_diskerror 		; display the error
@@ -853,7 +853,7 @@ ELSE
 	ld	c,a
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,99f
+	jr.	z,99f
 	ld	a,$80			; Set highest bit to indicate 2/6 setup.
 99:
 	or	c
@@ -993,7 +993,7 @@ _stmu_drumloop:
 	;--- Savegueard for lengths above 16
 	ld	a,(de)
 	cp	17
-	jp	c,99f
+	jr.	c,99f
 	ld	a,16
 	ld	(de),a
 99:
@@ -1222,11 +1222,11 @@ ELSE
 	ld	hl,_VOICES+((192-31)*8)
 	ld	de,8
 	sub	177
-	jp	z,3f
+	jr.	z,3f
 1:
 	add	hl,de
 	dec	a
-	jp	nz,1b
+	jr.	nz,1b
 
 3:	ex	de,hl
 	call	write_file	
@@ -2012,7 +2012,7 @@ ENDIF
 	;--- song version 11 and up has extra bytes info
 	and	$0f
 	cp	11
-	jp	nz,0f
+	jr.	nz,0f
 
 	ld	de,buffer
 	ld	hl,1
@@ -2150,7 +2150,7 @@ IFDEF	TTSCC
 	ld	a,(song_version)
 	and	$f0
 	cp	_CHIPSET_SCC
-	jp	z,0f			; jump if SCC TMU file
+	jr.	z,0f			; jump if SCC TMU file
 ; Skip FM/SMS data
 	; skip the custom voice data
 	ld	de,buffer		
@@ -2166,7 +2166,7 @@ IFDEF	TTSCC
 	ld	hl,MAX_DRUMS*16
 	ld	a,(song_version)
 	cp	9
-	jp	c,99f
+	jr.	c,99f
 	ld	hl,(MAX_DRUMS-1)*16
 99:
 	call	read_file	
@@ -2216,7 +2216,7 @@ ELSE
 	ld	a,(song_version)
 	and	$f0
 	cp	_CHIPSET_SCC
-	jp	nz,0f			; jump if not SCC file -> FM TMU file
+	jr.	nz,0f			; jump if not SCC file -> FM TMU file
 
 	;--- SKip the waveform data
 	ld	hl,32*32
@@ -2229,7 +2229,7 @@ ELSE
 	ld	a,(song_version)
 	and	$0f
 	cp	6
-	jp	nc,_open_tmufile_customvoices
+	jr.	nc,_open_tmufile_customvoices
 	
 	;--- Read AND IGNORE the SCC waveform data;
 	ld	de,buffer
@@ -2255,7 +2255,7 @@ _open_tmufile_customvoices:
 	ld	a,(song_version)
 	and 	0x0f
 	cp 	8
-	jp	nc,_open_tmufile_drumnames_NEW
+	jr.	nc,_open_tmufile_drumnames_NEW
 
 ; Old Drummacro version.
 ; Brute conversions to new format  
@@ -2348,7 +2348,7 @@ _otmu_drumsub_SKIP:				; calculate the number of bytes
 _open_tmufile_drumnames_NEW:	
 	ld	hl,MAX_DRUMS*16
 	cp	9
-	jp	c,99f
+	jr.	c,99f
 	ld	hl,(MAX_DRUMS-1)*16
 99:
  	;--- load drum names.
@@ -2446,7 +2446,7 @@ _open_tmufile_compressed:
 
 	;--- Check if pattern fits in RAM
 	cp	b
-	jp	c,99f	
+	jr.	c,99f	
 	ld	a,WIN_WARN_LESS_RAM
 	call	window
 	jr.	_open_tmufile_end
@@ -2511,7 +2511,7 @@ ELSE
 	ld	a,(song_version)
 	and	$0f
 	cp	10
-	jp	c,_translate_macros_correct_basevol
+	jr.	c,_translate_macros_correct_basevol
 ENDIF
 	ret
 
@@ -2534,7 +2534,7 @@ _translate_macros_correct_basevol:
 
 	ld	a,(de)
 	bit	5,a		; check if base vol (bit5 == 0)
-	jp	nz,99f
+	jr.	nz,99f
 	and	11001111b	; reset also bit 4 for base. Bit4 is for envelope.
 	ld	(de),a
 99:
@@ -2542,7 +2542,7 @@ _translate_macros_correct_basevol:
 	inc	de	; skip tone value
 	inc	de	; skip tine value
 	dec	c
-	jp	nz,.rowloop
+	jr.	nz,.rowloop
 	djnz	.insloop	
 
 	ret
@@ -2646,7 +2646,7 @@ ELSE
 	push	hl			; save pointer to update new custom voice nr
 	ld	a,(hl)
 	cp	177			; Check if this instrument has a custom voice
-	jp	c,0f
+	jr.	c,0f
 
 	;--- check for an empty voice slot
 	ld	hl,_VOICES+((192-31)*8)
@@ -2660,12 +2660,12 @@ ELSE
 	djnz	2b
 
 	and	a			; any value found?
-	jp	z,11f			; Found empty voice slot
+	jr.	z,11f			; Found empty voice slot
 
 	inc	c			; Next voice slot
 	ld	a,c
 	cp	16			; Nax 16 voices. 
-	jp	c,1b
+	jr.	c,1b
 	
 	dec	c			; If none found overwrite last slot
 11:
@@ -3042,14 +3042,14 @@ open_samfile:
 	ld	de,sample_names
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	b,8
 .nameloop:
 	ld	a,(hl)
 	cp	'.'		; stop if extension starts
-	jp	z,0f
+	jr.	z,0f
 	ldi				; p is reset if  bc = 0
 	jp	p,.nameloop
 
@@ -3111,13 +3111,13 @@ open_samfile:
 	dec	de
 	ld	a,(de)
 	cp	$ff
-	jp	nz,.read_wav
+	jr.	nz,.read_wav
 	ld	b,a
 	dec	de
 	ld	a,(de)
 	inc	de	
 	cp	b
-	jp	z,.read_end
+	jr.	z,.read_end
 
 	;--- read wave data
 .read_wav:
@@ -3125,10 +3125,10 @@ open_samfile:
 	;--- Check if memory limit is reached ($bfff - frame (34) - loop offset (2)) -> $BFDB
 	ld	a,$be
 	cp	a,d
-	jp	nc,.no_end
+	jr.	nc,.no_end
 	ld	a,$da
 	cp	a,e
-	jp	nc,.no_end
+	jr.	nc,.no_end
 
 	;--- manual end to the sample
 	dec	de
@@ -3204,7 +3204,7 @@ open_pakfile:
 1:	ld	hl,1*1024
 	call	read_file
 	call	nz,catch_diskerror
-	jp	1b	
+	jr.	1b	
 	;catch error here
 
 	call	close_file

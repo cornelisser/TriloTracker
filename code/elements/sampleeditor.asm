@@ -174,22 +174,8 @@ processkey_sampleeditor_normal:
 
 	call	process_key_sampleeditor_musickb
 
-	;--- set octave using numpad
-	ld	a,(key_value)
-	 
-	cp	0x4b
-	jr.	c,0f
-	cp	0x55
-	jr.	nc,0f
-		
-	;--- set octave
-	sub	0x4b
-	ld	(song_octave),a
-	xor	a
-	ld	(key),a
-	call	update_sampleeditor
-
-	jr.	processkey_sampleeditor_END
+	call	process_key_numpad
+	jr.	c,update_sampleeditor
 
 0:
 ;	;--- insturment editor?
@@ -209,7 +195,7 @@ processkey_sampleeditor_normal:
 	and	a
 	jr.	nz,0f
 
-		jp	restore_patterneditor
+		jr.	restore_patterneditor
 		;jr.	processkey_sampleeditor_END
 	
 0:
@@ -219,7 +205,7 @@ processkey_sampleeditor_normal:
 	;-- Always reset
 	ld	a,(keyjazz)
 	and	a
-	jp	nz,2f
+	jr.	nz,2f
 	;--- only if we are editing
 	ld	a,(editsubmode)
 	and	a

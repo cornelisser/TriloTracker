@@ -23,7 +23,7 @@ process_key_drumjazz:
 	;--- Check MusicKeyboard input
 	ld	a,(music_key)
 	and	a
-	jp	nz,.continue
+	jr.	nz,.continue
 	
 	
 .noMKB_Key:	
@@ -31,7 +31,7 @@ process_key_drumjazz:
 	ld	(replay_key),a
 	
 	and	a
-	jp	z,_process_key_drumjazz_END
+	jr.	z,_process_key_drumjazz_END
 .continue:	
 	;--- erase notes
 	ld	hl,_KJ_SCC
@@ -76,7 +76,7 @@ process_key_drumjazz:
 	halt
 	ld	a,(replay_mode)
 	and	a
-	jp	nz,88b
+	jr.	nz,88b
 
 	ld	hl,_KJ_DRM1
 	ld	(hl),0
@@ -102,9 +102,9 @@ process_key_keyjazz:
 	;--- Check MusicKeyboard input
 	ld	a,(music_key)
 	and	a
-	jp	z,.noMKB_Key			
+	jr.	z,.noMKB_Key			
 	
-	jp	.continue
+	jr.	.continue
 	
 .noMKB_Key:	
 	;--- Check if valid key pressed
@@ -168,9 +168,9 @@ IFDEF TTSCC
 ELSE
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,99f
+	jr.	z,99f
 	ld	hl,_KJ_PSG2
-	jp	88f
+	jr.	88f
 99:
 ENDIF
 	ld	hl,_KJ_PSG
@@ -186,20 +186,20 @@ ELSE
 	ld	a,(replay_chan_setup)
 	and 	$01
 	ld	b,22
-	jp	z,.chan26
+	jr.	z,.chan26
 .chan35:
 	ld	b,31
 .chan26:
 ENDIF
 	ld	a,(cursor_x)
 	cp	b
-	jp	c,.psg
+	jr.	c,.psg
 .fm:
 	ld	a,2
-	jp	100f
+	jr.	100f
 .psg:
 	ld	a,1
-	jp	100f
+	jr.	100f
 
 
 .keyjazzchip:
@@ -253,7 +253,7 @@ _ky_noPSG:
 	
 	ld	a,(_CONFIG_DEBUG)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	
 	call	draw_register_debug
 99:

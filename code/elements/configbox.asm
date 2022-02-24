@@ -262,9 +262,9 @@ IFDEF TTSCC
 	;-----------------
 	ld	a,(_CONFIG_SLOT)
 	cp	255				; check if config is set to auto
-	jp	nz,99f
+	jr.	nz,99f
 	ld	de,_LABEL_CONFIG_SCCSLOT_AUTO
-	jp	88f
+	jr.	88f
 99:
 	ld	de,_LABEL_CONFIG_SCCSLOT	
 88:	
@@ -288,9 +288,9 @@ IFDEF TTSCC
 	inc	hl
 	ld	a,b
 	bit	7,a
-	jp	nz,_cfg_exp
+	jr.	nz,_cfg_exp
 	ld	a,"X"
-	jp	99f
+	jr.	99f
 _cfg_exp:
 	rra	
 	rra
@@ -467,7 +467,7 @@ ENDIF
 	ld	de,_LABEL_PERIOD_TABLE
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	hl,(80*19)+2+20+40
@@ -616,7 +616,7 @@ ENDIF
 	add	2
 	add	a,l
 	ld	l,a
-	jp 	nc,99f
+	jr. 	nc,99f
 	inc 	h
 99:
 	;-- Text color
@@ -660,7 +660,7 @@ _config_set_color_cursor
 	ld	a,(cursor_input)
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	a,(de)
@@ -892,19 +892,23 @@ ENDIF
 ;===========================================================
 process_key_configbox:
 	
+
+	call	process_key_numpad
+	jr. 	c,update_configeditor
+
 	ld	a,(key)
 	and	a
 	ret	z
 
 0:
 	cp	_ENTER
-	jp	z,.save
+	jr.	z,.save
 	cp	_SPACE
-	jp	nz,0f
+	jr.	nz,0f
 4:
 	ld	a,(editsubmode)
 	cp	19
-	jp	nz,0f
+	jr.	nz,0f
 .save	
 	;--- save data
 	call	reset_hook
@@ -949,7 +953,7 @@ process_key_configbox:
 	
 	ld	a,WIN_CFGSAV
 	call	window
-	jp	draw_configbox
+	jr.	draw_configbox
 	
 	
 _lsav_error:
@@ -1024,22 +1028,22 @@ _lsav_error:
 	;-- only for custom theme
 	ld	a,(_CONFIG_THEME)
 	cp	9
-	jp	nz,0f
+	jr.	nz,0f
 
 	; check if we are on color options
 	ld	a,(editsubmode)
 	cp	7
-	jp	c,0f
+	jr.	c,0f
 	cp	10
-	jp	nc,0f
+	jr.	nc,0f
 
 	;----- for input colors
 	; number?
 	ld	a,(key)
 	cp	"0"
-	jp	c,0f
+	jr.	c,0f
 	cp	"7"+1
-	jp	nc,0f
+	jr.	nc,0f
 
 	;--- 	
 	sub	'0'
@@ -1054,7 +1058,7 @@ _lsav_error:
 ;	add	a
 	add	a,l
 	ld	l,a
-	jp 	nc,99f
+	jr. 	nc,99f
 	inc 	h
 99:
 	;-- add the color we are editing
@@ -1063,23 +1067,23 @@ _lsav_error:
 	add	a
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(cursor_input)
 	ld	c,a
 	inc	a
 	cp	3
-	jp	c,99f
+	jr.	c,99f
 	xor	a
 99:	ld	(cursor_input),a
 	ld	a,c
 	and	a
-	jp	z,_pkcb_ch
+	jr.	z,_pkcb_ch
 	
 	; edit second byte of color?
 	cp	2
-	jp	nz,99f
+	jr.	nz,99f
 	inc	hl
 99:
 	
@@ -1148,20 +1152,20 @@ pk_config_keyboard:
 	ld	a,(key)
 	cp	_KEY_RIGHT
 	ld	a,(_CONFIG_KB)
-	jp	nz,0f
+	jr.	nz,0f
 
 	; -- Right
 	inc	a
 	cp	4
-	jp	c,99f
+	jr.	c,99f
 	xor	a
-99:	jp	88f
+99:	jr.	88f
 	
 0:	;-- lEFT
 	and 	a
-	jp	z,99f
+	jr.	z,99f
 	dec	a
-	jp	88f
+	jr.	88f
 99:	ld	a,3
 88:
 	ld	(_CONFIG_KB),a
@@ -1210,16 +1214,16 @@ _pcv_l:
 	ld	a,(_CONFIG_VDP)
 	cp	255
 	; auto
-	jp	nz,1f
+	jr.	nz,1f
 	ld	a,1
 	ld	(_CONFIG_VDP),a
-	jp	99f
+	jr.	99f
 1:	; 60
 	cp	1
 	jr.	nz,update_configbox
 	xor	a
 	ld	(_CONFIG_VDP),a
-	jp	99f	
+	jr.	99f	
 
 _pcv_r:
 	ld	a,(_CONFIG_VDP)
@@ -1230,7 +1234,7 @@ _pcv_r:
 	;-- 0
 	inc	a
 	ld	(_CONFIG_VDP),a
-	jp	99f
+	jr.	99f
 1:	;---1
 	ld	a,255
 	ld	(_CONFIG_VDP),a
@@ -1240,7 +1244,7 @@ _pcv_r:
 	
 	ld	b,2
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	ld	b,0
 99:	
 	ld	a,($FFE8)	; get mirror of VDP reg# 9
@@ -1266,17 +1270,17 @@ pk_config_speed:
 	ld	b,1
 	ld	a,(key)
 	cp	_KEY_RIGHT
-	jp	z,0f
+	jr.	z,0f
 	ld	b,-1
 0:
 	ld	a,(_CONFIG_SPEED)
 	add	a,b
 	cp	64
-	jp	c,99f
+	jr.	c,99f
 	ld	a,63
 99:
 	cp	2
-	jp	nc,99f
+	jr.	nc,99f
 	ld	a,2
 99:
 	ld	(_CONFIG_SPEED),a
@@ -1290,17 +1294,17 @@ pk_config_step:
 	ld	b,1
 	ld	a,(key)
 	cp	_KEY_RIGHT
-	jp	z,0f
+	jr.	z,0f
 	ld	b,-1
 0:
 	ld	a,(_CONFIG_STEP)
 	add	a,b
 	cp	33
-	jp	c,99f
+	jr.	c,99f
 	ld	a,32
 99:
 	cp	2
-	jp	nc,99f
+	jr.	nc,99f
 	ld	a,2
 99:
 	ld	(_CONFIG_STEP),a
@@ -1314,17 +1318,17 @@ pk_config_add:
 	ld	b,1
 	ld	a,(key)
 	cp	_KEY_RIGHT
-	jp	z,0f
+	jr.	z,0f
 	ld	b,-1
 0:
 	ld	a,(_CONFIG_ADD)
 	add	a,b
 	cp	17
-	jp	nz,99f
+	jr.	nz,99f
 	ld	a,16
 99:
 	cp	255
-	jp	nz,99f
+	jr.	nz,99f
 	ld	a,0
 99:
 	ld	(_CONFIG_ADD),a
@@ -1340,20 +1344,20 @@ pk_config_theme:
 
 	ld	a,(key)
 	cp	_KEY_RIGHT
-	jp	z,0f
+	jr.	z,0f
 	ld	a,(_CONFIG_THEME)
 	inc	a
 	cp	nr_of_themes
-	jp	c,1f
+	jr.	c,1f
 	xor	a
-	jp	1f
+	jr.	1f
 0:
 	cp	_KEY_LEFT
 	ret	z
 	ld	a,(_CONFIG_THEME)
 	dec	a
 	cp	$ff
-	jp	nz,1f
+	jr.	nz,1f
 	ld	a,nr_of_themes-1
 
 1:	ld	(_CONFIG_THEME),a
@@ -1369,18 +1373,18 @@ pk_config_psg:
 	
 IFDEF TTSMS
 	cp	$3f				; MMM?
-	jp	z,1f
+	jr.	z,1f
 	
 	ld	a,$3f				; MMM
-	jp	2f
+	jr.	2f
 1:	
 	ld	a,$49				; Franky
 ELSE
 	cp	$a0
-	jp	z,1f
+	jr.	z,1f
 	
 	ld	a,$a0
-	jp	2f
+	jr.	2f
 1:	
 	ld	a,$10
 ENDIF
@@ -1415,24 +1419,24 @@ pk_config_scc:
 ;	ld	b,a
 	ld	a,(key)
 	cp	_KEY_RIGHT
-	jp	nz,0f
+	jr.	nz,0f
 	
 	ld	a,c
 	inc	c
 	cp	3
-	jp	nz,pk_config_scc_END	
+	jr.	nz,pk_config_scc_END	
 	inc	b
 	jr.	pk_config_scc_END	
 
 
 0:	
 	cp	_KEY_LEFT
-	jp	nz,update_configbox
+	jr.	nz,update_configbox
 	
 	ld	a,c
 	dec	c
 	and	a
-	jp	nz,pk_config_scc_END
+	jr.	nz,pk_config_scc_END
 	dec	b
 pk_config_scc_END:	
 	ld	a,(SCC_slot_found)
@@ -1450,7 +1454,7 @@ pk_config_scc_END:
 	or	c
 	
 	cp	d
-	jp	nz,99f		;-- check if we are NOT back at found slot
+	jr.	nz,99f		;-- check if we are NOT back at found slot
 	
 	or	0x80
 	ld	(SCC_slot),a	
@@ -1612,7 +1616,7 @@ IFDEF TTSMS
 	ld	hl,PERIOD_TABLES_PSG
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -1624,7 +1628,7 @@ IFDEF TTSMS
 	ldi
 	ld	a,(hl)
 	cp	$04
-	jp	c,99f
+	jr.	c,99f
 	ld	(hl),0
 	dec	de
 	ld	a,1
@@ -1634,7 +1638,7 @@ IFDEF TTSMS
 	ldi
 	inc	c
 	dec	c
-	jp	nz,.loop
+	jr.	nz,.loop
 
 ELSE
 	;--- copy period table(s) to RAM
@@ -1644,7 +1648,7 @@ ELSE
 	ld	hl,PERIOD_TABLES_PSG
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -1669,7 +1673,7 @@ ELSE
 	ld	hl,PERIOD_TABLES_FM
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -1696,7 +1700,7 @@ ELSE
 	ld	a,l
 	sub	24
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	dec	h
 99:
 	;-- increase octave
@@ -1704,7 +1708,7 @@ ELSE
 	add	c
 	ld	c,a
 	cp	12
-	jp	nz,.loopfm	
+	jr.	nz,.loopfm	
 
 
 ENDIF

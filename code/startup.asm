@@ -10,7 +10,7 @@ start_init:
 
 	ld	a,($FFE8)		; get mirror of VDP reg# 9
 	and	2
-	jp	z,99f
+	jr.	z,99f
 	ld	a,-1
 99:
 	inc	a	
@@ -88,7 +88,7 @@ ENDIF
  ;     ld	ix,$005F             ;address of BIOS routine
 ;	ld	a,0
  ;     call	CALSLT              ;interslot call	
-;	jp	0
+;	jr.	0
 
 
 
@@ -148,7 +148,7 @@ detect_R800:
 	call	read_bios_val
 
     	cp 	3
-    	jp	c,.z80
+    	jr.	c,.z80
 	ld	a,1
 	ld	(r800),a			; 0 = z80 other is R800
 	ret
@@ -200,7 +200,7 @@ init_mapper:
 	call	EXTBIO				; in HL the pointer to the mapper info.
 
 	and	a
-	jp	nz,99f
+	jr.	nz,99f
 	ld 	de,_NO_DOS
 	ld	c,_STROUT
 	call	5
@@ -221,40 +221,40 @@ init_mapper:
 	;--- check if primary is enough for max patterns.
 	ld	a,c
 	cp	e
-	jp	nc,0f			; this mapper has max free segs.
+	jr.	nc,0f			; this mapper has max free segs.
 	
 	ld	e,MAX_SONG_SEGSIZE+1  ; if we are here the next check should include the undpo page.
 4:	
 	ld	a,8-2			; jump to next mapper entry
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:		
 	ld	a,(hl)		; get slot addr
 	and	a
-	jp	z,0f			; if slot is 0 then there is no mapper
+	jr.	z,0f			; if slot is 0 then there is no mapper
 ;	or	$82
 	ld	d,a
 	inc	hl
 	inc	hl
 	ld	a,(hl)		; get free segs
 	cp	c			
-	jp	c,4b			; if not loop
-	jp	z,4b			; if equal loop
+	jr.	c,4b			; if not loop
+	jr.	z,4b			; if equal loop
 	
 	ld	c,a			; store new free segs
 	ld	a,d
 	ld	b,a			; store new slot
 	
-	jp	4b
+	jr.	4b
 	
 
 0:
 	;--- check if there is minimal room.
 	ld	a,c
 	and	a
-	jp	nz,0f
+	jr.	nz,0f
 
 	ld de,_NOT_ENOUGH_FREE_S
 	ld	c,_STROUT
@@ -301,7 +301,7 @@ init_mapper:
 	ld	b,a
 	ld	a,(mapper_slot)
 	cp	b
-	jp	z,0f			; jump if mapper and primary mapper are the same.
+	jr.	z,0f			; jump if mapper and primary mapper are the same.
 	
 	;----- If mapper is external then undo is in external mapper.
 	ld	a,(mapper_slot)
@@ -436,7 +436,7 @@ load_config:
 	ld	hl,1
 	call	read_file
 	
-	jp	nz,.end
+	jr.	nz,.end
 	pop	bc
 	djnz	.loop
 	push	bc
@@ -449,7 +449,7 @@ load_config:
 	;---- Set volume table
 	ld	a,(_CONFIG_VOL)
 	cp	1
-	jp	z,99f
+	jr.	z,99f
 	xor	a
 	ld	(_CONFIG_VOL),a
 99:
@@ -468,9 +468,9 @@ load_config:
 _lcfg_error:
 	ld	a,(_CONFIG_PSGPORT)		; copy port value as this is not available in ISR
 	cp	$a0				; standard MSX
-	jp	z,99f
+	jr.	z,99f
 	cp	$10				; SCC flash
-	jp	z,99f
+	jr.	z,99f
 	ld	a,$a0				; change to default of no valid value
 	ld	(_CONFIG_PSGPORT),a
 99:	

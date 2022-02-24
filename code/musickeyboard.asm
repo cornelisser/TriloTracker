@@ -1,4 +1,4 @@
-;NOTE: A 12 cycle wait (at 3.58 Mhz) is required after all address and data writes.
+;Note: A 12 cycle wait (at 3.58 Mhz) is required after all address and data writes.
 MUSKB_ADDRESS	equ	$c0
 MUSKB_DATA		equ	$C1
 

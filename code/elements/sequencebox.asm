@@ -79,7 +79,7 @@ update_orderbox_always:
 	ld	b,7	
 	call	draw_label_fast	
 	
-	jp	build_order_list
+	jr.	build_order_list
 ;	ret	
 	
 
@@ -102,7 +102,7 @@ process_key_orderbox:
 
 	;--- Check for CTRL+G
 	cp	_CTRL_G
-	jp	nz,0f
+	jr.	nz,0f
 	
 	;--- Is there still room?
 	ld	a,(song_order_len)
@@ -637,10 +637,10 @@ _be_loop:
 ;	ld	c,a
 ;_opi_loop:
 ;	cp	b
-;	jp	nc,0f
+;	jr.	nc,0f
 ;	add	hl,de
 ;	add	c
-;	jp	_opi_loop
+;	jr.	_opi_loop
 ;	
 ;0:
 ;	ld	de,_LABEL_ORDER_2

@@ -181,7 +181,7 @@ IFDEF TTSCC
 			ret	z
 			dec	a
 ELSE
-			jp	nz,99f
+			jr.	nz,99f
 			ld	a,MAX_WAVEFORM
 99:
 			dec	a
@@ -203,7 +203,7 @@ IFDEF TTSCC
 			inc	a
 ELSE
 			cp	MAX_WAVEFORM-1
-			jp	c,99f
+			jr.	c,99f
 			ld	a,-1
 99:
 			inc	a
@@ -217,46 +217,28 @@ ENDIF
 	;--- CTRL_T- keyjazz chip type
 	cp	_CTRL_T
 	jr.	nz,0f
+		;--- Set pointer to type
+		ld	a,(song_cur_instrument)
+		ld	hl,instrument_types
+		add	a,l
+		ld	l,a
+		jp	nc,99f
+		inc	h
+99:
+
 		ld	a,(keyjazz_chip)
 		add	1
 		and	$03
 		jr.	nz,33f
 		inc	a	
-33:
-		ld	(keyjazz_chip),a
-		ld	hl,_LABEL_keyjazz
-		dec	a
-		jr.	nz,44f
-		;-- psg
-		ld	(hl),160
-		inc	hl
-		ld	(hl),161
-		jr.	99f
-44:
-		dec	a
-		jr.	nz,44f
-IFDEF TTSCC		
-		;-- scc
-		ld	(hl),162
-		inc	hl
-		ld	(hl),163	
-ELSE
-		;-- scc
-		ld	(hl),162+8
-		inc	hl
-		ld	(hl),163+8
-ENDIF
-		jr.	99f
-		
-44:
-		;-- psg+scc
-		ld	(hl),158
-		inc	hl
-		ld	(hl),159
-		jr.	99f
 
-99:
-		jr.	update_macrobox		
+33:
+		ld	(hl),a
+		ld	(keyjazz_chip),a
+		
+		call	build_instrument_list
+		jr.	update_macrobox	
+			
 
 0:
 	;--- CTRL_W- waveform number
@@ -502,22 +484,9 @@ _pppp_instruments:
 	
 processkey_macroeditor_normal:	
 
-	;--- set octave using numpad
-	ld	a,(key_value)
-	 
-	cp	0x4b
-	jr.	c,0f
-	cp	0x55
-	jr.	nc,0f
-		
-	;--- set octave
-	sub	0x4b
-	ld	(song_octave),a
-	xor	a
-	ld	(key),a
-	call	update_macroeditor
+	call	process_key_numpad
+	jr.	c,update_macroeditor
 
-	jr.	processkey_macroeditor_END
 
 0:
 	;--- insturment editor?
@@ -547,7 +516,7 @@ processkey_macroeditor_normal:
 	and	a
 	jr.	nz,0f
 
-		jp	restore_patterneditor
+		jr.	restore_patterneditor
 		;jr.	processkey_macroeditor_END
 	
 

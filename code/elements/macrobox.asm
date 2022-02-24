@@ -311,7 +311,7 @@ _ups_lineloop:
 	and	b
 	cp	00100000b
 	ld	a,_NOISE_ON_SIGN+5
-	jp	z,1f
+	jr.	z,1f
 	ld	a,_NOISE_ON_SIGN+4
 1:
 	ld	(de),a
@@ -377,11 +377,11 @@ _ups_lineloop:
 	inc	de
 	ld	a,c
 	and	00110000b
-	jp	z,_ups_base
+	jr.	z,_ups_base
 	cp	00100000b
-	jp	z,_ups_add
+	jr.	z,_ups_add
 	cp	00110000b
-	jp	z,_ups_sub
+	jr.	z,_ups_sub
 
 _ups_env:
 	;- Envelope
@@ -396,45 +396,45 @@ _ups_env:
 	push	hl
 	ld	a,c
 	and	0x0f
-	jp	z,.env_no
+	jr.	z,.env_no
 	cp	4
-	jp	c,.env_0
+	jr.	c,.env_0
 	cp	8
-	jp	c,.env_4
-	jp	z,.env_8
+	jr.	c,.env_4
+	jr.	z,.env_8
 	cp	$a
-	jp	c,.env_0
-	jp	z,.env_a
+	jr.	c,.env_0
+	jr.	z,.env_a
 	cp	$c
-	jp	c,.env_b
-	jp	z,.env_c
+	jr.	c,.env_b
+	jr.	z,.env_c
 	cp	$e
-	jp	c,.env_d
-	jp	z,.env_e
+	jr.	c,.env_d
+	jr.	z,.env_e
 .env_4:
 	ld	hl,ENVELOPE_4567F
-	jp	.print
+	jr.	.print
 .env_0:
 	ld	hl,ENVELOPE_01239
-	jp	.print
+	jr.	.print
 .env_8:
 	ld	hl,ENVELOPE_8
-	jp	.print
+	jr.	.print
 .env_a:
 	ld	hl,ENVELOPE_A
-	jp	.print
+	jr.	.print
 .env_b:
 	ld	hl,ENVELOPE_B
-	jp	.print
+	jr.	.print
 .env_c:
 	ld	hl,ENVELOPE_C
-	jp	.print
+	jr.	.print
 .env_d:
 	ld	hl,ENVELOPE_D
-	jp	.print
+	jr.	.print
 .env_no:
 	ld	hl,ENVELOPE_NO
-	jp	.print
+	jr.	.print
 .env_e:
 	ld	hl,ENVELOPE_E
 .print	
@@ -442,7 +442,7 @@ _ups_env:
 	ld	bc,4
 	ldir
 	pop	hl
-	jp	55f
+	jr.	55f
 
 ENVELOPE_NO:
 	db	'    '
@@ -466,11 +466,11 @@ ENVELOPE_E:
 
 _ups_base:
 	ld	a,"_"
-	jp	0f
+	jr.	0f
 _ups_add:
 	;- add
 	ld	a,"+"
-	jp	0f
+	jr.	0f
 _ups_sub:
 	ld	a,"-"
 0:
@@ -704,7 +704,7 @@ _upsb_add:
 ;	add	a	; x4
 ;	add	a,l
 ;	ld	l,a
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	inc	h
 ;99:
 ; 
@@ -908,12 +908,12 @@ process_key_macrobox:
 				 
 	
 	cp	31
-	jp	nc,88f
+	jr.	nc,88f
 	add	a	;x2
 	add	a	;x4
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc 	h
 99:
 	ld	d,h	; store in DE
@@ -1220,7 +1220,7 @@ _pkp_env:
 	;--- Check if we are editing volume
 	ld	a,(cursor_input)
 	cp	13
-	jp	nz,update_macrobox
+	jr.	nz,update_macrobox
 	call	get_macro_location
 	inc	hl
 	ld	a,(hl)

@@ -139,7 +139,13 @@ ENDIF
 	ld	bc,16
 	ldir
 	
-	
+	;--- Clear the instrument types
+	ld	hl,instrument_types
+	ld	b,32
+0:
+	ld	(hl),3	; All 
+	inc	hl
+	djnz	0b
 	
 	
 	;--- Clear the samples
@@ -236,7 +242,7 @@ ENDIF
 	
 	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.11.8.2 Voice save/loadfix    ",0	; 0 marker indicates placeholder 
+	db	"v0.11.8.3 Numpad shortcuts      ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

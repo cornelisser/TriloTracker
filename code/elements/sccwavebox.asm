@@ -253,7 +253,7 @@ process_key_sccwavebox_hex:
 	jr.	nz,0f
 		ld	a,(_scc_waveform_col)
 		and	a
-		jp	nz,99f
+		jr.	nz,99f
 		;-- wrap around
 		ld	a,32		
 99:		
@@ -264,7 +264,7 @@ process_key_sccwavebox_hex:
 	jr.	nz,0f
 		ld	a,(_scc_waveform_col)
 		cp	31
-		jp	c,99f
+		jr.	c,99f
 		;--- wrap around
 		ld	a,255
 99:

@@ -50,12 +50,12 @@ replay_mode5:
 
 	ld	a,(key)
 	and	a
-	jp	nz,.key
+	jr.	nz,.key
 .nokey:
 	inc	(hl)
 	jr. 	replay_decodedata_NO
 .key:
-	jp	_rplmd_cont
+	jr.	_rplmd_cont
 
 ;--- Replay	music
 replay_mode1:
@@ -104,7 +104,7 @@ _rpm2_3:
 	;-- test if musickb is pressed
 	ld	a,(music_key_on)
 	and	a
-	jp	z,.testkb
+	jr.	z,.testkb
 	ld	a,(music_key)
 	ld	c,a
 	ld	a,(music_buf_key)
@@ -224,7 +224,7 @@ replay_decodedata:
 	;--- check if next is PSG  or FM
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	nz,_rdd_3psg
+	jr.	nz,_rdd_3psg
 	
 	ld	hl,(replay_FM_tonetable)
 	ld	(replay_Tonetable),hl
@@ -238,7 +238,7 @@ _rdd_3psg:
 	;--- check if previous was PSG  or FM
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,_rdd_2psg
+	jr.	z,_rdd_2psg
 	
 	ld	hl,CHIP_FM_ToneTable
 	ld	(replay_Tonetable),hl
@@ -316,7 +316,7 @@ ENDIF
 
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,_rdd_2psg_6fm
+	jr.	z,_rdd_2psg_6fm
 
 _rdd_3psg_5fm:
 	; =======================================
@@ -347,7 +347,7 @@ _rdd_3psg_5fm:
 	ld	hl,(replay_FM_tonetable)
 	ld	(replay_Tonetable),hl
 	
-	jp	_rdd_cont
+	jr.	_rdd_cont
 
 	
 _rdd_2psg_6fm:	
@@ -460,7 +460,7 @@ NoiseMixer:
 	
 .chanC:	
 	bit 5,c	; noise on chan3?
-	jp	nz,.chanB
+	jr.	nz,.chanB
 	bit 7,b	; chan enabled?
 	ret	nz
 .silence
@@ -470,9 +470,9 @@ NoiseMixer:
 
 .chanB:
 	bit 4,c	; noise on chan2?
-	jp	nz,.chanA
+	jr.	nz,.chanA
 	bit 6,b	; noise enabled?
-	jp	z,.silence
+	jr.	z,.silence
 	ld	a,(SN_regVOLNB)
 	ld	(SN_regVOLN),a
 	ret
@@ -480,7 +480,7 @@ NoiseMixer:
 	bit 3,c	; noise on chan1?
 	ret	nz
 	bit 5,b
-	jp	z,.silence
+	jr.	z,.silence
 	ld	a,(SN_regVOLNA)
 	ld	(SN_regVOLN),a
 	
@@ -623,7 +623,7 @@ ENDIF
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,99f
+	jr.	z,99f
 	xor 	a
 	ld	(CHIP_Chan3+CHIP_Flags),a	
 99:
@@ -841,24 +841,24 @@ _dc_noNote:
 
 	;-- test for PSG
 	bit	7,(ix+CHIP_Flags)
-	jp	z,.voice0	; No update for PSG
+	jr.	z,.voice0	; No update for PSG
 	;--- Set the waveform  (if needed)
 	inc	hl
 	inc	hl
 	ld	a,(hl)
 	and	a
-	jp	z,.voice0
+	jr.	z,.voice0
 	cp	16
-	jp	c,.skip_soft
+	jr.	c,.skip_soft
 	
 	;---- Check if voice is different than current
 	ld	d,a
 	ld	a,(replay_softvoice)
 	cp	d
-	jp	nz,.getins
+	jr.	nz,.getins
 	;--- already loaded so set voice 0
 	xor	a
-	jp	z,.zero
+	jr.	z,.zero
 	;--- (pre)load the softvoice values
 .getins:
 	ld	a,d
@@ -883,10 +883,10 @@ _dc_noNote:
 	ldi
 	inc	de
 	dec	a
-	jp	nz,.loop
+	jr.	nz,.loop
 
 	pop	bc		; restore pointer to data
-      jp    .zero
+      jr.    .zero
 	
 .skip_soft:
 	rla	
@@ -921,13 +921,13 @@ _dc_noVolume:
 	;=============
 	ld	a,(bc)
 	and	0x0f
-	jp	nz,99f
+	jr.	nz,99f
 	;-- arpeggio of parameters is 0
 	inc	bc
 	ld	a,(bc)
 	dec	bc
 	and	a
-	jp	z,noCMDchange
+	jr.	z,noCMDchange
 	xor 	a
 99:
 	;--- only for tracker. fix in compiler
@@ -953,7 +953,7 @@ _dc_noVolume:
 	ld	hl,_CHIPcmdlist
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -971,14 +971,14 @@ noCMDchange:
 	; check for command 3 to continue
 	ld	d,(IX+CHIP_Flags)
 	bit 	0,d			; note trigger?
-	jp	z,99f
+	jr.	z,99f
 	bit 	3,d			; effect active
-	jp	z,99f
+	jr.	z,99f
 	ld	a,(ix+CHIP_Command)	; active effect is 3?
 	cp	3				; tone portamento?
-	jp	z,.trigger
+	jr.	z,.trigger
 	cp 	5
-	jp	nz,99f			; tone portamento + fade?
+	jr.	nz,99f			; tone portamento + fade?
 .trigger:	
 	;--- start new note but keep sliding to this new note
 	res	0,d	; reset note trigger
@@ -988,7 +988,7 @@ noCMDchange:
 	ld	a,(ix+CHIP_cmd_3)
 	inc	bc
 	inc	bc
-	jp	_CHPcmd3_newNote
+	jr.	_CHPcmd3_newNote
 	
 	
 99:
@@ -1004,7 +1004,7 @@ _dc_vol0note:
 	ld	a,(ix+CHIP_Volume)
 	and	0x0f
 	ld	(ix+CHIP_Volume),a
-	jp	99f
+	jr.	99f
 
 
 ;-------------------
@@ -1014,7 +1014,7 @@ _dc_sustainNote:
 ;	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	4,(ix+CHIP_Flags)	; release key
 	set	5,(ix+CHIP_Flags)	; sustain
-	jp	99f
+	jr.	99f
 
 ;-------------------
 ; Rest the note
@@ -1189,7 +1189,7 @@ _CHPcmd3_newNote:
 
 	ex	af,af'			;'
 	bit	7,h
-	jp	nz,99f
+	jr.	nz,99f
 	or 	128
 99:
 	ld 	(ix+CHIP_cmd_3),a
@@ -1209,7 +1209,7 @@ _CHIPcmd7_tremolo:
 	; will oscillate the volume of the current note
 	; with a sine wave.
 	cp	$11
-	jp	c,_CHIPcmd_end
+	jr.	c,_CHIPcmd_end
 ;	ld	(ix+CHIP_Command),d
 	
 _CHIPcmd4_vibrato:
@@ -1232,7 +1232,7 @@ _CHIPcmd4_vibrato:
 	
 	;--- Set the speed
 	and	$0f
-	jp	z,.depth 	; 0 -> no speed update
+	jr.	z,.depth 	; 0 -> no speed update
 ;	inc	a
 	ld	(ix+CHIP_cmd_4_step),a	
 	neg	
@@ -1242,23 +1242,23 @@ _CHIPcmd4_vibrato:
 	;-- set the depth
 	ld	a,e
 	and	$f0
-	jp	z,.end	; set depth when 0 only when command was not active.
+	jr.	z,.end	; set depth when 0 only when command was not active.
 ;	bit 	3,(ix+CHIP_Flags)	
 ;	ld	a,16
 
 99:	cp	$D0		; max 1-12
-	jp	c,99f
+	jr.	c,99f
 	ld	a,$C0
 99:
 	sub	16
 	ld	hl,CHIP_Vibrato_sine
 	add	a,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:	
 	add	a,l
 	ld 	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	(ix+CHIP_cmd_4_depth),l
@@ -1298,11 +1298,11 @@ _CHIPcmd5:
 	;--- Init values
 	;--- Check if we have a	note on the	same event
 	and	a
-	jp	z,_CHIPcmd_end
+	jr.	z,_CHIPcmd_end
 	
 	ld	(ix+CHIP_Command),d
 	bit 	0,(ix+CHIP_Flags)
-	jp	z,_CHIPcmdA_volSlide_cont
+	jr.	z,_CHIPcmdA_volSlide_cont
 	
 	set	4,(ix+CHIP_Flags)		; FM notelink bit
 	res	0,(ix+CHIP_Flags)
@@ -1312,7 +1312,7 @@ _CHIPcmd5:
 	call	_CHPcmd3_newNote
 
 	ld	a,iyh
-	jp 	_CHIPcmdA_volSlide_cont
+	jr. 	_CHIPcmdA_volSlide_cont
 	
 _CHIPcmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
@@ -1385,7 +1385,7 @@ DivLoop:                         ; subtracting DE from HL until the first overfl
 _CHIPcmdB_auto_envelope:
 IFDEF TTFM
 	and	a
-	jp	z,.skip_parameter
+	jr.	z,.skip_parameter
 
 	ld	d,a
 	;-- set new parameters
@@ -1401,7 +1401,7 @@ IFDEF TTFM
 	add	a
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	push	bc
@@ -1411,19 +1411,19 @@ IFDEF TTFM
 	ld	hl,0
 	ld	a,(auto_env_times)
 	and	0x0f		; make sure it is at leas 1 or higher
-	jp	nz,99f
+	jr.	nz,99f
 	inc	a
 99:
 	;--- now we add the base tone value x times 
 .timesloop:
 	add	hl,de
 	dec	a
-	jp	nz,.timesloop
+	jr.	nz,.timesloop
 
 	;--- now we do a divide over the result
 	ld	a,(auto_env_divide)
 	cp	2		; make sure divider is 1 minimal
-	jp	nc,99f
+	jr.	nc,99f
 	;-- 0 and 1 then no devide needed
 	ld	(AY_regEnvL),hl
 	pop	bc
@@ -1437,7 +1437,7 @@ IFDEF TTFM
 	ld	a,e
 	srl	a
 	cp	l
-	jp	nc,99f
+	jr.	nc,99f
 	inc	bc
 99:
 	ld	(AY_regEnvL),bc
@@ -1455,7 +1455,7 @@ _CHIPcmdC_drum:
 
 	and	a
 ;	ret	z			; B00 does nothing
-	jp	nz,0f
+	jr.	nz,0f
 
 	push	bc
 	;--- DRUM default values
@@ -1474,7 +1474,7 @@ _CHIPcmdC_drum:
 88:
 	add	hl,de
 	dec	a
-	jp	nz,88b
+	jr.	nz,88b
 
 	;--- drum len
 	ld	de,FM_DRUM_LEN
@@ -1529,7 +1529,7 @@ _CHIPcmdE_extended:
 	ld	hl,_CHIPcmdExtended_List
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:	
 	ld	a,(hl)
@@ -1592,7 +1592,7 @@ _cmdep_cont:
 	ld	hl,_panning_masks
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	e,(hl)	; store mask in e
@@ -1610,7 +1610,7 @@ _cmdep_cont:
 	add	a,d
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc 	h
 99:
 	ld	d,(hl)	; store value in d
@@ -1625,7 +1625,7 @@ _cmdep_cont:
 _CHIPcmdE_noisepanning:
 	; init
 	ld	a,3	
-	jp	_cmdep_cont	
+	jr.	_cmdep_cont	
 
 ELSE
 
@@ -1646,7 +1646,7 @@ _CHIPcmdE_brightness:
 	ld	a,d
 	; This comment sets the	detune of the track.
 	and	0x07		; low	4 bits is value
-	ret	z		;jp	z,.set
+	ret	z		;jr.	z,.set
 	ld (replay_voicetrigger),a
 
 	bit	3,d		; Center around 8
@@ -1751,7 +1751,7 @@ _CHIPcmdE_transpose:
 	ld	e,a
 
 	ld	hl,TRACK_ToneTable;(replay_Tonetable)
-	jp	z,.neg
+	jr.	z,.neg
 ;neg	
 	xor	a
 	sbc	hl,de
@@ -1817,7 +1817,7 @@ _rpd_noDrum:
 replay_process_drum:
 	ld	a,(FM_DRUM_LEN)
 	and	a
-	jp	z,_rpd_noDrum		; do nothing if end of macro is reached
+	jr.	z,_rpd_noDrum		; do nothing if end of macro is reached
 	dec	a
 	ld	(FM_DRUM_LEN),a
 
@@ -1826,7 +1826,7 @@ replay_process_drum:
 	; drum bits
 	ld	a,(bc)
 	and	a
-	jp	z,.skip_p
+	jr.	z,.skip_p
 	or	$20
 .skip_p:	
 	ld	(FM_DRUM),a		; store the percusion bits
@@ -1863,14 +1863,14 @@ replay_process_drum_tone:
 	ret	z			; return if no data
 	
 	bit	7,a
-	jp	nz,.deviation	; tone deviation
+	jr.	nz,.deviation	; tone deviation
 
 .note:				; Note
 	ld	de,(replay_Tonetable)
 	add	a
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	a,(de)
@@ -1883,7 +1883,7 @@ replay_process_drum_tone:
 .deviation:
 	; Tone deviation
 	bit	6,a
-	jp	z,.positive 			; positive
+	jr.	z,.positive 			; positive
 	;negative
 .negative:
 	and	00111111b
@@ -1911,10 +1911,10 @@ replay_process_drum_tone:
 	
 	add	a,e			; add value a to de
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
-	jp	.cont			; store the value 
+	jr.	.cont			; store the value 
 ;------- END ---------
 
 
@@ -1928,7 +1928,7 @@ replay_process_drum_volume_BD
 	inc	bc
 	and	a
 	ret	z			; return if no data
-	jp	replay_process_drum_volume.cont	; jmp
+	jr.	replay_process_drum_volume.cont	; jmp
 ;==================================================
 ; replay_process_drum_volume
 ;
@@ -1944,7 +1944,7 @@ replay_process_drum_volume:
 
 	;high vol
 	and	0xf0
-	jp	z,.low		; no high update
+	jr.	z,.low		; no high update
 	
 .high:
 [4]	srl	a			; move high to low
@@ -2067,7 +2067,7 @@ _pcAY_triggerNote:
 	ld	(ix+CHIP_cmd_ToneSlideAdd+1),0
 
 	ld	iyl,64			; keyon flip trigger
-	jp	_pcAY_instrument
+	jr.	_pcAY_instrument
 
 _pcAY_noNoteTrigger:
 	ld	iyl,0				; keyon flip trigger
@@ -2117,7 +2117,7 @@ _pcAY_noMacroEnd:
 
 ;--- Voice link check here as now we still have all macro row values
 	bit 	7,h
-	jp	z,_noVoicelink	
+	jr.	z,_noVoicelink	
 
 _voiceLink:	
 	res	7,h			; reset bit
@@ -2272,7 +2272,7 @@ ELSE
 	ld	de,AY_VOLUME_TABLE
 	add	a,e
 	ld 	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	a,(de)			
@@ -2287,11 +2287,11 @@ _pcAY_noNoise:
 	;volume
 	ld	a,b
 	and	00110000b
-	jp	z,_pcay_volbase
+	jr.	z,_pcay_volbase
 	cp	00110000b
-	jp	z,_pcay_volsub
+	jr.	z,_pcay_volsub
 	cp	00100000b
-	jp	z,_pcay_voladd
+	jr.	z,_pcay_voladd
 
 IFDEF TTFM
 _pcay_evelope:
@@ -2306,7 +2306,7 @@ ENDIF
 _pcay_volbase:
 	ld	a,b
 	and	0x0f
-	jp	_pcay_volend
+	jr.	_pcay_volend
 
 _pcay_voladd:
 	ld	a,b
@@ -2315,9 +2315,9 @@ _pcay_voladd:
 	ld	a,(ix+CHIP_VolumeAdd)
 	add	d
 	cp	16
-	jp	c,_pcay_volend
+	jr.	c,_pcay_volend
 	ld	a,15
-	jp	_pcay_volend
+	jr.	_pcay_volend
 
 _pcay_volsub:
 	ld	a,b
@@ -2326,7 +2326,7 @@ _pcay_volsub:
 	ld	a,(ix+CHIP_VolumeAdd)
 	sub	d
 	cp	16
-	jp	c,_pcay_volend
+	jr.	c,_pcay_volend
 	xor	a
 _pcay_volend:
 	ld	(ix+CHIP_VolumeAdd),a
@@ -2384,7 +2384,7 @@ _pcAY_noNoteActive:
 	inc	hl
 	ld	a,(ix+CHIP_Flags)
 	bit	7,a
-	jp	z,.psg
+	jr.	z,.psg
 .fm:
 	and	16+32	; keep key and sustain flags
 	ld	b,a
@@ -2441,7 +2441,7 @@ wrap_highcheck:
 ;	add	a,a		; divide by 2 in de 
 	srl	a
 	bit 	0,h		; test 9th bit
-	jp	z,99f
+	jr.	z,99f
 	add	128
 99:
 	ld	e,a
@@ -2478,7 +2478,7 @@ wrap_lowcheck:
 	add	a,a		; multiply by 2 in de 
 	ld	e,a
 	ld	d,0
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d	
 99:
 	;--- set octave higher
@@ -2551,7 +2551,7 @@ _pcFM_noVoice:
 
 	;--- software mixer for fm
 	bit	7,b		; tone?
-	jp	nz,99f
+	jr.	nz,99f
 	ld	a,15
 	ld	(FM_regVOLF),a
 	ret
@@ -2646,13 +2646,13 @@ _pcAY_cmdlist:
 _pcAY_cmd0:
 	ld	a,(IX+CHIP_Timer)
 	and	a
-	jp	z,.nextNote
+	jr.	z,.nextNote
 
 	dec	a
 	ld	(IX+CHIP_Timer),a
 	ld	a,(ix+CHIP_Step)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	ld	a,(IX+CHIP_cmd_0)
 	and	$0f
 	ld	(ix+CHIP_cmd_NoteAdd),a	
@@ -2696,7 +2696,7 @@ _pcAY_cmd0:
 		rlca		
 		ld	(ix+CHIP_cmd_0),a			
 		and	0x0f
-		jp	nz,0f
+		jr.	nz,0f
 		;--- if zero then skip this note and set step to start
 		ld	(ix+CHIP_Step),0
 0:		
@@ -2780,33 +2780,33 @@ _pcAY_cmd4:
 	ld	(ix+CHIP_Step),a
 	
 	bit	5,a			; step 32-63 the neg	
-	jp	z,.pos	
+	jr.	z,.pos	
 	
 .neg:
 	and	$1f	; make it 32 steps again
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
 	neg
-	jp	z,.zero			; $ff00 gives strange result ;)	
+	jr.	z,.zero			; $ff00 gives strange result ;)	
 	ld	(ix+CHIP_cmd_ToneAdd),a
 	ld	(ix+CHIP_cmd_ToneAdd+1),0xff
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 
 .pos:
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
 .zero:	
 	ld	(ix+CHIP_cmd_ToneAdd),a
 	ld	(ix+CHIP_cmd_ToneAdd+1),0
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 
 _pcAY_cmd5:
 	call	_pcAY_cmdasub
@@ -2833,13 +2833,13 @@ _pcAY_cmd7:
 	sra 	a	; divide the step with 2
 	
 ;	bit	5,a			; step 32-63 the neg	
-;	jp	z,.pos	
+;	jr.	z,.pos	
 	
 .neg:
 	and	$1f	; make it 32 steps again
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -2847,15 +2847,15 @@ _pcAY_cmd7:
 	sla	a	
 	sla	a	
 	sla	a
-;	jp	z,.zero			; $ff00 gives strange result ;)
+;	jr.	z,.zero			; $ff00 gives strange result ;)
 ;	or 	128				; set the neg bit
 ;.zero:
 	ld	(ix+CHIP_cmd_VolumeAdd),a
-	jp	_pcAY_commandEND		
+	jr.	_pcAY_commandEND		
 ;.pos:
 ;	add	a,l
 ;	ld	l,a
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	inc	h
 ;99:
 ;	ld	a,(hl)
@@ -2865,7 +2865,7 @@ _pcAY_cmd7:
 ;	or 128
 ;;.zero:	
 ;	ld	(ix+CHIP_cmd_VolumeAdd),a
-;	jp	_pcAY_commandEND	
+;	jr.	_pcAY_commandEND	
 
 
 _pcAY_cmd8:
@@ -2994,12 +2994,12 @@ _pcAY_cmd1b:
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
 	dec	(ix+CHIP_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 	
 	; stop note
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	3,(ix+CHIP_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+CHIP_Timer)
@@ -3102,7 +3102,7 @@ _comp_loop:
       dec   c
       add   2
 	cp	6
-	jp	nz,_comp_loop
+	jr.	nz,_comp_loop
 		
 
 _ptAY_loop:
@@ -3117,7 +3117,7 @@ _ptAY_loop:
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a
-	jp	z,_ptAY_noEnv
+	jr.	z,_ptAY_noEnv
 	
 	ld	b,13
 	out	(c),b
@@ -3136,7 +3136,7 @@ route_SN:
 	ld	b,10010000b		; volume chan 1
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	nz,99f
+	jr.	nz,99f
 	ld	b,10110000b		;volume chan 2
 99:
 	ld	c,$3f
@@ -3164,7 +3164,7 @@ route_SN:
 	;-- check if we need 3rd psg
 	ld	a,11010000b
 	cp	b
-	jp	z,99f
+	jr.	z,99f
 		
 	; vol chan 3
 	ld	a,(AY_regVOLC)
@@ -3189,7 +3189,7 @@ route_SN:
 	ld	hl,SN_regNOISEold
 	ld	a,(AY_regNOISE)
 	cp	(hl)
-	jp	z,0f
+	jr.	z,0f
 	ld	(hl),a
 	or	11100000b
 	out	($3f),a
@@ -3198,7 +3198,7 @@ route_SN:
 	ld	b,10000000b			; chan 1 update
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	nz,99f
+	jr.	nz,99f
 	ld	b,10100000b			; chan 2 update
 99:
 	; tone chan a
@@ -3237,7 +3237,7 @@ route_SN:
 	;--- test if we need to update third channel
 	ld	a,11000000b
 	cp	b
-	jp	z,route_gg
+	jr.	z,route_gg
 
 
 	; tone chan c
@@ -3276,12 +3276,12 @@ replay_route_mixer:
 	;--- Determine the channel setup
 	ld	a,(replay_chan_setup)
 	and	$01
-	jp	z,.setup26
+	jr.	z,.setup26
 .setup35:
 	ld	b,5
 	ld	hl,FM_regToneB+1		; contains the keyON bit
 	ld	a,(MainMixer)
-	jp	0f
+	jr.	0f
 .setup26:
 	ld	b,6
 	ld	hl,FM_regToneA+1		; contains the keyON bit
@@ -3291,7 +3291,7 @@ replay_route_mixer:
 	ld	c,a
 .loop:
 	rrc	c
-	jp	c,99f		; if flag was set skip silencing the channel
+	jr.	c,99f		; if flag was set skip silencing the channel
 	res	4,(hl)
 	inc	hl
 	inc	hl
@@ -3299,7 +3299,7 @@ replay_route_mixer:
 	ld	a,(hl)
 	or	$0f
 	ld	(hl),a
-	jp	3f
+	jr.	3f
 99:
 	inc	hl
 	inc	hl
@@ -3318,7 +3318,7 @@ replay_route_FM_chans:
 	ld	a,(r800)
 	ld	e,a
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	;--- init the r800 wait timer
 	in	a,($e6)
 	ld	(count_low),a
@@ -3326,7 +3326,7 @@ replay_route_FM_chans:
 	;--- Check if we need to update the voice regs
 	ld	a,(replay_voicetrigger)
 	and	a
-	jp	z,.channels
+	jr.	z,.channels
 	;--- update the voice registers
 	xor	a
 	ld	(replay_voicetrigger),a
@@ -3337,7 +3337,7 @@ replay_route_FM_chans:
 	ld	a,(hl)
 	inc	hl
 	cp	(hl)
-	jp	z,99f
+	jr.	z,99f
 	ld	d,a
 	ld	a,c
 	call	_writeFM	
@@ -3355,9 +3355,9 @@ replay_route_FM_chans:
 ;	;--- Check if channel is active
 	ld	a,(hl)
 ;	cp	128		; test bit 7	0 = chan not active
-;	jp	c,.notActive
+;	jr.	c,.notActive
 	cp	64		; test bit 6	1 = note trigger
-	jp	c,.noKeyOnSwitch
+	jr.	c,.noKeyOnSwitch
 
 .keyOnSwitch:
 	;--- Flip KeyOn bit
@@ -3370,7 +3370,7 @@ replay_route_FM_chans:
 	ld	a,(hl)
 	;--- Check if Key is already ON
 	bit	4,a
-	jp	nz,99f		; skip if key was already set
+	jr.	nz,99f		; skip if key was already set
 	or	00010000b		; set bit
 	ld	d,a
 	ld	a,$10
@@ -3392,7 +3392,7 @@ replay_route_FM_chans:
 	inc	hl
 	inc	hl
 	cp	(hl)
-	jp	z,99f			; No change in value
+	jr.	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,c			; Store reg# in C
 	call	_writeFM
@@ -3403,7 +3403,7 @@ replay_route_FM_chans:
 	inc	hl
 	inc	hl
 	cp	(hl)
-	jp	z,99f			; No change in value
+	jr.	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,$10
 	add	a,c			; Store reg# in C+10
@@ -3414,7 +3414,7 @@ replay_route_FM_chans:
 	ld	a,(hl)
 	inc	hl
 	cp	(hl)
-	jp	z,99f			; No change in value
+	jr.	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,$20
 	add	c			; Store reg# in C
@@ -3455,7 +3455,7 @@ replay_route_FM_chans:
 .notActive:
 	ld	de,6
 	add	hl,de
-	jp	.continue
+	jr.	.continue
 	;--- Points to start address of next chan
 
 
@@ -3466,7 +3466,7 @@ replay_route_FM_chans:
 ; [HL] points to previous value
 _writeFM:
 	bit	0,e				;  8 cycles
-	jp	nz,_writeFM_R800		; 10 cycles
+	jr.	nz,_writeFM_R800		; 10 cycles
 	out	(FM_WRITE),a		; 11 cycles
 	ld	a,d				;  4 cycles
 _writeFM_cont:
@@ -3479,10 +3479,10 @@ _writeFM_cont:
 ; [HL] points to previous value
 _writeFM_data:
 	bit	0,e				;  8 cycles
-	jp	nz,_writeFM_data_R800	; 10 cycles
+	jr.	nz,_writeFM_data_R800	; 10 cycles
 	push	bc				; 11 cycles	Dummy for write delay
 	pop	bc				; 11 cycles	Dummy for write delay
-	jp	_writeFM_cont		; 10 cycles
+	jr.	_writeFM_cont		; 10 cycles
 
 ; [A] reg#
 ; [D] value
@@ -3497,7 +3497,7 @@ _writeFM_R800:
 	in	a,($e6)
 	sub	d
 	cp	6
-	jp	c,.loop_long
+	jr.	c,.loop_long
 
 	pop	de
 	ex	af,af'
@@ -3512,7 +3512,7 @@ _writeFM_R800:
 	in	a,($e6)
 	sub	d
 	cp	1
-	jp	c,.loop_short
+	jr.	c,.loop_short
 	pop	de
 _writeFM_R800_cont:
 	;--- write data
@@ -3534,9 +3534,9 @@ _writeFM_data_R800:
 	in	a,($e6)
 	sub	d
 	cp	6
-	jp	c,.loop_long
+	jr.	c,.loop_long
 	pop	de
-	jp	_writeFM_R800_cont
+	jr.	_writeFM_R800_cont
 	;--- end
 
 

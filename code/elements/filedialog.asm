@@ -536,9 +536,9 @@ processkey_filedialog_menu:
 		jr.	z,processkey_filedialog_menu_END	; no update
 		dec	a
 		cp	5
-		jp	c,99f
+		jr.	c,99f
 		cp	9 
-		jp	nc,99f
+		jr.	nc,99f
 		sub	4
 99:		
 		ld	(menu_selection),a
@@ -570,9 +570,9 @@ processkey_filedialog_menu:
 		jr.	nc,processkey_filedialog_menu_END	; no update
 		inc	a
 		cp	5 
-		jp	c,99f
+		jr.	c,99f
 		cp	8
-		jp	nc,99f
+		jr.	nc,99f
 		add	4
 99:
 		ld	(menu_selection),a
@@ -654,7 +654,7 @@ _fd_drive_check:
 	
 	ld	a,(window_shown)
 	and	a
-	jp	nz,restore_filedialog
+	jr.	nz,restore_filedialog
 	
 	;--- no erorr was shown.
 	ld	de,_FILMES_none
@@ -694,7 +694,7 @@ _fd_drive_check:
 	dec	a
 	dec	a
 	dec	a
-	jp	z,8f		; exit to dos
+	jr.	z,8f		; exit to dos
 	ret	
 
 0:	;--- 0 = new song
@@ -904,7 +904,7 @@ ENDIF
       call	CALSLT              ;interslot call
 	
 	;--- return to DOS
-	jp	0
+	jr.	0
 	
 	
 
@@ -1083,7 +1083,7 @@ _pfd_LOAD:
 	;--- if loading was succesfull return to pattern editor
 	ld	a,(window_shown)
 	and	a
-	jp	nz,restore_filedialog
+	jr.	nz,restore_filedialog
 
 	;--- Set the correct period table 
 	call	set_period_table
@@ -1139,7 +1139,7 @@ _pfd_SAVE:
 ;	;--- if loading was succesfull return to pattern editor
 ;	ld	a,(window_shown)
 ;	and	a
-;	jp	nz,restore_filedialog
+;	jr.	nz,restore_filedialog
 ;
 ;	;-- just go to patern editor on success
 ;	call	cursorstack_init
@@ -1241,7 +1241,7 @@ reset_cursor_filedialog:
 		jr.	c,99f
 		inc	a
 		cp	13
-		jp	c,99f
+		jr.	c,99f
 		add	8
 			
 99:		add	3

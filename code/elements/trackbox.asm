@@ -116,12 +116,12 @@ ELSE
 	ld	(_dpe_step_char),a
 	ld	a,(replay_chan_setup)
 	and	1
-	jp	nz,66f
+	jr.	nz,66f
 	ld	a,_VERTICAL_SMALL
 	ld	(_dpe_step_char35),a
 	dec	a
 	ld	(_dpe_step_char26),a	
-	jp	77f
+	jr.	77f
 66:
 	ld	a,_VERTICAL_SMALL
 	ld	(_dpe_step_char26),a
@@ -417,23 +417,9 @@ draw_channel:
 ;===========================================================	
 process_key_trackbox:
 
-	;--- Special numkey check for setting octave.
-;	call	read_numkeys
-	ld	a,(key_value)
-	 
-	cp	0x4b
-	jr.	c,0f
-	cp	0x55
-	jr.	nc,0f
-		
-	;--- set octave
-	sub	0x4b
-	ld	(song_octave),a
-	xor	a
-	ld	(key),a
-	call	update_patterneditor
+	call	process_key_numpad
+	jr.	c,update_patterneditor
 
-	jr.	_process_key_trackbox_END
 
 0:
 	;--- General trackbox keys
@@ -665,7 +651,7 @@ process_key_trackbox_compact:
 	ld	a,(skey)  ; Check if 
 	cp	1
 	ld	a,0
-	jp	nz,99f	 
+	jr.	nz,99f	 
 	ld	a,1
 99:	
 	ld	(copy_transparent),a		
@@ -963,10 +949,27 @@ _pktc_kright_loop:
 	ld	a,(_dpe_patlen)
 	ld	b,a
 	ld	a,(song_pattern_line)
+
 	;-- Add extra check here to wrap around if current pos is last line
-
-
-
+;	inc	a
+;	cp	b
+;	jr.	nz,33f
+;	;--- we are on the last line
+;	xor	a
+;	ld	(song_pattern_line),a
+;	push	bc
+;	call	flush_cursor
+;	pop	bc
+;	ld	a,18
+;	ld	(cursor_y),a
+;	ld	a,-8
+;	ld	(song_pattern_offset),a	
+;	call	update_trackbox
+;	call	show_cursor
+;	jr.	_process_key_trackbox_compact_END	
+;
+;33:
+;	dec	a
 	add	c
 	cp	b
 	jr.	c,11f
@@ -1020,9 +1023,25 @@ _pktc_kright_loop:
 	; row up
 	ld	a,(song_pattern_line)
 	;-- Add extra check here to wrap around if current pos is first line
-
-
-
+;	and	a
+;	jr.	nz,33f
+;	;--- we are on the last line
+;	xor	a
+;	ld	a,(_dpe_patlen)
+;	dec	a
+;	ld	(song_pattern_line),a
+;	sub	8
+;	ld	(song_pattern_offset),a	
+;	push	bc
+;	call	flush_cursor
+;	pop	bc
+;	ld	a,18
+;	ld	(cursor_y),a
+;	call	update_trackbox
+;	call	show_cursor
+;	jr.	_process_key_trackbox_compact_END	
+;
+;33:
 	cp	c
 	jr.	nc,11f
 	ld	c,a
@@ -1082,7 +1101,7 @@ _note:
 	;===================
 	; INPUT is NOTES
 	;
-	; NOTES!!
+	; Notes!!
 	;
 	;===================
 	;--- Check if we are in a note column
@@ -1137,17 +1156,19 @@ _note:
 	; but not for these;
 	cp	97
 	jr.	c,99f
+	cp	99	; VOLUME 0
+	jr.	z,.store_notevalue
 	;-- check if '-R-' or '-S-'
 	ex	af,af'
 	ld	a,(skey)
 	cp	1		; -- shift pressed
-	jp	z,.shift
+	jr.	z,.shift
 	ex	af,af'
-	jp	.store_notevalue
+	jr.	.store_notevalue
 .shift:
 	ex	af,af'
 	xor	00000011b	; swap -R- <-> -S-
-	jp	.store_notevalue
+	jr.	.store_notevalue
 99:
 	and	a
 	jr.	z,.store_notevalue
@@ -1546,7 +1567,7 @@ _process_key_trackbox_compact_END_sound:
 	;--- if note audition is on.
 	ld	a,(_CONFIG_AUDIT)
 	and	a
-	jp	z,auto_increment		;--- Auto increment after audition start to audit correct patline.
+	jr.	z,auto_increment		;--- Auto increment after audition start to audit correct patline.
 
 	;--- sound the pattern line
 	call	replay_init

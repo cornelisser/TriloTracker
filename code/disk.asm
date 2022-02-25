@@ -865,9 +865,11 @@ ENDIF
 	call	write_file
 	call	nz,catch_diskerror
 	
+	;==============================
 	;---- Extra info bytes
+	;
 	ld	de,buffer
-	ld	a,1		; # of bytes data next
+	ld	a,1+32		; # of bytes data next
 	ld	(de),a
 	ld	hl,1
 	call	write_file
@@ -879,7 +881,13 @@ ENDIF
 	call	write_file
 	call	nz,catch_diskerror
 
+	;--- Instrument types
+	ld	de,instrument_types
+	ld	hl,32
+	call	write_file
+	call	nz,catch_diskerror
 
+	;===============================
 
 	;--- Write song name
 	ld	de,song_name
@@ -2009,17 +2017,18 @@ ELSE
 	ld	(song_version),a
 ENDIF
 	
-	;--- song version 11 and up has extra bytes info
+	;--- song version 11 and up have extra bytes info
 	and	$0f
 	cp	11
 	jr.	nz,0f
 
+	;--- Get number of extra items
 	ld	de,buffer
 	ld	hl,1
 	call	read_file
 	jr.	nz,catch_diskerror	
 
-	ld	de,buffer
+	ld	de,buffer+1
 	ld	a,(buffer)
 	ld	h,0
 	ld	l,a
@@ -2027,9 +2036,17 @@ ENDIF
 	jr.	nz,catch_diskerror
 
 	;--- Period table
-	ld	a,(buffer)
+	ld	a,(buffer+1)
 	ld	(replay_period),a
 
+	;--- Instrument types
+	ld	a,(buffer)
+	cp	32
+	jp	c,0f	;--- skip if not loaded from file
+	ld	de,instrument_types
+	ld	hl,buffer+2
+	ld	bc,32
+	ldir
 	;----- END OF EXTRA INFO
 
 0:

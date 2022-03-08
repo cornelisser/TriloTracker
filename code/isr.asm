@@ -7,35 +7,49 @@
 
 
 init_hook:
-	ld	hl,interrupt		; install the new isr.
-	di
-	ld	a,0xc3
-	ld	(0xFD9f),a
-	ld	(0xFDa0),hl
-	ei
-	ret
-	
+	ld	a, (original_hook)
+	or	a
+	jr	nz, set_hook	; Only preserve original_hook once. After that, it might not be in place anymore.
+	ld	hl, 0xFD9F
+	ld	de, original_hook
+	ld	bc, 5
+	ldir
 set_hook:
 	di
 	push	af
-;	ld	sp,(org_stack)
+	push	hl
 	ld	a,0xc3
 	ld	(0xFD9f),a
-	pop	af
-	ei
-	ret
-reset_hook:
-	push	af
-	push	hl
 	ld	hl,interrupt		; install the new isr.
-	di
-;	ld	sp,(_catch_stackpointer)
-	ld	a,0xc9
-	ld	(0xFD9f),a
-	ei
+	ld	(0xFDa0),hl
 	pop	hl
 	pop	af
+	ei
 	ret
+
+reset_hook:
+	push	af
+	ld	a, (original_hook)
+	or	a
+	jr	z, 1f	; Do nothing because original_hook has not been initialized, yet.
+	di
+	push	bc
+	push	de
+	push	hl
+	ld	hl, original_hook
+	ld	de, 0xFD9F
+	ld	bc, 5
+	ldir
+	pop	hl
+	pop	de
+	pop	bc
+	ei
+1:
+	pop	af
+	ret
+original_hook:
+	db	0	; Ensure a 0 here so we can test if the original_hook has been initialized, yet.
+	ds	4
 
 ;===========================================================
 ; --- interrupt
@@ -136,5 +150,5 @@ int_no_music:
 	pop	af
 	call	PUT_P2
 
-	ret
+	jp	original_hook
 

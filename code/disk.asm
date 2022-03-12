@@ -2022,12 +2022,14 @@ ENDIF
 	cp	11
 	jr.	nz,0f
 
+	;----- START OF EXTRA INFO
 	;--- Get number of extra items
 	ld	de,buffer
 	ld	hl,1
 	call	read_file
 	jr.	nz,catch_diskerror	
 
+	;--- Read all extra item in buffer.
 	ld	de,buffer+1
 	ld	a,(buffer)
 	ld	h,0

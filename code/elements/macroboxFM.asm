@@ -290,13 +290,6 @@ update_macrobox:
 		jr.	99f
 99:
 
-
-
-
-
-
-
-
 	;--- Make sure the cursor is inside the macro
 	ld	a,(instrument_len)
 	ld	b,a

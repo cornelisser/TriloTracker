@@ -885,6 +885,11 @@ _dc_noNote:
 	dec	a
 	jr.	nz,.loop
 
+	ex	af,af'
+	ld	a,(FM_Voicereg+4)		; Store the brightness.
+	ld	(replay_brightness_org),a
+	ex	af,af'
+	
 	pop	bc		; restore pointer to data
       jr.    .zero
 	
@@ -896,6 +901,7 @@ _dc_noNote:
 	and 	$f0
 .zero:
 	ld	(ix+CHIP_Voice),a
+
 ;	set	6,(ix+CHIP_Flags)
 .voice0		
 	call	set_patternpage_safe
@@ -1646,7 +1652,8 @@ _CHIPcmdE_brightness:
 	ld	a,d
 	; This comment sets the	detune of the track.
 	and	0x07		; low	4 bits is value
-	ret	z		;jr.	z,.set
+	jp	z,.reset
+
 	ld (replay_voicetrigger),a
 
 	bit	3,d		; Center around 8
@@ -1671,6 +1678,10 @@ _CHIPcmdE_brightness:
 	ld	e,a
 	and	11000000b
 	or	d
+	ld	(FM_Voicereg+4),a
+	ret
+.reset:
+	ld	a,(replay_brightness_org)
 	ld	(FM_Voicereg+4),a
 	ret
 

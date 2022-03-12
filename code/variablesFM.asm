@@ -271,7 +271,7 @@ replay_mainvol			#1			; the volume correction.
 
 replay_voicetrigger		#1
 replay_softvoice			#1
-
+replay_brightness_org		#1			; For restoring the brightness.
 
 ; key pressed
 keyboardtype	#1

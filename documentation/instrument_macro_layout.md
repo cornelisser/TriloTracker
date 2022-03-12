@@ -38,7 +38,7 @@ Character | Description
  `Wl`| waveform link (0x00-0x1f).
  new version  | 
  `Wv`| waveform value (0x00-0x1f).
- `ND`| semi-note deviation (10=base value, 00=add value, 01=subtract value).
+ `ND`| semi-note deviation (10=base value, 00=add value, 01=subtract value, 11 = reset deviation).
  `Nv`| semi-note value (base: 0x00-0x5f, relative: 0x00-0x3f)
 
 
@@ -72,7 +72,7 @@ Character | Description
   `TD`| tone deviation (0=add value, 1=subtract value).
   `Nv` | 5bit noise value (0x00-0x1f).
   `Tv` | 12bit tone value (0x000-0xfff).
-  `VD`| volume deviation (00=base value, 10=add value, 11=subtract value).
+  `VD`| volume deviation (00=base value, 10=add value, 11=subtract value, 11 = reset deviation).
   `Vv`| 4bit volume value (0x0-0xf).
   `Vl`| FM voice link. If set the Nv value contains the voice number
 |}
@@ -108,7 +108,7 @@ Character | Description
   `TD`| 3bit tone deviation (0=add value, 1=subtract value).
   `Nv` | 4bit noise volume (0x0-0xf).
   `Tv` | 10bit tone value (0x000-0x3ff).
-  `VD`| volume deviation (00=base value, 10=add value, 11=subtract value).
+  `VD`| volume deviation (00=base value, 10=add value, 11=subtract value, 11 = reset deviation).
   `Vv`| 4bit volume value (0x0-0xf).
   `Vl`| FM voice link. If set the low 4bits of the noise contains the voice number
 |}

@@ -190,6 +190,43 @@ _PSG_VOLF:	db 245,245,245,245,245
 ; 
 ;===========================================================
 update_macrobox:
+	;--- set the instrument type for keyjazz
+	ld	a,(song_cur_instrument)
+	ld	hl,instrument_types
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	ld	(keyjazz_chip),a
+
+	;--- Display the keyjazz chip
+	ld	hl,_LABEL_keyjazz
+		dec	a
+		jr.	nz,44f
+		;-- psg
+		ld	(hl),160
+		inc	hl
+		ld	(hl),161
+		jr.	99f
+44:
+		dec	a
+		jr.	nz,44f	
+		;-- scc
+		ld	(hl),162
+		inc	hl
+		ld	(hl),163	
+		jr.	99f
+		
+44:
+		;-- psg+scc
+		ld	(hl),158
+		inc	hl
+		ld	(hl),159
+		jr.	99f
+
+99:
 	;--- Make sure the cursor is inside the macro
 	ld	a,(instrument_len)
 	ld	b,a

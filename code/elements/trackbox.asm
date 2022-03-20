@@ -711,6 +711,10 @@ process_key_trackbox_compact:
 	ld	b,a
 	ld	a,63					
 	sub	b					; a = rows till end
+	jr.	nz,_pktc_bckspc_loop
+	ex	de,hl
+	jr.	_pkct_ins_empty
+
 _pktc_bckspc_loop:
 	; copy the 4 bytes
 	ldi	
@@ -756,49 +760,72 @@ _pktc_bckspc_loop2:
 	ld	a,(song_pattern_line)		; current editline	
 	call	get_chanrecord_location		; get the start pos in HL
 
+	;--- We are on last row or second-last
+	cp	62
+	jp	c,_pkct_ins_lines
+	jp	z,_pkct_ins_2ndlast
+	;--- last
+	call	_pkct_ins_empty
+	jr.	_pkct_ins_end
+_pkct_ins_2ndlast:
+	call	_pkct_ins_linedown
+	call	_pkct_ins_empty
+	jr.	_pkct_ins_end	
+_pkct_ins_lines:
 	ld	b,a
-	ld	a,63					
-	sub	b					; a = rows till end
-	; calculate address of last row.
+	ld	a,62
+	sub	b
 	ld	b,a
-	dec	b
-	ld	de,32
-_pktc_ins_loop3:
+	inc	b
+	ld	de,$20
+	;--- calculate the 2nd last row addres
+_pkct_ins_lines_loop:
 	add	hl,de
-	djnz	_pktc_ins_loop3
-
-	ex	de,hl
-	add	hl,de
-	ex	de,hl
-	
-_pktc_ins_loop:
-	; copy the 4 bytes
-	ldi	
-	ldi	
-	ldi	
-	ldi	
-	; new pointers (next row)
-	ld	bc,-36
-	add	hl,bc
-	ex	de,hl
-	add	hl,bc
-	ex	de,hl
-	
 	dec	a
-	jr.	nz,_pktc_ins_loop
-	
-	;--- clear the first row
-	ld b,4
-	xor	a
-_pktc_ins_loop2:
-	ld	(de),a
-	inc	de
-	djnz	_pktc_ins_loop2
-	
+	jr.	nz,_pkct_ins_lines_loop
+
+	;--- move line down till current row
+_pkct_ins_lines_loop2:
+	call	_pkct_ins_linedown
+	ld	de,-32
+	add	hl,de
+	djnz	_pkct_ins_lines_loop2
+	ld	de,32
+	add	hl,de
+
+_pkct_ins_empty:
+	ld	(hl),0
+	inc	hl
+	ld	(hl),0
+	inc	hl	
+	ld	(hl),0
+	inc	hl
+	ld	(hl),0
+	inc	hl
+_pkct_ins_end:
 	;--- logging
 	call	store_log_block
 	call	update_trackbox
 	jr.	_process_key_trackbox_compact_END
+
+;--- Move track row at HL 1 row down
+_pkct_ins_linedown:
+	push	hl
+	push	bc
+	ld	a,32
+	add	a,l
+	ld	e,a
+	ld	a,h
+	adc	0
+	ld	d,a
+	ldi	
+	ldi
+	ldi	
+	ldi
+	pop	bc
+	pop	hl
+	ret
+
 
 0:
 	;--- key left

@@ -301,5 +301,4 @@ y value is set in the trigger variable. The trigger can be used to sync programs
 
 ## <a name='fxy---replay-speed'></a>Fxy    -    Replay Speed
 Set the speed (values 2-63) to play the music data. The xy value sets the delay in ‘halve’ ticks to wait between each pattern row.
-
-Due to the halve ticks, any odd speed number will alternate.F09 will play alternating 8 and 9 ticks.
+Due to the halve ticks, any odd speed number will alternate. F09 will play alternating 4 and 5 ticks.

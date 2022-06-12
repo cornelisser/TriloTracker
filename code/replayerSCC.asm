@@ -517,20 +517,7 @@ replay_init_pre:
       pop   bc
       djnz  .lineloop
 
-;      ;--- Get the data from the curent line of the current pattern
-;	pop	af                            ; Restore the pattern line in a
-;	and	a
-;	jr.	z,99f
-;      ;--- Calculate the offset in the pattern for the pattern line
-;	ld	de,32       
-;88:
-;	add	hl,de
-;	dec	a
-;	jr.	nz,88b		
-;0:
-;      call  replay_init_pre_lineupdate      
 
-;99:
 ;--- Process the instuments and volumes in the audition line.
       ld    bc,(replay_patpointer)
       push  bc
@@ -1272,21 +1259,6 @@ _CHIPcmdB_soften:
 	inc	de
 	jr.	.softloop
 
-;_CHIPcmdB_morphset:
-;	;--- Set morph destination and init
-;	set	4,(ix+TRACK_Flags)		; set morph
-;	ld	a,d
-;	and	$0f
-;	ld	(ix+TRACK_cmd_B),a		; store dest form
-;	ld	(ix+TRACK_Command),0x25	; set	the command#
-;	
-;	xor	a
-;	ld	(replay_morph_counter),a
-;	dec	a
-;	ld	(replay_morph_active),a
-;	ld	a,8
-;	ld	(replay_morph_timer),a
-;	jr.	1f
 
 	
 _CHIPcmdB_reset:
@@ -1672,17 +1644,6 @@ _CHIPcmdE_notedelay:
 	res	0,(ix+TRACK_Flags)		; reset any	triggernote
 	ret
 
-;_CHIPcmdE_vibrato:
-;	ld	hl,TRACK_Vibrato_sine
-;	ld	a,d
-;	and	3
-;	jr.	z,99f
-;	ld	de,32
-;88:	add	hl,de
-;	dec	a
-;	jr.	nz,88b
-;99:	ld	(replay_vib_table),hl
-;	ret
 
 _CHIPcmdE_fineup:
 	ld	a,d
@@ -2492,7 +2453,6 @@ _pcAY_cmd9:
 
 _pcAY_cmda:
 	;retrig
-;	dec	(ix+TRACK_Timer)
 	call	_pcAY_cmdasub
 	jr.	_pcAY_commandEND
 
@@ -2555,11 +2515,6 @@ _pcAY_cmd10:
 	
 	
 _pcAY_cmd11:
-;	dec	(ix+TRACK_Timer)
-;	jr.	nz,_pcAY_commandEND
-
-;	res	3,(ix+TRACK_Flags)
-;	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	ld	a,(ix+TRACK_cmd_E)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	xor	a
@@ -2567,11 +2522,6 @@ _pcAY_cmd11:
 	jr.	_pcAY_commandEND	
 
 _pcAY_cmd12:
-;	dec	(ix+TRACK_Timer)
-;	jr.	nz,_pcAY_commandEND
-
-;	res	3,(ix+TRACK_Flags)
-;	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	ld	a,(ix+TRACK_cmd_E)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
 	ld	a,$ff
@@ -2585,36 +2535,9 @@ _pcAY_cmd14:
 ;	res	3,(ix+TRACK_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd15:
-;	dec	(ix+TRACK_Timer)
-;	jr.	nz,_pcAY_commandEND
-;
-;	;res	3,(ix+TRACK_Flags)
-;	ld	a,(ix+TRACK_cmd_E)
-;	ld	d,a
-;	ld	e,(ix+TRACK_cmd_ToneAdd)
-;	add	e
-;	ld	(ix+TRACK_ToneAdd),a
-;	jr.	nc,_pcAY_commandEND	
-;	
-;	bit	7,d
-;	jr.	z,1f
-;	dec	(ix+TRACK_ToneAdd+1)
-;	jr.	_pcAY_commandEND	
-;1:	inc	(ix+TRACK_ToneAdd+1)
-;	jr.	_pcAY_commandEND	
-;
-;
-;
-;	
-
 _pcAY_cmd16:
-;	res	3,(ix+TRACK_Flags)
-	jr.	_pcAY_commandEND	
 _pcAY_cmd17:
-;	res	3,(ix+TRACK_Flags)
-	jr.	_pcAY_commandEND	
 _pcAY_cmd18:
-;	res	3,(ix+TRACK_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd19:
 	;retrig
@@ -2628,10 +2551,8 @@ _pcAY_cmd19:
 	
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1a:
-;	res	3,(ix+TRACK_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1b:
-;	res	3,(ix+TRACK_Flags)
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
 	dec	(ix+TRACK_Timer)
@@ -2764,83 +2685,6 @@ _pcAY_cmd1e_sample:
 	ret
 	
 
-
-
-
-
-;;	res	3,(ix+TRACK_Flags)
-;	jr.	_pcAY_commandEND	
-;_pcAY_cmd1f:
-;;	res	3,(ix+TRACK_Flags)
-;	jr.	_pcAY_commandEND	
-;_pcAY_cmd20:
-;;	res	3,(ix+TRACK_Flags)
-;	jr.	_pcAY_commandEND	
-;	
-
-	
-;_pcAY_cmd22:
-;	;=================
-;	; Waveform Cut
-;	;=================
-;
-;	res	3,(ix+TRACK_Flags)	; reset command
-;	res	_TRG_WAV,(ix+TRACK_Flags)	; reset normal wave update
-;
-;	;get the waveform	start	in [DE]
-;	ld	de,_0x9800
-;	ld	a,iyh		;ixh contains chan#
-;	rrca			; a mac value is 4 so
-;	rrca			; 3 times rrca is	X32
-;	rrca			; max	result is 128.
-;	add	a,e
-;	ld	e,a
-;	jr.	nc,99f
-;	inc	d
-;99:
-;	ld	a,(ix+TRACK_Waveform)
-;	add	a,a
-;	add	a,a
-;	add	a,a	
-;
-;	ld	l,a
-;	ld	h,0
-;	add	hl,hl
-;	add	hl,hl
-;		
-;	ld	  bc,_WAVESSCC
-;	add	  hl,bc
-;
-;	ld	a,(ix+TRACK_cmd_B)
-;	inc	a
-;	add	a
-;	ld	c,a
-;	ld	b,0
-;	ldir
-;	
-;	sub	32
-;	neg	
-;	jr.	z,_pcAY_commandEND	
-;	
-;	ld	b,a
-;	xor	a
-;_wsc_l:
-;	ld	(de),a
-;	inc	de
-;	djnz	_wsc_l
-;	
-;	jr.	_pcAY_commandEND
-;	
-;_pcAY_cmd23:
-;_pcAY_cmd24:	
-;_pcAY_cmd25:
-;	jr.	_pcAY_commandEND	
-
-
-	
-
-
-
 	
 ;===========================================================
 ; ---replay_route
@@ -2918,23 +2762,6 @@ _ptAY_loop:
 	cp	13
 	jr	nz,_ptAY_loop
 
-	;--- envelope freq update?
-	; check for updates
-
-		; need to check for envelope active?
-
-
-;	ld	a,(hl)
-;	and	a
-;	jr.	z,99f		; if bit 0 is not set no update
-
-;	ld	b,11
-;	out 	(c),b
-;	inc	c
-;	out	(c),a
-;	dec	c
-;	ld	(hl),0
-
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a
@@ -2950,217 +2777,13 @@ _ptAY_loop:
 	
 	
 _ptAY_noEnv:
-
-	
-	
-;e_psg:
-;	; set PSG BANK A
-;	ld	a,$d
-;	out	($a0),a
-;	ld	a,10100000b
-;	out	($a1),a
-;
-;	;--- Apply the mixer.
-;	ld	a,(MainMixer)
-;	ld	b,a
-;	xor	a
-;	bit	5,b
-;	jr.	nz,0f
-;	;-- chan 1 off
-;	ld	(AY_regVOLA),a
-;0:	
-;	bit	6,b
-;	jr.	nz,0f
-;	;-- chan 2 off
-;	ld	(AY_regVOLB),a
-;0:
-;	bit	7,b
-;	jr.	nz,0f
-;	;-- chan 3 off
-;	ld	(AY_regVOLC),a
-;0:
-;99:
-;	ld	bc,(AY_regToneA)
-;	ld	a,0
-;	out	($a0),a
-;	ld	a,c
-;	out	($a1),a
-;	ld	a,1
-;	out	($a0),a
-;	ld	a,b
-;	out	($a1),a
-;	ld	bc,(AY_regToneB)
-;	ld	a,2
-;	out	($a0),a
-;	ld	a,c
-;	out	($a1),a
-;	ld	a,3
-;	out	($a0),a
-;	ld	a,b
-;	out	($a1),a
-;	ld	bc,(AY_regToneC)
-;	ld	a,4
-;	out	($a0),a
-;	ld	a,c
-;	out	($a1),a
-;	ld	a,5
-;	out	($a0),a
-;	ld	a,b
-;	out	($a1),a
-;	
-;	ld	a,6
-;	out	($a0),a
-;	ld	a,(AY_regNOISE)
-;	out	($a1),a
-;	ld	a,7
-;	out	($a0),a
-;	ld	a,(AY_regMIXER)
-;	out	($a1),a
-;
-;	ld	a,8
-;	out	($a0),a
-;	ld	a,(AY_regVOLA)
-;	rla	
-;	out	($a1),a
-;	ld	a,9
-;	out	($a0),a
-;	ld	a,(AY_regVOLB)
-;	rla	
-;	out	($a1),a	
-;	ld	a,$a
-;	out	($a0),a
-;	ld	a,(AY_regVOLC)
-;	rla	
-;	out	($a1),a	
-;
-;
-;	;BANK B
-;	ld	a,$d
-;	out	($a0),a
-;	ld	a,10110000b
-;	out	($a1),a
-;	
-;	
-;	ld	a,(AY_duty1)
-;	ld	d,a
-;	and	a
-;	jr.	z,99f
-;	ld	a,6
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_duty1)
-;	ld	d,a
-;	and	a
-;	jr.	z,99f
-;	ld	a,6
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_duty2)
-;	ld	d,a
-;	and	a
-;	jr.	z,99f
-;
-;	ld	a,7
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_duty3)
-;	ld	d,a
-;	and	a
-;	jr.	z,99f
-;	
-;	ld	a,8
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;99:
-;	ld	a,(AY_NoiseOR)
-;	ld	d,a
-;	and	a
-;	jr.	z,99f
-;	
-;	ld	a,$a
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;	xor	a
-;	ld	(AY_NoiseOR),a
-;99:
-;	ld	a,(AY_NoiseAND)
-;	ld	d,a
-;	and	a
-;	jr.	z,99f
-;	
-;	ld	a,$9
-;	out	($a0),a
-;	ld	a,d
-;	out	($a1),a	
-;	xor	a
-;	ld	(AY_NoiseAND),a
-;99:
-
-
-
-;	;--- Push values to AY HW
-;	ld	b,0
-;	ld	c,0xa0
-;	ld	hl,AY_registers
-;_comp_loop:	
-;	out	(c),
-;	ld	a,(hl)
-;	add	1
-;	out	(0xa1),a
-;	inc	hl
-;	ld	a,(hl)
-;	adc	a,0
-;	inc	b
-;	out	(c),b	
-;	inc	hl
-;	out	(0xa1),a	
-;	inc	b
-;	ld	a,6
-;	cp	b
-;	jr.	nz,_comp_loop
-;	
-;	ld	a,b	
-;	
-;	
-;_ptAY_loop:
-;	out	(c),a
-;	inc	c
-;	outi
-;	dec	c
-;	inc	a
-;	cp	13
-;	jr	nz,_ptAY_loop
-;
-;	ld	b,a
-;	ld	a,(hl)
-;	and	a
-;	jr.	z,_ptAY_noEnv
-;	out	(c),b
-;	inc	c
-;	out 	(c),a
-;	ld	(hl),0	;reset the envwrite
-	
-		
-	
 scc_route:
-	
 ;--------------
 ; S C	C 
 ;--------------
 	;--- Apply the mixer.
 	ld	hl,SCC_regMIXER
 	;--- do not	apply	mmainmixer when in  mode 2
-;	ld	a,(keyjazz)
-;	and	a
-;	jr.	nz,99f
 	ld	a,(replay_mode)
 	cp	2
 	jr.	z,99f
@@ -3299,11 +2922,7 @@ _wss_l:
 	 
 	
 	ret
-;	bit	7,a
-;	jr.	nz,_write_SCC_PW_wave
-;	res	_TRG_WAV,a
-;	jr.	nz,_write_SCC_cut
-;	ret
+
 
 
 	

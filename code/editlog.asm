@@ -17,40 +17,6 @@ _log_song_pattern_line:		db	0		; line to edit
 _LOG_WRAP_MASK			equ	0xbf
 
 
-;_LABEL_ADR:	
-;	db	"    ",0
-
-;log_debug:
-;	ld	hl,(_undo_start_pointer)
-;	call	log_debug_sub
-;	ld	de,_LABEL_ADR
-;	ld	hl,(80*1)+44+4
-;	call	draw_label	
-;	ld	hl,(_undo_pointer)
-;	call	log_debug_sub
-;	ld	de,_LABEL_ADR
-;	ld	hl,(80*2)+44+4
-;	call	draw_label	
-;	ld	hl,(_undo_end_pointer)
-;	call	log_debug_sub
-;	ld	de,_LABEL_ADR
-;	ld	hl,(80*3)+44+4
-;	call	draw_label
-;	ret
-		
-;log_debug_sub:	
-;	ld	de,_LABEL_ADR
-;	ld	a,h
-;	call	draw_hex2
-;	ld	a,l
-;	call	draw_hex2
-;	
-;	ret
-
-
-
-
-
 ;===========================================================
 ; --- init_undoredo
 ;
@@ -355,6 +321,7 @@ sub_undo1:
 	call	loadCursorInfo
 	
 	;--- Get the destinaion address
+	; TODO add failsafe
 	ld	e,(hl)
 	call	incrementHL
 	ld	d,(hl)
@@ -394,7 +361,8 @@ sub_undo2:
 	call	incrementHL
 	call	loadCursorInfo
 
-	;--- Get the destinaion address
+	;--- Get the destination address
+	; TODO add failsafe
 	ld	e,(hl)
 	call	incrementHL
 	ld	d,(hl)
@@ -409,8 +377,6 @@ sub_undo2:
 	call	incrementHL
 	ld	a,(hl)
 	ld	ixl,a
-
-	;--- Calculate the original pattern and cursor position
 	
 	;--- restore the values
 	ld	a,c
@@ -451,6 +417,7 @@ sub_undo3:
 
 _su3_loop:
 	;--- Get the destination address
+	; TODO Add failsafe for address outside pattern data
 	ld	e,(hl)
 	call	incrementHL
 	ld	d,(hl)
@@ -461,6 +428,7 @@ _su3_loop:
 	jr.	z,_su3_end
 	
 	;--- Get the number of bytes to proces in sequence
+	; TODO Add failsafe for 0 bytes
 	call	incrementHL
 	ld	b,(hl)
 	call	incrementHL
@@ -556,6 +524,7 @@ sub_redo1:
 	call	loadCursorInfo
 		
 	;--- Get the destinaion address
+	; TODO add failsafe
 	ld	e,(hl)
 	call	incrementHL
 	ld	d,(hl)
@@ -605,6 +574,7 @@ sub_redo2:
 	call	loadCursorInfo
 	
 	;--- Get the destinaion address
+	; TODO add failsafe
 	ld	e,(hl)
 	call	incrementHL
 	ld	d,(hl)
@@ -664,6 +634,7 @@ sub_redo3:
 
 _sr3_loop:
 	;--- Get the destination address
+	; TODO add failsafe
 	ld	e,(hl)
 	call	incrementHL
 	ld	d,(hl)
@@ -674,6 +645,7 @@ _sr3_loop:
 	jr.	z,_sr3_end
 	
 	;--- Get the number of bytes to proces in sequence
+	; TODO add failsafe
 	call	incrementHL
 	ld	b,(hl)
 	call	incrementHL
@@ -757,8 +729,6 @@ incrementHL:
 		ld	a,h
 		and	_LOG_WRAP_MASK		; auto wrap to beginning of the page
 		ld	h,a
-		
-	;--- NEED TO ADD UNDO LOG WRAPING!!!!!
 	push	de
 	
 	ld	de,(_undo_start_pointer)

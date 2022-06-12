@@ -2412,7 +2412,7 @@ _pcAY_noNoteActive:
 	ret
 	
 pcAY_FMinstr:	
-	ex	de,hl				; store macro deviation	in [DE]
+;	ex	de,hl				; store macro deviation	in [DE]
 
 	ex	af,af'			;' get note	offset
 	ld	sp,(replay_Tonetable)	;CHIP_ToneTable-2	; -2 as note 0 is	no note

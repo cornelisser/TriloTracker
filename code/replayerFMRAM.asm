@@ -10,9 +10,13 @@ replay_PSG_tonetable:		dw	0
 replay_FM_tonetable:		dw	0
 replay_period:			db	0			; Pitch table for playback
 
-auto_env_times			db	0
-auto_env_divide			db	0
+;auto_env_times			db	0
+;auto_env_divide			db	0
 
+envelope_ratiotype		db	0
+envelope_ratio			db	0
+envelope_correction		dw	0
+envelope_period			dw	0
 
 CHIP_Instrument			equ 0	
 CHIP_Voice				equ 1

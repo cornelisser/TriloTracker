@@ -20,6 +20,11 @@
    * [B50 - Soften Waveform](#b50---soften-waveform)
    * [BE0 - Reset](#be0---reset)
 * [Bxy - PSG Auto Envelope](#bxy---psg-auto-envelope)
+   * [B0y - Reset adjust](#b0y---reset-adjust)
+   * [B1y - Adjust up](#b1y---adjust-up)
+   * [B2y - Adjust down](#b2y---adjust-down)
+   * [BEy - Type](#bey---type)
+   * [BFy - Ratio](#bfy---ratio)   
 * [Cxy - SCC morph](#cxy---scc-morph)
    * [C0y-C1y Morph](#c0y-c1y-morph)
    * [CAy - LoFi Sample](#cay---lofi-sample)
@@ -192,15 +197,27 @@ Divides the current waveform amplitudes in halve to create a waveform with lower
 Resets the waveform to the waveform related to the current instrument.
 
 ## <a name='bxy---psg-auto-envelope'></a>Bxy - PSG Auto Envelope
-Calculates envelope register value based on the current note on the same line. x and y can be used to: x - Multiply the tone value by x. y - divide the tone value by y.
+<sup>Secondary effect **[PSG only]**</sup><br>
+_Experimental!_
+*Only available in version 0.12.2*
 
-Example:
-```
-A-1 .. B23       Takes tone value of A-4 and 
-                 multiplies with 2 and divides by 3           
-```
-This effect command can be used to find specific envelope tone values to set 8xy and 9xy. Value is shown in debug information. 
-The stand-alone replayer does not support this effect as it takes a lot of time to calculate the values. Replace the Bxy by 8xy and 9xy effect commands.
+#### <a name='b0y---reset-adjust'></a>B00 - Reset adjust
+Resets the fine adjustment of the Envelope period. 
+
+#### <a name='b1y---adjust-up'></a>B1y - Adjust up
+Fine adjust to the envelope period. 
+
+#### <a name='b2y---adjust-down'></a>B2y - Adjust down
+Fine adjust to the envelope period. 
+
+#### <a name='bey---type'></a>BEy - Type
+BE0 - Disable auto envelope ratio. Uses the Envelope period set using 8xy and 9xy
+BE1 - Channel to Envelope ratio
+BE2 - Envelope to Chan ratio
+
+#### <a name='b1y---ratio'></a>BFy - Ratio
+Value (0-7) sets the ratio (nr of octaves)
+
 
 ### <a name='cxy---scc-morph'></a>Cxy - SCC morph
 <sup>Secondary effect **[SCC only]**</sup><br>

@@ -38,9 +38,12 @@ replay_arp_speed			db 0			; counter for arp speed
 
 replay_period:			db	0			; Pitch table for playback
 
-auto_env_times			db	0
-auto_env_divide			db	0
-
+;auto_env_times			db	0
+;auto_env_divide			db	0
+envelope_ratiotype		db	0 
+envelope_ratio			db	0 
+envelope_correction		dw	0 
+envelope_period			dw	0 
 
 
 ;replay_sample_num		db 0 			; Current sample deeing played 

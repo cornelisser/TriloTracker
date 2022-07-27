@@ -1282,6 +1282,7 @@ _CHIPcmd4_vibrato:
 	; multiplier value (00-ff)
 _CHIPcmd8_env_low:
 	ld	(AY_regEnvL),a
+	ld	(envelope_period),a
 	ret	
 
 	; in:	[A] contains the paramvalue
@@ -1292,6 +1293,7 @@ _CHIPcmd8_env_low:
 	; multiplier value (00-ff)
 _CHIPcmd9_env_high:
 	ld	(AY_regEnvH),a
+	ld	(envelope_period+1),a
 	ret	
 
 
@@ -1375,80 +1377,124 @@ _CHIPcmdA_volSlide_cont:
 	ret
 
 
-; Taken from http://www.massmind.org/techref/zilog/z80/part4.htm
-Divide:                          ; this routine performs the operation BC=HL/A
-  	ld 	e,a                         ; checking the divisor; returning if it is zero
-  	or 	a                           ; from this time on the carry is cleared
-  	ret	z
-  	ld 	bc,-1                       ; BC is used to accumulate the result
-  	ld 	d,0                         ; clearing D, so DE holds the divisor
-DivLoop:                         ; subtracting DE from HL until the first overflow
-  	sbc 	hl,de                      ; since the carry is zero, SBC works as if it was a SUB
-  	inc 	bc                         ; note that this instruction does not alter the flags
-  	jr 	nc,DivLoop                  ; no carry means that there was no overflow
-  	ret
+;; Taken from http://www.massmind.org/techref/zilog/z80/part4.htm
+;Divide:                          ; this routine performs the operation BC=HL/A
+;  	ld 	e,a                         ; checking the divisor; returning if it is zero
+;  	or 	a                           ; from this time on the carry is cleared
+;  	ret	z
+;  	ld 	bc,-1                       ; BC is used to accumulate the result
+;  	ld 	d,0                         ; clearing D, so DE holds the divisor
+;DivLoop:                         ; subtracting DE from HL until the first overflow
+;  	sbc 	hl,de                      ; since the carry is zero, SBC works as if it was a SUB
+;  	inc 	bc                         ; note that this instruction does not alter the flags
+;  	jr 	nc,DivLoop                  ; no carry means that there was no overflow
+;  	ret
 
 _CHIPcmdB_auto_envelope:
 IFDEF TTFM
-	and	a
-	jr.	z,.skip_parameter
+	cp	$e0
+	jp	c,.correction
+	cp	$f0
+	jp	c,.ratiotype
+.ratio:
+	and	$07
+	ld	(envelope_ratio),a
+	ret	
 
-	ld	d,a
-	;-- set new parameters
-	and	0x0f
-	ld	(auto_env_divide),a
-	ld	a,d
-[4]	srl	a	
-	ld	(auto_env_times),a
-
-.skip_parameter:
-	ld	hl,CHIP_ToneTable+96	;-- set base to C-5
-	ld	a,(IX+CHIP_Note)
-	add	a
-	add	a,l
-	ld	l,a
-	jr.	nc,99f
-	inc	h
-99:
-	push	bc
-	ld	e,(hl)
-	inc	hl
-	ld	d,(hl)
-	ld	hl,0
-	ld	a,(auto_env_times)
-	and	0x0f		; make sure it is at leas 1 or higher
-	jr.	nz,99f
-	inc	a
-99:
-	;--- now we add the base tone value x times 
-.timesloop:
-	add	hl,de
-	dec	a
-	jr.	nz,.timesloop
-
-	;--- now we do a divide over the result
-	ld	a,(auto_env_divide)
-	cp	2		; make sure divider is 1 minimal
-	jr.	nc,99f
-	;-- 0 and 1 then no devide needed
-	ld	(AY_regEnvL),hl
-	pop	bc
+.ratiotype:
+	and	$0f
+	ld	(envelope_ratiotype),a
+	ret	nz
+	ld	de,(envelope_period)
+	ld	(AY_regEnvL),de
 	ret
-99:
-	call	Divide
 
-	;-- correct rounding
+.correction:
+	cp	$20
+	jp	c,.cor_up
+.cor_down:
+	cp	$30
+	ret 	nc
+	and	$f
+0:	
+	ld	(envelope_correction),a
 	xor	a
-	adc	hl,de
-	ld	a,e
-	srl	a
-	cp	l
-	jr.	nc,99f
-	inc	bc
-99:
-	ld	(AY_regEnvL),bc
-	pop	bc
+	ld	(envelope_correction+1),a	
 	ret
+
+.cor_up:
+	cp	$11
+	jp	nc,99f
+	xor	a
+	jp	0b
+99:	
+	and 	$f
+	neg	
+	ld	(envelope_correction),a
+	ld	a,255
+	ld	(envelope_correction+1),a
+	ret
+
+
+;	and	a
+;	jr.	z,.skip_parameter
+;
+;	ld	d,a
+;	;-- set new parameters
+;	and	0x0f
+;	ld	(auto_env_divide),a
+;	ld	a,d
+;[4]	srl	a	
+;	ld	(auto_env_times),a
+;
+;.skip_parameter:
+;	ld	hl,CHIP_ToneTable+96	;-- set base to C-5
+;	ld	a,(IX+CHIP_Note)
+;	add	a
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;	push	bc
+;	ld	e,(hl)
+;	inc	hl
+;	ld	d,(hl)
+;	ld	hl,0
+;	ld	a,(auto_env_times)
+;	and	0x0f		; make sure it is at leas 1 or higher
+;	jr.	nz,99f
+;	inc	a
+;99:
+;	;--- now we add the base tone value x times 
+;.timesloop:
+;	add	hl,de
+;	dec	a
+;	jr.	nz,.timesloop
+;
+;	;--- now we do a divide over the result
+;	ld	a,(auto_env_divide)
+;	cp	2		; make sure divider is 1 minimal
+;	jr.	nc,99f
+;	;-- 0 and 1 then no devide needed
+;	ld	(AY_regEnvL),hl
+;	pop	bc
+;	ret
+;99:
+;	call	Divide
+;
+;	;-- correct rounding
+;	xor	a
+;	adc	hl,de
+;	ld	a,e
+;	srl	a
+;	cp	l
+;	jr.	nc,99f
+;	inc	bc
+;99:
+;	ld	(AY_regEnvL),bc
+;	pop	bc
+;	ret
 ENDIF
 	
 _CHIPcmdC_drum:
@@ -1554,12 +1600,12 @@ _CHIPcmdExtended_List:
 	dw	_CHIPcmdE_trackdetune	;6
 	dw	_CHIPcmdE_none		;7
 	dw	_CHIPcmdE_transpose	;8
-	dw	_CHIPcmdE_none	;9
+	dw	_CHIPcmdE_none		;9
 	dw	_CHIPcmdE_none		;A
 	dw	_CHIPcmdE_brightness	;B
 	dw	_CHIPcmdE_notecut		;C	
 	dw	_CHIPcmdE_notedelay	;D	
-	dw	_CHIPcmdE_none	;E
+	dw	_CHIPcmdE_none		;E
 	dw	_CHIPcmdE_none		;F
 
 _CHIPcmdE_none:
@@ -2200,10 +2246,7 @@ _pcAY_noTone:
 	ld	d,(ix+CHIP_cmd_ToneSlideAdd+1)
 	add	hl,de
 	
-
 	
-_pcAY_noCMDToneAdd:	
-;_pcAY_noTone:	
 	ld	sp,(_SP_Storage)
 ;	ex	(sp),hl		; replace the last pushed value on stack
 	pop	de
@@ -2212,42 +2255,42 @@ _pcAY_noCMDToneAdd:
 	inc	hl	
 	ld	(hl),d
 
+	;NOTE - DE register pair is used later on if there is an envelope active. Do not change DE from here till envelope code
+
 	;-- Test for noise
 	bit	7,c
 	jr.	z,_pcAY_noNoise
-	
-	; noise
-	;--- prevent SCC and noise
-;	bit	7,(ix+CHIP_Flags)
-;	jr.	nz,_pcAY_noNoise
-
 
 IFDEF TTFM
+	;-- Test for noise
+;	bit	7,c
+;	jr.	z,_pcAY_noNoise
+	
 	;--- Set the mixer for noise
 	ld	a,(FM_regMIXER)
 	or	128
 	ld	(FM_regMIXER),a
 
-	ld	e,(ix+CHIP_Noise)	; get	the current	deviation	
+	ld	l,(ix+CHIP_Noise)	; get	the current	deviation	
 	ld	a,c
 	and	0x1f
-	ld	d,a
+	ld	h,a
 
 	;--- base or add/min
 	bit	6,c
 	jr.	nz,99f
 	;--- base
-	ld	e,0
+	ld	l,0
 99:
 	bit	5,c
 	jr.	z,99f
 	;-- minus the deviation	of the macro
-	ld	a,e
+	ld	a,l
 	sub	c	
 	jr.	88f
 99:	;--- Add the deviation
-	ld	a,d
-	add	e
+	ld	a,h
+	add	l
 88:	
 	ld	(ix+CHIP_Noise),a
 	ld	(AY_regNOISE),a
@@ -2270,23 +2313,23 @@ ELSE
 
 	;--- apply main volume balance
 	ld	a,(replay_mainvol)
-	ld	d,a
+	ld	h,a
 	ld	a,c
 	and 	$0f
 	or	(ix+CHIP_Volume)
-	cp	d
+	cp	h
 	jr.	c,88F
-	sub	d
+	sub	h
 	jr.	99f
 88:	xor	a
 99:	
-	ld	de,AY_VOLUME_TABLE
-	add	a,e
-	ld 	e,a
+	ld	hl,AY_VOLUME_TABLE
+	add	a,l
+	ld 	l,a
 	jr.	nc,99f
-	inc	d
+	inc	h
 99:
-	ld	a,(de)			
+	ld	a,(hl)			
 	ld	(SN_regVOLN),a
 
 
@@ -2305,13 +2348,80 @@ _pcAY_noNoise:
 	jr.	z,_pcay_voladd
 
 IFDEF TTFM
-_pcay_evelope:
-	ld	a,16			; set volume to 16 == envelope
+_pcay_envelope:
+	;--- Set envelope on
+	ld	a,16					; set volume to 16 == envelope
 	ld	(FM_regVOLF),a
 	ld	a,b
 	and	0x0f
 	ld	(AY_regEnvShape),a		; set the new envelope shape
-	ret						; no further processing.
+
+	;--- Envelope sync type
+	ld	a,(envelope_ratiotype)
+	cp	1
+	ret	c
+	jp	z,_ratio_chan_env
+
+_ratio_env_chan:
+	ld	a,(envelope_ratio)
+	and	a
+	jp	z,_ratio_chan_env_skip
+
+	ex	de,hl
+_ratio_env_chan_loop:
+	add	hl,hl
+	dec	a
+	jp	nz,_ratio_env_chan_loop	
+
+	ex	de,hl
+
+	ld	b,(hl)
+	ld	(hl),d
+	dec	hl
+	ld	c,(hl)
+	ld	(hl),e
+	;--- Correction
+	ld	hl,(envelope_correction)
+	add	hl,bc
+	ld	(AY_regEnvL),hl
+	ret
+
+_ratio_chan_env:
+	ld	a,(envelope_ratio)
+	and	a
+	jp	z,_ratio_chan_env_skip
+
+_ratio_chan_env_loop:
+	SRL 	D
+	RR 	E
+	dec	a
+	jp	nz,_ratio_chan_env_loop	
+
+	;--- Correction
+	ld	hl,(envelope_correction)
+	add	hl,de
+
+_ratio_chan_env_skip:
+	ld	(AY_regEnvL),hl
+	ret
+
+
+
+;;	ld	a,(replay_env_ratio)
+;	ld	a,3
+;	and	a
+;	jp	z,_pcay_env_ratio_skip
+;
+;_pcay_env_ratio_loop:
+;	SRL 	D
+; 	RR 	E
+;	dec	a
+;	jp	nz,_pcay_env_ratio_loop
+;
+;_pcay_env_ratio_skip:
+;;	ld	(AY_regEnvL),de
+;	
+;;	ret						; no further processing.
 ENDIF
 
 _pcay_volbase:

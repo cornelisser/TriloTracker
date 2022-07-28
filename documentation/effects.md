@@ -214,9 +214,9 @@ Fine adjust ($0 - $F) on top of the auto generated envelope period. Only works w
 With the auto envelope effect the envelope period is calculated using the ratio to be in sync with channel tone. This way interesting sounds can be created.
 
 The type has 3 settings:  
-BE0 - Disables auto envelope ratio. Uses the Envelope period set using 8xy and 9xy. 
-BE1 - Enables Envelope ratio calculation (Chan = Tone, Env = Tone/(2^ratio)). This type creates a more 'spacious' effect.  
-BE2 - Enables Chan ratio calculaton (Chan = Tone*(2^ratio), Env = Chan). This type is more acurate than type 1.  
+* BE0 - Disables auto envelope ratio. Uses the Envelope period set using 8xy and 9xy. 
+* BE1 - Enables Envelope ratio calculation (Chan = Tone, Env = Tone/(2^ratio)). This type creates a more 'spacious' effect.  
+* BE2 - Enables Chan ratio calculaton (Chan = Tone*(2^ratio), Env = Chan). This type is more acurate than type 1.  
 
 #### <a name='b1y---ratio'></a>BFy - Ratio
 Value (0-7) sets the ratio for the auto envelope calculation. Each ratio step represents 1 octave. 

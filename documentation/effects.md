@@ -202,22 +202,26 @@ _Experimental!_
 *Only available in version 0.12.2*
 
 #### <a name='b0y---reset-adjust'></a>B00 - Reset adjust
-Resets the fine adjustment of the Envelope period. 
+Resets the fine adjustment of the Envelope period. y value is ignored. 
 
 #### <a name='b1y---adjust-up'></a>B1y - Adjust up
-Fine adjust to the envelope period. 
+Fine adjust ($0 - $F) on top of the auto generated envelope period. Only works when type is set to 1 or 2.
 
 #### <a name='b2y---adjust-down'></a>B2y - Adjust down
-Fine adjust to the envelope period. 
+Fine adjust ($0 - $F) on top of the auto generated envelope period. Only works when type is set to 1 or 2.
 
 #### <a name='bey---type'></a>BEy - Type
-BE0 - Disable auto envelope ratio. Uses the Envelope period set using 8xy and 9xy
-BE1 - Channel to Envelope ratio
-BE2 - Envelope to Chan ratio
+With the auto envelope effect the envelope period is calculated using the ratio to be in sync with channel tone. This way interesting sounds can be created.
+
+The type has 3 settings:  
+BE0 - Disables auto envelope ratio. Uses the Envelope period set using 8xy and 9xy. 
+BE1 - Enables Envelope ratio calculation (Chan = Tone, Env = Tone/(2^ratio)). This type creates a more 'spacious' effect.  
+BE2 - Enables Chan ratio calculaton (Chan = Tone*(2^ratio), Env = Chan). This type is more acurate than type 1.  
 
 #### <a name='b1y---ratio'></a>BFy - Ratio
-Value (0-7) sets the ratio (nr of octaves)
-
+Value (0-7) sets the ratio for the auto envelope calculation. Each ratio step represents 1 octave. 
+Ratio 0 - Envelope and Channel will have the same period value.
+Ratio 2 - Envelope and Channel will differ 2 octaves.
 
 ### <a name='cxy---scc-morph'></a>Cxy - SCC morph
 <sup>Secondary effect **[SCC only]**</sup><br>

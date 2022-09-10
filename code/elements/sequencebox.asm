@@ -281,6 +281,8 @@ process_key_orderbox:
 		inc	a
 		ld	b,a
 		ld	a,(song_order_loop)
+		cp	255		; no loop?
+		jr.	z,88f
 		cp	b
 		jr.	c,88f
 		dec	a

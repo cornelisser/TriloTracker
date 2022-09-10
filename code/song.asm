@@ -35,6 +35,8 @@ clear_patterns:
 
 	call	set_songpage
 
+	ld	a,255
+	ld	(song_order_loop),a
 	; set '0' defaults
 	xor	a
 	ld	(song_pattern),a
@@ -42,7 +44,6 @@ clear_patterns:
 	ld	(song_pattern_line),a
 	ld	(song_add),a
 	ld	(song_order_pos),a
-	ld	(song_order_loop),a
 	ld	(editmode),a
 	ld	(editsubmode),a
 	ld	(song_order),a

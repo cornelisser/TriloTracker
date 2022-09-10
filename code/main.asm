@@ -260,12 +260,22 @@ _playback_loop:
 ;;	ld	(replay_mode),a
 ;
 ;0:	
+	;--- Trigger an ESC when replayer stoped (no loop)
+	ld	a,(replay_mode)
+	and	a
+	jp	nz,4f
+
+	ld	a,_ESC	; trick  key into ESC to stop.	
+	ld	(key),a
+	jp	5f
+
+4:
 	call	read_key
 
 	ld	a,(key)
 	and	a
 	jp	z,_playback_loop
-
+5:
 	; check key for muting channels
 	call	check_channel_mute
 	call	check_channel_soloplay

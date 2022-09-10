@@ -521,9 +521,7 @@ replay_setnextpattern:
 _snp_loop:
 	ld	a,(song_order_loop)
 	cp	255		;--- no loop?
-
 	jp	nz,_snp_continue
-	call	z,replay_stop
 
 	;--- set to last played line
 	ld	a,(replay_line)

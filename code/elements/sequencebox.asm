@@ -220,6 +220,9 @@ process_key_orderbox:
 		ld	a,(song_order_pos)
 		ld	b,a
 		ld	a,(song_order_loop)
+		cp	255		; OFF?
+		jr.	z,88f
+		
 		cp	b
 		jr.	c,88f
 		inc	a
@@ -393,6 +396,16 @@ process_key_orderbox:
 	jr.	nz,0f
 2:
 		ld	a,c
+		ld	(song_order_loop),a
+		jr.	88b
+0:
+	; no loop
+	cp	'x'
+	jr.	z,2f
+	cp	'X'
+	jr.	nz,0f
+2:
+		ld	a,255
 		ld	(song_order_loop),a
 		jr.	88b
 0:

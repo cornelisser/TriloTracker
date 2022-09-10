@@ -520,6 +520,20 @@ replay_setnextpattern:
 	
 _snp_loop:
 	ld	a,(song_order_loop)
+	cp	255		;--- no loop?
+
+	jp	nz,_snp_continue
+	call	z,replay_stop
+
+	;--- set to last played line
+	ld	a,(replay_line)
+	dec	a
+	ld	(replay_line),a
+	;--- Stop playback (should be implemented in a cleaner way I think)
+	xor	a
+	ld	(replay_mode),a
+	pop	af			; remove RET address from stack
+	ret
 		
 _snp_continue:
 	ld	(song_order_pos),a
@@ -2166,6 +2180,11 @@ _pcAY_instrument:
 	cp	e
 	jr.	c,_pcAY_noMacroEnd
 	ld	a,d		; loop the macro.
+	;--- loop or not?
+	cp	255
+	jp	nz,_pcAY_noMacroEnd
+	res 	1,(ix+CHIP_Flags)	; disable note active
+
 _pcAY_noMacroEnd:
 	; tone deviation.
 	ld	(ix+CHIP_MacroStep),a

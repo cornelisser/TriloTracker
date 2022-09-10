@@ -153,10 +153,13 @@ ENDIF
 	ld	de,instrument_macros
 	
 0:
-	ld	c,(32*4)+2
+	ld	c,(32*4)+1
 	ld	a,1
 	ld	(de),a
 	inc	de
+	ld	a,255
+	ld	(de),a
+	inc	de	
 	xor	a
 1:	ld	(de),a
 	inc	de
@@ -242,7 +245,7 @@ ENDIF
 	
 	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.12.2 New envelope function   ",0	; 0 marker indicates placeholder 
+	db	"v0.12.3 Order+Macro no-restart  ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

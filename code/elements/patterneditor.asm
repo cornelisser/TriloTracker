@@ -291,18 +291,18 @@ _ppp_orderlist:
 		ld	(editsubmode),a
 		call	reset_cursor_orderbox
 		jr.	processkey_patterneditor_END
-;1:
-;	;--- CTRL + R - Restart/loop
-;		cp	_CTRL_R
-;	jr.	nz,1f
-;		ld	a,(editsubmode)
-;		and	a
-;		jr.	nz,99f
-;		call	save_cursor
-;99:		ld	a,8
-;		ld	(editsubmode),a
-;		call	reset_cursor_patternbox
-;		jr.	processkey_patterneditor_END
+1:
+	;--- CTRL + R - Restart/loop
+		cp	_CTRL_R
+	jr.	nz,1f
+		ld	a,(editsubmode)
+		and	a
+		jr.	nz,99f
+		call	save_cursor
+99:		ld	a,8
+		ld	(editsubmode),a
+		call	reset_cursor_patternbox
+		jr.	processkey_patterneditor_END
 1:
 	;--- CTRL + A - Add (rows after input to cursor)
 	cp	_CTRL_A
@@ -508,7 +508,7 @@ _pkp_home_cont:
 	dec	a
 	jr.	nz,0f
 ;	;--- Restart (order loop) 
-;		call	process_key_patternbox_restart
+		call	process_key_patternbox_restart
 		jr.	processkey_patterneditor_END		
 0:
 	dec	a

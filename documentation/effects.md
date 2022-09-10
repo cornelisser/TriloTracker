@@ -211,7 +211,7 @@ Fine adjust ($0 - $F) on top of the auto generated envelope period. Only works w
 Fine adjust ($0 - $F) on top of the auto generated envelope period. Only works when type is set to 1 or 2.
 
 #### <a name='bey---type'></a>BEy - Type
-With the auto envelope effect the envelope period is calculated using the ratio to be in sync with channel tone. This way interesting sounds can be created.
+With the auto envelope effect the envelope period is calculated using the ratio to be in sync with channel tone. This way interesting sounds can be created. The auto envelope will work for instruments that have envelope enabled.
 
 The type has 3 settings:  
 * BE0 - Disables auto envelope ratio. Uses the Envelope period set using 8xy and 9xy. 

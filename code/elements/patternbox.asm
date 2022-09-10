@@ -31,9 +31,9 @@ draw_patternbox:
 ;	ld	hl,0x1008
 ;	ld	de,0x0501	
 ;	call	erase_colorbox		
-;	ld	hl,0x1608
-;	ld	de,0x0501	
-;	call	erase_colorbox
+	ld	hl,0x1608
+	ld	de,0x0501	
+	call	erase_colorbox
 	ld	hl,0x1c08
 	ld	de,0x0401	
 	call	erase_colorbox
@@ -86,7 +86,7 @@ update_patternbox:
 
 	ld	de,_LABEL_PATTERNTEXT2+13
 	ld	a,(song_order_loop)
-	call	draw_decimal_3
+	call	draw_decimal_3_off
 
 	ld	de,_LABEL_PATTERNTEXT2+19
 	ld	a,(song_speed)
@@ -189,53 +189,56 @@ process_key_patternbox_pattern_END:
 ; 
 ; 
 ;===========================================================
-;process_key_patternbox_restart:
-;	ld	a,(key)
-;
-;	;--- Check if edit is ended.
-;	cp	_ENTER
-;	jr.	z,44f
-;	cp	_ESC
-;	jr.	nz,0f
-;44:		ld	a,0
-;		ld	(editsubmode),a
-;		call	restore_cursor
-;		jr.	process_key_patternbox_restart_END
-;0:		
-;	;--- Key_up - restart down	
-;	cp	_KEY_DOWN
-;	jr.	z,44f
-;	cp	_KEY_LEFT
-;	jr.	nz,0f
-;44:		ld	a,(song_order_loop)
-;		and	a
-;		jr.	z,process_key_patternbox_restart_END
-;		dec	a
-;88:		ld	(song_order_loop),a
-;
-;		ld	a,(song_order_update)
-;		inc	a
-;		ld	(song_order_update),a
-;		call	update_orderbox
-;		call	update_patterneditor
-;		jr.	process_key_patternbox_restart_END	
-;0:
-;	;--- Key_down - length up	
-;	cp	_KEY_UP
-;	jr.	z,44f
-;	cp	_KEY_RIGHT
-;	jr.	nz,0f
-;44:		ld	a,(song_order_len)
-;		ld	b,a
-;		ld	a,(song_order_loop)
-;		cp	b
-;		jr.	nc,process_key_patternbox_restart_END
-;		inc	a
-;		jr.	88b	
-;0:	
-;process_key_patternbox_restart_END:
-;	ret
-;
+process_key_patternbox_restart:
+	ld	a,(key)
+
+	;--- Check if edit is ended.
+	cp	_ENTER
+	jr.	z,44f
+	cp	_ESC
+	jr.	nz,0f
+44:		ld	a,0
+		ld	(editsubmode),a
+		call	restore_cursor
+		jr.	process_key_patternbox_restart_END
+0:		
+	;--- Key_up - restart down	
+	cp	_KEY_DOWN
+	jr.	z,44f
+	cp	_KEY_LEFT
+	jr.	nz,0f
+44:		ld	a,(song_order_loop)
+		cp	255
+		jr.	z,process_key_patternbox_restart_END
+		dec	a
+88:		ld	(song_order_loop),a
+
+		ld	a,(song_order_update)
+		inc	a
+		ld	(song_order_update),a
+		call	update_orderbox_always
+		call	update_patterneditor
+		jr.	process_key_patternbox_restart_END	
+0:
+	;--- Key_down - length up	
+	cp	_KEY_UP
+	jr.	z,44f
+	cp	_KEY_RIGHT
+	jr.	nz,0f
+44:		ld	a,(song_order_len)
+		dec	a
+		ld	b,a
+		ld	a,(song_order_loop)
+		cp	255
+		jp	z,1f
+		cp	b
+		jr.	nc,process_key_patternbox_restart_END
+1:		inc	a
+		jr.	88b	
+0:	
+process_key_patternbox_restart_END:
+	ret
+
 
 
 ;===========================================================

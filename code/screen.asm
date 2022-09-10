@@ -359,7 +359,29 @@ draw_decimal_3:
 	call	_dd_Num1
 	jr.	1b
 	
-	
+; Print 3 digit decimal value. But if value is 255 show an OFF string.
+draw_decimal_3_off:
+	cp	255
+	jp	nz,draw_decimal_3	
+	ld	a,'-'
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de	
+	ld	(de),a
+	inc	de
+	ret
+
+draw_decimal_off:
+	cp	255
+	jp	nz,draw_decimal
+	ld	a,'-'
+	ld	(de),a
+	inc	de
+	ld	(de),a
+	inc	de
+	ret	
+
 ;_dd_tmpstring:		
 ;	db	"XX",0		; temporary + delimiter
 

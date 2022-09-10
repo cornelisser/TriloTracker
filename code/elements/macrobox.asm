@@ -566,7 +566,7 @@ _ups_sub:
 	
 	ld	de,_LABEL_SAMPLETEXT2+11
 	ld	a,(instrument_loop)
-	call	draw_decimal
+	call	draw_decimal_off
 		
 	ld	de,_LABEL_SAMPLETEXT2+16
 	ld	a,(instrument_waveform)
@@ -899,6 +899,8 @@ process_key_macrobox:
 	ld	a,(hl)
 	and	a
 	jr.	z,99f
+	cp	255			; skip if no loop
+	jr.	z,99f	
 	cp	b
 	jr.	c,99f
 	dec	(hl)
@@ -930,6 +932,8 @@ process_key_macrobox:
 	ld	b,(hl)
 	inc	hl
 	ld	a,(hl)
+	cp	255		;--- no restart
+	jr.	z,99f
 	cp	b
 	jr.	c,99f
 	dec	b
@@ -1168,7 +1172,20 @@ _psgsamright:
 	call	update_macrobox
 	jr.	process_key_macrobox_END		
 0:
-
+	;--- No loop
+	cp	"x"
+	jr.	z,88f
+	cp	"x"
+	jr.	nz,0f
+88:
+	;--- get the location in RAM
+	call	_get_instrument_start
+	inc	hl
+	ld	a,255
+	ld	(hl),a
+	call	update_macrobox
+	jr.	process_key_macrobox_END		
+0:
 
 	;===================
 	;
@@ -1876,7 +1893,10 @@ process_key_macrobox_len:
 	call	_get_instrument_start
 	
 	ld	a,(instrument_loop)
+	cp	255
+	jp	z,0f
 	inc	a
+0:
 	ld	b,a
 	ld	a,(instrument_len)
 	ld	c,a
@@ -1908,6 +1928,11 @@ process_key_macrobox_len:
 		dec	a
 		inc	hl
 		ld	(hl),a
+		ld	a,b
+		; extra loop off check
+		cp	255
+		jr. 	nz,update_macrobox
+		ld	(hl),a		
 		jr.	update_macrobox		
 		
 0:
@@ -1954,10 +1979,10 @@ process_key_macrobox_loop:
 	jr.	nz,0f
 	;--- sample nr down
 44:		ld	a,c
-		and	a
-		ret	z
 		dec	a
-		cp	c
+		cp	254
+		ret	z
+;		cp	c
 		ld	(hl),a
 		jr.	update_macrobox
 0:
@@ -1967,9 +1992,9 @@ process_key_macrobox_loop:
 	jr.	nz,0f
 	;--- sample nr up
 44:		ld	a,c
-		cp	32
-		ret	nc
 		inc	a
+		cp	33
+		ret	nc
 		cp	b
 		jr.	nc,0f
 		ld	(hl),a

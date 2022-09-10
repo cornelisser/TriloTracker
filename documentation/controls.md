@@ -48,6 +48,7 @@ Key(s) | Function
  `[CTRL]`+`[I]` or `[CTRL]`+`[TAB]` | Enter the instrument list
  `[CTRL]`+`[P]` | Set current pattern number
  `[CTRL]`+`[S]` | Set song speed
+ `[CTRL]`+`[R]` | Set song restart
  `[CTRL]`+`[O]` | Set octave
  `[CTRL]`+`[T]` | Set step visualization size
  `[CTRL]`+`[A]` | Set edit step
@@ -112,10 +113,10 @@ Key(s) | Function
  `[CTRL]`+`[0..8]` | Mute/Un-mute track
  `[ALT]`+`[0..8]` | Solo/Un-solo track
  `[NUMKEY 1..8]` | Set octave
- '[NUMKEY /]'/'[NUMKEY *]' | Octave down/up
- '[NUMKEY -]'/'[NUMKEY +]' | Instrument down/up
- '[NUMKEY 0]' | Instrument reset (no instrument)
- '[NUMKEY .]'/'[NUMKEY ENTER]' | Add down up
+ `[NUMKEY /]`/`[NUMKEY *]` | Octave down/up
+ `[NUMKEY -]`/`[NUMKEY +]` | Instrument down/up
+ `[NUMKEY 0]` | Instrument reset (no instrument)
+ `[NUMKEY .]`/`[NUMKEY ENTER]` | Add down up
 
 
 
@@ -128,6 +129,7 @@ Key(s) | Function
  `[DOWN]` | Move to next order
  `[LEFT]`/`[RIGHT]` | Set pattern number
  `[R]` | Set restart/loop position
+ `[X]` | Disable restart/loop of song
  `[BACKSPACE]` | Delete pattern row
  `[INS]` | <b>`[?]`</b> Insert new row with pattern number + 1
  `[CTRL]`+`[INS]` | Insert a new position in the order after the last position. Inserted pattern number is the pattern number from the last order position + 1
@@ -146,7 +148,7 @@ Key(s) | Function
  `[RIGHT]` | Move to next page
  `[SPACE]`/`[ENTER]` | <b>`[Duplicate]`</b> Select the current instrument as default
  `[0..9]`/`[A..V]` | Set the corresponding instrument as default
- '[NUMKEY -]'/'[NUMKEY +]' | Instrument down/up
+ `[NUMKEY -]`/`[NUMKEY +]` | Instrument down/up
 
 
 
@@ -173,8 +175,8 @@ Key(s) | Function
  `[CTRL]`+`[LEFT]` | Select previous FM instrument **[FM]**
  `[CTRL]`+`[RIGHT]` | Select next FM instrument **[FM]**
  `[NUMKEY 1..8]` | Set octave
- '[NUMKEY /]'/'[NUMKEY *]' | Octave down/up
- '[NUMKEY -]'/'[NUMKEY +]' | Instrument down/up
+ `[NUMKEY /]`/`[NUMKEY *]` | Octave down/up
+ `[NUMKEY -]`/`[NUMKEY +]` | Instrument down/up
 
 
 
@@ -184,6 +186,7 @@ Key(s) | Function
  `[CTRL]`+`[C]` | Copy instrument
  `[CTRL]`+`[V]` | Paste instrument
  `[R]` | Set restart/loop position
+ `[X]` | Disable restart/loop
  `[T]` | Toggle tone output
  `[N]` | Toggle noise output
  `[V]` | Toggle voice change **[FM]**
@@ -242,7 +245,7 @@ Key(s) | Function
  `[H]` | Toggle hi-hat
  `[ENTER]` | Toggle percussion bit
  `[CTRL]`+`[N]` | Set drum name
- '[NUMKEY -]'/'[NUMKEY +]' | Drum down/up
+ `[NUMKEY -]`/`[NUMKEY +]` | Drum down/up
 
 
 ## <a name='sample-editor'></a>Sample Editor

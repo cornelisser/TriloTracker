@@ -403,7 +403,7 @@ _lmp_chan_d:
 ;---- PROCESS CMD CHANNEL
 	ld	a,(_MB_LINE+12)
 	and	a
-	jp	z,_mbi_endcmd
+	jr.	z,_mbi_endcmd
 	
 	;-- tempo
 	cp	24
@@ -424,7 +424,7 @@ _lmp_chan_d:
 0:
 	;--- end pattern
 	cp	24
-	jp	nz,0f
+	jr.	nz,0f
 	dec	hl
 	ld	a,(hl)
 	and	$f0
@@ -435,7 +435,7 @@ _lmp_chan_d:
 	
 	;--- transpose.
 0:	cp	49
-	jp	c,_mbi_endcmd
+	jr.	c,_mbi_endcmd
 	;--- not implemented yet. Is this needed??
 	
 	
@@ -545,7 +545,7 @@ _lmp_chan:
 	
 0: 	;--- brightness neg
 	cp	224
-	jp	nc,0f
+	jr.	nc,0f
 	inc	hl
 	inc	hl	
 	inc	hl
@@ -560,7 +560,7 @@ _lmp_chan:
 	inc	hl
 	inc	hl
 	cp	227
-	jp	nc,_mb_detp
+	jr.	nc,_mb_detp
 _mb_detn:
 	sub	224-7
 	add	$60		; E6y
@@ -579,7 +579,7 @@ _mb_detp:
 
 0: 	;--- brightness pos/sustain
 	cp	238
-	jp	nc,0f
+	jr.	nc,0f
 	inc	hl
 	inc	hl	
 	inc	hl

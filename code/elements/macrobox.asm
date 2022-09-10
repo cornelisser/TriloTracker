@@ -195,7 +195,7 @@ update_macrobox:
 	ld	hl,instrument_types
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -1894,7 +1894,7 @@ process_key_macrobox_len:
 	
 	ld	a,(instrument_loop)
 	cp	255
-	jp	z,0f
+	jr.	z,0f
 	inc	a
 0:
 	ld	b,a

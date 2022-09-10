@@ -209,7 +209,7 @@ _cdm_loop2:
 	ld	(hl),0
 	inc	hl
 	dec	c
-	jp nz,_cdm_loop2
+	jr. nz,_cdm_loop2
 	djnz	_cdm_loop
 
 	; Clear Drum macro names.
@@ -231,7 +231,7 @@ _cdm_loop3:
 	ld	a,(16*7)+1
 	add	a,l
 	ld	l,a
-	jp	nc,88f
+	jr.	nc,88f
 	inc	h
 88:	
 	djnz	_cdm_loop3

@@ -79,7 +79,7 @@ replay_mode1:
 	ld	hl,replay_speed_timer
 	dec	(hl)
 	
-	jp	nz,replay_decodedata_NO	; jmp	if timer > 0
+	jr.	nz,replay_decodedata_NO	; jmp	if timer > 0
 	
 	;--- Reset Timer == 0
 	xor	a
@@ -98,14 +98,14 @@ replay_mode1:
 	;--- to prevent missing	Dxx command
 	cp	65
 	call	nc,replay_setnextpattern
-	jp	replay_decodedata	
+	jr.	replay_decodedata	
 	
 ;--- Keyjazz
 replay_mode2:
 	;--- mode 2	- Replay the line	in 'replay_patpointer'
 	ld	a,(replay_speed_timer)
 	and	a
-	jp	nz,1f
+	jr.	nz,1f
 	;--- test if key is still pressed.
 _rpm2_3:
 	ld	a,0x0f
@@ -120,7 +120,7 @@ _rpm2_3:
 	and	0x07		; calculate the bit
 	ld	b,a
 	ld	a,1
-	jp	z,99f
+	jr.	z,99f
 88:
 	sla	a
 	djnz	88b
@@ -129,7 +129,7 @@ _rpm2_3:
 	add	hl,bc
 	and	(hl)			; bit is unset?
 	;--- just keep playing empty lines.
-	jp	z,replay_decodedata_NO
+	jr.	z,replay_decodedata_NO
 	
 	;--- stop playing.
 	call	replay_init
@@ -138,19 +138,19 @@ _rpm2_3:
 	xor	a
 	ld	(replay_speed_timer),a
 	
-	jp	replay_decodedata
+	jr.	replay_decodedata
 ;-- end
 
 replay_mode3:
 	;--- mode 3	- Replay the line	in 'replay_patpointer'
 	ld	a,(replay_speed_timer)
 	and	a
-	jp	nz,1f	
-	jp	_rpm2_3		; mode 2 and 3 work alike.
+	jr.	nz,1f	
+	jr.	_rpm2_3		; mode 2 and 3 work alike.
 	
 1:	
 	call	replay_init_pre
-	jp	replay_mode2
+	jr.	replay_mode2
 
 
 ;-- end
@@ -160,7 +160,7 @@ replay_mode4:
 	ld	hl,replay_speed_timer
 	dec	(hl)
 	
-	jp	nz,replay_decodedata_NO	; jmp	if timer > 0
+	jr.	nz,replay_decodedata_NO	; jmp	if timer > 0
 	
 	;--- Reset Timer == 0
 	xor	a
@@ -180,7 +180,7 @@ replay_mode4:
 	;--- to prevent missing	Dxx command
 	cp	65
 	;call	nc,replay_setnextpattern
-	jp	c,replay_decodedata
+	jr.	c,replay_decodedata
 	
 ;	ld	a,(current_song)
 	call	set_songpage
@@ -193,7 +193,7 @@ replay_mode4:
 	;--- Set the line	to the first line
 	ld	a,1;xor	a		;ld	a,255
 	ld	(replay_line),a
-	jp	replay_decodedata
+	jr.	replay_decodedata
 	
 
 
@@ -357,11 +357,11 @@ replay_decodedata_NO:
 ;	ld	d,a
 ;	inc	hl
 ;	bit	5,a
-;	jp	z,_m_add
+;	jr.	z,_m_add
 ;_m_sub:
 ;	;--- test if we need correction
 ;	cp	c
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	dec	(hl)		; correction
 ;99:
 ;	and	$0f
@@ -370,12 +370,12 @@ replay_decodedata_NO:
 ;	ld	(hl),a
 ;	inc	hl
 ;	djnz	_m_loop
-;	jp	0f
+;	jr.	0f
 ;	
 ;_m_add:
 ;	;--- test if we need correction
 ;	cp	c
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	dec	(hl)		; correction
 ;99:
 ;	and	$0f
@@ -416,8 +416,8 @@ replay_setnextpattern:
 	ld	a,(song_order_pos)
 	inc	a
 	cp	b
-	jp	nc,_snp_loop
-	jp	_snp_continue		
+	jr.	nc,_snp_loop
+	jr.	_snp_continue		
 	
 _snp_loop:
 	ld	a,(song_order_loop)
@@ -527,7 +527,7 @@ replay_init_cont:
 	call	set_patternpage
 	ld	a,(replay_line)
 	and	a
-	jp	z,6f
+	jr.	z,6f
 	ld	b,a
 	ld	de,SONG_PATLNSIZE
 5:
@@ -608,12 +608,12 @@ replay_init_pre:
 	
 	pop	af
 	and	a
-	jp	z,0f
+	jr.	z,0f
 	ld	de,32
 88:
 	add	hl,de
 	dec	a
-	jp	nz,88b		
+	jr.	nz,88b		
 0:
 	ld	b,8
 	ld	de,_AUDITION_LINE
@@ -626,13 +626,13 @@ _pe_chanloop:
 	inc	de
 	ld	a,(hl)		; copy instrument
 	and	a			; only overwrite if instr > 0
-	jp	z,99f
+	jr.	z,99f
 	ld	(de),a
 99:
 	;if no instrument	at all then	instr	1
 	ld	a,(de)
 	and	a
-	jp	nz,99f
+	jr.	nz,99f
 	inc	a
 	ld	(de),a
 99:
@@ -640,17 +640,17 @@ _pe_chanloop:
 	inc	hl
 	ld	a,(hl)		; copy volume
 	cp	15			; is there a volume
-	jp	nc,99f		; if there is a volume 
+	jr.	nc,99f		; if there is a volume 
 	ld	c,a
 	ld	a,(de)
 	and	$f0
-	jp	nz,88f		; if there is no volume	at all then	max volume
+	jr.	nz,88f		; if there is no volume	at all then	max volume
 	ld	a,$f0
 88:	add	c
 99:	ld	(de),a		; write volume + command
 	and	$0f			; make sure	we do	not process	pattern end
 	cp	$0d			
-	jp	nz,99f
+	jr.	nz,99f
 	ld	a,(de)
 	and	$f0
 	ld	(de),a			
@@ -785,10 +785,10 @@ replay_decode_chan:
 	;=============
 	ld	a,(bc)
 	and	a
-	jp	z,_dc_noNote
+	jr.	z,_dc_noNote
 	cp	97
-	jp	z,_dc_restNote	; 97 is a rest
-	jp	nc,_dc_noNote	; anything higher	than 97 are	no notes
+	jr.	z,_dc_restNote	; 97 is a rest
+	jr.	nc,_dc_noNote	; anything higher	than 97 are	no notes
 	
 	ld	(ix+TRACK_Note),a
 	
@@ -802,12 +802,12 @@ _dc_noNote:
 	;=============	
 	ld	a,(bc)
 	and	a
-	jp	z,_dc_noInstr
+	jr.	z,_dc_noInstr
 	;--- check current instrument
 	res	4,(ix+TRACK_Flags)	; reset morph slave mode
 	
 	cp	(ix+TRACK_Instrument)
-	jp	z,_dc_noInstr
+	jr.	z,_dc_noInstr
 	
 	;--- instrument found
 	set	5,(ix+TRACK_Flags)
@@ -822,7 +822,7 @@ _dc_noNote:
 0:
 	add	hl,de
 	dec	a
-	jp	nz,0b
+	jr.	nz,0b
 	
 	;--- Store the macro start
 	ld	(ix+TRACK_MacroPointer),l
@@ -833,7 +833,7 @@ _dc_noNote:
 	inc	hl
 	ld	a,(hl)
 	cp	(ix+TRACK_Waveform)
-	jp	z,_dc_noNewWaveform
+	jr.	z,_dc_noNewWaveform
 	
 	;--- this is a new waveform
 	ld	(ix+TRACK_Waveform),a
@@ -850,7 +850,7 @@ _dc_noInstr:
 	;=============	
 	ld	a,(bc)
 	and	0xf0
-	jp	z,_dc_noVolume
+	jr.	z,_dc_noVolume
 	;--- Set new base	volume (high byte) but keep relative offset (low byte)
 	ld	d,a
 	ld	a,(ix+TRACK_Volume)
@@ -878,7 +878,7 @@ _dc_noVolume:
 	inc	bc
 	ld	a,(bc)		; get	parameter(s)
 	inc	bc
-	jp	hl			; jump to the command
+	jr.	hl			; jump to the command
 	; END
 
 ;-------------------
@@ -890,7 +890,7 @@ _dc_restNote:
 
 	ld	a,(replay_previous_note)
 	ld	(ix+TRACK_Note),a
-	jp	_dc_noNote
+	jr.	_dc_noNote
 
 AA_COMMANDS_decode:
 _CHIPcmdlist:
@@ -926,7 +926,7 @@ _CHIPcmd0_arpeggio:
 
 	;--- check for empty params (000 = no cmd	code)
 	and	a
-	jp	nz,_CHIPcmd0_trig
+	jr.	nz,_CHIPcmd0_trig
 ;	ld	(ix+TRACK_cmd_ToneAdd+1),0
 ;	ld	a,(ix+TRACK_cmd_detune)
 ;	ld	(ix+TRACK_cmd_NoteAdd),0		
@@ -956,7 +956,7 @@ _CHIPcmd1_portUp:
 	
 	;--- test for retrigger	(do not update values)
 	and	a
-	jp	z,_CHIPcmd1_retrig
+	jr.	z,_CHIPcmd1_retrig
 	ld	(ix+TRACK_cmd_1),a
 
 _CHIPcmd1_retrig:
@@ -977,7 +977,7 @@ _CHIPcmd2_portDown:
 
 	;--- test for retrigger	(do not update values)
 	and	a
-	jp	z,_CHIPcmd2_retrig
+	jr.	z,_CHIPcmd2_retrig
 	ld	(ix+TRACK_cmd_2),a	
 	
 _CHIPcmd2_retrig:
@@ -1004,7 +1004,7 @@ _CHIPcmd3_portTone:
 	set	3,(ix+TRACK_Flags)
 	set	1,(ix+TRACK_Flags)
 	and	a
-	jp	z,_CHIPcmd3_retrig
+	jr.	z,_CHIPcmd3_retrig
 	ld	(ix+TRACK_cmd_3),a
 	ld	(ix+TRACK_Timer),2
 		
@@ -1019,7 +1019,7 @@ _CHIPcmd3_retrig:
 	ld	hl,(replay_Tonetable);TRACK_ToneTable
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	e,(hl)
@@ -1039,7 +1039,7 @@ _CHIPcmd3_retrig:
 	ld	hl,(replay_Tonetable);TRACK_ToneTable
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -1072,7 +1072,7 @@ _CHIPcmd4_vibrato:
 
 	;--- Init values
 	and	a
-	jp	z,_TRACK_cmd4_retrig
+	jr.	z,_TRACK_cmd4_retrig
 	ld	d,a
 	and	$07
 	;inc	a
@@ -1152,7 +1152,7 @@ _CHIPcmd9_macro_offset:
 
 	;--- Init values
 	and	a
-	jp	z,_CHIPcmd9_retrig
+	jr.	z,_CHIPcmd9_retrig
 	ld	(ix+TRACK_cmd_9),a
 _CHIPcmd9_retrig:	
 	set	3,(ix+TRACK_Flags)
@@ -1186,12 +1186,12 @@ _CHIPcmdA_volSlide:
 	
 	;--- test for retrigger	(do not update values)
 	and	a
-	jp	z,_CHIPcmdA_retrig
+	jr.	z,_CHIPcmdA_retrig
 ;	ld	(ix+TRACK_cmd_1),a
 
 	;--- neg or	pos
 	cp	16
-	jp	c,_CHIPcmdA_neg
+	jr.	c,_CHIPcmdA_neg
 	
 	;-- pos
 	rra		; only use high 4	bits
@@ -1199,7 +1199,7 @@ _CHIPcmdA_volSlide:
 	rra
 	rra
 	and	$0f
-	jp	99f
+	jr.	99f
 
 	
 _CHIPcmdA_neg:
@@ -1228,21 +1228,21 @@ _CHIPcmdB_scc_commands:
 	ld	d,a	
 	and	0xf0	; get	the extended comand
 			; reset
-	jp	z,_CHIPcmdB_reset	
+	jr.	z,_CHIPcmdB_reset	
 	cp	0x10	; duty cycle
-	jp	z,_CHIPcmdB_pwm
+	jr.	z,_CHIPcmdB_pwm
 	cp	0x20	; waveform cut
-	jp	z,_CHIPcmdB_cut
+	jr.	z,_CHIPcmdB_cut
 	cp	0x40	; waveform compress
-	jp	z,_CHIPcmdB_compress
+	jr.	z,_CHIPcmdB_compress
 	cp	0xB0	; set	waveform
-	jp	z,_CHIPcmdB_setwave
+	jr.	z,_CHIPcmdB_setwave
 	cp	0xC0	; set	waveform2
-	jp	z,_CHIPcmdB_setwave2
+	jr.	z,_CHIPcmdB_setwave2
 	cp	0xe0
-;	jp	z,_CHIPcmdB_morphset
+;	jr.	z,_CHIPcmdB_morphset
 ;	cp	0xF0
-;	jp	z,_CHIPcmdB_morphoption
+;	jr.	z,_CHIPcmdB_morphoption
 	
 	ret
 
@@ -1260,7 +1260,7 @@ _CHIPcmdB_scc_commands:
 ;	ld	(replay_morph_active),a
 ;	ld	a,8
 ;	ld	(replay_morph_timer),a
-;	jp	1f
+;	jr.	1f
 
 	
 _CHIPcmdB_reset:
@@ -1283,15 +1283,15 @@ _CHIPcmdB_pwm:
 
 _CHIPcmdB_cut:	
 	ld	(ix+TRACK_Command),0x22	; set	the command#
-	jp	1b
+	jr.	1b
 
 	
-	jp	1b		
+	jr.	1b		
 _CHIPcmdB_compress:	
 	ld	(ix+TRACK_Command),0x24	; set	the command#
 	ld	a,d
 	and	0x07
-	jp	2b	
+	jr.	2b	
 	
 _CHIPcmdB_setwave:
 	;--- Set a new waveform
@@ -1307,7 +1307,7 @@ _CHIPcmdB_setwave2:
 	ld	a,d
 	and	0xf
 	add	16
-	jp	4b
+	jr.	4b
 
 	
 _CHIPcmdC:
@@ -1317,7 +1317,7 @@ _CHIPcmdC:
 	;--------------------------------------------------
 	;
 	and	a
-	jp	z,_CHIPcmdC_setslave
+	jr.	z,_CHIPcmdC_setslave
 
 	ld	d,a
 	;---- init new morph
@@ -1332,13 +1332,13 @@ _CHIPcmdC:
 	ld	a,d
 	;--- set speed
 	and	0x0f
-	jp	z,_morph_cont	; don't load waveform in buffer
+	jr.	z,_morph_cont	; don't load waveform in buffer
 	
 	;---- set new timer
 ;	ld	hl,_morph_timer_table-1
 ;	add	a,l
 ;	ld	l,a
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	inc	h
 ;99:
 ;	ld	a,(hl)
@@ -1371,7 +1371,7 @@ _CHIPcmdC:
 	inc	de
 	ex	af,af'	;'
 	dec	a
-	jp	nz,44b
+	jr.	nz,44b
 	
 	
 	
@@ -1407,38 +1407,38 @@ _CHIPcmdE_extended:
 	; 
 	ld	d,a	
 	and	0xf0	; get	the extended comand
-	jp	z,_CHIPcmdE_shortarp
+	jr.	z,_CHIPcmdE_shortarp
 	cp	0x60	; track detune
-	jp	z,_CHIPcmdE_trackdetune
+	jr.	z,_CHIPcmdE_trackdetune
 	cp	0xe0
-	jp	z,_CHIPcmdE_envelope
+	jr.	z,_CHIPcmdE_envelope
 	cp	0x10	
-	jp	z,_CHIPcmdE_fineup
+	jr.	z,_CHIPcmdE_fineup
 	cp	0x20
-	jp	z,_CHIPcmdE_finedown
+	jr.	z,_CHIPcmdE_finedown
 	cp	0xd0	; delay cmd?
-	jp	z,_CHIPcmdE_delay
+	jr.	z,_CHIPcmdE_delay
 	cp	$40	; set	vibrato
-	jp	z,_CHIPcmdE_vibrato
+	jr.	z,_CHIPcmdE_vibrato
 	cp	0xc0	; note_cut
-	jp	z,_CHIPcmdE_notecut
+	jr.	z,_CHIPcmdE_notecut
 	cp	0x50	; note_link
 	jr.	z,_CHIPcmdE_notelink
 ;	cp	$50
-;	jp	z,_CHIPcmdE_noiseAND
+;	jr.	z,_CHIPcmdE_noiseAND
 ;	cp	$70
-;	jp	z,_CHIPE_noiseOR
+;	jr.	z,_CHIPE_noiseOR
 ;	cp	$30
-;	jp	z,_CHIPcmdE_psgmode
+;	jr.	z,_CHIPcmdE_psgmode
 ;	cp	$a0
-;	jp	z,_CHIPcmdE_duty1
+;	jr.	z,_CHIPcmdE_duty1
 ;	cp	$b0
-;	jp	z,_CHIPcmdE_duty2
+;	jr.	z,_CHIPcmdE_duty2
 ;	cp	$c0
-;	jp	z,_CHIPcmdE_duty3
+;	jr.	z,_CHIPcmdE_duty3
 	
 	cp	0x80	; global transpose
-	jp	z,_CHIPcmdE_transpose
+	jr.	z,_CHIPcmdE_transpose
 	ret
 
 	
@@ -1490,7 +1490,7 @@ _CHIPcmdE_duty3:
 _CHIPcmdE_shortarp:
 	ld	a,d			;- Get the parameter
 	and	0x0f
-;	jp	z,_CHIPcmdE_shortarp_retrig	;-- Jump if value is 0
+;	jr.	z,_CHIPcmdE_shortarp_retrig	;-- Jump if value is 0
 
 	ld	(ix+TRACK_cmd_E),a		; store the halve not to add
 	ld	(ix+TRACK_Timer),0
@@ -1530,11 +1530,11 @@ _CHIPcmdE_vibrato:
 	ld	hl,TRACK_Vibrato_sine
 	ld	a,d
 	and	3
-	jp	z,99f
+	jr.	z,99f
 	ld	de,32
 88:	add	hl,de
 	dec	a
-	jp	nz,88b
+	jr.	nz,88b
 99:	ld	(replay_vib_table),hl
 	ret
 
@@ -1561,7 +1561,7 @@ _CHIPcmdE_trackdetune:
 	; This comment sets the	detune of the track.
 	and	0x07		; low	4 bits is value
 	bit	3,d		; Center around 8
-	jp	z,99f
+	jr.	z,99f
 	inc	a
 	neg			; make correct value
 	ld	(ix+TRACK_cmd_detune),a
@@ -1584,7 +1584,7 @@ _CHIPcmdE_transpose:
 	ld	d,0
 	ld	e,a
 
-	jp	z,99f
+	jr.	z,99f
 
 ;neg	
 	xor	a
@@ -1601,7 +1601,7 @@ _CHIPcmdE_envelope:
 	set	2,(IX+TRACK_Flags)
 	ld	a,d
 	and	$0f
-	jp	z,_CHIPcmdE_envelope_retrig
+	jr.	z,_CHIPcmdE_envelope_retrig
 
 	;--- store new envelope shape (anything other than 0 is written)
 	ld	(AY_regEnvShape),a
@@ -1669,13 +1669,13 @@ replay_process_chan_AY:
 	;=====
 	ld	a,(equalization_flag)			; check for speed equalization
 	and	a
-	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+	jr.	nz,_pcAY_noNoteTrigger			; Only process instruments
 
 	;=====
 	; COMMAND
 	;=====
 	bit	3,(ix+TRACK_Flags)
-	jp	z,_pcAY_noCommand
+	jr.	z,_pcAY_noCommand
 	
 	ld	hl,_pcAY_cmdlist
 	ld	a,(ix+TRACK_Command)
@@ -1688,7 +1688,7 @@ replay_process_chan_AY:
 	inc	hl
 	ld	h,(hl)
 	ld	l,a	
-	jp	(hl)
+	jr.	(hl)
 	
 _pcAY_noCommand:	
 _pcAY_commandEND:
@@ -1698,14 +1698,14 @@ _pcAY_commandEND:
 	;=====
 	;--- Check if we need to trigger a new note
 	bit	0,(ix+TRACK_Flags)
-	jp	z,_pcAY_noNoteTrigger
+	jr.	z,_pcAY_noNoteTrigger
 	
 ;	;--- Check for CMD Edx
 ;	bit	3,(ix+TRACK_Flags)
-;	jp	z,_pcAY_triggerNote
+;	jr.	z,_pcAY_triggerNote
 ;	ld	a,0x1D		; Ed.
 ;	cp	(ix+TRACK_Command)
-;	jp	z,_pcAY_noNoteTrigger
+;	jr.	z,_pcAY_noNoteTrigger
 
 _pcAY_triggerNote:	
 	;--- get new Note
@@ -1716,10 +1716,10 @@ _pcAY_triggerNote:
 	xor	a
 	ld	b,a
 	bit	3,(ix+TRACK_Flags)
-	jp	z,99f
+	jr.	z,99f
 	ld	a,0x09		; Macro offset
 	cp	(ix+TRACK_Command)
-	jp	nz,99f
+	jr.	nz,99f
 	ld	b,(ix+TRACK_cmd_9)
 99:	ld	(ix+TRACK_MacroStep),b
 
@@ -1746,7 +1746,7 @@ _pcAY_noNoteTrigger:
 	; Macro instrument
 	;==============
 	bit	1,(ix+TRACK_Flags)
-	jp	z,_pcAY_noNoteActive
+	jr.	z,_pcAY_noNoteActive
 	
 ;	;-- enable tone output
 ;	ld	a,(SCC_regMIXER)
@@ -1777,7 +1777,7 @@ _pcAY_noNoteTrigger:
 	ld	a,b
 	inc	a
 	cp	e
-	jp	c,_pcAY_noMacroEnd
+	jr.	c,_pcAY_noMacroEnd
 	ld	a,d		; loop the macro.
 _pcAY_noMacroEnd:
 	; tone deviation.
@@ -1787,7 +1787,7 @@ _pcAY_noMacroEnd:
 	
 ;--- Is tone active this step?
 	bit	7,b		; do we have tone?
-	jp	z,_pcAY_noTone
+	jr.	z,_pcAY_noTone
 
 	;-- enable tone output
 	ld	a,(SCC_regMIXER)
@@ -1802,10 +1802,10 @@ _pcAY_noTone:
 	
 	;--- base or add/minus
 	bit	6,b		; deviation	type
-	jp	nz,_pcAY_Tminus
+	jr.	nz,_pcAY_Tminus
 _pcAY_Tplus:
 	add	hl,de		
-	jp	88f
+	jr.	88f
 
 _pcAY_Tminus:
 	ex	de,hl
@@ -1867,12 +1867,12 @@ _pcAY_noCMDToneAdd:
 		
 	;-- Test for noise
 	bit	7,c
-	jp	z,_pcAY_noNoise
+	jr.	z,_pcAY_noNoise
 	
 	; noise
 	;--- prevent SCC and noise
 	bit	7,(ix+TRACK_Flags)
-	jp	nz,_pcAY_noNoise
+	jr.	nz,_pcAY_noNoise
 
 	;--- Set the mixer for noise
 	ld	a,(SCC_regMIXER)
@@ -1886,16 +1886,16 @@ _pcAY_noCMDToneAdd:
 
 	;--- base or add/min
 	bit	6,c
-	jp	nz,99f
+	jr.	nz,99f
 	;--- base
 	ld	e,0
 99:
 	bit	5,c
-	jp	z,99f
+	jr.	z,99f
 	;-- minus the deviation	of the macro
 	ld	a,e
 	sub	c	
-	jp	88f
+	jr.	88f
 99:	;--- Add the deviation
 	ld	a,d
 	add	e
@@ -1909,11 +1909,11 @@ _pcAY_noNoise:
 	;volume
 	ld	a,(ix+TRACK_VolumeAdd)
 	bit	5,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- base volume
 	ld	a,b
 	and	0x0f
-	jp	4f
+	jr.	4f
 0:
 	;relative volume
 	ld	c,a		; store current volume add
@@ -1923,18 +1923,18 @@ _pcAY_noNoise:
 	bit	4,b		; bit	6 set	= subtract?
 	ld	b,a		; set	deviation in b
 	ld	a,c		; set	current volume add back	in c
-	jp	nz,1f
+	jr.	nz,1f
 	;--- add 
 	add	b
 	cp	16
-	jp	c,4f
+	jr.	c,4f
 	ld	a,15
-	jp	4f
+	jr.	4f
 1:
 	;--- sub 
 	sub	b
 	cp	16
-	jp	c,4f
+	jr.	c,4f
 	xor	a
 4:
 	ld	(ix+TRACK_VolumeAdd),a
@@ -1943,7 +1943,7 @@ _pcAY_noNoise:
 	; is done here to be able to continue
 	; macro volume values.
 	bit	2,(IX+TRACK_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
+	jr.	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
 	ld	(SCC_regVOLE),a
 	ret	
@@ -1953,13 +1953,13 @@ _noEnv:
 	ld	c,a
 	ld	a,(IX+TRACK_cmd_VolumeAdd)	
 	rla						; C flag contains devitation bit (C flag was reset in the previous OR)
-	jp	c,_sub_Vadd
+	jr.	c,_sub_Vadd
 _add_Vadd:
 	add	a,c
-	jp	nc,_Vadd
+	jr.	nc,_Vadd
 	ld	a,c
 	or	0xf0
-	jp	_Vadd
+	jr.	_Vadd
 _sub_Vadd:
 	ld	b,a
 	xor	a
@@ -1967,7 +1967,7 @@ _sub_Vadd:
 	ld	b,a
 	ld	a,c
 	sub	a,b
-	jp	nc,_Vadd
+	jr.	nc,_Vadd
 	ld	a,c
 	and	0x0f	
 	;-- next is _Vadd
@@ -1975,18 +1975,18 @@ _Vadd:
 	;--- apply main volume balance
 	ld	hl,replay_mainvol
 	CP	(HL)
-	JP	C,88F
+	jr.	C,88F
 	sub	(hl)
-	jp	99f
+	jr.	99f
 88:	xor	a
 99:	
 	ld	l,a
 	ld	h,0
 	; Test which CHIP.
 	bit	7,(ix+TRACK_Flags)
-	jp	nz,99f
+	jr.	nz,99f
 	ld	de,AY_VOLUME_TABLE
-	jp	88f
+	jr.	88f
 99:
 	ld	de,SCC_VOLUME_TABLE
 88:
@@ -2049,7 +2049,7 @@ _pcAY_cmdlist:
 _pcAY_cmd0:
 	ld	a,(ix+TRACK_Timer)
 	bit	0,a
-	jp	z,99f
+	jr.	z,99f
 
 	;--- set x
 		ld	(ix+TRACK_Timer),2
@@ -2061,25 +2061,25 @@ _pcAY_cmd0:
 		rra
 		rra
 		ld	(ix+TRACK_cmd_NoteAdd),a		
-		jp	_pcAY_commandEND
+		jr.	_pcAY_commandEND
 
 	
 99:
 	bit	1,a
-	jp	z,99f
+	jr.	z,99f
 
 	;--- set y
 		ld	(ix+TRACK_Timer),0
 		ld	a,(ix+TRACK_cmd_0)
 		and	0x0f
 		ld	(ix+TRACK_cmd_NoteAdd),a		
-		jp	_pcAY_commandEND
+		jr.	_pcAY_commandEND
 	
 99:
 	;--- set none
 	ld	(ix+TRACK_Timer),1
 ;	ld	(ix+TRACK_cmd_NoteAdd),0		
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 	
 	
 	
@@ -2090,9 +2090,9 @@ _pcAY_cmd1:
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	sub	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND
+	jr.	nc,_pcAY_commandEND
 	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 	
 _pcAY_cmd2:
 	ld	a,(ix+TRACK_cmd_2)
@@ -2100,9 +2100,9 @@ _pcAY_cmd2:
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	add	b
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND
+	jr.	nc,_pcAY_commandEND
 	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 
 
 _pcAY_cmd3:
@@ -2110,17 +2110,17 @@ _pcAY_cmd3:
 	ld	l,(ix+TRACK_cmd_ToneSlideAdd)
 	ld	h,(ix+TRACK_cmd_ToneSlideAdd+1)
 	bit	7,h
-	jp	z,_pcAY_cmd3_sub
+	jr.	z,_pcAY_cmd3_sub
 _pcAY_cmd3_add:
 	;pos slide
 	add	a,l
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND
+	jr.	nc,_pcAY_commandEND
 	inc	h					
 	bit	7,h
-	jp	z,_pcAY_cmd3_stop			; delta turned pos ?
+	jr.	z,_pcAY_cmd3_stop			; delta turned pos ?
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmd3_sub:
 	;negative slide	
 	ld	c,a
@@ -2128,15 +2128,15 @@ _pcAY_cmd3_sub:
 	ld	b,a
 	sbc	hl,bc
 	bit	7,h
-	jp	nz,_pcAY_cmd3_stop			; delta turned neg ?
+	jr.	nz,_pcAY_cmd3_stop			; delta turned neg ?
 	ld	(ix+TRACK_cmd_ToneSlideAdd),l
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),h
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmd3_stop:	
 	res	3,(ix+TRACK_Flags)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),0
 	ld	(ix+TRACK_cmd_ToneSlideAdd+1),0	
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 
 
 	;-- vibrato	
@@ -2150,13 +2150,13 @@ _pcAY_cmd4:
 	ld	(ix+TRACK_Step),a
 	
 	bit	5,a			; step 32-63 the neg	
-	jp	z,_pcAY_cmd4pos
+	jr.	z,_pcAY_cmd4pos
 
 ; neg	
 	and	$1f
 	add	l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -2167,16 +2167,16 @@ _pcAY_cmd4:
 ;	and	$0f
 
 	neg
-	jp	z,33f			; $ff00 gives strange result ;)	
+	jr.	z,33f			; $ff00 gives strange result ;)	
 	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0xff
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 
 _pcAY_cmd4pos:	
 ;	and	$1f
 	add	l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -2187,88 +2187,88 @@ _pcAY_cmd4pos:
 ;	and	$0f
 33:	ld	(ix+TRACK_cmd_ToneAdd),a
 	ld	(ix+TRACK_cmd_ToneAdd+1),0
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 		
 	
 
 _pcAY_cmd5:
 	call	_pcAY_cmdasub
-	jp	_pcAY_cmd3
+	jr.	_pcAY_cmd3
 	
 	
-;	jp	z,_pcAY_cmd5_pos
+;	jr.	z,_pcAY_cmd5_pos
 ;	;--- neg
 ;	and	$1f
 ;	ld	(ix+TRACK_Timer),a
 ;	ld	a,(ix+TRACK_cmd_VolumeAdd)
 ;	and	a
-;	jp	z,_pcAY_cmd3
+;	jr.	z,_pcAY_cmd3
 ;	sub	16
 ;;	cp	-16		; only store values smaller then -15
-;;	jp	z,_pcAY_cmd3
+;;	jr.	z,_pcAY_cmd3
 ;	ld	(ix+TRACK_cmd_VolumeAdd),a
-;	jp	_pcAY_cmd3
+;	jr.	_pcAY_cmd3
 ;_pcAY_cmd5_pos:
 ;	ld	(ix+TRACK_Timer),a
 ;	ld	a,(ix+TRACK_cmd_VolumeAdd)
 ;	add	16
-;	jp	z,_pcAY_cmd3
+;	jr.	z,_pcAY_cmd3
 ;	inc	a
 ;	cp	16		; only store values smaller then -15
-;	jp	z,_pcAY_cmd3
+;	jr.	z,_pcAY_cmd3
 ;	ld	(ix+TRACK_cmd_VolumeAdd),a
-;	jp	_pcAY_cmd3		
+;	jr.	_pcAY_cmd3		
 
 
 
 
 _pcAY_cmd6:
 	call	_pcAY_cmdasub
-	jp	_pcAY_cmd4		
+	jr.	_pcAY_cmd4		
 
 ;	;retrig
 ;	dec	(ix+TRACK_Timer)
-;	jp	nz,_pcAY_cmd4
+;	jr.	nz,_pcAY_cmd4
 ;	
 ;	; vol	slide
 ;	ld	a,(ix+TRACK_cmd_A)
 ;	bit	7,a		;- if	set vol slide is neg
-;	jp	z,_pcAY_cmd6_pos
+;	jr.	z,_pcAY_cmd6_pos
 ;	;--- neg
 ;	and	$1f
 ;	ld	(ix+TRACK_Timer),a
 ;	ld	a,(ix+TRACK_cmd_VolumeAdd)
 ;	and	a
-;	jp	z,_pcAY_cmd4
+;	jr.	z,_pcAY_cmd4
 ;	sub	16
 ;;	dec	a
 ;;	cp	-16		; only store values smaller then -15
-;;	jp	z,_pcAY_cmd4
+;;	jr.	z,_pcAY_cmd4
 ;	ld	(ix+TRACK_cmd_VolumeAdd),a
-;	jp	_pcAY_cmd4
+;	jr.	_pcAY_cmd4
 ;_pcAY_cmd6_pos:
 ;	ld	(ix+TRACK_Timer),a
 ;	ld	a,(ix+TRACK_cmd_VolumeAdd)
 ;	add	16
-;	jp	z,_pcAY_cmd4
+;	jr.	z,_pcAY_cmd4
 ;;	inc	a
 ;;	cp	16		; only store values smaller then -15
-;;	jp	z,_pcAY_cmd4
+;;	jr.	z,_pcAY_cmd4
 ;	ld	(ix+TRACK_cmd_VolumeAdd),a
 
 
 
 _pcAY_cmd7:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmd8:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmd9:
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 
 
 
@@ -2276,11 +2276,11 @@ _pcAY_cmda:
 	;retrig
 ;	dec	(ix+TRACK_Timer)
 	call	_pcAY_cmdasub
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 
 _pcAY_cmdasub
 	dec	(ix+TRACK_Timer)
-;	jp	nz,_pcAY_cmd3
+;	jr.	nz,_pcAY_cmd3
 	ret	nz
 		
 	; vol	slide
@@ -2290,7 +2290,7 @@ _pcAY_cmdasub
 	ld	(ix+TRACK_Timer),a
 	ld	a,(IX+TRACK_cmd_VolumeAdd)
 	bit	7,d
-	jp	z,_pcAY_cmda_inc
+	jr.	z,_pcAY_cmda_inc
 _pcAY_cmda_dec:
 	cp	0x88
 	ret	z
@@ -2309,66 +2309,66 @@ _pcAY_cmda_inc:
 
 _pcAY_cmdb:
 	
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmdc:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmdd:
 	;call	replay_setnextpattern
 	ld	a,64
 	ld	(replay_line),a
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 	
 _pcAY_cmde:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 _pcAY_cmdf:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 ;--- SHORT ARP
 _pcAY_cmd10:
 	dec	(ix+TRACK_Timer)
 	bit	0,(ix+TRACK_Timer)
-	jp	z,_pcAY_commandEND
+	jr.	z,_pcAY_commandEND
 	ld	a,(ix+TRACK_cmd_E)
 	ld	(ix+TRACK_cmd_NoteAdd),a		
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 	
 	
 _pcAY_cmd11:
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 
 	res	3,(ix+TRACK_Flags)
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	add	(ix+TRACK_cmd_E)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND	
+	jr.	nc,_pcAY_commandEND	
 	inc	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 
 _pcAY_cmd12:
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 
 	res	3,(ix+TRACK_Flags)
 	ld	a,(ix+TRACK_cmd_ToneSlideAdd)
 	sub	(ix+TRACK_cmd_E)
 	ld	(ix+TRACK_cmd_ToneSlideAdd),a
-	jp	nc,_pcAY_commandEND	
+	jr.	nc,_pcAY_commandEND	
 	dec	(ix+TRACK_cmd_ToneSlideAdd+1)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 
 _pcAY_cmd13:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd14:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd15:
 ;	dec	(ix+TRACK_Timer)
-;	jp	nz,_pcAY_commandEND
+;	jr.	nz,_pcAY_commandEND
 ;
 ;	res	3,(ix+TRACK_Flags)
 ;	ld	a,(ix+TRACK_cmd_E)
@@ -2376,14 +2376,14 @@ _pcAY_cmd15:
 ;	ld	e,(ix+TRACK_cmd_ToneAdd)
 ;	add	e
 ;	ld	(ix+TRACK_ToneAdd),a
-;	jp	nc,_pcAY_commandEND	
+;	jr.	nc,_pcAY_commandEND	
 ;	
 ;	bit	7,d
-;	jp	z,1f
+;	jr.	z,1f
 ;	dec	(ix+TRACK_ToneAdd+1)
-;	jp	_pcAY_commandEND	
+;	jr.	_pcAY_commandEND	
 ;1:	inc	(ix+TRACK_ToneAdd+1)
-;	jp	_pcAY_commandEND	
+;	jr.	_pcAY_commandEND	
 ;
 ;
 ;
@@ -2391,42 +2391,42 @@ _pcAY_cmd15:
 
 _pcAY_cmd16:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd17:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd18:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd19:
 	;retrig
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 	
 	; retrig note
 	ld	a,(ix+TRACK_cmd_E)
 	ld	(ix+TRACK_Timer),a
 	set	0,(ix+TRACK_Flags)
 	
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1a:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1b:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 	
 	; stop note
 	res	1,(ix+TRACK_Flags)	; set	note bit to	0
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+TRACK_Timer)
-	jp	nz,_pcAY_commandEND	; no delay yet
+	jr.	nz,_pcAY_commandEND	; no delay yet
 
 	; trigger note
 	ld	a,(ix+TRACK_cmd_E)		
@@ -2434,16 +2434,16 @@ _pcAY_cmd1d:
 	set	0,(ix+TRACK_Flags)		; set	trigger note flag
 	res	3,(ix+TRACK_Flags)		; reset tiggger cmd flag
 	
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1e:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1f:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd20:
 	res	3,(ix+TRACK_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 	
 _pcAY_cmd21:
 	;=================
@@ -2460,7 +2460,7 @@ _pcAY_cmd21:
 	rrca			; max	result is 128.
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	b,(ix+TRACK_cmd_B)
@@ -2475,7 +2475,7 @@ _wspw_loop_h:
 	djnz	_wspw_loop_h
 	
 	and	a
-	jp	z,_pcAY_commandEND
+	jr.	z,_pcAY_commandEND
 	
 	ld	c,-96
 	ld	b,a
@@ -2484,7 +2484,7 @@ _wspw_loop_l:
 	inc	hl
 	djnz	_wspw_loop_l
 
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 	
 _pcAY_cmd22:
 	;=================
@@ -2502,7 +2502,7 @@ _pcAY_cmd22:
 	rrca			; max	result is 128.
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	a,(ix+TRACK_Waveform)
@@ -2527,7 +2527,7 @@ _pcAY_cmd22:
 	
 	sub	32
 	neg	
-	jp	z,_pcAY_commandEND	
+	jr.	z,_pcAY_commandEND	
 	
 	ld	b,a
 	xor	a
@@ -2536,10 +2536,10 @@ _wsc_l:
 	inc	de
 	djnz	_wsc_l
 	
-	jp	_pcAY_commandEND
+	jr.	_pcAY_commandEND
 	
 _pcAY_cmd23:	
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd24:
 	;=================
 	; Waveform Compress
@@ -2555,7 +2555,7 @@ _pcAY_cmd24:
 	rrca			; max	result is 128.
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	ld	a,(ix+TRACK_Waveform)
@@ -2582,14 +2582,14 @@ _pcAY_cmd24:
 _wcomp_loop:
 	ldi			
 	dec	c
-	jp	z,1f
+	jr.	z,1f
 	add	iyl
-	jp	nc,_wcomp_loop
+	jr.	nc,_wcomp_loop
 	inc	hl
 	inc	b
 	dec	c
 	dec	c
-	jp	nz,_wcomp_loop
+	jr.	nz,_wcomp_loop
 	
 	;--- remaining data
 1:
@@ -2598,7 +2598,7 @@ _wcomp_loop:
 2:	ld	(de),a
 	inc	de
 	djnz	2b
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 
 
 _pcAY_cmd25:	
@@ -2625,11 +2625,11 @@ replay_route:
 
 	ld	a,(replay_mode)
 	cp	2
-	jp	z,99f
+	jr.	z,99f
 
 ;	ld	a,(psgmode)
 ;	and	a
-;	jp	nz,e_psg
+;	jr.	nz,e_psg
 
 ;msx_psg:
 ;	; set PSG
@@ -2643,17 +2643,17 @@ replay_route:
 	ld	b,a
 	xor	a
 	bit	5,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- chan 1 off
 	ld	(AY_regVOLA),a
 0:	
 	bit	6,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- chan 2 off
 	ld	(AY_regVOLB),a
 0:
 	bit	7,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- chan 3 off
 	ld	(AY_regVOLC),a
 0:
@@ -2682,7 +2682,7 @@ _comp_loop:
 	inc	b
 	ld	a,6
 	cp	b
-	jp	nz,_comp_loop
+	jr.	nz,_comp_loop
 	
 	ld	a,b	
 	
@@ -2700,7 +2700,7 @@ _ptAY_loop:
 
 	ld	a,(hl)
 	and	a
-	jp	z,99f		; if bit 0 is not set no update
+	jr.	z,99f		; if bit 0 is not set no update
 
 	ld	b,11
 	out 	(c),b
@@ -2711,7 +2711,7 @@ _ptAY_loop:
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a
-	jp	z,_ptAY_noEnv
+	jr.	z,_ptAY_noEnv
 	
 	ld	b,13
 	out	(c),b
@@ -2733,17 +2733,17 @@ _ptAY_noEnv:
 	ld	b,a
 	xor	a
 	bit	5,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- chan 1 off
 	ld	(SCC_regVOLA),a
 0:	
 	bit	6,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- chan 2 off
 	ld	(SCC_regVOLB),a
 0:
 	bit	7,b
-	jp	nz,0f
+	jr.	nz,0f
 	;-- chan 3 off
 	ld	(SCC_regVOLC),a
 0:
@@ -2772,7 +2772,7 @@ _comp_loop2:
 	inc	b
 	ld	a,6
 	cp	b
-	jp	nz,_comp_loop2
+	jr.	nz,_comp_loop2
 	
 	ld	a,b	
 	
@@ -2790,7 +2790,7 @@ _pPSG_loop:
 
 	ld	a,(hl)
 	and	a
-	jp	z,99f		; if bit 0 is not set no update
+	jr.	z,99f		; if bit 0 is not set no update
 
 	ld	b,11
 	out 	(c),b
@@ -2801,7 +2801,7 @@ _pPSG_loop:
 99:	
 	ld	a,(PSG_regEnvShape)
 	and	a
-	jp	z,_ptPSG_noEnv
+	jr.	z,_ptPSG_noEnv
 	
 	ld	b,13
 	out	(c),b
@@ -2833,17 +2833,17 @@ _ptPSG_noEnv:
 ;	ld	b,a
 ;	xor	a
 ;	bit	5,b
-;	jp	nz,0f
+;	jr.	nz,0f
 ;	;-- chan 1 off
 ;	ld	(AY_regVOLA),a
 ;0:	
 ;	bit	6,b
-;	jp	nz,0f
+;	jr.	nz,0f
 ;	;-- chan 2 off
 ;	ld	(AY_regVOLB),a
 ;0:
 ;	bit	7,b
-;	jp	nz,0f
+;	jr.	nz,0f
 ;	;-- chan 3 off
 ;	ld	(AY_regVOLC),a
 ;0:
@@ -2912,7 +2912,7 @@ _ptPSG_noEnv:
 ;	ld	a,(AY_duty1)
 ;	ld	d,a
 ;	and	a
-;	jp	z,99f
+;	jr.	z,99f
 ;	ld	a,6
 ;	out	($a0),a
 ;	ld	a,d
@@ -2921,7 +2921,7 @@ _ptPSG_noEnv:
 ;	ld	a,(AY_duty1)
 ;	ld	d,a
 ;	and	a
-;	jp	z,99f
+;	jr.	z,99f
 ;	ld	a,6
 ;	out	($a0),a
 ;	ld	a,d
@@ -2930,7 +2930,7 @@ _ptPSG_noEnv:
 ;	ld	a,(AY_duty2)
 ;	ld	d,a
 ;	and	a
-;	jp	z,99f
+;	jr.	z,99f
 ;
 ;	ld	a,7
 ;	out	($a0),a
@@ -2940,7 +2940,7 @@ _ptPSG_noEnv:
 ;	ld	a,(AY_duty3)
 ;	ld	d,a
 ;	and	a
-;	jp	z,99f
+;	jr.	z,99f
 ;	
 ;	ld	a,8
 ;	out	($a0),a
@@ -2950,7 +2950,7 @@ _ptPSG_noEnv:
 ;	ld	a,(AY_NoiseOR)
 ;	ld	d,a
 ;	and	a
-;	jp	z,99f
+;	jr.	z,99f
 ;	
 ;	ld	a,$a
 ;	out	($a0),a
@@ -2962,7 +2962,7 @@ _ptPSG_noEnv:
 ;	ld	a,(AY_NoiseAND)
 ;	ld	d,a
 ;	and	a
-;	jp	z,99f
+;	jr.	z,99f
 ;	
 ;	ld	a,$9
 ;	out	($a0),a
@@ -2993,7 +2993,7 @@ _ptPSG_noEnv:
 ;	inc	b
 ;	ld	a,6
 ;	cp	b
-;	jp	nz,_comp_loop
+;	jr.	nz,_comp_loop
 ;	
 ;	ld	a,b	
 ;	
@@ -3010,7 +3010,7 @@ _ptPSG_noEnv:
 ;	ld	b,a
 ;	ld	a,(hl)
 ;	and	a
-;	jp	z,_ptAY_noEnv
+;	jr.	z,_ptAY_noEnv
 ;	out	(c),b
 ;	inc	c
 ;	out 	(c),a
@@ -3028,10 +3028,10 @@ scc_route:
 	;--- do not	apply	mmainmixer when in  mode 2
 ;	ld	a,(keyjazz)
 ;	and	a
-;	jp	nz,99f
+;	jr.	nz,99f
 	ld	a,(replay_mode)
 	cp	2
-	jp	z,99f
+	jr.	z,99f
 	ld	a,(MainMixer)
 	and	(hl)	; set	to 0 to silence
 	ld	(hl),a
@@ -3039,7 +3039,7 @@ scc_route:
 	;--- Set the waveforms
 	ld	hl,TRACK_Chan4+TRACK_Flags
 	bit	6,(hl)
-	jp	z,0f
+	jr.	z,0f
 	;--- set wave form
 	res	6,(hl)
 	ld	a,(TRACK_Chan4+TRACK_Waveform)
@@ -3048,7 +3048,7 @@ scc_route:
 0:
 	ld	hl,TRACK_Chan5+TRACK_Flags
 	bit	6,(hl)
-	jp	z,0f
+	jr.	z,0f
 	;--- set wave form
 	res	6,(hl)
 	ld	a,(TRACK_Chan5+TRACK_Waveform)
@@ -3057,7 +3057,7 @@ scc_route:
 0:
 	ld	hl,TRACK_Chan6+TRACK_Flags
 	bit	6,(hl)
-	jp	z,0f
+	jr.	z,0f
 	;--- set wave form
 	res	6,(hl)
 	ld	a,(TRACK_Chan6+TRACK_Waveform)
@@ -3066,7 +3066,7 @@ scc_route:
 0:
 	ld	hl,TRACK_Chan7+TRACK_Flags
 	bit	6,(hl)
-	jp	z,0f
+	jr.	z,0f
 	;--- set wave form
 	res	6,(hl)
 	ld	a,(TRACK_Chan7+TRACK_Waveform)
@@ -3136,7 +3136,7 @@ loop:
 ;==================
 _write_SCC_wave:
 	bit	4,(hl)
-	jp	nz,_write_SCC_special
+	jr.	nz,_write_SCC_special
 	add	a,a
 	add	a,a
 	add	a,a	
@@ -3168,9 +3168,9 @@ _wss_l:
 	
 	ret
 ;	bit	7,a
-;	jp	nz,_write_SCC_PW_wave
+;	jr.	nz,_write_SCC_PW_wave
 ;	bit	6,a
-;	jp	nz,_write_SCC_cut
+;	jr.	nz,_write_SCC_cut
 ;	ret
 
 
@@ -3295,7 +3295,7 @@ replay_process_morph:
 	ld	hl,TRACK_Chan4+TRACK_Flags
 10:	
 	bit 	4,(hl)
-	jp	z,99f
+	jr.	z,99f
 	set	6,(hl)
 99:
 	add	hl,de
@@ -3304,7 +3304,7 @@ replay_process_morph:
 	
 	;---- timer ended.
 	inc	a
-	jp	nz,_rpm_next_step		; if status was !=255 then skip init
+	jr.	nz,_rpm_next_step		; if status was !=255 then skip init
 
 	;---- calculate offset
 	inc	a		
@@ -3320,11 +3320,11 @@ replay_process_morph:
 	ld	hl,_WAVESSCC
 	ld	a,(replay_morph_waveform)
 	add	a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:	
 	;---- start calculating
@@ -3338,7 +3338,7 @@ _rpm_loop:
 	ld	a,(hl)
 	add	a,128
 	cp	c
-	jp	c,_rpm_smaller		; dest is smaller
+	jr.	c,_rpm_smaller		; dest is smaller
 
 	
 _rpm_larger:
@@ -3382,7 +3382,7 @@ _rpm_next_step:
 	ld	c,a
 	add	16
 	ld	(replay_morph_counter),a
-	jp	nz,99f
+	jr.	nz,99f
 	;--- end morph
 	ld	(replay_morph_active),a
 
@@ -3393,12 +3393,12 @@ _rpm_next_step:
 _rpm_ns_loop:	
 	ld	a,(hl)
 	bit 	4,a
-	jp	z,_rmp_ns_add
+	jr.	z,_rmp_ns_add
 _rmp_ns_sub:
 	;--- handle corection
 	and	$ef
 	cp	c		; correction < counteR?
-	jp	c,99f
+	jr.	c,99f
 	inc	a		; if smaller C was set
 99:
 ;	xor	00010000b	; inverse add/sub bit when >15
@@ -3416,7 +3416,7 @@ _rmp_ns_sub:
 _rmp_ns_add:
 	;--- handle corection
 	cp	c		; correction < counteR?
-	jp	c,99f
+	jr.	c,99f
 	inc	a		; if smaller C was set
 99:
 	and	00011111b	; keep lower 5 bits

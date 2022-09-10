@@ -362,7 +362,7 @@ draw_decimal_3:
 ; Print 3 digit decimal value. But if value is 255 show an OFF string.
 draw_decimal_3_off:
 	cp	255
-	jp	nz,draw_decimal_3	
+	jr.	nz,draw_decimal_3	
 	ld	a,'-'
 	ld	(de),a
 	inc	de
@@ -374,7 +374,7 @@ draw_decimal_3_off:
 
 draw_decimal_off:
 	cp	255
-	jp	nz,draw_decimal
+	jr.	nz,draw_decimal
 	ld	a,'-'
 	ld	(de),a
 	inc	de

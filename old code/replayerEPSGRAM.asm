@@ -184,13 +184,13 @@ replay_play:
 	ret	z	; Replay mode = 0	is silent
 	
 	dec	a
-	jp	z,replay_mode1	; play music normal
+	jr.	z,replay_mode1	; play music normal
 	dec	a
-	jp	z,replay_mode2	; keyjazz
+	jr.	z,replay_mode2	; keyjazz
 	dec	a
-	jp	z,replay_mode3	; note audition
+	jr.	z,replay_mode3	; note audition
 	dec	a
-	jp	z,replay_mode4	; [ENTER] looped play
+	jr.	z,replay_mode4	; [ENTER] looped play
 	;--- DEBUG
 	XOR	A
 	LD	(replay_mode),A
@@ -207,9 +207,9 @@ replay_init:
 
 	ld	a,(swap_block)
 	and	a
-	jp	z,replay_init_cont	; loaded; continue to loaded code.
+	jr.	z,replay_init_cont	; loaded; continue to loaded code.
 	
 	xor	a
 	call	swap_loadblock
 	
-	jp	replay_init_cont
+	jr.	replay_init_cont

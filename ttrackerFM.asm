@@ -103,7 +103,7 @@ MAIN:
 	
 	
 END:
-;	jp	_TERM0
+;	jr.	_TERM0
 	
 	include	".\code\elements\patternbox.asm"
 _LABEL_PATTERNHEADER:
@@ -130,21 +130,19 @@ _LABEL_PATTERNHEADER2:
 	db	136,170,171,168,185,188,189,186,187	; scc4	
 	db	136,170,171,169,185,188,189,186,187	; scc5
 	db	136,151,152,153,154,0
+
 	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
 	include	".\code\elements\songbox.asm"	
 	include 	".\code\elements\patterneditor.asm"
 	include 	".\code\elements\filedialogRAM.asm"
-;	include 	".\code\elements\macroeditor.asm"
-;	include 	".\code\elements\macroboxFM.asm"
-     include    ".\code\elements\voicemanager.asm"
-     include 	".\code\elements\FMvoicebox.asm"
+     	include    	".\code\elements\voicemanager.asm"
+  	include 	".\code\elements\FMvoicebox.asm"
 	include 	".\code\elements\voicemanagerRAM.asm"
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	
-	include 	".\code\cursor.asm"
 	include	 ".\code\elements\filedialog.asm"
 	include 	".\code\clipboard.asm"
 	
@@ -172,7 +170,7 @@ font_data:
 	; --------------------------------------------------
 	page 1
 	include	".\code\bios.asm"
-;	include 	".\code\cursor.asm"
+	include 	".\code\cursor.asm"
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"	
 	include 	".\code\register_debug.asm"

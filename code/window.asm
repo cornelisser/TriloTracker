@@ -50,12 +50,12 @@ window:
 	ld	hl,_WINDOW_BUFFER + (_WINDOW_ERROR_OK_LABEL-_WINDOW_ERROR_OK)
 12:	ld	a,(hl)
 	and	a
-	jp	nz,99f
+	jr.	nz,99f
 	ld	c,32
 99:
 	ld	a,32
 	cp	c
-	jp	nz,23f
+	jr.	nz,23f
 	ld	(hl),a		; replace all at and after 0 with a space.
 23:
 	inc	hl

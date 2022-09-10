@@ -339,7 +339,7 @@ _snp_loop:
 	ld	a,(song_order_loop)
 	cp	255		;--- no loop?
 
-	jp	nz,_snp_continue
+	jr.	nz,_snp_continue
 	call	z,replay_stop
 
 	;--- set to last played line
@@ -1147,9 +1147,9 @@ _CHIPcmdA_volSlide_cont:
 
 _CHIPcmdB_auto_envelope:
 	cp	$e0
-	jp	c,.correction
+	jr.	c,.correction
 	cp	$f0
-	jp	c,.ratiotype
+	jr.	c,.ratiotype
 .ratio:
 	and	$07
 	ld	(envelope_ratio),a
@@ -1165,7 +1165,7 @@ _CHIPcmdB_auto_envelope:
 
 .correction:
 	cp	$20
-	jp	c,.cor_up
+	jr.	c,.cor_up
 .cor_down:
 	cp	$30
 	ret 	nc
@@ -1178,9 +1178,9 @@ _CHIPcmdB_auto_envelope:
 
 .cor_up:
 	cp	$11
-	jp	nc,99f
+	jr.	nc,99f
 	xor	a
-	jp	0b
+	jr.	0b
 99:	
 	and 	$f
 	neg	
@@ -1987,7 +1987,7 @@ _pcAY_noNoteTrigger:
 
 	;--- loop or not?
 	cp	255
-	jp	nz,_pcAY_noMacroEnd
+	jr.	nz,_pcAY_noMacroEnd
 	res 	1,(ix+TRACK_Flags)	; disable note active
 _pcAY_noMacroEnd:
 	; tone deviation.
@@ -2153,18 +2153,18 @@ _pcay_evelope:
 	ld	a,(envelope_ratiotype)
 	cp	1
 	ret	c
-	jp	z,_ratio_chan_env
+	jr.	z,_ratio_chan_env
 
 _ratio_env_chan:
 	ld	a,(envelope_ratio)
 	and	a
-	jp	z,_ratio_chan_env_skip
+	jr.	z,_ratio_chan_env_skip
 
 	ex	de,hl
 _ratio_env_chan_loop:
 	add	hl,hl
 	dec	a
-	jp	nz,_ratio_env_chan_loop	
+	jr.	nz,_ratio_env_chan_loop	
 
 	ex	de,hl
 
@@ -2182,13 +2182,13 @@ _ratio_env_chan_loop:
 _ratio_chan_env:
 	ld	a,(envelope_ratio)
 	and	a
-	jp	z,_ratio_chan_env_skip
+	jr.	z,_ratio_chan_env_skip
 
 _ratio_chan_env_loop:
 	SRL 	D
 	RR 	E
 	dec	a
-	jp	nz,_ratio_chan_env_loop	
+	jr.	nz,_ratio_chan_env_loop	
 
 	;--- correction
 	ld	hl,(envelope_correction)

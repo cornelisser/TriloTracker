@@ -576,7 +576,7 @@ load_xm_instrument:
 	sbc	hl,bc		; we alread read 33 bytes from header
 
 	cp	h
-	jp	z,_l_xm_i_skip_end		; load the remaining data
+	jr.	z,_l_xm_i_skip_end		; load the remaining data
 _l_xm_i_skip_loop:	
 	push	hl
 	ld	hl,$100
@@ -585,13 +585,13 @@ _l_xm_i_skip_loop:
 	call	nz,catch_diskerror
 	pop	hl
 	dec	h
-	jp	nz,_l_xm_i_skip_loop
+	jr.	nz,_l_xm_i_skip_loop
 
 
 _l_xm_i_skip_end:			; only L has value, H not
 	xor	a
 	cp	l
-	jp	z,23f
+	jr.	z,23f
 	ld	de,buffer+10
 	call	read_file
 	jr.	nz,catch_diskerror	

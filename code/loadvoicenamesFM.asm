@@ -36,7 +36,7 @@ ENDIF
 	ld	c,(_OPEN)
 	call	DOS
 	and	a
-	jp	nz,_loadvoices_end
+	jr.	nz,_loadvoices_end
 	
 	;-- store handle
 	ld	a,b
@@ -49,7 +49,7 @@ ENDIF
 	call	read_file
 	
 	and	a
-	jp	nz,_loadvoices_end
+	jr.	nz,_loadvoices_end
 	
 	;--- Copy the data to VRAM
 	ld	de,_VOICE_VRAM_START
@@ -63,7 +63,7 @@ ENDIF
 	call	read_file
 	
 	and	a
-	jp	nz,_loadvoices_end
+	jr.	nz,_loadvoices_end
 	
 	;--- Copy the data to VRAM
 	ld	de,_VOICE_VRAM_START+2048	

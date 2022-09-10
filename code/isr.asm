@@ -86,7 +86,7 @@ interrupt:
 
 	ld a,(replay_mode)
 	and	a
-	jp	z,int_no_music	
+	jr.	z,int_no_music	
 
 
 	; --- sound
@@ -150,5 +150,5 @@ int_no_music:
 	pop	af
 	call	PUT_P2
 
-	jp	original_hook
+	jr.	original_hook
 

@@ -88,7 +88,7 @@ _slv_loop:
 swap_loadelementblock:
 	ld	hl,SWAP_ELEMENTSTART
 	push	hl
-	jp 	_swap_load_continue
+	jr. 	_swap_load_continue
 	
 	
 ;---------------------
@@ -130,7 +130,7 @@ _swap_load_continue:
 
 	;--- check for a == 0. 
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	inc	d	
 99:
 	ld	b,a
@@ -163,7 +163,7 @@ swap_loadwindow:
 	;-- if B == 0 then do not increase D
 	ld	a,b
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	inc	d
 99:
 	ld	c,0x98

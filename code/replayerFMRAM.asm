@@ -468,12 +468,12 @@ replay_init:
 
 	ld	a,(swap_block)
 	and	a
-	jp	z,replay_init_cont	; loaded; continue to loaded code.
+	jr.	z,replay_init_cont	; loaded; continue to loaded code.
 	
 	xor	a
 	call	swap_loadblock
 	
-	jp	replay_init_cont				
+	jr.	replay_init_cont				
 
 ;===========================================================
 ; ---	replay_stop

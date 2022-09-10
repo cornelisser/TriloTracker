@@ -61,7 +61,7 @@ set_patternpage:
 	add	SONG_PATINSONG
 	ld	b,a
 	cp	SONG_PATINSEG
-	jp	c,0f
+	jr.	c,0f
 
 	rrca	
 	rrca	
@@ -70,7 +70,7 @@ set_patternpage:
 	and	$1f
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	hl
 99:
 ;	add	a,SONG_PATINSEG	

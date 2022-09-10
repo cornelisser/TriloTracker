@@ -66,7 +66,7 @@ MAIN:
 
 	ld	a,(SCC_slot_found)
 	inc	a
-	jp	nz,99f
+	jr.	nz,99f
 	ld	a,WIN_NOSCC
 	call	window
 	
@@ -87,7 +87,7 @@ MAIN:
 	;--- Set the SCC slot according to config
 	ld	a,(_CONFIG_SLOT)
 	cp	255				; check if config is set to auto
-	jp	nz,99f
+	jr.	nz,99f
 	ld	a,(SCC_slot_found)
 
 99:
@@ -100,7 +100,7 @@ MAIN:
 	include	".\code\configurationRAM.asm"
 
 END:
-;	jp	_TERM0
+;	jr.	_TERM0
 	
 	include	".\code\elements\patternbox.asm"
 _LABEL_PATTERNHEADER:

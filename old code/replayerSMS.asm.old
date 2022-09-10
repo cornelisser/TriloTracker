@@ -1135,7 +1135,7 @@ _dc_noVolume:
 	inc	bc
 	ld	a,(bc)		; get	parameter(s)
 	inc	bc
-	jp	hl			; jump to the command
+	jr.	hl			; jump to the command
 	; END
 
 ;-------------------
@@ -1551,15 +1551,15 @@ _CHIPcmdC_drum:
 0:
 	;--- ONLY FOR DRUM KEYJAZZ!!!
 	cp	$F0
-	jp	c,0f
+	jr.	c,0f
 	and	$0f
 	ld	d,a
 	ld	a,00010000b
-	jp	z,22f
+	jr.	z,22f
 11:	
 	srl	a
 	dec	d
-	jp	nz,11b
+	jr.	nz,11b
 	
 22:
 	or	00100000b
@@ -1762,7 +1762,7 @@ _CHIPcmdE_extended:
 	cp	0x60	; track detune
 	jr.	z,_CHIPcmdE_trackdetune
 	cp	0xe0
-	jp	z,_CHIPcmdE_envelope
+	jr.	z,_CHIPcmdE_envelope
 	cp	0x10	
 	jr.	z,_CHIPcmdE_fineup
 	cp	0x20
@@ -1859,7 +1859,7 @@ _CHIPcmdE_notelink:
 _CHIPcmdE_notesus:
 	ld	a,d
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	set	5,(ix+CHIP_Flags)
 	ret
 	res	5,(ix+CHIP_Flags)
@@ -1910,7 +1910,7 @@ _CHIPcmdE_envelope:
 	set	2,(IX+CHIP_Flags)
 	ld	a,d
 	and	$0f
-	jp	z,_CHIPcmdE_envelope_retrig
+	jr.	z,_CHIPcmdE_envelope_retrig
 
 	;--- store new envelope shape (anything other than 0 is written)
 	ld	(AY_regEnvShape),a
@@ -1987,7 +1987,7 @@ replay_process_chan_AY:
 	inc	hl
 	ld	h,(hl)
 	ld	l,a	
-	jp	(hl)
+	jr.	(hl)
 	
 _pcAY_noCommand:	
 _pcAY_commandEND:
@@ -2243,7 +2243,7 @@ _pcAY_noNoise:
 	; is done here to be able to continue
 	; macro volume values.
 	bit	2,(IX+CHIP_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
+	jr.	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
 	ld	(SCC_regVOLF),a
 	ret	
@@ -2887,12 +2887,12 @@ _pcAY_cmd1b:
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
 	dec	(ix+CHIP_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 	
 	; stop note
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	3,(ix+CHIP_Flags)
-	jp	_pcAY_commandEND		
+	jr.	_pcAY_commandEND		
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+CHIP_Timer)
@@ -3142,7 +3142,7 @@ _ptAY_loop:
 
 	ld	a,(hl)
 	and	a
-	jp	z,99f		; if bit 0 is not set no update
+	jr.	z,99f		; if bit 0 is not set no update
 
 	ld	b,11
 	out 	(c),b
@@ -3153,7 +3153,7 @@ _ptAY_loop:
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a
-	jp	z,_ptAY_noEnv
+	jr.	z,_ptAY_noEnv
 	
 	ld	b,13
 	out	(c),b

@@ -762,8 +762,8 @@ _pktc_bckspc_loop2:
 
 	;--- We are on last row or second-last
 	cp	62
-	jp	c,_pkct_ins_lines
-	jp	z,_pkct_ins_2ndlast
+	jr.	c,_pkct_ins_lines
+	jr.	z,_pkct_ins_2ndlast
 	;--- last
 	call	_pkct_ins_empty
 	jr.	_pkct_ins_end

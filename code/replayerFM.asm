@@ -521,7 +521,7 @@ replay_setnextpattern:
 _snp_loop:
 	ld	a,(song_order_loop)
 	cp	255		;--- no loop?
-	jp	nz,_snp_continue
+	jr.	nz,_snp_continue
 
 	;--- set to last played line
 	ld	a,(replay_line)
@@ -1405,9 +1405,9 @@ _CHIPcmdA_volSlide_cont:
 _CHIPcmdB_auto_envelope:
 IFDEF TTFM
 	cp	$e0
-	jp	c,.correction
+	jr.	c,.correction
 	cp	$f0
-	jp	c,.ratiotype
+	jr.	c,.ratiotype
 .ratio:
 	and	$07
 	ld	(envelope_ratio),a
@@ -1423,7 +1423,7 @@ IFDEF TTFM
 
 .correction:
 	cp	$20
-	jp	c,.cor_up
+	jr.	c,.cor_up
 .cor_down:
 	cp	$30
 	ret 	nc
@@ -1436,9 +1436,9 @@ IFDEF TTFM
 
 .cor_up:
 	cp	$11
-	jp	nc,99f
+	jr.	nc,99f
 	xor	a
-	jp	0b
+	jr.	0b
 99:	
 	and 	$f
 	neg	
@@ -1710,7 +1710,7 @@ _CHIPcmdE_brightness:
 	ld	a,d
 	; This comment sets the	detune of the track.
 	and	0x07		; low	4 bits is value
-	jp	z,.reset
+	jr.	z,.reset
 
 	ld (replay_voicetrigger),a
 
@@ -2180,7 +2180,7 @@ _pcAY_instrument:
 	ld	a,d		; loop the macro.
 	;--- loop or not?
 	cp	255
-	jp	nz,_pcAY_noMacroEnd
+	jr.	nz,_pcAY_noMacroEnd
 	res 	1,(ix+CHIP_Flags)	; disable note active
 
 _pcAY_noMacroEnd:
@@ -2377,18 +2377,18 @@ _pcay_envelope:
 	ld	a,(envelope_ratiotype)
 	cp	1
 	ret	c
-	jp	z,_ratio_chan_env
+	jr.	z,_ratio_chan_env
 
 _ratio_env_chan:
 	ld	a,(envelope_ratio)
 	and	a
-	jp	z,_ratio_chan_env_skip
+	jr.	z,_ratio_chan_env_skip
 
 	ex	de,hl
 _ratio_env_chan_loop:
 	add	hl,hl
 	dec	a
-	jp	nz,_ratio_env_chan_loop	
+	jr.	nz,_ratio_env_chan_loop	
 
 	ex	de,hl
 
@@ -2406,13 +2406,13 @@ _ratio_env_chan_loop:
 _ratio_chan_env:
 	ld	a,(envelope_ratio)
 	and	a
-	jp	z,_ratio_chan_env_skip
+	jr.	z,_ratio_chan_env_skip
 
 _ratio_chan_env_loop:
 	SRL 	D
 	RR 	E
 	dec	a
-	jp	nz,_ratio_chan_env_loop	
+	jr.	nz,_ratio_chan_env_loop	
 
 	;--- Correction
 	ld	hl,(envelope_correction)
@@ -2427,13 +2427,13 @@ _ratio_chan_env_skip:
 ;;	ld	a,(replay_env_ratio)
 ;	ld	a,3
 ;	and	a
-;	jp	z,_pcay_env_ratio_skip
+;	jr.	z,_pcay_env_ratio_skip
 ;
 ;_pcay_env_ratio_loop:
 ;	SRL 	D
 ; 	RR 	E
 ;	dec	a
-;	jp	nz,_pcay_env_ratio_loop
+;	jr.	nz,_pcay_env_ratio_loop
 ;
 ;_pcay_env_ratio_skip:
 ;;	ld	(AY_regEnvL),de

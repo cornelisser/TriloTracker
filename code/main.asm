@@ -106,7 +106,7 @@ _main_dispatch_END:
 ;	call	draw_label_fast
 ;
 ;1:
-;	jp MAIN_LOOP
+;	jr. MAIN_LOOP
 ;;
 ;_dd:
 ;	db	"Key: (  )",0
@@ -233,7 +233,7 @@ _playback_loop:
 	
 	ld	a,(_CONFIG_DEBUG)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	call	draw_register_debug
 
 99:
@@ -263,18 +263,18 @@ _playback_loop:
 	;--- Trigger an ESC when replayer stoped (no loop)
 	ld	a,(replay_mode)
 	and	a
-	jp	nz,4f
+	jr.	nz,4f
 
 	ld	a,_ESC	; trick  key into ESC to stop.	
 	ld	(key),a
-	jp	5f
+	jr.	5f
 
 4:
 	call	read_key
 
 	ld	a,(key)
 	and	a
-	jp	z,_playback_loop
+	jr.	z,_playback_loop
 5:
 	; check key for muting channels
 	call	check_channel_mute

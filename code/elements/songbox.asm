@@ -153,7 +153,7 @@ process_key_songbox:
 	;--- Check if we need to remove the placeholder
 	ld	a,(song_name+31)
 	and	a
-	jp	nz,0f
+	jr.	nz,0f
 
 	;--- erase placeholder
 	ld	hl,song_name
@@ -162,7 +162,7 @@ process_key_songbox:
 	ld	(hl),32
 	inc	hl
 	dec	a
-	jp	nz,88b
+	jr.	nz,88b
 	call	update_songbox
 
 0:	

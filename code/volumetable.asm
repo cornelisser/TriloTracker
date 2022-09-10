@@ -4,7 +4,7 @@
 ;-----------------------------------------
 set_volumetable:
       and   a
-      jp    nz,.limit1
+      jr.    nz,.limit1
 
 ;----- update PSG volumes
 .limit0:
@@ -55,7 +55,7 @@ IFDEF TTSCC
 	ld	c,1
 ELSE
 	ld	c,0x0f
-	jp	z,.start
+	jr.	z,.start
 	ld	c,$0e
 	
 ENDIF
@@ -67,7 +67,7 @@ ENDIF
 	ld	b,a
 	call	.limit_write
 	dec	a
-	jp	nz,.loop
+	jr.	nz,.loop
 
       ret
 

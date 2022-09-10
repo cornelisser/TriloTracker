@@ -482,7 +482,7 @@ _udn_loop:
 	ld	de,0x1301	
 	ld	a,(song_cur_drum)
 	cp	16
-	jp	c,99f
+	jr.	c,99f
 	ld	h,$3b
 	sub	15
 99:

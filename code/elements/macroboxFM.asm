@@ -258,7 +258,7 @@ update_macrobox:
 	ld	hl,instrument_types
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)

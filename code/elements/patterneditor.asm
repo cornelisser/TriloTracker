@@ -553,6 +553,7 @@ check_channel_soloplay:
 	jr.	z,0f
 	cp	9
 	jr.	c,99f
+	ret
 0:	
 	;-- ONLY DRUM
 	ld	a,(DrumMixer)	

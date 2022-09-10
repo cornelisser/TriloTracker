@@ -1655,7 +1655,7 @@ _gcll_loop:
 99:	;--- Calculate the channel
 	add	hl,bc
 	sub	9		; each channel is 9 chars wide
-	jp	p,99b
+	jr.	p,99b
 
 	;--- Set HL to the patten data
 	ex	de,hl

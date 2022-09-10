@@ -2044,7 +2044,7 @@ ENDIF
 	;--- Instrument types
 	ld	a,(buffer)
 	cp	32
-	jp	c,0f	;--- skip if not loaded from file
+	jr.	c,0f	;--- skip if not loaded from file
 	ld	de,instrument_types
 	ld	hl,buffer+2
 	ld	bc,32

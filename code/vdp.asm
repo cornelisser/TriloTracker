@@ -105,7 +105,7 @@ set_textcolor:
 ;	rlca
 ;	add	a,l
 ;	ld	l,a
-;	jp	nc,99f
+;	jr.	nc,99f
 ;	inc	h
 99:
 	ld	a,(_CONFIG_THEME)
@@ -115,12 +115,12 @@ set_textcolor:
 ;	add	a
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(keyjazz)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	ld	a,$32
 99:
 	ld	(hl),a

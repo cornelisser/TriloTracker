@@ -78,13 +78,13 @@ MAIN:
 
 
 ;	call	MSXMusic_Detect
-;	jp	c,99f
+;	jr.	c,99f
 ;	ld	a,WIN_NOSCC
 ;	call	window	
 ;99:
 
 ;	cp	$ff
-;	jp	nz,99f
+;	jr.	nz,99f
 ;	ld	a,WIN_NOSCC
 ;	call	window	
 ;99:
@@ -111,7 +111,7 @@ MAIN:
 	
 	
 END:
-;	jp	_TERM0
+;	jr.	_TERM0
 	
 	include	".\code\elements\patternbox.asm"
 _LABEL_PATTERNHEADER:

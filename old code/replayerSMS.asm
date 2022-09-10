@@ -1143,7 +1143,7 @@ _dc_noVolume:
 	inc	bc
 	ld	a,(bc)		; get	parameter(s)
 	inc	bc
-	jp	hl			; jump to the command
+	jr.	hl			; jump to the command
 	; END
 
 ;-------------------
@@ -1567,7 +1567,7 @@ _CHIPcmdC_drum:
 88:
 	add	hl,de
 	dec	a
-	jp	nz,88b
+	jr.	nz,88b
 
 	;--- drum type
 	ld	a,(hl)
@@ -1578,7 +1578,7 @@ _CHIPcmdC_drum:
 	ld	de,FM_DRUM1_LEN
 	add	a,e
 	ld	e,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	d
 99:
 	;--- drum len
@@ -1626,7 +1626,7 @@ _CHIPcmdE_extended:
 	cp	0x60	; track detune
 	jr.	z,_CHIPcmdE_trackdetune
 	cp	0xe0
-	jp	z,_CHIPcmdE_envelope
+	jr.	z,_CHIPcmdE_envelope
 	cp	0x10	
 	jr.	z,_CHIPcmdE_fineup
 	cp	0x20
@@ -1722,7 +1722,7 @@ _CHIPcmdE_notelink:
 _CHIPcmdE_notesus:
 	ld	a,d
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	set	5,(ix+CHIP_Flags)
 	ret
 	res	5,(ix+CHIP_Flags)
@@ -1773,7 +1773,7 @@ _CHIPcmdE_envelope:
 	set	2,(IX+CHIP_Flags)
 	ld	a,d
 	and	$0f
-	jp	z,_CHIPcmdE_envelope_retrig
+	jr.	z,_CHIPcmdE_envelope_retrig
 
 	;--- store new envelope shape (anything other than 0 is written)
 	ld	(AY_regEnvShape),a
@@ -1853,7 +1853,7 @@ replay_process_drum:
 	ld	a,(hl)
 	inc	hl
 	or	b
-	jp	z,_rpd_no_tone
+	jr.	z,_rpd_no_tone
 	xor	b
 	set	5,c			; set tone update flag
 _rpd_no_tone:	
@@ -1866,7 +1866,7 @@ _rpd_no_tone:
 	ld	a,(hl)
 	inc	hl
 	and	a
-	jp	z,_rpd_no_vol
+	jr.	z,_rpd_no_vol
 	set	2,c			; set the volume flag
 _rpd_no_vol:
 	ld	b,a
@@ -1876,7 +1876,7 @@ _rpd_no_vol:
 	;--- low volume
 	ld	a,b
 	and	0x0f
-	jp	z,0f
+	jr.	z,0f
 		ld	c,a
 
 		ld	a,0x0f	;- invert volume
@@ -1890,7 +1890,7 @@ _rpd_no_vol:
 0:	;--- high volume
 	ld	a,b
 	and	0xf0
-	jp	z,0f
+	jr.	z,0f
 		ld	c,a
 		
 		ld	a,0xf0	;- invert volume
@@ -1932,7 +1932,7 @@ replay_process_chan_AY:
 	;=====
 	ld	a,(equalization_flag)			; check for speed equalization
 	and	a
-	jp	nz,_pcAY_noNoteTrigger			; Only process instruments
+	jr.	nz,_pcAY_noNoteTrigger			; Only process instruments
 	
 	;=====
 	; COMMAND
@@ -1951,7 +1951,7 @@ replay_process_chan_AY:
 	inc	hl
 	ld	h,(hl)
 	ld	l,a	
-	jp	(hl)
+	jr.	(hl)
 	
 _pcAY_noCommand:	
 _pcAY_commandEND:
@@ -2052,7 +2052,7 @@ _pcAY_noMacroEnd:
 
 ;--- Voice link check here as now ew still have all macro row values
 	bit 	7,h
-	jp	z,_noVoicelink	
+	jr.	z,_noVoicelink	
 
 	res	7,h			; reset bit
 	set	6,(ix+CHIP_Flags)	; set voice update flag
@@ -2238,7 +2238,7 @@ IFDEF TTSMS
 	ld	a,(SCC_regMIXER)
 	and	16
 
-	jp	nz,7f
+	jr.	nz,7f
 	xor	a
 	ld	(SCC_regVOLF),a	
 	ret
@@ -2250,7 +2250,7 @@ ENDIF
 	; is done here to be able to continue
 	; macro volume values.
 	bit	2,(IX+CHIP_Flags)
-	jp	z,_noEnv		; if not set then normal volume calculation
+	jr.	z,_noEnv		; if not set then normal volume calculation
 	ld	a,16			; set volume to 16 == envelope
 	ld	(SCC_regVOLF),a
 	ret	
@@ -2423,9 +2423,9 @@ _wrap_skip:
 ;	
 ;	ld	a,c
 ;	and	31
-;	jp	z,_pcFM_noVoice
+;	jr.	z,_pcFM_noVoice
 ;	cp	(ix+CHIP_Voice)	; get	the current	deviation	
-;	jp	z,_pcFM_noVoice
+;	jr.	z,_pcFM_noVoice
 ;
 ;	;/// Set here the new voice	
 ;	ld	(ix+CHIP_Voice),a
@@ -2959,12 +2959,12 @@ _pcAY_cmd1b:
 	jr.	_pcAY_commandEND	
 _pcAY_cmd1c:
 	dec	(ix+CHIP_Timer)
-	jp	nz,_pcAY_commandEND
+	jr.	nz,_pcAY_commandEND
 	
 	; stop note
 	res	1,(ix+CHIP_Flags)	; set	note bit to	0
 	res	3,(ix+CHIP_Flags)
-	jp	_pcAY_commandEND	
+	jr.	_pcAY_commandEND	
 _pcAY_cmd1d:
 	; note delay
 	dec	(ix+CHIP_Timer)
@@ -3216,7 +3216,7 @@ _ptAY_loop:
 
 	ld	a,(hl)
 	and	a
-	jp	z,99f		; if bit 0 is not set no update
+	jr.	z,99f		; if bit 0 is not set no update
 
 	ld	b,11
 	out 	(c),b
@@ -3227,7 +3227,7 @@ _ptAY_loop:
 99:	
 	ld	a,(AY_regEnvShape)
 	and	a
-	jp	z,_ptAY_noEnv
+	jr.	z,_ptAY_noEnv
 	
 	ld	b,13
 	out	(c),b
@@ -3281,7 +3281,7 @@ route_SN:
 	ld	hl,SN_regNOISEold
 	ld	a,(AY_regNOISE)
 	cp	(hl)
-	jp	z,0f
+	jr.	z,0f
 	ld	(hl),a
 	or	11100000b
 	out	($f0),a
@@ -3355,11 +3355,11 @@ ENDIF
 	ld	ix,CHIP_Chan3
 _ptAY_voice_loop:	
 	bit	6,(IX+CHIP_Flags)
-	jp	z,0f
+	jr.	z,0f
 	res	6,(ix+CHIP_Flags)
 	ld	a,(ix+CHIP_Voice)
 ;	and	a
-;	jp	nz,99f
+;	jr.	nz,99f
 ;	inc	a
 99:
 	cp	16
@@ -3459,7 +3459,7 @@ _tt_route_fmtone:
 
 	;--- check for new note (keyon is off '0')
 	bit	4,a
-	jp	nz,99f		; skip if no keyoff
+	jr.	nz,99f		; skip if no keyoff
 
 	or	(hl)
 	ex	af,af'		;'
@@ -3471,7 +3471,7 @@ _tt_route_fmtone:
 	or	16			; set keyon on '1'
 	ld	(de),a		; store keyon
 	ex	af,af'		;'
-	jp 	88f	
+	jr. 	88f	
 			
 	
 
@@ -3573,7 +3573,7 @@ _drmfreqloop:
 ;--- FM DRUMS
 	ld	a,(DrumMixer)
 	and	a
-	jp	nz,0f
+	jr.	nz,0f
 0:
 	ld	a,(FM_DRUM)
 	and	a

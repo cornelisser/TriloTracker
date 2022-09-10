@@ -100,7 +100,7 @@ draw_psgsamplebox:
 	ld	bc,80
 	add	hl,bc
 	dec	ixh
-	jp	nz,66b
+	jr.	nz,66b
 	
 				
 	; instrument edit box
@@ -745,7 +745,7 @@ process_key_psgsamplebox:
 	;inc	hl
 	ld	a,(hl)
 	cp	32
-	jp	nc,99f
+	jr.	nc,99f
 	inc	a
 	ld	(hl),a
 	ld	(instrument_len),a
@@ -757,7 +757,7 @@ process_key_psgsamplebox:
 .line_loop:
 	call	_move_macrolineup
 	and	a
-	jp	z,88f
+	jr.	z,88f
 	dec	a
 	cp	ixh
 	jr.	nc,.line_loop
@@ -790,9 +790,9 @@ process_key_psgsamplebox:
 	ld	b,a
 	ld	a,(hl)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	cp	b
-	jp	c,99f
+	jr.	c,99f
 	dec	(hl)
 99:	
 	;--- update screen
@@ -812,7 +812,7 @@ process_key_psgsamplebox:
 	;inc	hl
 	ld	a,(hl)
 	cp	1
-	jp	z,99f
+	jr.	z,99f
 	dec	a
 	ld	(hl),a
 	ld	(instrument_len),a
@@ -823,7 +823,7 @@ process_key_psgsamplebox:
 	inc	hl
 	ld	a,(hl)
 	cp	b
-	jp	c,99f
+	jr.	c,99f
 	dec	b
 	ld	(hl),b
 99:
@@ -835,7 +835,7 @@ process_key_psgsamplebox:
 	call	_move_macrolinedown
 	inc	a
 	cp	31
-	jp	z,88f
+	jr.	z,88f
 	jr.	.line_loopdel
 88:	
 	call	update_psgsamplebox

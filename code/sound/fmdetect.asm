@@ -18,7 +18,7 @@ MSXMusic_Detect:
     ld 	hl,MSXMusic_MatchInternalID
     call 	Memory_SearchSlots
     ld 	b,-1
-    jp 	c,.end
+    jr. 	c,.end
     ld 	hl,MSXMusic_MatchExternalID
     call 	Memory_SearchSlots
     ld 	b,0
@@ -36,7 +36,7 @@ MSXMusic_MatchInternalID:
     ld 	de,MSXMusic_internalId
     ld 	hl,MSXMusic_ID_ADDRESS
     ld 	bc,8
-    jp 	Memory_MatchSlotString
+    jr. 	Memory_MatchSlotString
 
 ; a = slot id
 ; f <- c: found
@@ -83,18 +83,18 @@ Memory_SearchSlots_SecondaryLoop:
     push 	hl
     call 	Memory_SearchSlots_JumpHL
     pop 	hl
-    jp 	c,Memory_SearchSlots_Found
+    jr. 	c,Memory_SearchSlots_Found
     pop 	af
 Memory_SearchSlots_Continue:
     add 	a,00000100B
-    jp 	p,Memory_SearchSlots_NextPrimary
+    jp	 	p,Memory_SearchSlots_NextPrimary
     bit 	4,a
-    jp 	z,Memory_SearchSlots_SecondaryLoop
+    jr. 	z,Memory_SearchSlots_SecondaryLoop
 Memory_SearchSlots_NextPrimary:
     inc 	a
     and 	00000011B
     ret 	z  ; not found
-    jp 	Memory_SearchSlots_PrimaryLoop
+    jr. 	Memory_SearchSlots_PrimaryLoop
 Memory_SearchSlots_Found:
     pop 	af
     scf
@@ -123,7 +123,7 @@ Memory_MatchSlotString:
     inc 	de
     ex 	de,hl
     pop 	af
-    jp 	Memory_MatchSlotString
+    jr. 	Memory_MatchSlotString
 Memory_MatchSlotString_Found:
     pop 	af
     scf

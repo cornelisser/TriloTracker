@@ -66,7 +66,7 @@ draw_register_debug:
       ld    a,10
       add   a,e
       ld    e,a
-      jp    nc,99f
+      jr.    nc,99f
       inc   d
 99:
 
@@ -192,7 +192,7 @@ draw_register_debug:
       ld    a,12
       add   a,e
       ld    e,a
-      jp    nc,99f
+      jr.    nc,99f
       inc   d
 99:
 
@@ -307,7 +307,7 @@ draw_register_debug:
       ld    a,19
       add   a,e
       ld    e,a
-      jp    nc,99f
+      jr.    nc,99f
       inc   d
 99:
 

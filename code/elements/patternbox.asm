@@ -230,7 +230,7 @@ process_key_patternbox_restart:
 		ld	b,a
 		ld	a,(song_order_loop)
 		cp	255
-		jp	z,1f
+		jr.	z,1f
 		cp	b
 		jr.	nc,process_key_patternbox_restart_END
 1:		inc	a

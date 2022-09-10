@@ -58,7 +58,7 @@ MAIN:
 
 ;	ld	a,(SCC_slot)
 ;	inc	a
-;	jp	nz,99f
+;	jr.	nz,99f
 ;	ld	a,WIN_NOSCC
 ;	call	window
 	
@@ -89,7 +89,7 @@ MAIN:
 	include	".\code\configurationRAM.asm"
 
 END:
-;	jp	_TERM0
+;	jr.	_TERM0
 	
 	include	".\code\elements\patternbox.asm"
 _LABEL_PATTERNHEADER:

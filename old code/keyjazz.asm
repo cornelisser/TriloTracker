@@ -135,7 +135,7 @@ _ky_noPSG:
 
 	ld	a,(_CONFIG_DEBUG)
 	and	a
-	jp	z,99f
+	jr.	z,99f
 	
 	call	draw_PSGdebug
 	call	draw_SCCdebug

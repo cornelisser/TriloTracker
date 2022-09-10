@@ -30,7 +30,7 @@ musickb_handler:
 	in	a,(MUSKB_DATA)		; Retrieve matrix row
 	ld	(de),a			; store the matrix
 	cp	$ff
-	jp	z,99f
+	jr.	z,99f
 	ld	a,1				; Set key press to true for any vaue != $FF
 	ld	(music_key_on),a
 99:
@@ -88,7 +88,7 @@ _getkey:
 	ld	a,c
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
@@ -112,15 +112,15 @@ _getkey:
 musickb_readkey:
 	ld	a,(music_key_on)
 	and	a
-	jp	z,2f
+	jr.	z,2f
 	ld	a,(music_buf_key_old)
 	ld	b,a
 	ld	a,(music_buf_key)
 	cp	b
-	jp	z,1f
+	jr.	z,1f
 
 	ld	(music_buf_key_old),a
-	jp	0f
+	jr.	0f
 1:	
 	xor	a
 	
@@ -134,7 +134,7 @@ musickb_readkey:
 ;	ld	b,a
 ;	ld	a,(music_buf_key_old)
 ;	cp	b
-;	jp	nz,.keyfound
+;	jr.	nz,.keyfound
 ;.nokeyfound:
 ;	xor	a
 ;	ld	(music_key),a

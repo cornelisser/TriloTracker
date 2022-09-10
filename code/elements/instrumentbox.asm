@@ -142,13 +142,13 @@ _bil_loop:
 	ld	bc,instrument_types
 	add	a,c
 	ld	c,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	b
 99:
 	ld	a,(bc)
 	cp	2
-	jp	z,2f
-	jp	c,1f
+	jr.	z,2f
+	jr.	c,1f
 0:
 	;-- none
 	ld	(hl),32

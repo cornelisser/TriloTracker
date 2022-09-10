@@ -1,3 +1,14 @@
+FREE_REPLAY		equ SWAP_REPLAY - SWAP_CHECK	; Free space before SWAP_REPLAY
+
+FREE_MACRO 		equ $4000 - SWAP_MACRO_END
+FREE_TRACK 		equ $4000 - SWAP_TRACK_END
+
+FREE_SAMPLE		equ $4000 - SWAP_SAMPLE_END
+FREE_SAMPLEFILE	equ $8000 - SWAP_SAMFILE_END
+
+
+
+
 ; Trilo-Tracker v0.2
 define VERSION "v0.11.4b SCC"
 define YEAR "2021"
@@ -126,7 +137,10 @@ _LABEL_PATTERNHEADER:
 	include 	".\code\elements\keyjazz.asm"
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vu.asm"
-	include 	".\code\loadinstruments.asm"		
+	include 	".\code\loadinstruments.asm"	
+	include 	".\code\cursor.asm"
+	include	".\code\volumetable.asm"
+	include 	".\code\song.asm"	
 	include 	".\code\editlog.asm"
 	include    ".\code\elements\filedialog.asm"
 SWAP_ELEMENTSTART:
@@ -144,32 +158,25 @@ font_data:
 	; --------------------------------------------------
 	page 1
 	include 	".\code\bios.asm"
-	include 	".\code\cursor.asm"
+;	include 	".\code\cursor.asm"
 	include 	".\code\vdp.asm"
 	include 	".\code\screen.asm"
 	include 	".\code\register_debug.asm"	
 	include 	".\code\clipboard.asm"
-	include 	".\code\song.asm"		
-	include	".\code\volumetable.asm"
+;	include 	".\code\song.asm"		
+;	include	".\code\volumetable.asm"
 	include 	".\code\keyboard.asm"	
 	include	".\code\musickeyboard.asm"
 	include 	".\code\isr.asm"	; This cannot be before this address!!!!
-;	include ".\code\replayerFM.asm"
-;	include ".\code\sound\AY.asm"	;AY3-8910.asm"
-;	include ".\code\sound\SCC.asm"
 	include 	".\code\mapper.asm"
-;	include	".\code\slotselect.asm"	
 	include	".\code\disk.asm"
 
-
-;	include 	".\code\import\import.asm"	
 	include 	".\code\compression2.asm"
 
 	include	".\code\vram_swapper.asm"
 	include	".\code\replayerSCCRAM.asm"	
 	include 	".\code\window.asm"
-;	include 	".\code\configuration.asm"
-
+SWAP_CHECK:	
 
 	; --- PAGE 2
 	;

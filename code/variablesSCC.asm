@@ -185,8 +185,6 @@ sample_names		#8*16
 sample_offsets		#4*16		; note, start offset, end offset, loop offset
 
 
-
-
 MainMixer:				#1
 mainPSGvol:				#1
 mainSCCvol:				#1

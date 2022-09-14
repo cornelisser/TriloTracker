@@ -1419,6 +1419,7 @@ _CHIPcmdC_scc_morph:
 	jr.	nc,.morph_speed
 	ret
 
+
 .sample:
 	; Store sample number * 4
 	ld	a,d
@@ -1477,7 +1478,9 @@ _CHIPcmdC_scc_morph:
 
 .morph_type:
 	ld	a,d
-	and	1
+	and	3
+	cp	3
+	ret	z
 	ld	(replay_morph_type),a
 	ret
 
@@ -1506,8 +1509,40 @@ _CHIPcmdC_scc_morph:
 	ld	(replay_morph_timer),a
 	
 	ld	a,(replay_morph_type)
-	and	a
-	jr.	z,.morph_continue
+	cp	1
+	jr.	c,.morph_continue
+	jr.	z,.morph_start
+
+.morph_chorus:
+	ld	a,255				; 255 triggers calc init
+	ld	(replay_morph_active),a		
+	set	4,(ix+TRACK_Flags)
+
+	ld	a,(ix+TRACK_Waveform)
+	add	a
+	add	a
+	add	a
+	ld	l,a
+	ld	h,0
+	add	hl,hl
+	add	hl,hl	
+	ld	de,_WAVESSCC
+	add	hl,de
+
+	push	bc
+	ld	de,replay_morph_buffer
+	ld	b,32
+.chorus_loop:
+	ld	a,(hl)
+	sra	a
+	ld	(de),a
+	inc	hl
+	inc	de
+	inc	de
+	djnz	.chorus_loop
+	pop	bc
+	ret
+	
 .morph_start
 	ld	hl,_0x9800
 	ld	a,iyh
@@ -3166,8 +3201,87 @@ replay_process_morph:
 	add	hl,de
 	djnz	10b	
 	
-	
+	ld	a,(replay_morph_type)
+	cp	2
+	jp	nz,.morph
+.chorus:
+	ld	a,(replay_morph_speed)
+	ld	(replay_morph_timer),a
+
+	;--- Increase the step
+	ld	a,(replay_morph_counter)
+	inc	a
+	and	31
+	ld	(replay_morph_counter),a
+	ld	b,a
+
+	;--- load chorus with offset (step)
+	ld	de,_WAVESSCC	
+	ld	a,(replay_morph_waveform)
+	ld	l,a
+	ld	h,0	
+	add	hl,hl
+	add	hl,hl	
+	add	hl,de
+	ex	de,hl
+
+	push	de		;--- safe addres for second loop
+
+	ld	a,b
+	add	a,e
+	ld	e,a
+	jr. 	nc,99f
+	inc	d
+99:
+	;--- set number of loops 1st run
+	ld	a,32
+	sub	b
+
+	ld	hl,replay_morph_buffer
+	;--- Check if step == 0 (chorus wave offset is at begining)
+	cp	32
+	jp	z,.loop_skip	; then only do 2 loop
+
+.loop1_add:	
+	ex	af,af'
+	ld	a,(de)
+	sra	a
+	add	(hl)
+	inc	hl
+	ld	(hl),a
+	inc	hl
+	inc	de
+	ex	af,af'
+	dec	a
+	jp	nz,.loop1_add
+
+	;--- set number of loop 2nd run
+	ld	a,(replay_morph_counter)
+.loop_skip:
+	pop	de
+
+.loop2_add:	
+	ex	af,af'
+	ld	a,(de)
+	sra	a
+	add	(hl)
+	inc	hl
+	ld	(hl),a
+	inc	hl
+	inc	de
+	ex	af,af'
+	dec	a
+	jp	nz,.loop2_add
+.loop_end:
+	ret
+
+
+
+
+
+.morph:	
 	;---- timer ended.
+	ld	a,(replay_morph_active)
 	inc	a
 	jr.	nz,_rpm_next_step		; if status was !=255 then skip init
 

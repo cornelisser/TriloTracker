@@ -182,9 +182,8 @@ sample_current		#1	; Current sample number
 sample_enabled		#1	; Set if samples are loaded (this results in last 8 pages to be lost)
 sample_end			#2	; pointer to free address space.
 sample_names		#8*16
+sample_step			#1
 sample_offsets		#4*16		; note, start offset, end offset, loop offset
-
-
 
 
 MainMixer:				#1

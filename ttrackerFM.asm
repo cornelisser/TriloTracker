@@ -187,25 +187,10 @@ font_data:
 	include	".\code\vram_swapper.asm"
 	include 	".\code\window.asm"
 	include 	".\code\replayerFMRAM.asm"	
-
-SWAP_CHECK:	
-
-
-	
-	; --- PAGE 2
-	;
-	; Data page  (music data)
-	;
-	;
-	; --------------------------------------------------	
-;	page 2
-		
 _VOICES_data:
 	include ".\code\Voices_Light.asm"	
-	
-;	include ".\code\startup.asm"
-;	include ".\code\loadvoicenamesFM.asm"
-;	include ".\code\elements\keynotetable.asm"
+
+SWAP_CHECK:	
 
 SWAP_INIT_START:
 	org	SWAP_RAMSTART

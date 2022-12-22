@@ -1,3 +1,23 @@
+; SAM file format
+;--- File header
+; 00 - 3 : SAM
+; 03 - 1 : Version
+; 04 - 2 ; base note
+;--- Frames
+; +0 - 2 : period
+; +2 - 32: waveform
+;   <repeat>
+;--- footer
+; +0 - 2 : $FFFF
+; +2 - 2 : loop offset (negative)
+
+
+
+
+
+
+
+
 ;===========================================================
 ; --- draw_sampleeditor
 ;

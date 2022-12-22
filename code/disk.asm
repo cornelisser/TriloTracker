@@ -3074,9 +3074,6 @@ open_samfile:
 
 0:
 	pop	hl
-
-
-
 	ld	a,00000001b		; NO write
 	call	open_file
 	
@@ -3097,13 +3094,10 @@ open_samfile:
 	call	read_file
 	call	nz,catch_diskerror
 
-	;---- Delete the current used space and move all data up.
-
-
 	;--- Read base tone
 	ld	de,$8000		
 	ld	a,(sample_current)
-[2]	add	a
+[3]	add	a		; times 8
 	add	a,e
 	ld	e,a
 
@@ -3112,7 +3106,7 @@ open_samfile:
 	call	nz,catch_diskerror
 
 
-	;--- somehow init the start address of the data
+	;--- Get/Set start address of the data
 	ld	a,(sample_end)		; Get start of free sample RAM
 	ld	(de),a
 	inc	de
@@ -3163,6 +3157,7 @@ open_samfile:
 	inc	de
 	ld	(de),a
 	inc	de
+
 	jr.	.end
 	
 
@@ -3173,7 +3168,6 @@ open_samfile:
 	jr.	.read_frame
 
 
-
 	;--- read the loop offset
 .read_end:
 	inc	de
@@ -3181,8 +3175,43 @@ open_samfile:
 	call	read_file
 	call	nz,catch_diskerror	
 
-	;-- work around
-	inc	de
+	;--- Store the loop here
+	;--- Calculate the loop address
+	push	de
+	pop	hl
+	dec	hl
+	ld	a,(hl)	; # frames to go back
+	and	a
+	jp	nz,.loop
+	;-- no loop
+	ld	hl,0
+	jr.	.store
+.loop:
+	dec	hl		; rewind to end last frame
+	dec	hl
+	ld	bc,34
+.offsetcalc:
+	sbc	hl,bc
+	dec	a
+	jp	nz,.offsetcalc
+
+	sbc	hl,bc
+.store
+	;--- Get pointer loop addres
+	ld	b,$80		
+	ld	a,(sample_current)
+[3]	add	a		; times 8
+	add	4		; move pointer to loop address (skip base tone, start address)
+	ld	c,a
+
+	ld	a,l
+	ld	(bc),a
+	inc	bc
+	ld	a,h
+	ld	(bc),a
+
+	;-- work around ????
+;	inc	de
 .end:
 	;-- Store the new pointer to free RAM
 	ld	(sample_end),de

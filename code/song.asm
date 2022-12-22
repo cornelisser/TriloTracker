@@ -79,7 +79,7 @@ IFDEF TTSCC
 	ld	bc, 4*16-1
 	ldir
 
-	ld	hl,$8040		; (16 times 4 bytes; base tone, pointer)
+	ld	hl,$8040		; (16 times 8 bytes; base tone, start address, loop addres, note, ??)
 	ld	(sample_end),hl
 ENDIF	
 
@@ -158,7 +158,7 @@ ENDIF
 	ld	a,1
 	ld	(de),a
 	inc	de
-	ld	a,255
+	ld	a,0
 	ld	(de),a
 	inc	de	
 	xor	a
@@ -246,7 +246,7 @@ ENDIF
 	
 	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.12.3 Order+Macro no-restart  ",0	; 0 marker indicates placeholder 
+	db	"v0.12.5 Key-on fix              ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

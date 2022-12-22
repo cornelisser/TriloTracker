@@ -108,6 +108,25 @@ NTSC:
 ;	call	NZ,replay_decodedata_NO	
 	xor	a
 	ld	(equalization_flag),a
+
+IFDEF TTSCC
+ELSE
+	ld	(FM_DRUM),a			; make sure not to retrigger drums on skip
+	;--- Reset keyon flip 
+	ld	hl,FM_regToneA+1		; pointer to the backup of reg# $2x
+	res	6,(hl)
+	ld	hl,FM_regToneB+1		; pointer to the backup of reg# $2x
+	res	6,(hl)
+	ld	hl,FM_regToneC+1		; pointer to the backup of reg# $2x
+	res	6,(hl)
+	ld	hl,FM_regToneD+1		; pointer to the backup of reg# $2x
+	res	6,(hl)
+	ld	hl,FM_regToneE+1		; pointer to the backup of reg# $2x
+	res	6,(hl)
+	ld	hl,FM_regToneF+1		; pointer to the backup of reg# $2x
+	res	6,(hl)
+ENDIF
+
       jr. 	8f                     ; skip sound processing
 
 PAL:                             ; execute the PSG and ayFX core	

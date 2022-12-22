@@ -744,7 +744,7 @@ _ups_draw:
 	
 	ld	de,_LABEL_SAMPLETEXT2+11
 	ld	a,(instrument_loop)
-	call	draw_decimal
+	call	draw_decimal_off
 		
 	ld	de,_LABEL_SAMPLETEXT2+16
 	ld	a,(instrument_waveform)
@@ -1359,7 +1359,20 @@ _psgsamright:
 	call	update_macrobox
 	jr.	process_key_macrobox_END		
 0:
-
+	;--- No loop
+	cp	"x"
+	jr.	z,88f
+	cp	"x"
+	jr.	nz,0f
+88:
+	;--- get the location in RAM
+	call	_get_instrument_start
+	inc	hl
+	ld	a,255
+	ld	(hl),a
+	call	update_macrobox
+	jr.	process_key_macrobox_END		
+0:
 
 	;===================
 	;

@@ -632,6 +632,19 @@ ENDIF
 	ld	(CHIP_Chan7+CHIP_Flags),a	
 	ld	(CHIP_Chan8+CHIP_Flags),a	
 	
+	;--- Init key-on bit to default on
+	ld	hl,FM_regToneA+3
+	set	4,(hl)
+	ld	hl,FM_regToneB+3
+	set	4,(hl)
+	ld	hl,FM_regToneC+3
+	set	4,(hl)
+	ld	hl,FM_regToneD+3
+	set	4,(hl)
+	ld	hl,FM_regToneE+3
+	set	4,(hl)
+	ld	hl,FM_regToneF+3
+	set	4,(hl)
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
 	and	$01
@@ -642,7 +655,9 @@ ENDIF
 		
 	xor	a
 	ld	(FM_DRUM_LEN),a
-	ld	(FM_DRUM),a
+	ld	a,00100000b			
+	ld	(FM_DRUM+1),a
+	ld	(FM_DRUM),a	
 	
 	call	replay_route
 	ei
@@ -1894,10 +1909,10 @@ replay_process_drum:
 
 	; drum bits
 	ld	a,(bc)
-	and	a
-	jr.	z,.skip_p
-	or	$20
-.skip_p:	
+;	and	a
+;	jr.	z,.skip_p
+;	or	$20
+;.skip_p:	
 	ld	(FM_DRUM),a		; store the percusion bits
 	inc	bc
 	;- Bass drum
@@ -3499,28 +3514,27 @@ replay_route_FM_chans:
 
 .keyOnSwitch:
 	;--- Flip KeyOn bit
-	; To be honest I am a little confused on the this part as 
-	; with certain FM instruments ($14) it is not sufficient to 
-	; disable the keyon bit and enable it.  It needs to be a 
-	; full on-off-on sequence to work on all instruments.
+	; It needs to be a full off-on sequence to work on all instruments.
 	inc	hl
 	inc	hl
 	ld	a,(hl)
 	;--- Check if Key is already ON
 	bit	4,a
-	jr.	nz,99f		; skip if key was already set
-	or	00010000b		; set bit
-	ld	d,a
-	ld	a,$10
-	add	c
-	call	_writeFM
-	ld	a,(hl)	
-99:
+	jr.	z,99f
+;	jr.	nz,99f		; skip if key was already set
+;	or	00010000b		; set bit
+;	ld	d,a
+;	ld	a,$10
+;	add	c
+;	call	_writeFM
+;	ld	a,(hl)	
+;99:
 	and	00101111b		; reset keyon bit
 	ld	d,a
 	ld	a,$10
 	add	c
 	call	_writeFM
+99:	
 	dec	hl
 	dec	hl
 .noKeyOnSwitch:
@@ -3578,17 +3592,19 @@ replay_route_FM_chans:
 
 	inc	hl
 	ld	c,a			; save new
-	xor	$1f			; create key off mask
-	and	b			; reset bits to trigger
-	ld	d,a			
+
+	xor	b
+	or	00100000b		; enable rythm
+	ld	d,a
 	ld	a,$0e			
 	call	_writeFM
 
-	ld	a,c			; restore new
-	or	b			; add old key-on bits
+	ld	a,c
+	or	b
 	ld	d,a
 	call	_writeFM_data
-	ret
+	ret	
+
 
 .notActive:
 	ld	de,6
@@ -3677,24 +3693,6 @@ _writeFM_data_R800:
 	jr.	_writeFM_R800_cont
 	;--- end
 
-
-;_drumset:
-;	db	00100000b ; none
-;	db	00110000b ; bdrum
-;	db	00101000b ; snare
-;	db	00111000b ; bdrum+snare
-;	db	00100001b ; hihat
-;	db	00100010b ; Cymbal
-;	db	00110010b ; bdrum + cymbal
-;	db	00101010b ; snare + cymbal
-;	db	00111010b ; 
-;	db	00100100b
-;	db	00110100b
-;	db	00110001b
-;	db	00101001b
-;	db	00111001b
-;	db	00110110b
-;	db	00100011b
 
 REPLAY_END:
 

@@ -406,7 +406,7 @@ DEBUG:
 	call	sample_draw_frame
 	call	sample_draw_frame
 
-	ld	hl,$95B0 
+	ld	hl,$95B0+$800 
 	call	set_vdpwrite
 
 	ld	hl,sample_frames

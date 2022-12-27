@@ -4,6 +4,8 @@
 ;2c00-3bff      instruments
 ;3c00-8fff      <free>
 ;9000-9800      PGT
+;9800-0a00	    PGT backup
+
 ;a000-ebdd+     swap code
 
 ;--- sets the speed equalisation
@@ -33,8 +35,24 @@ _sv_off:
 	ld	(vsf),a
 	ret
 
+;--- These two funcitons are to switch the same font. But the backup can be 
+;	used for drawing SCCwaveform (or other things)
+set_font_org:
+	di
+	ld	a,00010010b ; Reg#4 [ 0 ][ 0 ][A16][A15][A14][A13][A12][A11]  - Pattern generator table
+	jp	_set_font_cont
+
+set_font_backup:
+	ld	a,00010011b ; Reg#4 [ 0 ][ 0 ][A16][A15][A14][A13][A12][A11]  - Pattern generator table
+_set_font_cont:
+	out	(0x99),a
+	ld	a,4+128
+	out	(0x99),a	
+	ei
+	ret	
 
 
+	
 	; --- set_vdpwrite
 	; sets up the vdp address in HL to write to
 	; disables ISR and changes a

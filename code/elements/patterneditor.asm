@@ -153,6 +153,7 @@ IFDEF TTSCC
 	jr.	nz,0f
 		ld	a,1
 		call	swap_loadelementblock
+		call	set_font_backup
 		jr.	init_sampleeditor
 	
 ELSE

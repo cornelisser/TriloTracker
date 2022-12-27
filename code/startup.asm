@@ -364,31 +364,31 @@ _NO_DOS:
 	; Init the font in the PGT.
 
 init_font:
-
 	di
-	; relocate the PGT (old is at 0x1000)
-	; new is at 0x9000
-;	ld	a,00010010b
-;	out	(0x99),a
-;	ld	a,128+4	
-;	out	(0x99),a
-
+	; PGT is at 0x9000
 	ld	hl,0x9000
+	call	_fontcopy
+	; also place a copt in VRAM
+	ld	hl,0x9800
+	call	_fontcopy
+	ei
+	ret
+
+_fontcopy:
 	call	set_vdpwrite
 	
-;	di
+
 	ld a,8		; loop 8 times
 	ld c,0x98
 
 	ld hl,font_data
 
 _fontloop:
-		ld b,255		; subloop 255 times
-		otir
+	ld b,255		; subloop 255 times
+	otir
 	dec a
 	jr. nz,_fontloop
 	
-	ei
 	ret
 
 

@@ -215,6 +215,7 @@ processkey_sampleeditor_normal:
 	and	a
 	jr.	nz,0f
 
+		call	set_font_org
 		jr.	restore_patterneditor
 		;jr.	processkey_sampleeditor_END
 	

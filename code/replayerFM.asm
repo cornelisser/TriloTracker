@@ -14,15 +14,15 @@ DRM_DEFAULT_values:
 	dw	0x04E4			; Bass drum
 	dw	0x0000
 	db	0x00			; vol
-	db	0xff
+	db	0xee
 	dw	0x0120			; Snare + HiHat
 	dw	0x0000
 	db	0x00			; vol
-	db	0xff
+	db	0xee
 	dw	0x00AB			; Cymbal + TomTom
 	dw	0x0000
 	db	0x00			; vol
-	db	0x00
+	db	0xee
 	
 
 ; Sine table used for tremolo and vibrato

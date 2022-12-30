@@ -86,6 +86,36 @@ MAIN:
 	and	a
 	call	nz,load_instruments
 	
+	;--- DRUM default values
+	;	These writes are to avoid random percusion
+	;	on start.
+	ld	de,DRUM_regToneBD
+	ld	hl,DRM_DEFAULT_values
+	ld	bc,18
+	ldir
+	xor	a
+	ld	(FM_DRUM),a
+	dec	a
+	ld	(DRUM_regVolBD),a
+	ld	(DRUM_regVolSH),a
+	ld	(DRUM_regVolCT),a
+	call  replay_route
+	halt
+	xor	a
+	ld	(DRUM_regVolBD),a
+	ld	(DRUM_regVolSH),a
+	ld	(DRUM_regVolCT),a
+	call  replay_route
+
+	;--- Reset FM percussion hack
+	; #00 - $00
+	; #04 - $ff
+	; $05 - $0f
+	; $06 - $ff
+	; $07 - $ff
+	; chan 1 note on, no volume for 1 int
+
+
 	ld	a,10
 	ld	(editmode),a
 	call	init_patterneditor

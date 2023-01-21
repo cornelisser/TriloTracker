@@ -686,8 +686,15 @@ ELSE
 ENDIF
 	ld	de,_LABEL_PATTERNHEADER
 88:
-	ld	hl,(80*9)+0
-	call	draw_label	
+	ld	hl,(80*9)+3
+	ld	b,8*9
+	call	draw_label_fast
+	ld	hl,(80*9)+74
+	ld	de,_LABEL_PATTERNHEADER_END
+	ld	b,5
+	call	draw_label_fast
+
+
 
 	ld	a,(MainMixer)
 	bit	5,a

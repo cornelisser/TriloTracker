@@ -246,7 +246,7 @@ ENDIF
 	
 	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.12.5 Key-on fix              ",0	; 0 marker indicates placeholder 
+	db	"v0.13.0                         ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

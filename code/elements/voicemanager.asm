@@ -254,8 +254,25 @@ cat1_start	equ	16
 	db	161
 	db	177
 	db	193
-;	db	208		; this can go if we drop the CRAP category
 last_voice	equ	193-1
+;---- Short list
+;	db	25
+;	db	33
+;	db	39
+;	db	50
+;	db	64
+;	db	72
+;	db	84
+;	db	89
+;	db	94
+;	db	102
+;	db	112
+;	db	117
+;	db	131
+;	db	144
+;	db	160
+
+;last_voice	equ	160-1
 
 			
 _LABEL_VCATEGORIES:

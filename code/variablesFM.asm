@@ -133,6 +133,7 @@ cursor_stack:	#4*6	; room for 6 stacks?
 ;tmp_editsubmode:	#1
 
 
+
 _VOICES:		#8*MAX_WAVEFORM
 drum_macros:	#DRUMMACRO_SIZE*MAX_DRUMS
 song_drum_list:	#MAX_DRUMS*16	
@@ -380,7 +381,7 @@ _VU_UPDATE:		#1
 _VU_VALUES:		#8	;"xxxxxxxx"
 _VU_LABEL:		#8	;"xxxxxxxx"
 
-
+;_VOICES_data:	#1024;(_VOICES_data_custom-_VOICES_data_start)	; Fixed set of voices
 
 
 ; general buffer

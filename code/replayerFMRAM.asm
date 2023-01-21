@@ -175,6 +175,8 @@ SCC_VOLUME_TABLE
 ;	db $0E,$0E,$0D,$0C,$0B,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$00	
 
 
+
+
 FM_DRUM_LEN		db	0	; Length of drum macro
 FM_DRUM_MACRO	dw	0	; Pointer to drum macro data
 

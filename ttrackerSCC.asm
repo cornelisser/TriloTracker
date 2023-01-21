@@ -116,7 +116,7 @@ END:
 	include	".\code\elements\patternbox.asm"
 _LABEL_PATTERNHEADER:
 	;db	32,129,171,172,175,129			; envelope column
-	db	32,32,32
+;	db	32,32,32
 	db	136,160,161,164,185,188,189,186,187	; psg1
 	db	136,160,161,165,185,188,189,186,187	; psg2
 	db	136,160,161,166,185,188,189,186,187	; psg3
@@ -125,7 +125,8 @@ _LABEL_PATTERNHEADER:
 	db	136,162,163,166,185,188,189,186,187	; scc3	
 	db	136,162,163,167,185,188,189,186,187	; scc4	
 	db	136,162,163,168,185,188,189,186,187	; scc5
-	db	136,32,32,32,0
+_LABEL_PATTERNHEADER_END:
+	db	136,32,32,32
 ;	include	".\code\elements\trackbox.asm"
 	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
@@ -170,9 +171,6 @@ font_data:
 	include 	".\code\isr.asm"	; This cannot be before this address!!!!
 	include 	".\code\mapper.asm"
 	include	".\code\disk.asm"
-
-	include 	".\code\compression2.asm"
-
 	include	".\code\vram_swapper.asm"
 	include	".\code\replayerSCCRAM.asm"	
 	include 	".\code\window.asm"
@@ -247,6 +245,8 @@ SWAP_INSFILE_END:
 SWAP_TRACK:
 SWAP_FILE:
 	db	"trackbox swap"
+	include	".\code\disk_tmu.asm"
+	include 	".\code\compression2.asm"
 	include	".\code\elements\trackbox.asm"
 SWAP_TRACK_END:
 SWAP_FILE_END:

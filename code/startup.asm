@@ -72,6 +72,14 @@ ELSE
 	ld	bc,53
 	ldir
 	call	replay_set_rhythmmode
+;debug:
+;	;-- Copy voices to RAM
+;	ld	hl,_VOICES_data_start
+;	ld	de,_VOICES_data
+;	ld	bc,_VOICES_data_end-_VOICES_data_start
+;	ldir
+
+
 ENDIF
 
 ;	call	replay_stop

@@ -136,30 +136,34 @@ END:
 ;	jr.	_TERM0
 	
 	include	".\code\elements\patternbox.asm"
-_LABEL_PATTERNHEADER:
+;_LABEL_PATTERNHEADER:
+;	;db	32,129,171,172,175,129			; envelope column
+;	db	32,32,32
+;	db	136,160,161,165,185,188,189,186,187	; psg2
+;	db	136,160,161,166,185,188,189,186,187	; psg3
+;	db	137,170,171,164,185,188,189,186,187	; scc1	
+;	db	136,170,171,165,185,188,189,186,187	; scc2
+;	db	136,170,171,166,185,188,189,186,187	; scc3	
+;	db	136,170,171,167,185,188,189,186,187	; scc4	
+;	db	136,170,171,168,185,188,189,186,187	; scc5
+;	db	136,170,171,169,185,188,189,186,187	; scc6
+;	db	136,151,152,153,154,0	
+_LABEL_PATTERNHEADER2:
 	;db	32,129,171,172,175,129			; envelope column
-	db	32,32,32
+;	db	32,32,32
+	db	136,160,161,164,185,188,189,186,187	; psg1
+_LABEL_PATTERNHEADER:	
 	db	136,160,161,165,185,188,189,186,187	; psg2
 	db	136,160,161,166,185,188,189,186,187	; psg3
 	db	137,170,171,164,185,188,189,186,187	; scc1	
-	db	136,170,171,165,185,188,189,186,187	; scc2
-	db	136,170,171,166,185,188,189,186,187	; scc3	
-	db	136,170,171,167,185,188,189,186,187	; scc4	
-	db	136,170,171,168,185,188,189,186,187	; scc5
-	db	136,170,171,169,185,188,189,186,187	; scc6
-	db	136,151,152,153,154,0	
-_LABEL_PATTERNHEADER2:
-	;db	32,129,171,172,175,129			; envelope column
-	db	32,32,32
-	db	136,160,161,164,185,188,189,186,187	; psg1
-	db	136,160,161,165,185,188,189,186,187	; psg2
-	db	136,160,161,166,185,188,189,186,187	; psg3
 	db	137,170,171,165,185,188,189,186,187	; scc1	
 	db	136,170,171,166,185,188,189,186,187	; scc2
 	db	136,170,171,167,185,188,189,186,187	; scc3	
 	db	136,170,171,168,185,188,189,186,187	; scc4	
 	db	136,170,171,169,185,188,189,186,187	; scc5
-	db	136,151,152,153,154,0
+
+_LABEL_PATTERNHEADER_END:
+	db	136,151,152,153,154
 
 	include	".\code\elements\trackboxRAM.asm"
 	include	".\code\elements\sequencebox.asm"
@@ -212,13 +216,15 @@ font_data:
 	include 	".\code\mapper.asm"	
 	include 	".\code\disk.asm"
 ;	include 	".\code\import\import.asm"	
-	include 	".\code\compression2.asm"
 	include 	".\code\editlog.asm"
 	include	".\code\vram_swapper.asm"
 	include 	".\code\window.asm"
-	include 	".\code\replayerFMRAM.asm"	
-_VOICES_data:
-	include ".\code\Voices_Light.asm"	
+	include 	".\code\replayerFMRAM.asm"
+
+	; This is copied to RAM on start	
+_VOICES_data
+	include ".\code\Voices_Light_OLD.asm"	
+_VOICES_data_end:
 
 SWAP_CHECK:	
 
@@ -283,6 +289,8 @@ SWAP_INSFILE_END:
 SWAP_TRACK:
 SWAP_FILE:
 	db	"trackbox swap"
+	include 	".\code\disk_tmu.asm"
+	include 	".\code\compression2.asm"
 	include	".\code\elements\trackbox.asm"
 SWAP_TRACK_END:
 SWAP_FILE_END:

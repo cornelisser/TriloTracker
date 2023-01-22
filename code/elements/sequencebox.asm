@@ -107,7 +107,7 @@ process_key_orderbox:
 	;--- Is there still room?
 	ld	a,(song_order_len)
 	cp	SONG_SEQSIZE
-	jr.	z,processkey_macroeditor_END
+	jr.	z,process_key_orderbox_END
 
 	; UPDATE SONG LENGTH
 	inc	a
@@ -159,7 +159,7 @@ process_key_orderbox:
 		ld	(editsubmode),a
 		call	restore_cursor
 		;call	reset_cursor_trackbox
-		jr.	processkey_macroeditor_END	
+		jr.	process_key_orderbox_END	
 0:	
 	; - INSERT POSITION
 	cp	_INS
@@ -168,7 +168,7 @@ process_key_orderbox:
 		;--- Is there still room?
 		ld	a,(song_order_len)
 		cp	SONG_SEQSIZE
-		jr.	z,processkey_macroeditor_END
+		jr.	z,process_key_orderbox_END
 
 		
 		;--- calc elements to move
@@ -236,7 +236,7 @@ process_key_orderbox:
 	; delete entry 
 		ld	a,(song_order_len)
 		dec	a
-		jr.	z,processkey_macroeditor_END
+		jr.	z,process_key_orderbox_END
 		
 		;--- elements (pat#) to move
 		ld	(song_order_len),a

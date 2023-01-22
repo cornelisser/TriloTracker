@@ -3521,14 +3521,6 @@ replay_route_FM_chans:
 	;--- Check if Key is already ON
 	bit	4,a
 	jr.	z,99f
-;	jr.	nz,99f		; skip if key was already set
-;	or	00010000b		; set bit
-;	ld	d,a
-;	ld	a,$10
-;	add	c
-;	call	_writeFM
-;	ld	a,(hl)	
-;99:
 	and	00101111b		; reset keyon bit
 	ld	d,a
 	ld	a,$10

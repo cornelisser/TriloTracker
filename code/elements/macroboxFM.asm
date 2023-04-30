@@ -450,6 +450,8 @@ _ups_lineloop:
 	call	draw_hex2
 
 	; the tone accumulation (for John)
+	ld	a,' '
+	ld	(de),a
 	inc	de
 	ld	a,"["
 	ld	(de),a

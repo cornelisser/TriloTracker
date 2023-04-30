@@ -313,6 +313,7 @@ SWAP_DRUM:
 SWAP_DRUM_END:
 	db	"End of swap data"
 SWAP_INIT_END:
+
 	
 	include ".\code\variablesFM.asm"	
 

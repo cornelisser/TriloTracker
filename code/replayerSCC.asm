@@ -1409,8 +1409,9 @@ _CHIPcmdC_scc_morph:
 	cp	0xC0
 	jr.	z,.morph_slave
 
-	cp	0xa0
-	jr.	z,.sample
+; TODO Disabled samples for now.
+;	cp	0xa0
+;	jr.	z,.sample
 
 	cp	0xE0
 	jr.	z,.morph_type

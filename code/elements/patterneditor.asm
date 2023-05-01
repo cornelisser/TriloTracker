@@ -151,10 +151,11 @@ IFDEF TTSCC
 0:	;--- F3
 	dec	a
 	jr.	nz,0f
-		ld	a,1
-		call	swap_loadelementblock
-		call	set_font_backup
-		jr.	init_sampleeditor
+		; TODO disabled for now
+;		ld	a,1
+;		call	swap_loadelementblock
+;		call	set_font_backup
+;		jr.	init_sampleeditor
 	
 ELSE
 0:	;--- F3 Drum macro editor

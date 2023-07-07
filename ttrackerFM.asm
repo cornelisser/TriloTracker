@@ -89,10 +89,8 @@ MAIN:
 	;--- DRUM default values
 	;	These writes are to avoid random percusion
 	;	on start.
-	ld	de,DRUM_regToneBD
-	ld	hl,DRM_DEFAULT_values
-	ld	bc,18
-	ldir
+	call	drum_defaults_set
+
 	xor	a
 	ld	(FM_DRUM),a
 	dec	a

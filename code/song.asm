@@ -56,6 +56,7 @@ clear_patterns:
 	ld	(song_cur_instrument),a
 IFDEF TTSCC
 ELSE
+	ld	(drum_type),a
 	ld	(song_cur_drum),a
 	ld	(replay_chan_setup),a
 ENDIF
@@ -246,7 +247,7 @@ ENDIF
 	
 	; TODO Always set correct version
 _ns_TEMP:
-	db	"v0.13.0                         ",0	; 0 marker indicates placeholder 
+	db	"v0.13.3                         ",0	; 0 marker indicates placeholder 
 	db	"                                "
 ;	db	"Richard Cornelisse      (c) ",YEAR
 _empty_ins_label:

@@ -7,8 +7,11 @@ FM_DATA:	equ	0x7d	; port to set fm data for reg
 ;
 ;
 ;================================
+DRM_DEFAULTS:
+	dw	DRM_FMBios
+	dw	DRM_MicroCabin
 
-DRM_DEFAULT_values:
+DRM_MicroCabin:
 	; values taken from XAK3 intro. Used the most used values as default
 ;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
 	dw	0x04E4			; Bass drum
@@ -23,7 +26,23 @@ DRM_DEFAULT_values:
 	dw	0x0000
 	db	0x00			; vol
 	db	0xee
-	
+
+DRM_FMBios:
+	; values taken from XAK3 intro. Used the most used values as default
+;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
+	dw	0x0520			; Bass drum
+	dw	0x0000
+	db	0x01			; vol
+	db	0xee
+	dw	0x0550			; Snare + HiHat
+	dw	0x0000
+	db	0x11			; vol
+	db	0xee
+	dw	0x01C0			; Cymbal + TomTom
+	dw	0x0000
+	db	0x11			; vol
+	db	0xee
+		
 
 ; Sine table used for tremolo and vibrato
 CHIP_Vibrato_sine:
@@ -633,17 +652,29 @@ ENDIF
 	ld	(CHIP_Chan8+CHIP_Flags),a	
 	
 	;--- Init key-on bit to default on
-	ld	hl,FM_regToneA+3
+	ld	hl,FM_regToneA+2
+	ld	(hl),255
+	inc	hl
 	set	4,(hl)
-	ld	hl,FM_regToneB+3
+	ld	hl,FM_regToneB+2
+	ld	(hl),255
+	inc	hl
 	set	4,(hl)
-	ld	hl,FM_regToneC+3
+	ld	hl,FM_regToneC+2
+	ld	(hl),255
+	inc	hl
 	set	4,(hl)
-	ld	hl,FM_regToneD+3
+	ld	hl,FM_regToneD+2
+	ld	(hl),255
+	inc	hl
 	set	4,(hl)
-	ld	hl,FM_regToneE+3
+	ld	hl,FM_regToneE+2
+	ld	(hl),255
+	inc	hl
 	set	4,(hl)
-	ld	hl,FM_regToneF+3
+	ld	hl,FM_regToneF+2
+	ld	(hl),255
+	inc	hl
 	set	4,(hl)
 	;--- Check if there are 3 psg chans.
 	ld	a,(replay_chan_setup)
@@ -1537,11 +1568,7 @@ _CHIPcmdC_drum:
 	jr.	nz,0f
 
 	push	bc
-	;--- DRUM default values
-	ld	de,DRUM_regToneBD
-	ld	hl,DRM_DEFAULT_values
-	ld	bc,18
-	ldir
+	call	drum_defaults_set
 	pop	bc
 	ret
 0:	
@@ -3465,6 +3492,16 @@ replay_route_mixer:
 
 
 _skipMixer:
+
+;--- New idea:
+; - Check +1 keyswitch?
+; -    Key off
+; - Write +2 (ins + vol)
+; - Write +1
+; - Write +0
+
+
+
 replay_route_FM_chans:
 	;--- 	Write FM channel registers
 	;--- Store CPU type for later.
@@ -3502,13 +3539,11 @@ replay_route_FM_chans:
 
 
 .channels:
-	ld	bc, $0910			; 9 channels, start reg# is $10
+	ld	bc, $0930			; 9 channels, start reg# is $30 (vol+ins)
 	ld	hl,FM_regToneA+1		; pointer to the backup of reg# $2x
 .channel_loop:
 ;	;--- Check if channel is active
 	ld	a,(hl)
-;	cp	128		; test bit 7	0 = chan not active
-;	jr.	c,.notActive
 	cp	64		; test bit 6	1 = note trigger
 	jr.	c,.noKeyOnSwitch
 
@@ -3523,14 +3558,36 @@ replay_route_FM_chans:
 	jr.	z,99f
 	and	00101111b		; reset keyon bit
 	ld	d,a
-	ld	a,$10
+	ld	a,-16 ; $10
 	add	c
 	call	_writeFM
-99:	
-	dec	hl
-	dec	hl
+	jp	99f
+;99:	
+;	dec	hl
+;	dec	hl
+
 .noKeyOnSwitch:
-	dec	hl
+	inc	hl
+	inc	hl
+99:	inc	hl
+
+	;--- Write reg $3x
+	ld	a,(hl)
+	inc	hl
+	cp	(hl)
+	jr.	z,99f			; No change in value
+	ld	d,a			; Store value in D
+	ld	a,c
+;	add	c			; Store reg# in C
+	call	_writeFM
+99:
+	ld	a,l
+	sub	5
+	jp	nc,1f
+	dec	h
+1:
+	ld	l,a
+
 	;--- Write reg $1x
 	ld	a,(hl)
 	inc	hl
@@ -3538,7 +3595,8 @@ replay_route_FM_chans:
 	cp	(hl)
 	jr.	z,99f			; No change in value
 	ld	d,a			; Store value in D
-	ld	a,c			; Store reg# in C
+	ld	a,-32;c			; Store reg# in C
+	add	c
 	call	_writeFM
 99:
 	dec	hl
@@ -3549,23 +3607,16 @@ replay_route_FM_chans:
 	cp	(hl)
 	jr.	z,99f			; No change in value
 	ld	d,a			; Store value in D
-	ld	a,$10
+	ld	a,-16;$10
 	add	a,c			; Store reg# in C+10
 	call	_writeFM
 99:
-	inc	hl	
-	;--- Write reg $3x
-	ld	a,(hl)
-	inc	hl
-	cp	(hl)
-	jr.	z,99f			; No change in value
-	ld	d,a			; Store value in D
-	ld	a,$20
-	add	c			; Store reg# in C
-	call	_writeFM
-99:
-	inc	hl
-	inc	hl
+	ld	a,l
+	add	4
+	jp	nc,1f
+	inc	h
+1:
+	ld	l,a
 .continue:	
 	inc	c			; increase base register with 1
 	djnz	.channel_loop

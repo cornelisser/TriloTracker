@@ -146,20 +146,20 @@ _drum_down:
 		call	reset_cursor_drumeditbox
 		jr.	processkey_drumeditor_END		
 0:
-;	;--- CTRL_T - type
-;	cp	_CTRL_T
-;	jr.	nz,0f
-;		ld	a,(editsubmode)
-;		and	a
-;		jr.	nz,79f
-;		call	save_cursor
-;79:
-;		ld	a,3
-;		ld	(editsubmode),a
-;		call	reset_cursor_drumeditbox
-;		jr.	processkey_drumeditor_END		
-;
-;0:
+	;--- CTRL_S - Drumset
+	cp	_CTRL_S
+	jr.	nz,0f
+		ld	a,(editsubmode)
+		and	a
+		jr.	nz,79f
+		call	save_cursor
+79:
+		ld	a,5
+		ld	(editsubmode),a
+		call	reset_cursor_drumeditbox
+		jr.	processkey_drumeditor_END		
+
+0:
 	;--- CTRL_O - Octave
 	cp	_CTRL_O
 	jr.	nz,0f
@@ -368,7 +368,7 @@ processkey_drumeditor_normal:
 	jr.	z,process_key_drumeditbox_octave			
 
 	dec	a
-;	jr.	z,process_key_sccwavebox_edit
+	jr.	z,process_key_drumtype
 
 	dec	a
 	jr.	z,process_key_drumeditbox_description

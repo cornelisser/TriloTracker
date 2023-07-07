@@ -59,9 +59,9 @@ draw_drumeditbox:
 	ld	hl,0x0f08
 	ld	de,0x0401	
 	call	erase_colorbox		
-;	ld	hl,0x1408
-;	ld	de,0x0801	
-;	call	erase_colorbox
+	ld	hl,0x1408
+	ld	de,0x0801	
+	call	erase_colorbox
 ;	ld	hl,0x1908
 ;	ld	de,0x0401	
 ;	call	erase_colorbox
@@ -128,13 +128,17 @@ _LABEL_DRUMMACRO:
 	db	"Macro:",$81,$81,$81,$81,$81,$81,$81,$81,$81,"B",$81,$81,$81,$81,$81,"H",$81,"S",$81,$81,$81,$81,$81,"T",$81,"C",0
 
 _LABEL_DRUMTEXT:
-	db	"Drm: Len:           Name       :     Oct:",0
+	db	"Drm: Len: drumSet:  Name:            Oct:",0
 _LABEL_DRUMTEXT2:	
 	db	_ARROWLEFT," x",_ARROWRIGHT,32
-	db	_ARROWLEFT,"xx",_ARROWRIGHT,0
+	db	_ARROWLEFT,"xx",_ARROWRIGHT,32
+	db	_ARROWLEFT,"xxxxxx",_ARROWRIGHT,0
 _LABEL_DRUMTEXT2SUB:
 	db	"                 ",_ARROWLEFT,"xx",_ARROWRIGHT,0
 
+_LABEL_DRUMTYPES:
+	db	"MCabin"
+	db	"FMBios"
 
 _DRUM_SAMPLESTRING:
 	db	"   _____|---   .|--- . .|--- . ."
@@ -303,7 +307,17 @@ _udm_lineloop:
 	ld	de,_LABEL_DRUMTEXT2SUB+18
 	ld	a,(song_octave)
 	call	draw_decimal
-	
+
+	;--- Drum type
+	ld	de,_LABEL_DRUMTYPES+6
+	ld	a,(drum_type)
+	and	a
+	jp	z,0f
+	ld	de,_LABEL_DRUMTYPES
+0:
+	ld	b,6
+	ld	hl,(80*8)+2+8+11
+	call	draw_label_fast		
 	
 		
 	;--- set the instrument name
@@ -1472,6 +1486,37 @@ get_drumsample_location:
 
 
 
+;===========================================================
+; --- process_key_drumtype
+;
+;  
+;===========================================================
+process_key_drumtype:
+	ld	a,(key)
+	cp	_ESC
+	jr.	nz,0f
+		call	restore_cursor
+		jr. process_key_drumtype_END
+0:
+	;--- Toggle	
+	cp	_KEY_DOWN
+	jr.	z,44f
+	cp	_KEY_LEFT
+	jr.	z,44f
+	cp	_KEY_UP
+	jr.	z,44f
+	cp	_KEY_RIGHT
+	jr.	nz,0f
+44:		
+		ld	a,(drum_type)
+		inc	a
+		and	1
+		ld	(drum_type),a
+		call	drum_defaults_set	
+		call	update_drumeditbox
+0:
+process_key_drumtype_END:
+	ret
 
 
 ;===========================================================
@@ -1804,7 +1849,7 @@ reset_cursor_drumeditbox:
 0:
 	dec	a
 	jr.	nz,0f
-	;--- Drum type
+	;--- Drum ???
 		jr.	99f	
 0:	
 	dec	a
@@ -1818,8 +1863,12 @@ reset_cursor_drumeditbox:
 0:	
 	dec	a
 	jr.	nz,0f
-	;--- Drum freq editor
-		jr.	88f	
+	;--- Drumtype
+		ld	a,3+5+8+5
+		ld	(cursor_x),a
+		ld	a,2
+		ld	(cursor_type),a	
+		jr.	99f		
 0:
 	dec	a
 	jr.	nz,0f

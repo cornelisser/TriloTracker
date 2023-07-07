@@ -247,7 +247,7 @@ ENDIF
 	;---- Extra info bytes
 	;
 	ld	de,buffer
-	ld	a,1+32		; # of bytes data next
+	ld	a,1+32+1		; # of bytes data next
 	ld	(de),a
 	ld	hl,1
 	call	write_file
@@ -263,6 +263,18 @@ ENDIF
 	ld	de,instrument_types
 	ld	hl,32
 	call	write_file
+	call	nz,catch_diskerror
+
+	;--- Drum style (FM)
+IFDEF TTFM
+	ld	a,(drum_type)
+ELSE
+	ld	a,0
+ENDIF	
+	ld	de,buffer
+	ld	(de),a
+	ld	hl,1
+	call	write_file	
 	call	nz,catch_diskerror
 
 	;===============================
@@ -547,6 +559,15 @@ ENDIF
 	ld	hl,buffer+2
 	ld	bc,32
 	ldir
+0:
+	;--- Drum type (FM)
+	ld	a,(buffer)
+	cp	33
+	jr.	c,0f
+IFDEF TTFM
+	ld	a,(buffer+34)
+	ld	(drum_type),a	
+ENDIF
 	;----- END OF EXTRA INFO
 
 0:

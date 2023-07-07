@@ -502,13 +502,7 @@ replay_stop:
 ;	add	hl,de	
 	djnz	0b
 	
-
-	;--- DRUM default values
-	ld	de,DRUM_regToneBD
-	ld	hl,DRM_DEFAULT_values
-	ld	bc,18
-	ldir
-
+	call	drum_defaults_set
 
 	ld    a,$f0
       ld    (FM_regVOLA),a
@@ -544,9 +538,30 @@ ELSE
 ENDIF	
 
       call  replay_route
-      
-
 	ret
+
+
+;--- Sets the drum default register values.
+drum_defaults_set:
+	;--- DRUM default values
+	ld	a,(drum_type)
+	add	a
+	ld	hl,DRM_DEFAULTS
+	add	a,l
+	ld	l,a
+	jp	nc,99f
+	inc	h
+99:
+	ld	a,(hl)
+	inc	hl
+	ld	h,(hl)
+	ld	l,a
+	
+	ld	de,DRUM_regToneBD
+	ld	bc,18
+	ldir
+	ret
+
 
 replay_set_rhythmmode:
 	ld	a,0x0e

@@ -136,6 +136,7 @@ cursor_stack:	#4*6	; room for 6 stacks?
 
 _VOICES:		#8*MAX_WAVEFORM
 drum_macros:	#DRUMMACRO_SIZE*MAX_DRUMS
+drum_type:		#1		; Default drum settings
 song_drum_list:	#MAX_DRUMS*16	
 _SONGDATA_END:	#0
 ; DONT PLACE DATA BEYOND THIS ALL fREE SPACE ISFOR cursor stack

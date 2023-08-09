@@ -14,7 +14,7 @@ Column type| Description
 -----------|-------------
 NNN | Note to be played.
 i | Instrument ($1-$F,g-v)
-v | Volume ($1-$F)
+v | Volume ($1-$F) *Set volume to 0 with key [F] as note.
 C|Effect command ($0-$F)
 xy| Effect parameters 
 
@@ -28,6 +28,6 @@ xy| Effect parameters
   | | | | | | | | | | | | | | | | | | | |
   | C#| D#| | F#| G#| A#| | C#| D#| | F#| 
   C   D   E F   G   A   B C   D   E F   G  
-```
-
+  ```
 [A] and [1] can be used for '-R-' and '-S-'.
+[F] can be used to set the volume to 0 as the volume column has no 0 value.

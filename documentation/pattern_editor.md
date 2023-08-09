@@ -30,4 +30,5 @@ xy| Effect parameters
   C   D   E F   G   A   B C   D   E F   G  
   ```
 [A] and [1] can be used for '-R-' and '-S-'.
+
 [F] can be used to set the volume to 0 as the volume column has no 0 value.

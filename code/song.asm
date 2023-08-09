@@ -58,7 +58,6 @@ IFDEF TTSCC
 ELSE
 	ld	(drum_type),a
 	ld	(song_cur_drum),a
-	ld	(replay_chan_setup),a
 ENDIF
 	ld	(song_order_len),a
 	ld	(song_order_pos_old),a

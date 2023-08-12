@@ -14,31 +14,31 @@ DRM_DEFAULTS:
 DRM_MicroCabin:
 	; values taken from XAK3 intro. Used the most used values as default
 ;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
-	dw	0x04E4			; Bass drum
+	dw	0x04E4		; Bass drum
 	dw	0x0000
 	db	0x00			; vol
 	db	0xee
-	dw	0x0120			; Snare + HiHat
+	dw	0x0120		; Snare + HiHat
 	dw	0x0000
 	db	0x00			; vol
 	db	0xee
-	dw	0x00AB			; Cymbal + TomTom
+	dw	0x00AB		; Cymbal + TomTom
 	dw	0x0000
 	db	0x00			; vol
 	db	0xee
 
 DRM_FMBios:
-	; values taken from XAK3 intro. Used the most used values as default
+	; values taken from FM BIOS. 
 ;	db	01111110b		; 0,1,2 = volume, 5,6,7 = freq
-	dw	0x0520			; Bass drum
+	dw	0x0520		; Bass drum
 	dw	0x0000
 	db	0x01			; vol
 	db	0xee
-	dw	0x0550			; Snare + HiHat
+	dw	0x0550		; Snare + HiHat
 	dw	0x0000
 	db	0x11			; vol
 	db	0xee
-	dw	0x01C0			; Cymbal + TomTom
+	dw	0x01C0		; Cymbal + TomTom
 	dw	0x0000
 	db	0x11			; vol
 	db	0xee
@@ -3493,15 +3493,6 @@ replay_route_mixer:
 
 _skipMixer:
 
-;--- New idea:
-; - Check +1 keyswitch?
-; -    Key off
-; - Write +2 (ins + vol)
-; - Write +1
-; - Write +0
-
-
-
 replay_route_FM_chans:
 	;--- 	Write FM channel registers
 	;--- Store CPU type for later.
@@ -3537,7 +3528,6 @@ replay_route_FM_chans:
 	inc	c
 	djnz	.voiceloop
 
-
 .channels:
 	ld	bc, $0930			; 9 channels, start reg# is $30 (vol+ins)
 	ld	hl,FM_regToneA+1		; pointer to the backup of reg# $2x
@@ -3562,9 +3552,6 @@ replay_route_FM_chans:
 	add	c
 	call	_writeFM
 	jp	99f
-;99:	
-;	dec	hl
-;	dec	hl
 
 .noKeyOnSwitch:
 	inc	hl
@@ -3578,7 +3565,6 @@ replay_route_FM_chans:
 	jr.	z,99f			; No change in value
 	ld	d,a			; Store value in D
 	ld	a,c
-;	add	c			; Store reg# in C
 	call	_writeFM
 99:
 	ld	a,l

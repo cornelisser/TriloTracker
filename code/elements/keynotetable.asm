@@ -98,8 +98,8 @@ _LABEL_NOTES_START:
 	db	225,232,240
 	db	226,"-",240
 	db	"-",224,"-"
-	db	"-s-"
-	db	"-",$1f,"0"
+	db	"-",$fb,"-"
+	db	" ",$1f,"0"
 _LABEL_NOTES_END:
 
 _KEY_NOTE_TABLE_START:

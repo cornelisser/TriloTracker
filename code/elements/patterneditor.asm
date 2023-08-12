@@ -802,4 +802,3 @@ _set_ins:
 	ret	z
 	ld 	(song_cur_instrument),a
 	ret
-s

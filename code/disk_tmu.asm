@@ -566,6 +566,7 @@ ENDIF
 	jr.	c,0f
 IFDEF TTFM
 	ld	a,(buffer+34)
+	and	1		; to prevent wrong values
 	ld	(drum_type),a	
 ENDIF
 	;----- END OF EXTRA INFO

@@ -545,6 +545,7 @@ ENDIF
 drum_defaults_set:
 	;--- DRUM default values
 	ld	a,(drum_type)
+	and	1	; This to prevent wrong values
 	add	a
 	ld	hl,DRM_DEFAULTS
 	add	a,l

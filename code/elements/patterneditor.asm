@@ -69,6 +69,13 @@ restore_patterneditor:
 	call	update_patterneditor
 	call	build_order_list
 	call	update_orderbox_always
+
+	;--- Make sure the replay is init correct on 1st play
+IFDEF	TTSCC
+ELSE
+	call	drum_defaults_set
+ENDIF
+	call	replay_stop
 	
 	ret
 	

@@ -1088,11 +1088,6 @@ _pfd_LOAD:
 	;--- Set the correct period table 
 	call	set_period_table
 
-IFDEF	TTSCC
-ELSE
-	call	drum_defaults_set
-ENDIF
-
 	;-- just go to patern editor on success
 	call	cursorstack_init
 	jr.	init_patterneditor

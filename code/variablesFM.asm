@@ -12,31 +12,7 @@ MAX_WAVEFORM	equ 192+1;-16			; max number of voice.
 MAX_DRUMS		equ 20				; max number of drum macros
 DRUMMACRO_SIZE	equ (7*16)+1			; size 1 drum macro.
 
-DOS			equ 5			; DOS function call entrance
-HOKVLD		equ 0xFB20		; External BIOS hook valid
-EXTBIO		equ 0xFFCA		; External BIOS hook.
-_TERM0		equ 0x00		; Jump adres to quit and return to DOS
-_STROUT		equ 0x09		; String Output
-_DIRIO		equ 0x06		; get pressed key
-_CURDRV		equ 0x19		; get current drive
-_GETCD		equ 0x59		; get current directory
-_FFIRST		equ 0x40		; find first entry
-_FNEXT		equ 0x41		; find next entry
-_OPEN			equ 0x43		; open a file handle
-_READ			equ 0x48		; read x bytes from file 
-_WRITE		equ 0x49		; write x bytes to file
-_CLOSE		equ 0x45		; close the file
-_LOGIN		equ 0x18		; get the available drives
-_CHDIR		equ 0x5a		; change the directory
-_SELDSK		equ 0x0e		; set the diskdrive
-_DELETE		equ 0x4d		; delete a file
-_RENAME		equ 0x4e		; rename a file
-_CREATE		equ 0x44		; create a file handle
-_EXPLAIN		equ 0x66		; get explaination string for error 
-_ASSIGN		equ 0x6a		; get/set LOGICAL DRIVE ASSIGNMENT
-_DEFER		equ 0x64		; set the error handler.
-_DEFAB		equ 0x63		; set the abort handler.
-_FLUSH		equ 0x5f		; flush buffers
+
 PATTERN_WIN		equ 0			; pattern edit window
 
 _base equ	16			; to move the FM part.
@@ -164,6 +140,8 @@ GET_P1:		#3
 PUT_P2:		#3
 GET_P2:		#3
 PUT_P3:		#3
+
+
 
 org_page:		#1
 prim_slot:		#1

@@ -175,7 +175,7 @@ _LABEL_PATTERNHEADER_END:
 	include	".\code\elements\instrumentbox.asm"
 	include	".\code\elements\vuFM.asm"
 	include 	".\code\loadinstruments.asm"	
-	include	 ".\code\elements\filedialog.asm"
+	include	".\code\elements\filedialog.asm"
 	include 	".\code\clipboard.asm"
 	
 	

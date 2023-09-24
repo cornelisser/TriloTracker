@@ -123,14 +123,13 @@ delete_tmufile:
 	call	window
 
 	call	reset_hook
-		
+	pop	hl		
 	cp	"Y"
 	jr.	z,1f
 	cp	"y"
 	jr.	nz,0f
 
 1:
-	pop	hl
 	call	delete_file
 
 	jr.	z,1f
@@ -174,6 +173,8 @@ create_tmufile:
 _ctf_overwrite:
 	push	hl				; save the pointer to the filename
 	call	window
+	pop	hl				; restore the  pointer to the filename
+
 	cp	"Y"
 	jr.	z,0f
 	cp	"y"
@@ -181,8 +182,6 @@ _ctf_overwrite:
 0:	
 	;--- start overwriting
 	call	reset_hook
-;	call	catch_diskerrorYN		; display the error and checks for a Y or N
-	pop	hl				; restore the  pointer to the filename
 	jr.	save_tmufile		; if result is '0' (YES overwrite the file)
 1:
 	call	set_hook			; The result is "NO"
@@ -211,16 +210,13 @@ save_tmufile:
 	;--- Check for errors
 	; if error then restore backup
 	and	a
-;	jr.	nz,catch_diskerror ;<- replace with restore
 	call	nz,catch_diskerror
 	
 _create_tmu_continue:
 	ld	a,b
 	ld	(disk_handle),a
 
-;	ld	a,(current_song)
 	call	set_songpage
-
 	
 	;--- Write header
 	ld	a,11				; Increased to 11 for extra bytes 
@@ -388,7 +384,7 @@ _stmu_drumloop:
 	push	bc
 	push	de
 
-	;--- Savegueard for lengths above 16
+	;--- Saveguard for lengths above 16
 	ld	a,(de)
 	cp	17
 	jr.	c,99f
@@ -396,7 +392,6 @@ _stmu_drumloop:
 	ld	(de),a
 99:
 	;--- end Saveguard
-
 	ld  	hl,1					; Write the sample length
 	call	write_file
 	call	nz,catch_diskerror

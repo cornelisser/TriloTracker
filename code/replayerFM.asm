@@ -231,7 +231,7 @@ replay_decodedata:
 	;xor	a
 	;ld	(AY_regMIXER),a	;set mixer to silence
 	;--- Set the tone table base
-	ld	hl,CHIP_ToneTable
+	ld	hl,(replay_PSG_tonetable)
 	ld	(replay_Tonetable),hl
 
 	ld	ix,CHIP_Chan1
@@ -250,7 +250,7 @@ replay_decodedata:
 
 
 _rdd_3psg:	
-
+;	ld	iyh,0			; offset of the FM registers for tone
 	ld	ix,CHIP_Chan3
 	call	replay_decode_chan
 	
@@ -259,20 +259,24 @@ _rdd_3psg:
 	and	$01
 	jr.	z,_rdd_2psg
 	
-	ld	hl,CHIP_FM_ToneTable
+	ld	hl,(replay_FM_tonetable)
 	ld	(replay_Tonetable),hl
 	
 	
 _rdd_2psg:		
-
+;	ld	iyh,6			; offset of the FM registers for tone
 	ld	ix,CHIP_Chan4
 	call	replay_decode_chan
+;	ld	iyh,12			; offset of the FM registers for tone
 	ld	ix,CHIP_Chan5
 	call	replay_decode_chan
+;	ld	iyh,18			; offset of the FM registers for tone
 	ld	ix,CHIP_Chan6
 	call	replay_decode_chan
+;	ld	iyh,24			; offset of the FM registers for tone
 	ld	ix,CHIP_Chan7
 	call	replay_decode_chan
+;	ld	iyh,30			; offset of the FM registers for tone
 	ld	ix,CHIP_Chan8
 	call	replay_decode_chan
 
@@ -449,17 +453,6 @@ _rdd_cont:					; used for waveform updates
 	or 	b
 	ld	(FM_regVOLF),a
 
-	call	replay_process_drum
-	
-	ld	a,1
-	ld	(_VU_UPDATE),a
-
-
-	;call	processMainMixer
-	
-
-
-
 
 IFDEF TTSMS	
 ;--- Silence the Noise on SN7 if needed.
@@ -504,7 +497,278 @@ NoiseMixer:
 	ld	(SN_regVOLN),a
 	
 ENDIF	
-	
+
+	ld	a,1
+	ld	(_VU_UPDATE),a
+
+
+	ld	a,(replay_percussion)
+	and	a
+	jr.	nz,replay_process_drum
+
+
+;	;--- Ghosting active
+;	;--- Process ghost
+;	ld	a,(FM_ghost1_stat)
+;	and	a
+;	jr.	z,_no_Ghost1
+;
+;	ex	af,af'			; Save status
+;	;--- Process Ghost 7 (or 1)
+;	ld	hl,(FM_ghost1_source) 	; Load the source
+;	ld	de,FM_ghost1		; Load buffer
+;
+;	ld	a,(FM_ghost1_write)	; Set new offset 
+;	add	4
+;	and	63				; wrap around 64
+;	ld	(FM_ghost1_write),a
+;
+;	add	a,e				; Set the buffer address
+;	ld	e,a
+;	jr.	nc,99f
+;	inc	d
+;99:
+;	; Fill the buffer (4 bytes)
+;	ldi		; Tone low
+;	ldi		; Tone high
+;	inc	hl	; skip backup low
+;	inc	hl	; skip backup high
+;	ld	a,(hl)
+;	ldi		; Volume + ins
+;	and	11110000b
+;	ld	(de),a	; Store only ins
+;
+;	; Play?
+;	ex	af,af'
+;	dec	a			; If status is 1 then read from buffer
+;	jr.	z,_ghost1_read
+;
+;	; No reading (yet)
+;	ld	(FM_ghost1_stat),a
+;	jr.	_ghost1_end
+;_ghost1_read:
+;	; Play buffer
+;	ld	de,(FM_ghost1_dest) 	; Load the source
+;	ld	hl,FM_ghost1		; Load buffer
+;	ld	a,(FM_ghost1_read)	; Set new offset 
+;	add	4
+;	and	63				; wrap around 64
+;	ld	(FM_ghost1_read),a
+;
+;	add	a,l				; Set the buffer address
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:	;--- Read tone
+;	ld	c,(hl)
+;	inc	hl
+;	ld	b,(hl)
+;	inc	hl
+;	ld	a,(FM_ghost1_detune)	; Add detune
+;	add	c
+;	jr.	nc,99f
+;	inc	b
+;99:
+;	ld	(de),a			; Write tone
+;	inc	de
+;	ld	a,b
+;	ld	(de),a
+;	inc	de
+;	inc	de				; Skip tone backup
+;	inc	de
+;
+;	;--- apply volume
+;	ld	a,(FM_ghost1_vol)
+;	ld	b,a
+;	ld	c,(hl)
+;	inc	hl
+;	ld	a,00001111b
+;	and	c
+;	add	b
+;	cp	16
+;	jr.	c,99f
+;	ld	a,15			; limit vol
+;99:
+;	or	(hl)
+;	ld	(de),a
+;_ghost1_end:
+;
+;_no_Ghost1:	
+;
+;
+;
+;	;--- Process ghost
+;	ld	a,(FM_ghost2_stat)
+;	and	a
+;	jr.	z,_no_ghost2
+;
+;	ex	af,af'			; Save status
+;	;--- Process Ghost 7 (or 1)
+;	ld	hl,(FM_ghost2_source) 	; Load the source
+;	ld	de,FM_ghost2		; Load buffer
+;
+;	ld	a,(FM_ghost2_write)	; Set new offset 
+;	add	4
+;	and	63				; wrap around 64
+;	ld	(FM_ghost2_write),a
+;
+;	add	a,e				; Set the buffer address
+;	ld	e,a
+;	jr.	nc,99f
+;	inc	d
+;99:
+;	; Fill the buffer (4 bytes)
+;	ldi		; Tone low
+;	ldi		; Tone high
+;	inc	hl	; skip backup low
+;	inc	hl	; skip backup high
+;	ld	a,(hl)
+;	ldi		; Volume + ins
+;	and	11110000b
+;	ld	(de),a	; Store only ins
+;
+;	; Play?
+;	ex	af,af'
+;	dec	a			; If status is 1 then read from buffer
+;	jr.	z,_ghost2_read
+;
+;	; No reading (yet)
+;	ld	(FM_ghost2_stat),a
+;	jr.	_ghost2_end
+;_ghost2_read:
+;	; Play buffer
+;	ld	de,(FM_ghost2_dest) 	; Load the source
+;	ld	hl,FM_ghost2		; Load buffer
+;	ld	a,(FM_ghost2_read)	; Set new offset 
+;	add	4
+;	and	63				; wrap around 64
+;	ld	(FM_ghost2_read),a
+;
+;	add	a,l				; Set the buffer address
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:	;--- Read tone
+;	ld	c,(hl)
+;	inc	hl
+;	ld	b,(hl)
+;	inc	hl
+;	ld	a,(FM_ghost2_detune)	; Add detune
+;	add	c
+;	jr.	nc,99f
+;	inc	b
+;99:
+;	ld	(de),a			; Write tone
+;	inc	de
+;	ld	a,b
+;	ld	(de),a
+;	inc	de
+;	inc	de				; Skip tone backup
+;	inc	de
+;
+;	;--- apply volume
+;	ld	a,(FM_ghost2_vol)
+;	ld	b,a
+;	ld	c,(hl)
+;	inc	hl
+;	ld	a,00001111b
+;	and	c
+;	add	b
+;	cp	16
+;	jr.	c,99f
+;	ld	a,15			; limit vol
+;99:
+;	or	(hl)
+;	ld	(de),a
+;_ghost2_end:
+;
+;_no_ghost2:	
+;	;--- Process ghost
+;	ld	a,(FM_ghost3_stat)
+;	and	a
+;	jr.	z,_no_ghost3
+;
+;	ex	af,af'			; Save status
+;	;--- Process Ghost 7 (or 1)
+;	ld	hl,(FM_ghost3_source) 	; Load the source
+;	ld	de,FM_ghost3		; Load buffer
+;
+;	ld	a,(FM_ghost3_write)	; Set new offset 
+;	add	4
+;	and	63				; wrap around 64
+;	ld	(FM_ghost3_write),a
+;
+;	add	a,e				; Set the buffer address
+;	ld	e,a
+;	jr.	nc,99f
+;	inc	d
+;99:
+;	; Fill the buffer (4 bytes)
+;	ldi		; Tone low
+;	ldi		; Tone high
+;	inc	hl	; skip backup low
+;	inc	hl	; skip backup high
+;	ld	a,(hl)
+;	ldi		; Volume + ins
+;	and	11110000b
+;	ld	(de),a	; Store only ins
+;
+;	; Play?
+;	ex	af,af'
+;	dec	a			; If status is 1 then read from buffer
+;	jr.	z,_ghost3_read
+;
+;	; No reading (yet)
+;	ld	(FM_ghost3_stat),a
+;	jr.	_ghost3_end
+;_ghost3_read:
+;	; Play buffer
+;	ld	de,(FM_ghost3_dest) 	; Load the source
+;	ld	hl,FM_ghost3		; Load buffer
+;	ld	a,(FM_ghost3_read)	; Set new offset 
+;	add	4
+;	and	63				; wrap around 64
+;	ld	(FM_ghost3_read),a
+;
+;	add	a,l				; Set the buffer address
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:	;--- Read tone
+;	ld	c,(hl)
+;	inc	hl
+;	ld	b,(hl)
+;	inc	hl
+;	ld	a,(FM_ghost3_detune)	; Add detune
+;	add	c
+;	jr.	nc,99f
+;	inc	b
+;99:
+;	ld	(de),a			; Write tone
+;	inc	de
+;	ld	a,b
+;	ld	(de),a
+;	inc	de
+;	inc	de				; Skip tone backup
+;	inc	de
+;
+;	;--- apply volume
+;	ld	a,(FM_ghost3_vol)
+;	ld	b,a
+;	ld	c,(hl)
+;	inc	hl
+;	ld	a,00001111b
+;	and	c
+;	add	b
+;	cp	16
+;	jr.	c,99f
+;	ld	a,15			; limit vol
+;99:
+;	or	(hl)
+;	ld	(de),a
+;_ghost3_end:
+;
+;_no_ghost3:	
 	ret	
 	
 	
@@ -590,6 +854,9 @@ IFDEF TTSMS
 	ld	a,$ff
 	ld	(GG_panning),a
 ENDIF
+	ld	a,$20
+	ld	(replay_percussion),a
+
 	;--- Get the start speed.
 	ld	a,(song_speed)
 	ld	(replay_speed),a
@@ -599,6 +866,16 @@ ENDIF
 	ld	(replay_speed_subtimer),a
 	ld	(replay_mode),a	
 	ld	(replay_arp_speed),a
+
+
+;	ld	(FM_ghost1_stat),a
+;	ld	(FM_ghost2_stat),a
+;	ld	(FM_ghost3_stat),a
+
+
+;	ld	(FM_ghost_delay),a
+;	ld	(FM_ghost_detune),a
+;	ld	(FM_ghost_vol),a
 
 	;--- Erase channel data	in RAM
 ;	xor	a
@@ -686,7 +963,7 @@ ENDIF
 		
 	xor	a
 	ld	(FM_DRUM_LEN),a
-	ld	a,00100000b			
+	ld	a,(replay_percussion)			
 	ld	(FM_DRUM+1),a
 	ld	(FM_DRUM),a	
 	
@@ -782,6 +1059,7 @@ replay_init_pre:
       push  bc
       ld	bc,_PRE_INIT_LINE  
 
+
 	ld	ix,CHIP_Chan1
 	call	replay_decode_chan
 	ld	ix,CHIP_Chan2
@@ -798,7 +1076,6 @@ replay_init_pre:
 	call	replay_decode_chan
 	ld	ix,CHIP_Chan8
 	call	replay_decode_chan
-
 
       pop   bc
       ld    (replay_patpointer),bc   
@@ -1356,30 +1633,201 @@ _CHIPcmd9_env_high:
 
 
 _CHIPcmd5:
-	; in:	[A] contains the paramvalue
-	; 
-	; ! do not change	[BC] this is the data pointer
-	;--------------------------------------------------
-	; portTone	+ volumeslide
-	;--- Init values
-	;--- Check if we have a	note on the	same event
-	and	a
-	jr.	z,_CHIPcmd_end
-	
-	ld	(ix+CHIP_Command),d
-	bit 	0,(ix+CHIP_Flags)
-	jr.	z,_CHIPcmdA_volSlide_cont
-	
-	set	4,(ix+CHIP_Flags)		; FM notelink bit
-	res	0,(ix+CHIP_Flags)
+	; 500	- stop all ghosting
+	; 51y - ghost 1 set dest - curr is source
+	; 52y - ghost 2 set dest
+	; 53y - ghost 3 set dest
 
-	ld	iyh,a
-	ld	a,(ix+CHIP_cmd_3)
-	call	_CHPcmd3_newNote
+	; 5dy - set detune
+	; 5ey - set echo/delay
+	; 5fy - set vol
 
-	ld	a,iyh
-	jr. 	_CHIPcmdA_volSlide_cont
-	
+;	ld	d,a
+;	and	11110000b
+;	jr.	z,_CHIPcmd5_end	
+;	cp	$40
+;	jr.	c,_CHIPcmd5_start
+;	cp 	$d0
+;	jr.	z,_CHIPcmd5_detune
+;	cp	$e0
+;	jr.	z,_CHIPcmd5_echo
+;	jr.	nc, _CHIPcmd5_vol
+;	jr.	_CHIPcmd_end
+
+;_CHIPcmd5_end:
+;	xor	a
+;	ld	(FM_ghost1_stat),a
+;	ld	(FM_ghost2_stat),a
+;	ld	(FM_ghost3_stat),a
+;	ld	a,$20
+;	ld	(replay_percussion),a
+	jr.	_CHIPcmd_end
+
+;_CHIPcmd5_detune:
+;	ld	a,d
+;	and	00001111b
+;	ld	(FM_ghost_detune),a
+;	jr.	_CHIPcmd_end
+;
+;_CHIPcmd5_echo:
+;	ld	a,d
+;	and	00001111b
+;	ld	(FM_ghost_delay),a
+;	jr.	_CHIPcmd_end
+;
+;_CHIPcmd5_vol:
+;	ld	a,d
+;	and	00001111b
+;	ld	(FM_ghost_vol),a
+;	jr.	_CHIPcmd_end
+;
+;_CHIPcmd5_start:
+;	ex	af,af'
+;	;--- First calc the delay and get status value in E
+;	ld	a,(FM_ghost_delay)
+;	and	a
+;	jr.	z,.no_delay
+;	ld	l,a
+;	ld	a,(replay_speed)
+;	srl	a
+;	ld	h,a
+;	xor	a
+;.loop:
+;	add	a,h
+;	dec	l
+;	jr.	nz,.loop
+;.no_delay:
+;	inc	a	; add one to activate
+;	ld	e,a
+;
+;	;--- Get the Ghost destination address in HL
+;	ld	a,d	; restore the param
+;	and	00001111b
+;	jp	z,.stop_ghost_chan
+;	dec	a
+;	cp	9		; only 9 chans
+;	jr.	c,99f
+;	sub	9
+;99:
+;	add	a		; x2
+;	ld	d,a
+;	add	a		; x4
+;	add	d		; x6
+;	ld	hl,FM_Registers
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;	;---- disable percussion
+;	xor	a
+;	ld	(replay_percussion),a
+;	ld	a,10000000b
+;	ld	(FM_DRUM),a
+;	;--- determine which ghost to start
+;	ex	af,af'
+;	cp	$20
+;	jr.	c,1f
+;	jr.	z,2f
+;3:
+;	ld	a,e
+;	ld	(FM_ghost3_stat),a
+;	ld	(FM_ghost3_dest),hl
+;	;--- Get the source address
+;	ld	a,iyh					; stores the offset
+;	ld	hl,FM_Registers
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;
+;	ld	(FM_ghost3_source),hl
+;	ld	hl,(FM_ghost_detune)		; load detune and volume
+;	ld	(FM_ghost3_detune),hl
+;	xor	a
+;	ld	(FM_ghost3_read),a		; reset the buffer
+;	ld	(FM_ghost3_write),a	
+;	jr.	_CHIPcmd_end
+;2:
+;	ld	a,e
+;	ld	(FM_ghost2_stat),a
+;	ld	(FM_ghost2_dest),hl
+;	;--- Get the source address
+;	ld	a,iyh					; stores the offset
+;	ld	hl,FM_Registers
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;
+;	ld	(FM_ghost2_source),hl
+;	ld	hl,(FM_ghost_detune)		; load detune and volume
+;	ld	(FM_ghost2_detune),hl
+;	xor	a
+;	ld	(FM_ghost2_read),a		; reset the buffer
+;	ld	(FM_ghost2_write),a	
+;	jr.	_CHIPcmd_end
+;1: 
+;	ld	a,e
+;	ld	(FM_ghost1_stat),a
+;	ld	(FM_ghost1_dest),hl
+;	;--- Get the source address
+;	ld	a,iyh					; stores the offset
+;	ld	hl,FM_Registers
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;
+;	ld	(FM_ghost1_source),hl
+;	ld	hl,(FM_ghost_detune)		; load detune and volume
+;	ld	(FM_ghost1_detune),hl
+;	xor	a
+;	ld	(FM_ghost1_read),a		; reset the buffer
+;	ld	(FM_ghost1_write),a	
+;	jr.	_CHIPcmd_end		
+;
+;.stop_ghost_chan:
+;	ld	hl,FM_ghost1_stat
+;	ex 	af,af'
+;	sra	a	; divide 2
+;	add	a,l
+;	ld	l,a
+;	jr.	nc,99f
+;	inc	h
+;99:
+;	ld	(hl),0
+;	jr.	_CHIPcmd_end
+
+
+
+;	; in:	[A] contains the paramvalue
+;	; 
+;	; ! do not change	[BC] this is the data pointer
+;	;--------------------------------------------------
+;	; portTone	+ volumeslide
+;	;--- Init values
+;	;--- Check if we have a	note on the	same event
+;	and	a
+;	jr.	z,_CHIPcmd_end
+;	
+;	ld	(ix+CHIP_Command),d
+;	bit 	0,(ix+CHIP_Flags)
+;	jr.	z,_CHIPcmdA_volSlide_cont
+;	
+;	set	4,(ix+CHIP_Flags)		; FM notelink bit
+;	res	0,(ix+CHIP_Flags)
+;
+;	ld	iyh,a
+;	ld	a,(ix+CHIP_cmd_3)
+;	call	_CHPcmd3_newNote
+;
+;	ld	a,iyh
+;	jr. 	_CHIPcmdA_volSlide_cont
+;	
 _CHIPcmd6_vibrato_vol:
 	; in:	[A] contains the paramvalue
 	; 
@@ -1977,7 +2425,7 @@ replay_process_drum_tone:
 	jr.	nz,.deviation	; tone deviation
 
 .note:				; Note
-	ld	de,(replay_Tonetable)
+	ld	de,CHIP_FM_ToneTable
 	add	a
 	add	a,e
 	ld	e,a
@@ -3551,7 +3999,7 @@ replay_route_FM_chans:
 	ld	a,-16 ; $10
 	add	c
 	call	_writeFM
-	jp	99f
+	jr.	99f
 
 .noKeyOnSwitch:
 	inc	hl
@@ -3569,7 +4017,7 @@ replay_route_FM_chans:
 99:
 	ld	a,l
 	sub	5
-	jp	nc,1f
+	jr.	nc,1f
 	dec	h
 1:
 	ld	l,a
@@ -3599,7 +4047,7 @@ replay_route_FM_chans:
 99:
 	ld	a,l
 	add	4
-	jp	nc,1f
+	jr.	nc,1f
 	inc	h
 1:
 	ld	l,a
@@ -3609,6 +4057,8 @@ replay_route_FM_chans:
 
 	;--- write rythm register
 .rythm:
+	ld	a,(replay_percussion)
+	ld	e,a	
 	ld	a,(DrumMixer)
 	and	a
 	ret	z			; Drums on mute
@@ -3623,7 +4073,7 @@ replay_route_FM_chans:
 	ld	c,a			; save new
 
 	xor	b
-	or	00100000b		; enable rythm
+	or	e			; enable rythm
 	ld	d,a
 	ld	a,$0e			
 	call	_writeFM

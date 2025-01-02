@@ -722,6 +722,7 @@ _fd_drive_check:
 	call	message_filedialog
 	xor	a
 	ld	(window_shown),a
+
 	call	get_dir
 	ld	a,(window_shown)
 	and	a

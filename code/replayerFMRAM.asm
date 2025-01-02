@@ -430,6 +430,45 @@ CHIP_ToneTable:
 
 ENDIF
 
+; Ghost buffer 1
+;FM_ghost1:		ds 64	;(ins, vol, tone+1, tone)*16
+;
+;FM_ghost2:		ds 64	;(ins, vol, tone+1, tone)*16
+;FM_ghost3:		ds 64	;(ins, vol, tone+1, tone)*16
+;
+;
+;
+;FM_ghost1_stat:	db 0;#1	; status. 0=off 
+;FM_ghost1_read:	db 0;#1	; read offset
+;FM_ghost1_write:	db 0;#1	; write offset
+;FM_ghost1_source:	dw 0;#2	; source channel address
+;FM_ghost1_dest:	dw 0;#2	; source channel address
+;FM_ghost1_detune:	db 0;#1	; fine tune 
+;FM_ghost1_vol:	db 0;#1	; volume 
+;
+;; Ghost buffer 2
+;FM_ghost2_stat:	db 0;#1	; status. 0=off 
+;FM_ghost2_read:	db 0;#1	; read offset
+;FM_ghost2_write:	db 0;#1	; write offset
+;FM_ghost2_source:	dw 0;#2	; source channel address
+;FM_ghost2_dest:	dw 0;#2	; source channel address
+;FM_ghost2_detune:	db 0;#1	; fine tune 
+;FM_ghost2_vol:	db 0;#1	; volume 
+;
+;; Ghost buffer 3
+;FM_ghost3_stat:	db 0;#1	; status. 0=off 
+;FM_ghost3_read:	db 0;#1	; read offset
+;FM_ghost3_write:	db 0;#1	; write offset
+;FM_ghost3_source:	dw 0;#2	; source channel address
+;FM_ghost3_dest:	dw 0;#2	; source channel address
+;FM_ghost3_detune:	db 0;#1	; fine tune 
+;FM_ghost3_vol:	db 0;#1	; volume 
+;
+;; Generuc Ghost vars
+;FM_ghost_delay:	db 0;#1	; delay in (steps) -> tics = speed/2 (max 16)
+;FM_ghost_detune:	db 0;#1	; fine tune 
+;FM_ghost_vol:	db 0;#1	; volume 
+
 
 
 
@@ -550,7 +589,7 @@ drum_defaults_set:
 	ld	hl,DRM_DEFAULTS
 	add	a,l
 	ld	l,a
-	jp	nc,99f
+	jr.	nc,99f
 	inc	h
 99:
 	ld	a,(hl)
